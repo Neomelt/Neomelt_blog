@@ -19,6 +19,13 @@
   },
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.2",
+    "@types/estree": "^1.0.8",
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "@types/mdx": "^2.0.13",
+    "@types/nlcst": "^2.0.3",
+    "@types/node": "^24.3.0",
+    "@types/unist": "^3.0.3",
     "tailwindcss": "^3.4.17"
   }
 }
