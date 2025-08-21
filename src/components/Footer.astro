@@ -46,8 +46,13 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 						class="footer-link-inline">Astro</a
 					> 开发的个人博客
 				</p>
-				<p class="running-time">
-					已运行 <span class="highlight">{runningTime}</span>
+				<p
+					class="running-time"
+					data-start-date={startDate.toISOString()}
+				>
+					已运行 <span id="running-time-span" class="highlight"
+						>{runningTime}</span
+					>
 				</p>
 			</div>
 
@@ -151,7 +156,7 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 		<!-- 访问计数 -->
 		<div class="moe-counter mt-8 text-center">
 			<p class="text-lg mb-2">
-				已有 <span class="text-blue-500 font-bold">999+</span> 位小伙伴来访
+				已有 <span class="text-blue-500 font-bold">NaN</span> 位小伙伴来访
 			</p>
 		</div>
 
@@ -318,16 +323,53 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 </style>
 
 <script>
-	// 樱花飘落特效
 	document.addEventListener("DOMContentLoaded", () => {
+		// --- 博客运行时间自动更新 ---
+		const runningTimeElement = document.querySelector(
+			".running-time",
+		) as HTMLElement; // <--- FIX #1
+		const timeSpan = document.getElementById("running-time-span");
+
+		if (runningTimeElement && timeSpan) {
+			const startDateString = runningTimeElement.dataset.startDate;
+			if (startDateString) {
+				const startDate = new Date(startDateString);
+
+				const updateRunningTime = () => {
+					const today = new Date();
+					const timeDiff = today.getTime() - startDate.getTime();
+
+					const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+					const hours = Math.floor(
+						(timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+					);
+					const minutes = Math.floor(
+						(timeDiff % (1000 * 60 * 60)) / (1000 * 60),
+					);
+					const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+					const years = Math.floor(days / 365);
+					const remainingDays = days % 365;
+					const months = Math.floor(remainingDays / 30);
+					const finalDays = remainingDays % 30;
+
+					const runningTimeText = `${years} 年 ${months} 月 ${finalDays} 天 ${hours} 小时 ${minutes} 分钟 ${seconds} 秒`;
+					timeSpan.textContent = runningTimeText;
+				};
+
+				updateRunningTime();
+				setInterval(updateRunningTime, 1000);
+			}
+		}
+
+		// --- 樱花飘落特效 ---
 		const sakuraBtn = document.getElementById("toggle-sakura");
-		let sakuraContainer: HTMLDivElement | null = null;
+		let sakuraContainer: HTMLDivElement | null = null; // <--- FIX #2
 		let sakuraActive = false;
 
 		if (sakuraBtn) {
 			sakuraBtn.addEventListener("click", () => {
 				if (!sakuraActive) {
-					// 创建樱花容器
 					sakuraContainer = document.createElement("div");
 					sakuraContainer.id = "sakura-container";
 					sakuraContainer.style.position = "fixed";
@@ -339,36 +381,28 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 					sakuraContainer.style.zIndex = "9999";
 					document.body.appendChild(sakuraContainer);
 
-					// 开始樱花动画
 					createSakura();
 					sakuraActive = true;
-					sakuraBtn.innerHTML = "关闭樱花特效";
+					sakuraBtn.textContent = "关闭樱花特效";
 				} else {
-					// 移除樱花容器
 					if (sakuraContainer) {
 						document.body.removeChild(sakuraContainer);
 						sakuraContainer = null;
 					}
 					sakuraActive = false;
-					sakuraBtn.innerHTML = "开启樱花特效";
+					sakuraBtn.textContent = "开启樱花特效";
 				}
 			});
 		}
 
-		// 创建樱花
 		function createSakura() {
 			if (!sakuraContainer) return;
 
-			// 创建一片樱花
 			const sakura = document.createElement("div");
 			sakura.className = "sakura";
-
-			// 随机大小和位置
 			const size = Math.random() * 15 + 10;
 			const left = Math.random() * 100;
 			const animationDuration = Math.random() * 10 + 7;
-
-			// 设置样式
 			sakura.style.position = "absolute";
 			sakura.style.top = "-10px";
 			sakura.style.left = `${left}%`;
@@ -379,35 +413,30 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 			sakura.style.transform = `rotate(${Math.random() * 360}deg)`;
 			sakura.style.opacity = "0.5";
 			sakura.style.animation = `fall ${animationDuration}s linear forwards, rotate ${animationDuration / 3}s linear infinite`;
-
-			// 添加到容器
 			sakuraContainer.appendChild(sakura);
 
-			// 动画结束后移除
 			setTimeout(() => {
 				if (sakura.parentNode === sakuraContainer) {
 					sakuraContainer?.removeChild(sakura);
 				}
 			}, animationDuration * 1000);
 
-			// 继续创建新的樱花
 			if (sakuraActive) {
 				setTimeout(createSakura, 300);
 			}
 		}
 
-		// 添加动画样式
 		const style = document.createElement("style");
 		style.textContent = `
-			@keyframes fall {
-				0% { transform: translateY(0) rotate(0deg); }
-				100% { transform: translateY(100vh) rotate(360deg); }
-			}
-			@keyframes rotate {
-				0% { transform: rotate(0deg); }
-				100% { transform: rotate(360deg); }
-			}
-		`;
+            @keyframes fall {
+                0% { transform: translateY(0) rotate(0deg); }
+                100% { transform: translateY(100vh) rotate(360deg); }
+            }
+            @keyframes rotate {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
 		document.head.appendChild(style);
 	});
 </script>
