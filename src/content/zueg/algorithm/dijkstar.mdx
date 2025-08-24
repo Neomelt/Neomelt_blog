@@ -1,0 +1,63 @@
+---
+title: "Dijkstra Algorithm"
+description: "Understanding shortest paths with Markdown + React components in MDX"
+pubDate: "2025-08-24"
+---
+
+# Dijkstra's Algorithm
+
+Dijkstra's algorithm finds the shortest paths from a source node to all other nodes in a weighted graph (with non-negative weights).
+
+## Formula
+
+$$
+d[v] = \min(d[v], d[u] + w(u, v))
+$$
+
+## Python Implementation
+
+```python
+import heapq
+
+def dijkstra(graph, start):
+    dist = {node: float("inf") for node in graph}
+    dist[start] = 0
+    pq = [(0, start)]
+    while pq:
+        d, u = heapq.heappop(pq)
+        if d > dist[u]:
+            continue
+        for v, w in graph[u]:
+            if dist[v] > d + w:
+                dist[v] = d + w
+                heapq.heappush(pq, (dist[v], v))
+    return dist
+```
+
+---
+
+## Interactive Visualization
+
+Here’s an example of embedding a React component inside MDX:
+
+```mdx
+<GraphVisualizer
+  nodes={["A", "B", "C", "D"]}
+  edges={[
+    { from: "A", to: "B", weight: 2 },
+    { from: "A", to: "C", weight: 4 },
+    { from: "B", to: "C", weight: 1 },
+    { from: "B", to: "D", weight: 7 },
+    { from: "C", to: "D", weight: 3 },
+  ]}
+  start="A"
+/>
+```
+
+---
+
+## Notes
+- Use **Markdown** for text, formulas, and code.
+- Use **JSX/React components** for visualization or interaction.
+
+This is the key advantage of MDX over plain Markdown.
