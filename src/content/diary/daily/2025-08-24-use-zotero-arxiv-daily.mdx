@@ -20,7 +20,7 @@ tags: ['学习', 'llm']
     
     1. **`OPENAI_API_BASE`**：需要将这个 secret 的值从一个无效的地址修改为了 DeepSeek 正确的官方 API 地址：`https://api.deepseek.com/v1`。
         
-    2. **`MODEL_NAME`**：您将模型名称从 `deepseek-v3.1` 修正为了 API 支持的正确标识符，例如 `deepseek-chat`。
+    2. **`MODEL_NAME`**：我刚开始写了像什么deepseek-ai/deepseek-v3/v3.1，正确的应该是将模型名称从 `deepseek-v3.1` 修正为了 API 支持的正确标识符，例如 `deepseek-chat`，`deepseek-reasoner`。
         
 
 ### 2. 解决了发送邮件 (SMTP) 的连接问题
@@ -28,8 +28,8 @@ tags: ['学习', 'llm']
 - **问题表现：** 在论文处理和总结都成功完成后，脚本在最后发送邮件的步骤崩溃，日志显示了和第一个问题完全相同的错误：`socket.gaierror: [Errno -2] Name or service not known`。
     
 - **修改的地方：**
-    
-    1. **`SMTP_SERVER`**：您将这个 secret 的值修改为了您邮箱服务商提供的正确服务器地址（例如 `smtp.exmail.qq.com` 或 `smtp.gmail.com` 等）。
+
+    1. **`SMTP_SERVER`**：我将这个 secret 的值写为一个自己的qq值，应修改为邮箱服务商提供的正确服务器地址（例如 `smtp.qq.com` 或 `smtp.gmail.com` 等）。这里由于我采用的是QQ邮箱，所以应该写成**smtp.qq.com**。
 
 **还有一个小问题**
 
