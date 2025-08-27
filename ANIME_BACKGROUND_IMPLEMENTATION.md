@@ -33,7 +33,7 @@
 
 ## 📁 文件结构
 
-```
+``` bash
 src/
 ├── components/
 │   ├── AnimeBackground.astro        # 主背景组件
@@ -134,8 +134,8 @@ import BackgroundController from '../components/BackgroundController.astro';
 
 ## 🌐 访问地址
 
-- **主页**：http://localhost:4321/
-- **背景展示页**：http://localhost:4321/anime-bg-demo
+- **主页**：[http://localhost:4321/](http://localhost:4321/)
+- **背景展示页**：[http://localhost:4321/anime-bg-demo](http://localhost:4321/anime-bg-demo)
 - **控制器**：点击右侧粉色圆形按钮
 
 ## 🎊 特色功能
