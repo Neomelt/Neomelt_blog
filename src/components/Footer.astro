@@ -81,15 +81,6 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 				<ul class="space-y-2">
 					<li>
 						<a
-							href="https://blog.hakochest.cn/"
-							target="_blank"
-							class="footer-link"
-						>
-							HakoChest's Blog
-						</a>
-					</li>
-					<li>
-						<a
 							href="https://astro.build/"
 							target="_blank"
 							class="footer-link"
@@ -160,17 +151,10 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 			</p>
 		</div>
 
-		<!-- 樱花飘落特效按钮 -->
-		<div class="sakura-toggle mt-4 text-center">
-			<button id="toggle-sakura" class="sakura-btn">
-				开启樱花特效
-			</button>
-		</div>
-
 		<div class="mt-8 pt-6 border-t border-blue-900 text-center">
 			<p class="footer-copyright">
 				&copy; {today.getFullYear()}
-				<span class="text-blue-500">二次元の博客</span> · 由 Astro 强力驱动
+				<span class="text-blue-500">Xlqmuの博客</span> · 由 Astro 强力驱动
 			</p>
 		</div>
 	</div>
@@ -359,70 +343,6 @@ const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
 
 				updateRunningTime();
 				setInterval(updateRunningTime, 1000);
-			}
-		}
-
-		// --- 樱花飘落特效 ---
-		const sakuraBtn = document.getElementById("toggle-sakura");
-		let sakuraContainer: HTMLDivElement | null = null; // <--- FIX #2
-		let sakuraActive = false;
-
-		if (sakuraBtn) {
-			sakuraBtn.addEventListener("click", () => {
-				if (!sakuraActive) {
-					sakuraContainer = document.createElement("div");
-					sakuraContainer.id = "sakura-container";
-					sakuraContainer.style.position = "fixed";
-					sakuraContainer.style.top = "0";
-					sakuraContainer.style.left = "0";
-					sakuraContainer.style.width = "100%";
-					sakuraContainer.style.height = "100%";
-					sakuraContainer.style.pointerEvents = "none";
-					sakuraContainer.style.zIndex = "9999";
-					document.body.appendChild(sakuraContainer);
-
-					createSakura();
-					sakuraActive = true;
-					sakuraBtn.textContent = "关闭樱花特效";
-				} else {
-					if (sakuraContainer) {
-						document.body.removeChild(sakuraContainer);
-						sakuraContainer = null;
-					}
-					sakuraActive = false;
-					sakuraBtn.textContent = "开启樱花特效";
-				}
-			});
-		}
-
-		function createSakura() {
-			if (!sakuraContainer) return;
-
-			const sakura = document.createElement("div");
-			sakura.className = "sakura";
-			const size = Math.random() * 15 + 10;
-			const left = Math.random() * 100;
-			const animationDuration = Math.random() * 10 + 7;
-			sakura.style.position = "absolute";
-			sakura.style.top = "-10px";
-			sakura.style.left = `${left}%`;
-			sakura.style.width = `${size}px`;
-			sakura.style.height = `${size}px`;
-			sakura.style.backgroundColor = "#3B82F6";
-			sakura.style.borderRadius = "50% 0 50% 0";
-			sakura.style.transform = `rotate(${Math.random() * 360}deg)`;
-			sakura.style.opacity = "0.5";
-			sakura.style.animation = `fall ${animationDuration}s linear forwards, rotate ${animationDuration / 3}s linear infinite`;
-			sakuraContainer.appendChild(sakura);
-
-			setTimeout(() => {
-				if (sakura.parentNode === sakuraContainer) {
-					sakuraContainer?.removeChild(sakura);
-				}
-			}, animationDuration * 1000);
-
-			if (sakuraActive) {
-				setTimeout(createSakura, 300);
 			}
 		}
 

@@ -32,97 +32,6 @@ const posts = (await getCollection("blog"))
 					</a>
 				</div>
 			</DynamicContainer>
-			<div class="kawaii-mascot">
-				<svg
-					viewBox="0 0 120 120"
-					width="80"
-					height="80"
-					style="display:block;margin:auto;animation:doro-head 2s infinite alternate;"
-				>
-					<!-- Doro头部 -->
-					<ellipse
-						cx="60"
-						cy="70"
-						rx="35"
-						ry="32"
-						fill="#fffbe6"
-						stroke="#333"
-						stroke-width="2"></ellipse>
-					<!-- Doro耳朵 -->
-					<ellipse
-						cx="30"
-						cy="40"
-						rx="10"
-						ry="18"
-						fill="#fffbe6"
-						stroke="#333"
-						stroke-width="2"></ellipse>
-					<ellipse
-						cx="90"
-						cy="40"
-						rx="10"
-						ry="18"
-						fill="#fffbe6"
-						stroke="#333"
-						stroke-width="2"></ellipse>
-					<!-- Doro脸部阴影 -->
-					<ellipse
-						cx="60"
-						cy="80"
-						rx="28"
-						ry="18"
-						fill="#f7e6c7"
-						opacity="0.5"></ellipse>
-					<!-- Doro眼睛 -->
-					<ellipse
-						cx="48"
-						cy="80"
-						rx="6"
-						ry="8"
-						fill="#fff"
-						stroke="#333"
-						stroke-width="1"></ellipse>
-					<ellipse
-						cx="72"
-						cy="80"
-						rx="6"
-						ry="8"
-						fill="#fff"
-						stroke="#333"
-						stroke-width="1"></ellipse>
-					<ellipse cx="48" cy="82" rx="2" ry="3" fill="#333"
-					></ellipse>
-					<ellipse cx="72" cy="82" rx="2" ry="3" fill="#333"
-					></ellipse>
-					<!-- Doro嘴巴 -->
-					<path
-						d="M56 95 Q60 100 64 95"
-						stroke="#333"
-						stroke-width="2"
-						fill="none"></path>
-					<!-- Doro腮红 -->
-					<ellipse
-						cx="40"
-						cy="90"
-						rx="4"
-						ry="2"
-						fill="#f7b3b3"
-						opacity="0.7"></ellipse>
-					<ellipse
-						cx="80"
-						cy="90"
-						rx="4"
-						ry="2"
-						fill="#f7b3b3"
-						opacity="0.7"></ellipse>
-					<!-- Doro标志性呆毛 -->
-					<path
-						d="M60 38 Q62 30 66 38"
-						stroke="#333"
-						stroke-width="2"
-						fill="none"></path>
-				</svg>
-			</div>
 		</section>
 
 		<!-- 最新博客文章 -->
@@ -549,18 +458,6 @@ const posts = (await getCollection("blog"))
 		font-size: 4rem;
 		animation: float 3s ease-in-out infinite;
 		z-index: 10;
-	}
-
-	@keyframes doro-head {
-		0% {
-			transform: translateY(0) rotate(-6deg);
-		}
-		50% {
-			transform: translateY(-8px) rotate(6deg);
-		}
-		100% {
-			transform: translateY(0) rotate(-6deg);
-		}
 	}
 
 	.anime-blog-card {
