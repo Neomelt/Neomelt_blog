@@ -1,6 +1,6 @@
 ---
 title: '我的第一篇技术博客'
-description: '分享学习 Web 开发的心得体会'
+description: '浅浅记录一下叭'
 pubDate: '2025-08-14'
 heroImage: '../../assets/cover.svg'
 category: ''
