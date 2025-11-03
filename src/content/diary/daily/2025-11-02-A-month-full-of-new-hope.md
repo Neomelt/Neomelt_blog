@@ -1,7 +1,7 @@
 ---
 title: "A month full of new hopes"
 description: "快一个月没更了……"
-pubDate: "2025-10-06"
+pubDate: "2025-11-02"
 heroImage: '../../../assets/cover.svg'
 mood: '开心'
 weather: '🌤️ 明媚'
