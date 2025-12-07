@@ -4,9 +4,8 @@ import { getCollection } from "astro:content";
 export const GET: APIRoute = async () => {
     try {
         // 获取所有内容并生成搜索索引
-        const [blogPosts, diaryEntries, zuegEntries] = await Promise.all([
+        const [blogPosts, zuegEntries] = await Promise.all([
             getCollection("blog"),
-            getCollection("diary"),
             getCollection("zueg")
         ]);
 
@@ -25,39 +24,7 @@ export const GET: APIRoute = async () => {
                 category: post.data.category || "未分类"
             })),
             
-            // 日记条目
-            ...diaryEntries.map(entry => {
-                let url = `/diary/${entry.id}`;
-                let type = "日记";
-                
-                // 根据文件路径确定具体类型和URL
-                if (entry.id.startsWith("daily/")) {
-                    type = "每日日记";
-                    url = `/diary/daily/${entry.id.replace("daily/", "")}`;
-                } else if (entry.id.startsWith("weekly/")) {
-                    type = "周记";
-                    url = `/diary/weekly/${entry.id.replace("weekly/", "")}`;
-                } else if (entry.id.startsWith("monthly/")) {
-                    type = "月记";
-                    url = `/diary/monthly/${entry.id.replace("monthly/", "")}`;
-                } else if (entry.id.startsWith("annual/")) {
-                    type = "年度总结";
-                    url = `/diary/annual/${entry.id.replace("annual/", "")}`;
-                }
-                
-                return {
-                    id: entry.id,
-                    title: entry.data.title,
-                    description: entry.data.description || "",
-                    content: entry.body || "",
-                    url: url,
-                    type: type,
-                    date: entry.data.pubDate.toISOString().split('T')[0],
-                    tags: entry.data.tags || [],
-                    mood: entry.data.mood || "",
-                    location: entry.data.location || ""
-                };
-            }),
+            // 随笔
             
             // 随笔条目
             ...zuegEntries.map(entry => {

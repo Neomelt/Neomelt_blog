@@ -19,23 +19,6 @@ const blog = defineCollection({
 		}),
 });
 
-const diary = defineCollection({
-	// Load Markdown files in the `src/content/diary/` directory.
-	loader: glob({ base: './src/content/diary', pattern: '**/*.{md,mdx}' }),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string().optional(),
-			pubDate: z.coerce.date(),
-			mood: z.string().optional(), // 心情状态
-			weather: z.string().optional(), // 天气
-			location: z.string().optional(), // 地点
-			tags: z.array(z.string()).optional(),
-			heroImage: image().optional(),
-			private: z.boolean().optional(), // 是否私密
-		}),
-});
-
 const zueg = defineCollection({
 	// Load Markdown files in the `src/content/zueg/` directory.
 	loader: glob({ base: './src/content/zueg', pattern: '**/*.{md,mdx}' }),
@@ -52,4 +35,4 @@ const zueg = defineCollection({
 		}),
 });
 
-export const collections = { blog, diary, zueg };
+export const collections = { blog, zueg };
