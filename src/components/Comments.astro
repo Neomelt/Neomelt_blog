@@ -1,0 +1,64 @@
+---
+// Comments.astro - Giscus 评论组件
+---
+
+<div class="comments-wrapper">
+	<script 
+		src="https://giscus.app/client.js"
+		data-repo="Neomelt/Neomelt_blog"
+		data-repo-id="R_kgDOMt-y5g"
+		data-category="Announcements"
+		data-category-id="DIC_kwDOMt-y5s4ClACF"
+		data-mapping="pathname"
+		data-strict="0"
+		data-reactions-enabled="1"
+		data-emit-metadata="0"
+		data-input-position="top"
+		data-theme="preferred_color_scheme"
+		data-lang="zh-CN"
+		data-loading="lazy"
+		crossorigin="anonymous"
+		async>
+	</script>
+</div>
+
+<style>
+	.comments-wrapper {
+		margin-top: 4rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--border-color);
+	}
+
+	/* 暗色模式适配 */
+	:global(.dark) .comments-wrapper {
+		border-top-color: rgba(255, 255, 255, 0.1);
+	}
+</style>
+
+<script>
+	// 监听主题变化，自动切换评论系统主题
+	function updateGiscusTheme() {
+		const isDark = document.documentElement.classList.contains('dark');
+		const theme = isDark ? 'dark' : 'light';
+		
+		const iframe = document.querySelector('iframe.giscus-frame');
+		if (iframe) {
+			iframe.contentWindow.postMessage(
+				{ giscus: { setConfig: { theme } } },
+				'https://giscus.app'
+			);
+		}
+	}
+
+	// 监听主题切换
+	const observer = new MutationObserver(updateGiscusTheme);
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ['class']
+	});
+
+	// 初始化时设置主题
+	document.addEventListener('DOMContentLoaded', () => {
+		setTimeout(updateGiscusTheme, 1000);
+	});
+</script>
