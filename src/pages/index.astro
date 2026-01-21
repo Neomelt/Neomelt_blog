@@ -1,765 +1,296 @@
 ---
 import { getCollection } from "astro:content";
-import DynamicContainer from "../components/DynamicContainer.astro";
+import ProfileCard from "../components/ProfileCard.astro";
+import Sidebar from "../components/Sidebar.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { SITE_DESCRIPTION, SITE_SUBTITLE, SITE_TITLE } from "../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const posts = (await getCollection("blog"))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-	.slice(0, 4); // 取最新的4篇文章
+	.slice(0, 10); // 取最新的10篇文章
+
+// 简单的阅读时间估算（基于字数）
+function estimateReadingTime(content: string): number {
+	const wordsPerMinute = 200;
+	const wordCount = content.length;
+	return Math.ceil(wordCount / wordsPerMinute);
+}
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<main class="anime-content-wrapper">
-
-		<section
-			class="anime-hero-section mb-12 transition-colors duration-300"
-		>
-			<div class="anime-hero-decoration"></div>
-			<DynamicContainer
-				size="wide"
-				class="py-16 text-center relative z-10"
-			>
-				<h1 class="kawaii-title mb-4">{SITE_TITLE}</h1>
-				<p class="kawaii-subtitle">{SITE_SUBTITLE}</p>
-				<div class="flex justify-center space-x-4 mb-8">
-					<a href="/blog" class="anime-btn">
-						<span>📚</span> 查看博客
-					</a>
-					<a href="/projects" class="anime-btn">
-						<span>🚀</span> 我的项目
-					</a>
+	<main>
+		<!-- 主要内容区域 -->
+		<div class="homepage-container">
+			<div class="homepage-layout">
+				<!-- 左侧：个人信息 + 侧边栏 -->
+				<div class="homepage-sidebar">
+					<ProfileCard />
+					<Sidebar />
 				</div>
-			</DynamicContainer>
-		</section>
 
-		<!-- 最新博客文章 -->
-		<section class="mb-12 pt-20">
-			<DynamicContainer size="content">
-				<h2
-					class="text-3xl font-bold mb-8 text-center pt-4 leading-relaxed"
-				>
-					<span
-						class="bg-gradient-to-r from-pink-500 to-blue-500 bg-clip-text text-transparent inline-block py-2"
-						>✨ 最新文章 ✨</span
-					>
-				</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					{
-						posts.map((post) => (
-							<article class="anime-card anime-blog-card">
-								<div class="blog-meta">
-									<FormattedDate date={post.data.pubDate} />
-								</div>
-								<h3>
-									<a
-										href={`/blog/${post.id}/`}
-										class="blog-title"
-									>
-										{post.data.title}
+				<!-- 右侧：文章列表 -->
+				<div class="homepage-content">
+					<h2 class="section-title">最新文章</h2>
+					<div class="post-list">
+						{posts.map((post) => {
+							const readingTime = estimateReadingTime(post.body || "");
+							const wordCount = (post.body || "").length;
+							
+							return (
+								<article class="post-card-item">
+									<a href={`/blog/${post.id}/`} class="post-card-link">
+										{post.data.heroImage && (
+											<div class="post-thumbnail">
+												<img 
+													src={typeof post.data.heroImage === 'string' 
+														? post.data.heroImage 
+														: post.data.heroImage.src
+													} 
+													alt={post.data.title}
+												/>
+											</div>
+										)}
+										<div class="post-content">
+											<div class="post-header">
+												<div class="post-date">
+													<FormattedDate date={post.data.pubDate} />
+												</div>
+												{post.data.category && (
+													<span class="post-category">{post.data.category}</span>
+												)}
+											</div>
+											<h3 class="post-title">{post.data.title}</h3>
+											<p class="post-description">{post.data.description}</p>
+											<div class="post-meta">
+												<span>{wordCount} 字</span>
+												<span>|</span>
+												<span>{readingTime} 分钟</span>
+												{post.data.tags && post.data.tags.length > 0 && (
+													<>
+														<span>|</span>
+														<div class="post-tags">
+															{post.data.tags.slice(0, 3).map(tag => (
+																<span class="post-tag">#{tag}</span>
+															))}
+														</div>
+													</>
+												)}
+											</div>
+										</div>
 									</a>
-								</h3>
-								<p class="text-gray-600 dark:text-gray-300 text-sm">
-									{post.data.description}
-								</p>
-							</article>
-						))
-					}
-				</div>
-			</DynamicContainer>
-		</section>
-
-		<!-- 技术栈展示 -->
-		<section class="mb-12 pt-20">
-			<DynamicContainer size="wide">
-				<h2 class="text-3xl font-bold mb-8 text-center">
-					<span
-						class="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent inline-block py-2"
-						>🛠️ 技术栈 🛠️</span
-					>
-				</h2>
-				<div
-					class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
-				>
-					<!-- Rust -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/rust.svg"
-								alt="Rust"
-								class="w-10 h-10 mx-auto filter-rust"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Rust</span
-						>
+								</article>
+							);
+						})}
 					</div>
-
-					<!-- C++ -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/cplusplus.svg"
-								alt="C++"
-								class="w-10 h-10 mx-auto filter-cpp"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>C++</span
-						>
-					</div>
-
-					<!-- Python -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/python.svg"
-								alt="Python"
-								class="w-10 h-10 mx-auto filter-python"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Python</span
-						>
-					</div>
-
-					<!-- ROS -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/ros.svg"
-								alt="ROS"
-								class="w-10 h-10 mx-auto filter-ros"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>ROS</span
-						>
-					</div>
-
-					<!-- JavaScript -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/javascript.svg"
-								alt="JavaScript"
-								class="w-10 h-10 mx-auto filter-js"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>JavaScript</span
-						>
-					</div>
-
-					<!-- TypeScript -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/typescript.svg"
-								alt="TypeScript"
-								class="w-10 h-10 mx-auto filter-ts"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>TypeScript</span
-						>
-					</div>
-
-					<!-- React -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/react.svg"
-								alt="React"
-								class="w-10 h-10 mx-auto filter-react"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>React</span
-						>
-					</div>
-
-					<!-- Node.js -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/nodedotjs.svg"
-								alt="Node.js"
-								class="w-10 h-10 mx-auto filter-node"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Node.js</span
-						>
-					</div>
-
-					<!-- Docker -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/docker.svg"
-								alt="Docker"
-								class="w-10 h-10 mx-auto filter-docker"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Docker</span
-						>
-					</div>
-
-					<!-- Git -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/git.svg"
-								alt="Git"
-								class="w-10 h-10 mx-auto filter-git"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Git</span
-						>
-					</div>
-
-					<!-- Linux -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/linux.svg"
-								alt="Linux"
-								class="w-10 h-10 mx-auto filter-linux"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Linux</span
-						>
-					</div>
-
-					<!-- MySQL -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/mysql.svg"
-								alt="MySQL"
-								class="w-10 h-10 mx-auto filter-mysql"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>MySQL</span
-						>
-					</div>
-
-					<!-- OpenCV -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/opencv.svg"
-								alt="OpenCV"
-								class="w-10 h-10 mx-auto filter-opencv"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>OpenCV</span
-						>
-					</div>
-
-					<!-- TensorFlow -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/tensorflow.svg"
-								alt="TensorFlow"
-								class="w-10 h-10 mx-auto filter-tensorflow"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>TensorFlow</span
-						>
-					</div>
-
-					<!-- RaspberryPi -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/raspberrypi.svg"
-								alt="Raspberry Pi"
-								class="w-10 h-10 mx-auto filter-raspberry"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Raspberry Pi</span
-						>
-					</div>
-
-					<!-- Arduino -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/arduino.svg"
-								alt="Arduino"
-								class="w-10 h-10 mx-auto filter-arduino"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>Arduino</span
-						>
-					</div>
-
-					<!-- CMake -->
-					<div
-						class="anime-card tech-card text-center p-4 hover:scale-105 transition-transform"
-					>
-						<div class="tech-icon mb-3">
-							<img
-								src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/cmake.svg"
-								alt="CMake"
-								class="w-10 h-10 mx-auto filter-cmake"
-								loading="lazy"
-							/>
-						</div>
-						<span
-							class="text-sm font-medium text-gray-700 dark:text-gray-200"
-							>CMake</span
-						>
+					
+					<div class="view-more">
+						<a href="/blog" class="view-more-btn">查看所有文章 →</a>
 					</div>
 				</div>
-			</DynamicContainer>
-		</section>
+			</div>
+		</div>
 	</main>
-</BaseLayout><style>
-	/* 动漫风格英雄区 */
-	.anime-hero-section {
-		position: relative;
-		padding: 2rem 0;
-		background-color: rgba(26, 31, 53, 0.7);
-		backdrop-filter: blur(10px);
-		overflow: hidden;
-		border-radius: 0 0 30px 30px;
-		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-		color: #fff;
-		background-size: cover;
-		background-position: center;
+</BaseLayout>
+
+<style>
+	/* 首页容器 */
+	.homepage-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		padding-top: 6rem; /* 为固定header留出空间 */
 	}
 
-	.anime-hero-decoration {
-		position: absolute;
-		top: 0;
-		right: 0;
-		width: 200px;
-		height: 200px;
-		background: linear-gradient(
-			45deg,
-			rgba(255, 107, 157, 0.3),
-			rgba(196, 69, 105, 0.3)
-		);
-		border-radius: 50%;
-		filter: blur(40px);
-		opacity: 0.7;
+	/* 首页布局 */
+	.homepage-layout {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: 3rem;
 	}
 
-	.kawaii-title {
-		font-size: 3rem;
-		font-weight: 800;
-		background: linear-gradient(135deg, #ff6b9d, #3b82f6, #10b981);
-		background-clip: text;
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-size: 200% 200%;
-		animation: gradient-shift 3s ease-in-out infinite;
-		text-shadow: 0 2px 10px rgba(255, 107, 157, 0.3);
+	/* 左侧边栏 */
+	.homepage-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
 	}
 
-	@keyframes gradient-shift {
-		0%,
-		100% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
+	/* 右侧内容区 */
+	.homepage-content {
+		min-width: 0;
 	}
 
-	.kawaii-subtitle {
-		font-size: 1.3rem;
-		color: rgba(255, 255, 255, 0.9);
+	/* 分类标题 */
+	.section-title {
+		font-size: 2rem;
+		font-weight: 700;
 		margin-bottom: 2rem;
-		text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+		color: var(--text-primary);
 	}
 
-	.kawaii-mascot {
-		position: absolute;
-		bottom: -20px;
-		right: 2rem;
-		font-size: 4rem;
-		animation: float 3s ease-in-out infinite;
-		z-index: 10;
+	/* 文章列表 */
+	.post-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
 	}
 
-	.anime-blog-card {
-		background: rgba(255, 255, 255, 0.1);
-		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		border-radius: 15px;
-		padding: 1.5rem;
-		transition: all 0.3s ease;
-		position: relative;
-		overflow: hidden;
-	}
-
-	.anime-blog-card:hover {
-		transform: translateY(-5px);
-		border-color: rgba(255, 107, 157, 0.5);
-		box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
-	}
-
-	.blog-meta {
-		color: #9ca3af;
-		font-size: 0.9rem;
-	}
-
-	.blog-title {
-		color: #6b7280;
-		text-decoration: none;
-		font-weight: 600;
-		display: block;
-		margin: 0.5rem 0;
-	}
-
-	.blog-title:hover {
-		color: #3b82f6;
-	}
-
-	/* 暗色模式调整 */
-	:global(.dark) .anime-hero-section {
-		background-color: rgba(59, 130, 246, 0.1);
-	}
-
-	:global(.dark) .anime-blog-card {
-		background: rgba(17, 24, 39, 0.8);
-		border-color: rgba(255, 255, 255, 0.1);
-	}
-
-	:global(.dark) .project-card {
-		background-color: rgba(30, 41, 59, 0.8);
-	}
-
-	/* 技术栈卡片样式 */
-	.tech-card {
-		background: rgba(255, 255, 255, 0.05);
-		backdrop-filter: blur(10px);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+	/* 文章卡片 */
+	.post-card-item {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border-color);
 		border-radius: 12px;
-		transition: all 0.3s ease;
-		position: relative;
 		overflow: hidden;
+		transition: all 0.3s ease;
 	}
 
-	.tech-card:hover {
-		border-color: rgba(255, 107, 157, 0.3);
-		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+	.post-card-item:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+		border-color: rgb(59, 130, 246);
 	}
 
-	.tech-card::before {
-		content: "";
-		position: absolute;
-		top: 0;
-		left: -100%;
+	.post-card-link {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.post-thumbnail {
+		width: 100%;
+		height: 240px;
+		overflow: hidden;
+		background: var(--bg-tertiary);
+	}
+
+	.post-thumbnail img {
 		width: 100%;
 		height: 100%;
-		background: linear-gradient(
-			90deg,
-			transparent,
-			rgba(255, 255, 255, 0.1),
-			transparent
-		);
-		transition: left 0.5s;
+		object-fit: cover;
+		transition: transform 0.3s ease;
 	}
 
-	.tech-card:hover::before {
-		left: 100%;
+	.post-card-item:hover .post-thumbnail img {
+		transform: scale(1.05);
 	}
 
-	/* 技术图标颜色过滤器 */
-	.filter-rust {
-		filter: brightness(0) saturate(100%) invert(30%) sepia(66%)
-			saturate(1973%) hue-rotate(346deg) brightness(98%) contrast(95%);
+	.post-content {
+		padding: 1.5rem;
 	}
 
-	.filter-cpp {
-		filter: brightness(0) saturate(100%) invert(23%) sepia(94%)
-			saturate(2591%) hue-rotate(207deg) brightness(101%) contrast(103%);
+	.post-header {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 0.75rem;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
 	}
 
-	.filter-python {
-		filter: brightness(0) saturate(100%) invert(64%) sepia(88%)
-			saturate(2834%) hue-rotate(185deg) brightness(108%) contrast(108%);
+	.post-category {
+		background: rgba(59, 130, 246, 0.1);
+		color: rgb(59, 130, 246);
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.813rem;
 	}
 
-	.filter-ros {
-		filter: brightness(0) saturate(100%) invert(13%) sepia(94%)
-			saturate(4467%) hue-rotate(207deg) brightness(95%) contrast(107%);
+	.post-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: var(--text-primary);
+		line-height: 1.4;
 	}
 
-	.filter-js {
-		filter: brightness(0) saturate(100%) invert(83%) sepia(67%)
-			saturate(2478%) hue-rotate(21deg) brightness(102%) contrast(101%);
+	.post-card-link:hover .post-title {
+		color: rgb(59, 130, 246);
 	}
 
-	.filter-ts {
-		filter: brightness(0) saturate(100%) invert(29%) sepia(77%)
-			saturate(1198%) hue-rotate(200deg) brightness(97%) contrast(93%);
+	.post-description {
+		color: var(--text-secondary);
+		line-height: 1.6;
+		margin-bottom: 1rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
 	}
 
-	.filter-react {
-		filter: brightness(0) saturate(100%) invert(70%) sepia(77%)
-			saturate(2476%) hue-rotate(170deg) brightness(101%) contrast(101%);
+	.post-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		flex-wrap: wrap;
 	}
 
-	.filter-node {
-		filter: brightness(0) saturate(100%) invert(55%) sepia(61%)
-			saturate(2919%) hue-rotate(75deg) brightness(108%) contrast(101%);
+	.post-tags {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
 	}
 
-	.filter-docker {
-		filter: brightness(0) saturate(100%) invert(49%) sepia(100%)
-			saturate(1945%) hue-rotate(181deg) brightness(103%) contrast(101%);
+	.post-tag {
+		color: rgb(59, 130, 246);
 	}
 
-	.filter-git {
-		filter: brightness(0) saturate(100%) invert(42%) sepia(93%)
-			saturate(1352%) hue-rotate(87deg) brightness(119%) contrast(119%);
+	/* 查看更多按钮 */
+	.view-more {
+		margin-top: 3rem;
+		text-align: center;
 	}
 
-	.filter-linux {
-		filter: brightness(0) saturate(100%) invert(0%) sepia(0%)
-			saturate(7500%) hue-rotate(204deg) brightness(97%) contrast(97%);
+	.view-more-btn {
+		display: inline-block;
+		padding: 0.75rem 2rem;
+		background: linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(147, 51, 234) 100%);
+		color: white;
+		text-decoration: none;
+		border-radius: 9999px;
+		font-weight: 600;
+		transition: all 0.3s ease;
 	}
 
-	.filter-mysql {
-		filter: brightness(0) saturate(100%) invert(40%) sepia(99%)
-			saturate(1102%) hue-rotate(178deg) brightness(96%) contrast(98%);
+	.view-more-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
 	}
 
-	.filter-opencv {
-		filter: brightness(0) saturate(100%) invert(46%) sepia(99%)
-			saturate(2912%) hue-rotate(87deg) brightness(118%) contrast(119%);
+	/* 响应式设计 */
+	@media (max-width: 1024px) {
+		.homepage-layout {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.homepage-sidebar {
+			max-width: 600px;
+			margin: 0 auto;
+		}
 	}
 
-	.filter-tensorflow {
-		filter: brightness(0) saturate(100%) invert(60%) sepia(84%)
-			saturate(2902%) hue-rotate(352deg) brightness(119%) contrast(119%);
-	}
-
-	.filter-raspberry {
-		filter: brightness(0) saturate(100%) invert(25%) sepia(85%)
-			saturate(4467%) hue-rotate(321deg) brightness(98%) contrast(107%);
-	}
-
-	.filter-arduino {
-		filter: brightness(0) saturate(100%) invert(50%) sepia(99%)
-			saturate(2912%) hue-rotate(174deg) brightness(103%) contrast(101%);
-	}
-
-	.filter-cmake {
-		filter: brightness(0) saturate(100%) invert(30%) sepia(99%)
-			saturate(2912%) hue-rotate(200deg) brightness(103%) contrast(101%);
-	}
-
-	/* 暗色模式下的图标颜色调整 */
-	:global(.dark) .filter-rust {
-		filter: brightness(0) saturate(100%) invert(55%) sepia(85%)
-			saturate(1973%) hue-rotate(346deg) brightness(108%) contrast(95%);
-	}
-
-	:global(.dark) .filter-cpp {
-		filter: brightness(0) saturate(100%) invert(45%) sepia(94%)
-			saturate(2591%) hue-rotate(207deg) brightness(111%) contrast(103%);
-	}
-
-	:global(.dark) .filter-python {
-		filter: brightness(0) saturate(100%) invert(74%) sepia(88%)
-			saturate(2834%) hue-rotate(185deg) brightness(118%) contrast(108%);
-	}
-
-	:global(.dark) .filter-ros {
-		filter: brightness(0) saturate(100%) invert(33%) sepia(94%)
-			saturate(4467%) hue-rotate(207deg) brightness(105%) contrast(107%);
-	}
-
-	:global(.dark) .filter-js {
-		filter: brightness(0) saturate(100%) invert(93%) sepia(67%)
-			saturate(2478%) hue-rotate(21deg) brightness(112%) contrast(101%);
-	}
-
-	:global(.dark) .filter-ts {
-		filter: brightness(0) saturate(100%) invert(49%) sepia(77%)
-			saturate(1198%) hue-rotate(200deg) brightness(107%) contrast(93%);
-	}
-
-	:global(.dark) .filter-react {
-		filter: brightness(0) saturate(100%) invert(80%) sepia(77%)
-			saturate(2476%) hue-rotate(170deg) brightness(111%) contrast(101%);
-	}
-
-	:global(.dark) .filter-node {
-		filter: brightness(0) saturate(100%) invert(65%) sepia(61%)
-			saturate(2919%) hue-rotate(75deg) brightness(118%) contrast(101%);
-	}
-
-	:global(.dark) .filter-docker {
-		filter: brightness(0) saturate(100%) invert(59%) sepia(100%)
-			saturate(1945%) hue-rotate(181deg) brightness(113%) contrast(101%);
-	}
-
-	:global(.dark) .filter-git {
-		filter: brightness(0) saturate(100%) invert(52%) sepia(93%)
-			saturate(1352%) hue-rotate(87deg) brightness(129%) contrast(119%);
-	}
-
-	:global(.dark) .filter-linux {
-		filter: brightness(0) saturate(100%) invert(100%) sepia(0%)
-			saturate(7500%) hue-rotate(204deg) brightness(97%) contrast(97%);
-	}
-
-	:global(.dark) .filter-mysql {
-		filter: brightness(0) saturate(100%) invert(60%) sepia(99%)
-			saturate(1102%) hue-rotate(178deg) brightness(106%) contrast(98%);
-	}
-
-	:global(.dark) .filter-opencv {
-		filter: brightness(0) saturate(100%) invert(66%) sepia(99%)
-			saturate(2912%) hue-rotate(87deg) brightness(128%) contrast(119%);
-	}
-
-	:global(.dark) .filter-tensorflow {
-		filter: brightness(0) saturate(100%) invert(80%) sepia(84%)
-			saturate(2902%) hue-rotate(352deg) brightness(129%) contrast(119%);
-	}
-
-	:global(.dark) .filter-raspberry {
-		filter: brightness(0) saturate(100%) invert(45%) sepia(85%)
-			saturate(4467%) hue-rotate(321deg) brightness(108%) contrast(107%);
-	}
-
-	:global(.dark) .filter-arduino {
-		filter: brightness(0) saturate(100%) invert(70%) sepia(99%)
-			saturate(2912%) hue-rotate(174deg) brightness(113%) contrast(101%);
-	}
-
-	:global(.dark) .filter-cmake {
-		filter: brightness(0) saturate(100%) invert(50%) sepia(99%)
-			saturate(2912%) hue-rotate(200deg) brightness(113%) contrast(101%);
-	}
-
-	:global(.dark) .tech-card {
-		background: rgba(17, 24, 39, 0.6);
-		border-color: rgba(255, 255, 255, 0.05);
-	}
-
-	:global(.dark) .tech-card:hover {
-		border-color: rgba(255, 107, 157, 0.2);
-		box-shadow: 0 8px 25px rgba(255, 107, 157, 0.1);
-	}
-
-	/* 移动端优化 */
 	@media (max-width: 768px) {
-		.kawaii-title {
-			font-size: 2.5rem;
-		}
-		.kawaii-subtitle {
-			font-size: 1.1rem;
-		}
-		.kawaii-mascot {
-			display: none;
+		.homepage-container {
+			padding: 1.5rem 1rem;
 		}
 
-		.tech-card {
-			padding: 0.75rem;
+		.section-title {
+			font-size: 1.75rem;
 		}
 
-		.tech-card .tech-icon img {
-			width: 2rem;
-			height: 2rem;
+		.post-thumbnail {
+			height: 200px;
 		}
 
-		.tech-card span {
-			font-size: 0.75rem;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.tech-card .tech-icon img {
-			width: 1.75rem;
-			height: 1.75rem;
+		.post-title {
+			font-size: 1.25rem;
 		}
 
-		.tech-card span {
-			font-size: 0.7rem;
+		.view-more-btn {
+			padding: 0.625rem 1.5rem;
 		}
 	}
 </style>

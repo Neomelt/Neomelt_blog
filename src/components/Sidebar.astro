@@ -1,0 +1,164 @@
+---
+// Sidebar.astro - 侧边栏组件（分类和标签）
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const zuegPosts = await getCollection("zueg");
+
+// 获取所有分类
+const categories = [...new Set(posts.map(post => post.data.category || "未分类"))];
+const categoryCounts = categories.map(cat => ({
+	name: cat,
+	count: posts.filter(p => (p.data.category || "未分类") === cat).length
+})).sort((a, b) => b.count - a.count);
+
+// 获取所有标签
+const allTags = [...posts, ...zuegPosts]
+	.flatMap(post => post.data.tags || [])
+	.reduce((acc, tag) => {
+		acc[tag] = (acc[tag] || 0) + 1;
+		return acc;
+	}, {} as Record<string, number>);
+
+const topTags = Object.entries(allTags)
+	.sort(([, a], [, b]) => b - a)
+	.slice(0, 15)
+	.map(([tag, count]) => ({ tag, count }));
+---
+
+<aside class="sidebar">
+	<!-- 分类 -->
+	<div class="sidebar-section">
+		<h3 class="sidebar-title">分类</h3>
+		<div class="category-list">
+			{categoryCounts.map(({ name, count }) => (
+				<a 
+					href={`/blog/categories?category=${encodeURIComponent(name)}`}
+					class="category-item"
+				>
+					<span class="category-name">{name}</span>
+					<span class="category-count">{count}</span>
+				</a>
+			))}
+		</div>
+		<a href="/blog/categories" class="sidebar-more">查看更多 →</a>
+	</div>
+
+	<!-- 标签云 -->
+	<div class="sidebar-section">
+		<h3 class="sidebar-title">标签</h3>
+		<div class="tag-cloud">
+			{topTags.map(({ tag, count }) => (
+				<a 
+					href={`/blog/tags?tag=${encodeURIComponent(tag)}`}
+					class="tag-item"
+					style={`font-size: ${0.8 + (count / Math.max(...topTags.map(t => t.count))) * 0.6}rem`}
+				>
+					#{tag}
+				</a>
+			))}
+		</div>
+		<a href="/blog/tags" class="sidebar-more">查看更多 →</a>
+	</div>
+</aside>
+
+<style>
+	.sidebar {
+		position: sticky;
+		top: 2rem;
+	}
+
+	.sidebar-section {
+		background: var(--bg-secondary);
+		border-radius: 12px;
+		padding: 1.5rem;
+		margin-bottom: 1.5rem;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(var(--gray-light), 0.2);
+	}
+
+	.sidebar-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 2px solid var(--accent);
+	}
+
+	.category-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.category-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 0.75rem;
+		border-radius: 6px;
+		text-decoration: none;
+		color: var(--text-primary);
+		transition: all 0.2s ease;
+	}
+
+	.category-item:hover {
+		background: rgba(var(--gray-light), 0.1);
+		transform: translateX(4px);
+	}
+
+	.category-name {
+		font-size: 0.95rem;
+	}
+
+	.category-count {
+		background: var(--accent);
+		color: white;
+		padding: 0.125rem 0.5rem;
+		border-radius: 12px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.tag-cloud {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.tag-item {
+		display: inline-block;
+		padding: 0.25rem 0.75rem;
+		background: rgba(var(--gray-light), 0.1);
+		color: var(--text-secondary);
+		text-decoration: none;
+		border-radius: 4px;
+		transition: all 0.2s ease;
+	}
+
+	.tag-item:hover {
+		background: var(--accent);
+		color: white;
+		transform: translateY(-2px);
+	}
+
+	.sidebar-more {
+		display: inline-block;
+		margin-top: 0.75rem;
+		color: var(--accent);
+		text-decoration: none;
+		font-size: 0.875rem;
+		transition: transform 0.2s ease;
+	}
+
+	.sidebar-more:hover {
+		transform: translateX(4px);
+	}
+
+	@media (max-width: 1024px) {
+		.sidebar {
+			position: static;
+		}
+	}
+</style>
