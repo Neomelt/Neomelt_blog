@@ -61,7 +61,7 @@
 }
 
 body {
-	font-family: "Atkinson", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
 	margin: 0;
 	padding: 0;
 	text-align: left;
@@ -69,10 +69,13 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: var(--text-primary);
-	font-size: 20px;
-	line-height: 1.7;
+	font-size: 16px;
+	line-height: 1.8;
 	transition: background-color 0.3s ease, color 0.3s ease;
 	position: relative;
+	font-feature-settings: "liga" 1, "calt" 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 /* 二次元背景图片样式 */
@@ -122,28 +125,35 @@ h5,
 h6 {
 	margin: 0 0 0.5rem 0;
 	color: var(--text-primary);
-	line-height: 1.2;
+	line-height: 1.4;
+	font-weight: 600;
+	letter-spacing: -0.02em;
 	transition: color 0.3s ease;
 }
 
 h1 {
-	font-size: 3.052em;
+	font-size: 2.5em;
+	margin-top: 0;
 }
 
 h2 {
-	font-size: 2.441em;
+	font-size: 2em;
+	margin-top: 2em;
 }
 
 h3 {
-	font-size: 1.953em;
+	font-size: 1.5em;
+	margin-top: 1.6em;
 }
 
 h4 {
-	font-size: 1.563em;
+	font-size: 1.25em;
+	margin-top: 1.5em;
 }
 
 h5 {
-	font-size: 1.25em;
+	font-size: 1.125em;
+	margin-top: 1.5em;
 }
 
 strong,
@@ -160,11 +170,13 @@ a:hover {
 }
 
 p {
-	margin-bottom: 1em;
+	margin-bottom: 1.25em;
+	line-height: 1.8;
 }
 
 .prose p {
-	margin-bottom: 2em;
+	margin-bottom: 1.5em;
+	line-height: 1.8;
 }
 
 textarea {

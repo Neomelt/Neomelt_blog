@@ -84,7 +84,7 @@ const allCategories = [
 												{post.data.category || "未分类"}
 											</span>
 										</div>
-										<h2 class="title text-lg font-bold mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+									<h2 class="title text-lg font-bold mb-2 line-clamp-2 text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
 											{post.data.title}
 										</h2>
 										<p class="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-3 flex-grow">
@@ -136,8 +136,8 @@ const allCategories = [
 		.category-link {
 			padding: 0.5rem 1.5rem;
 			border-radius: 2rem;
-			background-color: white;
-			color: rgb(var(--gray-dark));
+			background-color: var(--bg-secondary);
+			color: var(--text-primary);
 			text-decoration: none;
 			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 			transition: all 0.2s ease;
@@ -148,11 +148,12 @@ const allCategories = [
 			color: white;
 		}
 		.post-card {
-			background-color: white;
+			background-color: var(--bg-secondary);
 			border-radius: 0.5rem;
 			overflow: hidden;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 			transition: all 0.3s ease;
+			border: 1px solid rgba(var(--gray-light), 0.2);
 		}
 		.post-card:hover {
 			transform: translateY(-5px);
