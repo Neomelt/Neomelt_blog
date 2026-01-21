@@ -12,11 +12,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 					<img
 						src={AboutHeroImage.src}
 						alt="头像"
-						class="rounded-full w-32 h-32 object-cover mx-auto border-4 border-white shadow-lg"
+						class="rounded-full w-32 h-32 object-cover mx-auto border-4 border-white dark:border-gray-700 shadow-lg"
 					/>
 				</div>
-				<h1 class="text-4xl font-bold mb-4">关于我</h1>
-				<p class="text-xl max-w-2xl mx-auto text-gray-600">
+				<h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">关于我</h1>
+				<p class="text-xl max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
 					我干了什么 究竟拿了时间换了什么
 				</p>
 			</div>
@@ -91,8 +91,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 	.about-hero {
 		background: linear-gradient(
 			to bottom,
-			rgba(var(--gray-light), 0.8),
-			rgba(255, 255, 255, 0.8)
+			rgba(var(--gray-light), 0.3),
+			var(--bg-primary)
 		);
 		padding: 6rem 0;
 	}
@@ -103,7 +103,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 		font-size: 1.75rem;
 	}
 	.prose h3 {
-		color: rgb(var(--gray-dark));
+		color: var(--text-primary);
 		margin-top: 1.5rem;
 		margin-bottom: 0.75rem;
 		font-size: 1.5rem;
@@ -111,6 +111,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 	.prose p {
 		margin-bottom: 1.5rem;
 		line-height: 1.8;
+		color: var(--text-primary);
 	}
 	.prose ul {
 		margin-bottom: 1.5rem;
@@ -121,10 +122,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 		margin-bottom: 0.5rem;
 	}
 	.skill-category {
-		background-color: white;
+		background-color: var(--bg-secondary);
 		padding: 1.5rem;
 		border-radius: 0.5rem;
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(var(--gray-light), 0.2);
 	}
 	.timeline-item {
 		position: relative;
