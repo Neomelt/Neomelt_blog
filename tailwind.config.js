@@ -40,7 +40,11 @@ export default {
         accent: '#2337ff',
       },
       fontFamily: {
-        sans: ['Atkinson', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', '"Noto Sans"', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      lineHeight: {
+        'relaxed': '1.8',
+        'loose': '2',
       },
       backgroundColor: {
         'dark-primary': '#1a1f35',

@@ -62,12 +62,13 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		box-shadow: var(--box-shadow);
 	}
 	.prose {
-		width: min(85vw, 1000px);
+		width: min(85vw, 720px);
 		max-width: calc(100% - 2em);
 		margin: auto;
-		padding: clamp(0.5em, 2vw, 1em);
+		padding: clamp(1em, 3vw, 2em);
 		color: rgb(var(--gray-dark));
-		line-height: 1.65;
+		line-height: 1.8;
+		font-size: 1.0625rem;
 	}
 	.title {
 		margin-bottom: 1em;
