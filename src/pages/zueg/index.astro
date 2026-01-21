@@ -11,16 +11,18 @@ const sortedZueg = zuegEntries.sort(
 ---
 
 <BaseLayout title={`随笔 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
-    <main class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-            <h1
-                class="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100"
-            >
-                随笔
-            </h1>
-            <p class="text-lg mb-8 text-gray-700 dark:text-gray-300">
-                这里记录我的技术思考、项目经验和个人感悟。
-            </p>
+    <main>
+        <section class="zueg-hero py-16 text-center">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">随笔</h1>
+                <p class="text-xl max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+                    这里记录我的技术思考、项目经验和个人感悟。
+                </p>
+            </div>
+        </section>
+
+        <section class="zueg-content py-12">
+            <div class="container mx-auto px-4 max-w-5xl">
 
             <!-- 分类过滤器 -->
             <div class="flex flex-wrap gap-3 mb-8">
@@ -217,6 +219,7 @@ const sortedZueg = zuegEntries.sort(
                 )
             }
         </div>
+        </section>
     </main>
 </BaseLayout>
 
@@ -282,3 +285,14 @@ const sortedZueg = zuegEntries.sort(
         });
     }
 </script>
+
+<style>
+    .zueg-hero {
+        background: linear-gradient(
+            to bottom,
+            rgba(var(--gray-light), 0.3),
+            var(--bg-primary)
+        );
+        padding: 4rem 0;
+    }
+</style>

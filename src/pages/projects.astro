@@ -7,14 +7,15 @@ import { SITE_DESCRIPTION } from "../consts";
     <main>
         <section class="projects-hero py-16 text-center">
             <div class="container mx-auto px-4">
-                <h1 class="text-4xl font-bold mb-4">项目展示</h1>
-                <p class="text-xl max-w-2xl mx-auto text-gray-600">
+                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">项目展示</h1>
+                <p class="text-xl max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
                     这里展示了我的一些个人项目和作品
+                </p>
                 </p>
             </div>
         </section>
 
-        <section class="projects-content py-10">
+        <section class="projects-content py-12">
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     <!-- 项目卡片 1 -->
@@ -27,8 +28,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2">个人博客网站</h2>
-                        <p class="text-gray-600 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">个人博客网站</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
                             基于 Astro 构建的个人博客网站，使用 TailwindCSS
                             进行样式设计，支持 Markdown 和 MDX 内容创作。
                         </p>
@@ -102,8 +103,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2">任务管理应用</h2>
-                        <p class="text-gray-600 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">任务管理应用</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
                             一个基于 React 和 TypeScript
                             开发的任务管理应用，支持任务创建、编辑、删除和状态管理等功能。
                         </p>
@@ -177,8 +178,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2">数据可视化面板</h2>
-                        <p class="text-gray-600 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">数据可视化面板</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
                             使用 Vue.js 和 ECharts
                             实现的数据可视化面板，支持多种图表类型和数据筛选功能。
                         </p>
@@ -251,8 +252,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2">API 服务</h2>
-                        <p class="text-gray-600 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">API 服务</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
                             使用 Node.js 和 Express 开发的 RESTful API
                             服务，提供数据存储、查询和身份验证等功能。
                         </p>
@@ -355,17 +356,18 @@ import { SITE_DESCRIPTION } from "../consts";
     .projects-hero {
         background: linear-gradient(
             to bottom,
-            rgba(var(--gray-light), 0.8),
-            rgba(255, 255, 255, 0.8)
+            rgba(var(--gray-light), 0.3),
+            var(--bg-primary)
         );
-        padding: 5rem 0;
+        padding: 4rem 0;
     }
     .project-card {
-        background-color: white;
+        background-color: var(--bg-secondary);
         padding: 1.5rem;
         border-radius: 0.5rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(var(--gray-light), 0.2);
     }
     .project-card:hover {
         transform: translateY(-5px);
