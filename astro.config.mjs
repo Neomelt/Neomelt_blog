@@ -7,6 +7,6 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://xlqmu.com',
+	site: 'https://www.neomelt.cloud/',
 	integrations: [mdx(), sitemap(), tailwind()],
 });
