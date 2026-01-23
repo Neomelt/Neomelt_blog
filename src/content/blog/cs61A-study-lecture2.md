@@ -1,7 +1,7 @@
 ---
 title: 'cs61A-study-lecture2'
 description: '函数即抽象'
-pubDate: '2026-01-22'
+pubDate: '2026-01-21'
 heroImage: '../../assets/cover.svg'
 category: 'study'
 series: ''
