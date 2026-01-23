@@ -3,8 +3,8 @@ title: 'cs61A-study-lecture2'
 description: '函数即抽象'
 pubDate: '2026-01-22'
 heroImage: '../../assets/cover.svg'
-category: ''
-series: 'coding'
+category: 'study'
+series: ''
 tags: ['coding', 'python', 'study']
 ---
 
