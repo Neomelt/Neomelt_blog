@@ -3,8 +3,8 @@ title: 'Rust入门指南'
 description: '从零开始学习Rust编程语言的基础知识和核心概念'
 pubDate: '2025-08-16'
 heroImage: '../../assets/cover.svg'
-category: '编程'
-tags: ['Rust', '编程语言', '系统编程']
+category: 'coding'
+tags: ['Rust', 'study']
 ---
 
 ## Rust入门指南
