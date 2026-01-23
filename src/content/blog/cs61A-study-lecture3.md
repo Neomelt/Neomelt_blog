@@ -14,13 +14,16 @@ tags: ['coding', 'python', 'study', 'cs61A']
 语句一般表现为命令形式，如 def fn(x,y)或者是x = 4这种
 
 # 控制流工具
+
 条件，迭代，局部赋值
 
 函数中的变量就是局部帧，也就是局部变量，对应的就是全局变量，也就是全局帧
+
 ``` python
 def percent_difference(x, y):
     return 100 * abs(x-y) / x
 ```
+
 这样写的好处是避免了局部帧的使用，没有中间变量，看起来很简洁，但是一旦逻辑链增长，这样写出来的代码没人能看懂2333
 
 ``` python
@@ -29,6 +32,7 @@ def percent_difference(x, y):
     percent = diff / x # 第二步：算比例
     return 100 * percent
 ```
+
 分开来写看起来确实变长了，但是确实易读性更高。
 
 局部赋值的两个功劳：
@@ -46,6 +50,7 @@ def percent_difference(x, y):
 当断言的表达式为真时，执行 assert 语句没有任何效果。当它为假时，assert 会引发一个错误并停止执行。rust中一旦断言为假程序就会panic。工程中一般不会将测试写在实际的工作代码中，而是会单独make一个文件夹用于给每一个模块进行单元测试。
 
 > python中的优雅测试方法
+
 ``` zsh
 python3 -m doctest test.py
 ```
