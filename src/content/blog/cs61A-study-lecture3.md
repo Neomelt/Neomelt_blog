@@ -1,7 +1,7 @@
 ---
 title: 'cs61A-study-lecture3'
 description: 'Control flow'
-pubDate: '2026-01-22'
+pubDate: '2026-01-23'
 heroImage: '../../assets/cover.svg'
 category: ''
 series: 'coding'
