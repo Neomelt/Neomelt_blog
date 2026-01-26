@@ -78,7 +78,7 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* 二次元背景图片样式 */
+/* 背景图片样式 */
 body::before {
 	content: '';
 	position: fixed;
