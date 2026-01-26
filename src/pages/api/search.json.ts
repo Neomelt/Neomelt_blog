@@ -31,21 +31,6 @@ export const GET: APIRoute = async () => {
                 let url = `/zueg/${entry.id}`;
                 let type = "随笔";
                 
-                // 根据文件路径确定具体类型和URL
-                if (entry.id.startsWith("software/")) {
-                    type = "软件随笔";
-                    url = `/zueg/software/${entry.id.replace("software/", "")}`;
-                } else if (entry.id.startsWith("hardware/")) {
-                    type = "硬件随笔";
-                    url = `/zueg/hardware/${entry.id.replace("hardware/", "")}`;
-                } else if (entry.id.startsWith("website/")) {
-                    type = "网站随笔";
-                    url = `/zueg/website/${entry.id.replace("website/", "")}`;
-                } else if (entry.id.startsWith("algorithm/")) {
-                    type = "算法随笔";
-                    url = `/zueg/algorithm/${entry.id.replace("algorithm/", "")}`;
-                }
-                
                 return {
                     id: entry.id,
                     title: entry.data.title,
