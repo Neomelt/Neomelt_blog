@@ -217,11 +217,11 @@ const defaultStyle = {
             // 生成文章列表
             if (postsList) {
                 postsList.innerHTML = posts
-                    .sort(
-                        (a, b) =>
-                            new Date(b.data.pubDate).getTime() -
-                            new Date(a.data.pubDate).getTime(),
-                    )
+                    .sort((a, b) => {
+                        if (a.data.pinned && !b.data.pinned) return -1;
+                        if (!a.data.pinned && b.data.pinned) return 1;
+                        return new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime();
+                    })
                     .map(
                         (post) => `
                                 <article class="post-card-item">
@@ -231,6 +231,12 @@ const defaultStyle = {
                                                 <div class="post-date">
                                                     ${new Date(post.data.pubDate).toLocaleDateString("zh-CN")}
                                                 </div>
+                                                ${post.data.pinned ? `
+                                                    <span class="post-pinned">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 0.25rem;"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
+                                                        置顶
+                                                    </span>
+                                                ` : ""}
                                             </div>
                                             <h3 class="post-title">
                                                 ${post.data.title}
@@ -351,6 +357,16 @@ const defaultStyle = {
 	.post-date {
 		font-size: 0.875rem;
 		color: var(--text-secondary);
+	}
+
+	.post-pinned {
+		background: rgba(234, 179, 8, 0.1);
+		color: rgb(202, 138, 4);
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.813rem;
+		display: flex;
+		align-items: center;
 	}
 
 	.post-title {

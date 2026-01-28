@@ -9,9 +9,11 @@ import { paginate } from "../../../utils/pagination.ts";
 import { SITE_DESCRIPTION } from "../../../consts";
 
 export async function getStaticPaths() {
-    const posts = (await getCollection("blog")).sort(
-        (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-    );
+    const posts = (await getCollection("blog")).sort((a, b) => {
+        if (a.data.pinned && !b.data.pinned) return -1;
+        if (!a.data.pinned && b.data.pinned) return 1;
+        return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+    });
 
     const postsPerPage = 5;
     const totalPages = Math.ceil(posts.length / postsPerPage);
@@ -103,6 +105,12 @@ const allCategories = [
 												</div>
 												{post.data.category && (
 													<span class="post-category">{post.data.category}</span>
+												)}
+												{post.data.pinned && (
+													<span class="post-pinned">
+														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
+														置顶
+													</span>
 												)}
 											</div>
 											<h3 class="post-title">{post.data.title}</h3>
@@ -262,6 +270,17 @@ const allCategories = [
 		border-radius: 9999px;
 		font-size: 0.75rem;
 		font-weight: 500;
+	}
+
+	.post-pinned {
+		background: rgba(234, 179, 8, 0.1);
+		color: rgb(202, 138, 4);
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		display: flex;
+		align-items: center;
 	}
 
 	.post-title {
