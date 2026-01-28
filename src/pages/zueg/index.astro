@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import FormattedDate from "../../components/FormattedDate.astro";
+import ProfileCard from "../../components/ProfileCard.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
@@ -11,7 +13,16 @@ const sortedZueg = zuegEntries.sort(
 ---
 
 <BaseLayout title={`随笔 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
-    <main class="pt-24">
+    <div class="homepage-container">
+        <div class="homepage-layout">
+            <!-- 左侧：个人信息 + 侧边栏 -->
+            <div class="homepage-sidebar">
+                <ProfileCard />
+                <Sidebar />
+            </div>
+
+            <!-- 右侧：随笔列表 -->
+            <main class="homepage-content">
         <section class="zueg-content py-12">
             <div class="container mx-auto px-4 max-w-5xl">
 
@@ -88,11 +99,8 @@ const sortedZueg = zuegEntries.sort(
                 </button>
             </div>
 
-            <!-- 随笔文章网格 -->
-            <div
-                class="grid grid-cols-1 md:grid-cols-2 gap-8"
-                id="articles-grid"
-            >
+            <!-- 随笔文章列表 - 单列布局 -->
+            <div class="flex flex-col gap-8" id="articles-grid">
                 {
                     sortedZueg.map((entry) => (
                         <div
@@ -211,7 +219,9 @@ const sortedZueg = zuegEntries.sort(
             }
         </div>
         </section>
-    </main>
+            </main>
+        </div>
+    </div>
 </BaseLayout>
 
 <script is:inline>
@@ -278,6 +288,33 @@ const sortedZueg = zuegEntries.sort(
 </script>
 
 <style>
+    /* 首页容器 */
+    .homepage-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        padding-top: 6rem;
+    }
+
+    /* 首页布局 */
+    .homepage-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 3rem;
+    }
+
+    /* 左侧边栏 */
+    .homepage-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* 右侧内容区 */
+    .homepage-content {
+        min-width: 0;
+    }
+
     .zueg-hero {
         background: linear-gradient(
             to bottom,
@@ -285,5 +322,17 @@ const sortedZueg = zuegEntries.sort(
             var(--bg-primary)
         );
         padding: 4rem 0;
+    }
+
+    @media (max-width: 1024px) {
+        .homepage-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .homepage-sidebar {
+            max-width: 600px;
+            margin: 0 auto;
+        }
     }
 </style>

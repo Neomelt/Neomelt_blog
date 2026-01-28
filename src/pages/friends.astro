@@ -1,10 +1,21 @@
 ---
+import ProfileCard from "../components/ProfileCard.astro";
+import Sidebar from "../components/Sidebar.astro";
 import { SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title={`友链 - ${SITE_TITLE}`} description="我的友情链接">
-    <main class="pt-24">
+    <div class="homepage-container">
+        <div class="homepage-layout">
+            <!-- 左侧：个人信息 + 侧边栏 -->
+            <div class="homepage-sidebar">
+                <ProfileCard />
+                <Sidebar />
+            </div>
+
+            <!-- 右侧：友链内容 -->
+            <main class="homepage-content">
         <section class="friends-content py-12">
             <div class="container mx-auto px-4 max-w-5xl">
 
@@ -60,10 +71,40 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             </div>
         </div>
         </section>
-    </main>
+            </main>
+        </div>
+    </div>
+</BaseLayout>
 
-    <style>
-        .friends-hero {
+<style>
+    /* 首页容器 */
+    .homepage-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        padding-top: 6rem;
+    }
+
+    /* 首页布局 */
+    .homepage-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 3rem;
+    }
+
+    /* 左侧边栏 */
+    .homepage-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* 右侧内容区 */
+    .homepage-content {
+        min-width: 0;
+    }
+
+    .friends-hero {
             background: linear-gradient(
                 to bottom,
                 rgba(var(--gray-light), 0.3),
@@ -82,5 +123,16 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             background: rgba(31, 41, 55, 0.9);
             border: 1px solid rgba(75, 85, 99, 0.3);
         }
+
+        @media (max-width: 1024px) {
+            .homepage-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .homepage-sidebar {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
     </style>
-</BaseLayout>

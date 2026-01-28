@@ -3,56 +3,94 @@ import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Comments from "../components/Comments.astro";
+import TableOfContents from "../components/TableOfContents.astro";
 import BaseLayout from "./BaseLayout.astro";
 
-type Props = CollectionEntry<"blog">["data"];
+export interface Props {
+	post: CollectionEntry<"blog">;
+	headings: { depth: number; slug: string; text: string }[];
+}
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { post, headings } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage } = post.data;
 ---
 
 <BaseLayout title={title} description={description}>
-	<main>
-		<article>
-			<div class="hero-image">
-				{
-					heroImage && (
-						<Image
-							width={1020}
-							height={510}
-							src={heroImage}
-							alt=""
-						/>
-					)
-				}
-			</div>
-			<div class="prose">
-				<div class="title">
-					<div class="date">
-						<FormattedDate date={pubDate} />
+	<div class="page-container">
+		<div class="page-layout">
+			<!-- 主内容区 -->
+			<main class="main-content">
+				<article>
+					<div class="hero-image">
 						{
-							updatedDate && (
-								<div class="last-updated-on">
-									Last updated on{" "}
-									<FormattedDate date={updatedDate} />
-								</div>
+							heroImage && (
+								<Image
+									width={1020}
+									height={510}
+									src={heroImage}
+									alt=""
+								/>
 							)
 						}
 					</div>
-					<h1>{title}</h1>
-					<hr />
-				</div>
-				<slot />
-			</div>
-			
-			<!-- 评论区 -->
-			<Comments />
-		</article>
-	</main>
+					<div class="prose">
+						<div class="title">
+							<div class="date">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<div class="last-updated-on">
+											Last updated on{" "}
+											<FormattedDate date={updatedDate} />
+										</div>
+									)
+								}
+							</div>
+							<h1>{title}</h1>
+							<hr />
+						</div>
+						<slot />
+					</div>
+					
+					<!-- 评论区 -->
+					<Comments />
+				</article>
+			</main>
+
+			<!-- 目录 -->
+			<aside class="page-sidebar">
+				<TableOfContents headings={headings} />
+			</aside>
+		</div>
+	</div>
 </BaseLayout>
 
 <style>
+	.page-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		padding-top: 6rem;
+	}
+
+	.page-layout {
+		display: grid;
+		grid-template-columns: 1fr 320px;
+		gap: 3rem;
+		align-items: start;
+	}
+
+	.main-content {
+		min-width: 0;
+	}
+
+	.page-sidebar {
+		position: sticky;
+		top: 6rem;
+	}
+
 	main {
-		width: calc(100% - 2em);
+		width: 100%;
 		max-width: 100%;
 		margin: 0;
 	}
@@ -66,8 +104,8 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		box-shadow: var(--box-shadow);
 	}
 	.prose {
-		width: min(120vw, 1000px);
-		max-width: calc(100% - 2em);
+		width: 100%;
+		max-width: 100%;
 		margin: auto;
 		padding: clamp(1em, 3vw, 2em);
 		color: rgb(var(--gray-dark));
@@ -89,5 +127,17 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	}
 	.last-updated-on {
 		font-style: italic;
+	}
+
+	@media (max-width: 1024px) {
+		.page-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.page-sidebar {
+			position: static;
+			max-width: 600px;
+			margin: 2rem auto 0;
+		}
 	}
 </style>

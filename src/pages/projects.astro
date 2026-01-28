@@ -1,13 +1,24 @@
 ---
+import ProfileCard from "../components/ProfileCard.astro";
+import Sidebar from "../components/Sidebar.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { SITE_DESCRIPTION } from "../consts";
 ---
 
 <BaseLayout title="项目展示" description={SITE_DESCRIPTION}>
-    <main class="pt-24">
+    <div class="homepage-container">
+        <div class="homepage-layout">
+            <!-- 左侧：个人信息 + 侧边栏 -->
+            <div class="homepage-sidebar">
+                <ProfileCard />
+                <Sidebar />
+            </div>
+
+            <!-- 右侧：项目内容 -->
+            <main class="homepage-content">
         <section class="projects-content py-12">
             <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="flex flex-col gap-8 mb-12">
                     <!-- 项目卡片 1 -->
                     <div class="project-card">
                         <div class="project-image mb-4">
@@ -339,10 +350,39 @@ import { SITE_DESCRIPTION } from "../consts";
                 </div>
             </div>
         </section>
-    </main>
+            </main>
+        </div>
+    </div>
 </BaseLayout>
 
 <style>
+    /* 首页容器 */
+    .homepage-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        padding-top: 6rem;
+    }
+
+    /* 首页布局 */
+    .homepage-layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 3rem;
+    }
+
+    /* 左侧边栏 */
+    .homepage-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* 右侧内容区 */
+    .homepage-content {
+        min-width: 0;
+    }
+
     .projects-hero {
         background: linear-gradient(
             to bottom,
@@ -369,5 +409,17 @@ import { SITE_DESCRIPTION } from "../consts";
         border-radius: 0.25rem;
         font-size: 0.75rem;
         color: rgb(var(--gray-dark));
+    }
+
+    @media (max-width: 1024px) {
+        .homepage-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .homepage-sidebar {
+            max-width: 600px;
+            margin: 0 auto;
+        }
     }
 </style>
