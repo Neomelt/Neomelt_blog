@@ -1,0 +1,306 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import FormattedDate from "../../../components/FormattedDate.astro";
+import Pagination from "../../../components/Pagination.astro";
+import ProfileCard from "../../../components/ProfileCard.astro";
+import Sidebar from "../../../components/Sidebar.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { paginate } from "../../../utils/pagination.ts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../../consts";
+
+export async function getStaticPaths() {
+    const entries = (await getCollection("zueg")).sort(
+        (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+    );
+
+    const entriesPerPage = 5;
+    const totalPages = Math.ceil(entries.length / entriesPerPage);
+
+    return Array.from({ length: totalPages }, (_, i) => ({
+        params: { page: (i + 1).toString() },
+        props: { entries, currentPage: i + 1, totalPages },
+    }));
+}
+
+interface Props {
+	entries: CollectionEntry<"zueg">[];
+	currentPage: number;
+	totalPages: number;
+}
+
+const { entries, currentPage, totalPages } = Astro.props;
+const { items: paginatedPosts, pagination } = paginate(entries, currentPage, 5);
+
+// 简单的阅读时间估算（基于字数）
+function estimateReadingTime(content: string): number {
+	const wordsPerMinute = 200;
+	const wordCount = content.length;
+	return Math.ceil(wordCount / wordsPerMinute);
+}
+---
+
+<BaseLayout
+    title={`随笔 - 第${currentPage}页`}
+    description={SITE_DESCRIPTION}
+>
+	<main>
+		<div class="homepage-container">
+			<div class="homepage-layout">
+				<!-- 左侧：个人信息 + 侧边栏 -->
+				<div class="homepage-sidebar">
+					<ProfileCard />
+					<Sidebar />
+				</div>
+
+				<!-- 右侧：随笔列表 -->
+				<div class="homepage-content">
+					<h2 class="section-title">随笔文章 - 第 {currentPage} 页</h2>
+					
+					<!-- 随笔文章列表 -->
+					<div class="post-list">
+						{paginatedPosts.map((entry) => {
+							const readingTime = estimateReadingTime(entry.body || "");
+							const wordCount = (entry.body || "").length;
+							
+							return (
+								<article class="post-card-item">
+									<a href={`/zueg/${entry.id}/`} class="post-card-link">
+										{entry.data.heroImage && (
+											<div class="post-thumbnail">
+												<img
+													src={typeof entry.data.heroImage === "string"
+														? entry.data.heroImage
+														: entry.data.heroImage?.src ||
+														  "/images/projects/placeholder-image.svg"
+													}
+													alt={entry.data.title}
+												/>
+											</div>
+										)}
+										<div class="post-content">
+											<div class="post-header">
+												<div class="post-date">
+													<FormattedDate date={entry.data.pubDate} />
+												</div>
+												{entry.data.category && (
+													<span class="post-category">{entry.data.category}</span>
+												)}
+											</div>
+											<h3 class="post-title">{entry.data.title}</h3>
+											<p class="post-description">{entry.data.description}</p>
+											<div class="post-meta">
+												<span>{wordCount} 字</span>
+												<span>|</span>
+												<span>{readingTime} 分钟</span>
+												{entry.data.tags && entry.data.tags.length > 0 && (
+													<>
+														<span>|</span>
+														<div class="post-tags">
+															{entry.data.tags.slice(0, 3).map((tag) => (
+																<span class="post-tag">#{tag}</span>
+															))}
+														</div>
+													</>
+												)}
+											</div>
+										</div>
+									</a>
+								</article>
+							);
+						})}
+					</div>
+
+					<!-- 如果没有文章 -->
+					{
+						paginatedPosts.length === 0 && (
+							<div class="text-center py-12">
+								<div class="text-gray-500 dark:text-gray-400 text-lg">
+									暂无文章
+								</div>
+							</div>
+						)
+					}
+
+					<!-- 分页组件 -->
+					{
+						pagination.totalPages > 1 && (
+							<Pagination pagination={pagination} basePath="/zueg" />
+						)
+					}
+				</div>
+			</div>
+		</div>
+	</main>
+</BaseLayout>
+
+<style>
+	/* 首页容器 */
+	.homepage-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		padding-top: 6rem;
+	}
+
+	/* 首页布局 */
+	.homepage-layout {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: 3rem;
+	}
+
+	/* 左侧边栏 */
+	.homepage-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	/* 右侧内容区 */
+	.homepage-content {
+		min-width: 0;
+	}
+
+	/* 分类标题 */
+	.section-title {
+		font-size: 2rem;
+		font-weight: 700;
+		margin-bottom: 2rem;
+		color: var(--text-primary);
+	}
+
+	/* 文章列表 */
+	.post-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.post-card-item {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border-color);
+		border-radius: 12px;
+		overflow: hidden;
+		transition: all 0.3s ease;
+	}
+
+	.post-card-item:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+		border-color: rgb(59, 130, 246);
+	}
+
+	.post-card-link {
+		display: flex;
+		flex-direction: column;
+		text-decoration: none;
+		color: inherit;
+		height: 100%;
+	}
+
+	.post-thumbnail {
+		width: 100%;
+		height: 240px;
+		overflow: hidden;
+		background: var(--bg-tertiary);
+	}
+
+	.post-thumbnail img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.post-card-item:hover .post-thumbnail img {
+		transform: scale(1.05);
+	}
+
+	.post-content {
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		flex: 1;
+	}
+
+	.post-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5rem;
+	}
+
+	.post-date {
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+	}
+
+	.post-category {
+		background: rgb(59, 130, 246);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+	}
+
+	.post-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: var(--text-primary);
+		line-height: 1.4;
+	}
+
+	.post-card-link:hover .post-title {
+		color: rgb(59, 130, 246);
+	}
+
+	.post-description {
+		color: var(--text-secondary);
+		line-height: 1.6;
+		margin-bottom: 1rem;
+		flex: 1;
+	}
+
+	.post-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		flex-wrap: wrap;
+	}
+
+	.post-tags {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.post-tag {
+		color: rgb(59, 130, 246);
+		font-size: 0.875rem;
+		transition: color 0.2s;
+	}
+
+	.post-tag:hover {
+		color: rgb(37, 99, 235);
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 1024px) {
+		.homepage-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.homepage-sidebar {
+			order: 2;
+		}
+
+		.homepage-content {
+			order: 1;
+		}
+	}
+</style>

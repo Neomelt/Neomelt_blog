@@ -2,6 +2,8 @@
 import { getCollection } from "astro:content";
 import FormattedDate from "../../../components/FormattedDate.astro";
 import Pagination from "../../../components/Pagination.astro";
+import ProfileCard from "../../../components/ProfileCard.astro";
+import Sidebar from "../../../components/Sidebar.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
 import { SITE_DESCRIPTION } from "../../../consts";
@@ -23,6 +25,13 @@ export async function getStaticPaths() {
 const { posts, currentPage, totalPages } = Astro.props;
 const { items: paginatedPosts, pagination } = paginate(posts, currentPage, 5);
 
+// 简单的阅读时间估算（基于字数）
+function estimateReadingTime(content: string): number {
+	const wordsPerMinute = 200;
+	const wordCount = content.length;
+	return Math.ceil(wordCount / wordsPerMinute);
+}
+
 // 获取所有分类
 const allCategories = [
     ...new Set(posts.map((post) => post.data.category || "未分类")),
@@ -33,243 +42,350 @@ const allCategories = [
     title={`博客文章 - 第${currentPage}页`}
     description={SITE_DESCRIPTION}
 >
-    <main>
-        <section class="blog-hero py-16 text-center">
-            <div class="container mx-auto px-4">
-                <h1 class="text-4xl font-bold mb-4">博客文章</h1>
-                <p
-                    class="text-xl max-w-2xl mx-auto text-gray-600 dark:text-gray-300"
-                >
-                    我的所有博客文章合集 - 第 {currentPage} 页
-                </p>
-            </div>
-        </section>
+	<main>
+		<div class="homepage-container">
+			<div class="homepage-layout">
+				<!-- 左侧：个人信息 + 侧边栏 -->
+				<div class="homepage-sidebar">
+					<ProfileCard />
+					<Sidebar />
+				</div>
 
-        <section class="blog-content py-10">
-            <div class="container mx-auto px-4">
-                <!-- 分类筛选 -->
-                <div
-                    class="category-filter mb-8 flex flex-wrap justify-center gap-4"
-                >
-                    <a
-                        href="/blog"
-                        class="category-link active"
-                        data-category="all">全部</a
-                    >
-                    {
-                        allCategories.map((category) => (
-                            <a
-                                href="#"
-                                class="category-link"
-                                data-category={category}
-                            >
-                                {category}
-                            </a>
-                        ))
-                    }
-                </div>
+				<!-- 右侧：博客列表 -->
+				<div class="homepage-content">
+					<h2 class="section-title">博客文章 - 第 {currentPage} 页</h2>
+					<!-- 分类筛选 -->
+					<div
+						class="category-filter mb-8 flex flex-wrap justify-center gap-4"
+					>
+						<a
+							href="/blog"
+							class="category-link active"
+							data-category="all">全部</a
+						>
+						{
+							allCategories.map((category) => (
+								<a
+									href="#"
+									class="category-link"
+									data-category={category}
+								>
+									{category}
+								</a>
+							))
+						}
+					</div>
 
-                <!-- 文章列表 - 每行5个 -->
-                <!-- 文章列表 - 每行5个 -->
-                <div
-                    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-                >
-                    {
-                        paginatedPosts.map((post) => (
-                            <article
-                                class="post-card group"
-                                data-category={post.data.category || "未分类"}
-                            >
-                                <a
-                                    href={`/blog/${post.id}/`}
-                                    class="block h-full"
-                                >
-                                    {post.data.heroImage && (
-                                        <div class="aspect-video overflow-hidden rounded-t-lg">
-                                            <img
-                                                src={post.data.heroImage.src}
-                                                alt={post.data.title}
-                                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                            />
-                                        </div>
-                                    )}
-                                    <div class="p-4 flex flex-col h-full">
-                                        <div class="post-meta mb-2 text-xs text-gray-500 dark:text-gray-400">
-                                            <span class="category bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
-                                                {post.data.category || "未分类"}
-                                            </span>
-                                        </div>
-                                        <h2 class="title text-lg font-bold mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                            {post.data.title}
-                                        </h2>
-                                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-3 flex-grow">
-                                            {post.data.description}
-                                        </p>
-                                        <div class="mt-auto">
-                                            <FormattedDate
-                                                date={post.data.pubDate}
-                                            />
-                                        </div>
-                                    </div>
-                                </a>
-                            </article>
-                        ))
-                    }
-                </div>
+					<!-- 文章列表 -->
+					<div class="post-list">
+						{paginatedPosts.map((post) => {
+							const readingTime = estimateReadingTime(post.body || "");
+							const wordCount = (post.body || "").length;
+							
+							return (
+								<article class="post-card-item" data-category={post.data.category || "未分类"}>
+									<a href={`/blog/${post.id}/`} class="post-card-link">
+										{post.data.heroImage && (
+											<div class="post-thumbnail">
+												<img 
+													src={typeof post.data.heroImage === 'string' 
+														? post.data.heroImage 
+														: post.data.heroImage.src
+													} 
+													alt={post.data.title}
+												/>
+											</div>
+										)}
+										<div class="post-content">
+											<div class="post-header">
+												<div class="post-date">
+													<FormattedDate date={post.data.pubDate} />
+												</div>
+												{post.data.category && (
+													<span class="post-category">{post.data.category}</span>
+												)}
+											</div>
+											<h3 class="post-title">{post.data.title}</h3>
+											<p class="post-description">{post.data.description}</p>
+											<div class="post-meta">
+												<span>{wordCount} 字</span>
+												<span>|</span>
+												<span>{readingTime} 分钟</span>
+												{post.data.tags && post.data.tags.length > 0 && (
+													<>
+														<span>|</span>
+														<div class="post-tags">
+															{post.data.tags.slice(0, 3).map(tag => (
+																<span class="post-tag">#{tag}</span>
+															))}
+														</div>
+													</>
+												)}
+											</div>
+										</div>
+									</a>
+								</article>
+							);
+						})}
+					</div>
 
-                <!-- 如果没有文章 -->
-                {
-                    paginatedPosts.length === 0 && (
-                        <div class="text-center py-12">
-                            <div class="text-6xl mb-4">📝</div>
-                            <h3 class="text-xl font-semibold mb-2">暂无文章</h3>
-                            <p class="text-gray-600 dark:text-gray-400">
-                                还没有发布任何博客文章
-                            </p>
-                        </div>
-                    )
-                }
+					<!-- 如果没有文章 -->
+					{
+						paginatedPosts.length === 0 && (
+							<div class="text-center py-12">
+								<div class="text-gray-500 dark:text-gray-400 text-lg">
+									暂无文章
+								</div>
+							</div>
+						)
+					}
 
-                <!-- 分页组件 -->
-                {
-                    pagination.totalPages > 1 && (
-                        <Pagination pagination={pagination} basePath="/blog" />
-                    )
-                }
-            </div>
-        </section>
-    </main>
+					<!-- 分页组件 -->
+					{
+						pagination.totalPages > 1 && (
+							<Pagination pagination={pagination} basePath="/blog" />
+						)
+					}
+				</div>
+			</div>
+		</div>
+	</main>
 </BaseLayout>
 
 <style>
-    .category-link {
-        @apply px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-blue-500 hover:text-blue-500 transition-colors;
-    }
+	/* 首页容器 */
+	.homepage-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		padding-top: 6rem; /* 为固定header留出空间 */
+	}
 
-    .category-link.active {
-        @apply bg-blue-500 text-white border-blue-500;
-    }
+	/* 首页布局 */
+	.homepage-layout {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: 3rem;
+	}
 
-    .post-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 overflow-hidden;
-    }
+	/* 左侧边栏 */
+	.homepage-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
 
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+	/* 右侧内容区 */
+	.homepage-content {
+		min-width: 0;
+	}
 
-    .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+	/* 分类标题 */
+	.section-title {
+		font-size: 2rem;
+		font-weight: 700;
+		margin-bottom: 2rem;
+		color: var(--text-primary);
+	}
+
+	/* 文章列表 */
+	.post-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.post-card-item {
+		background: var(--bg-secondary);
+		border: 1px solid var(--border-color);
+		border-radius: 12px;
+		overflow: hidden;
+		transition: all 0.3s ease;
+	}
+
+	.post-card-item:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+		border-color: rgb(59, 130, 246);
+	}
+
+	.post-card-link {
+		display: flex;
+		flex-direction: column;
+		text-decoration: none;
+		color: inherit;
+		height: 100%;
+	}
+
+	.post-thumbnail {
+		width: 100%;
+		height: 240px;
+		overflow: hidden;
+		background: var(--bg-tertiary);
+	}
+
+	.post-thumbnail img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.post-card-item:hover .post-thumbnail img {
+		transform: scale(1.05);
+	}
+
+	.post-content {
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		flex: 1;
+	}
+
+	.post-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.5rem;
+	}
+
+	.post-date {
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+	}
+
+	.post-category {
+		background: rgb(59, 130, 246);
+		color: white;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 500;
+	}
+
+	.post-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: var(--text-primary);
+		line-height: 1.4;
+	}
+
+	.post-card-link:hover .post-title {
+		color: rgb(59, 130, 246);
+	}
+
+	.post-description {
+		color: var(--text-secondary);
+		line-height: 1.6;
+		margin-bottom: 1rem;
+		flex: 1;
+	}
+
+	.post-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		flex-wrap: wrap;
+	}
+
+	.post-tags {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.post-tag {
+		color: rgb(59, 130, 246);
+		font-size: 0.875rem;
+		transition: color 0.2s;
+	}
+
+	.post-tag:hover {
+		color: rgb(37, 99, 235);
+	}
+
+	/* 分类筛选 */
+	.category-filter {
+		margin-bottom: 2rem;
+	}
+
+	.category-link {
+		padding: 0.5rem 1.5rem;
+		border-radius: 9999px;
+		border: 1px solid var(--border-color);
+		background: var(--bg-secondary);
+		color: var(--text-primary);
+		text-decoration: none;
+		transition: all 0.2s;
+		font-size: 0.875rem;
+	}
+
+	.category-link:hover {
+		border-color: rgb(59, 130, 246);
+		color: rgb(59, 130, 246);
+	}
+
+	.category-link.active {
+		background: rgb(59, 130, 246);
+		color: white;
+		border-color: rgb(59, 130, 246);
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 1024px) {
+		.homepage-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.homepage-sidebar {
+			order: 2;
+		}
+
+		.homepage-content {
+			order: 1;
+		}
+	}
 </style>
 
 <script>
-    // 分类筛选功能
-    document.addEventListener("DOMContentLoaded", function () {
-        const categoryLinks = document.querySelectorAll(".category-link");
-        const postCards = document.querySelectorAll(".post-card");
+	// 分类筛选功能
+	document.addEventListener("DOMContentLoaded", function () {
+		const categoryLinks = document.querySelectorAll(".category-link");
+		const postCards = document.querySelectorAll(".post-card-item");
 
-        categoryLinks.forEach((link) => {
-            link.addEventListener("click", function (e) {
-                const linkElement = e.target as HTMLElement;
-                if (!linkElement.getAttribute("href")?.startsWith("/")) {
-                    e.preventDefault();
-                }
+		categoryLinks.forEach((link) => {
+			link.addEventListener("click", function (e) {
+				const linkElement = e.target as HTMLElement;
+				if (!linkElement.getAttribute("href")?.startsWith("/")) {
+					e.preventDefault();
+				}
 
-                // 更新激活状态
-                categoryLinks.forEach((l) => l.classList.remove("active"));
-                linkElement.classList.add("active");
+				// 更新激活状态
+				categoryLinks.forEach((l) => l.classList.remove("active"));
+				linkElement.classList.add("active");
 
-                const selectedCategory =
-                    linkElement.getAttribute("data-category");
+				const selectedCategory =
+					linkElement.getAttribute("data-category");
 
-                // 筛选文章
-                postCards.forEach((card) => {
-                    const cardElement = card as HTMLElement;
-                    const cardCategory =
-                        cardElement.getAttribute("data-category");
-                    if (
-                        selectedCategory === "all" ||
-                        cardCategory === selectedCategory
-                    ) {
-                        cardElement.style.display = "block";
-                    } else {
-                        cardElement.style.display = "none";
-                    }
-                });
-            });
-        });
-    });
+				// 筛选文章
+				postCards.forEach((card) => {
+					const cardElement = card as HTMLElement;
+					const cardCategory =
+						cardElement.getAttribute("data-category");
+					if (
+						selectedCategory === "all" ||
+						cardCategory === selectedCategory
+					) {
+						cardElement.style.display = "block";
+					} else {
+						cardElement.style.display = "none";
+					}
+				});
+			});
+		});
+	});
 </script>
-
-<!-- 如果没有文章 -->
-{
-    paginatedPosts.length === 0 && (
-        <div class="text-center py-12">
-            <div class="text-6xl mb-4">📝</div>
-            <h3 class="text-xl font-semibold mb-2">暂无文章</h3>
-            <p class="text-gray-600 dark:text-gray-400">
-                还没有发布任何博客文章
-            </p>
-        </div>
-    )
-}
-
-<!-- 分页组件 -->
-{totalPages > 1 && <Pagination pagination={pagination} basePath="/blog" />}
-
-<style>
-    .blog-hero {
-        background: linear-gradient(
-            to bottom,
-            rgba(59, 130, 246, 0.1),
-            rgba(255, 255, 255, 0.05)
-        );
-    }
-
-    .dark .blog-hero {
-        background: linear-gradient(
-            to bottom,
-            rgba(59, 130, 246, 0.2),
-            rgba(0, 0, 0, 0.1)
-        );
-    }
-
-    .category-link {
-        @apply px-4 py-2 rounded-lg transition-colors duration-200;
-        @apply bg-gray-100 hover:bg-gray-200 text-gray-700;
-        @apply dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300;
-        text-decoration: none;
-    }
-
-    .category-link.active {
-        @apply bg-blue-500 text-white;
-        @apply dark:bg-blue-600;
-    }
-
-    .post-card {
-        @apply bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300;
-        @apply border border-gray-200 dark:border-gray-700;
-        overflow: hidden;
-    }
-
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-</style>

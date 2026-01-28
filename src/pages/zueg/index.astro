@@ -3,13 +3,17 @@ import { getCollection } from "astro:content";
 import FormattedDate from "../../components/FormattedDate.astro";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
+import Pagination from "../../components/Pagination.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { paginate } from "../../utils/pagination.ts";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
 const zuegEntries = await getCollection("zueg");
 const sortedZueg = zuegEntries.sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+const { items: paginatedPosts, pagination } = paginate(sortedZueg, 1, 5);
 
 // 简单的阅读时间估算（基于字数）
 function estimateReadingTime(content: string): number {
@@ -107,13 +111,13 @@ function estimateReadingTime(content: string): number {
 
             <!-- 随笔文章列表 -->
             <div class="post-list">
-                {sortedZueg.map((entry) => {
+                {paginatedPosts.map((entry) => {
                     const readingTime = estimateReadingTime(entry.body || "");
                     const wordCount = (entry.body || "").length;
                     
                     return (
                         <article class="post-card-item" data-category={entry.data.category || "随笔"}>
-                            <a href={`/zueg/${entry.id}`} class="post-card-link">
+                            <a href={`/zueg/${entry.id}/`} class="post-card-link">
                                 {entry.data.heroImage && (
                                     <div class="post-thumbnail">
                                         <img
@@ -161,60 +165,19 @@ function estimateReadingTime(content: string): number {
 
             <!-- 如果没有文章，显示提示 -->
             {
-                sortedZueg.length === 0 && (
+                paginatedPosts.length === 0 && (
                     <div class="text-center py-12">
                         <div class="text-gray-500 dark:text-gray-400 text-lg">
-                            还没有随笔文章，开始写第一篇吧！
+                            还没有随笔文章。
                         </div>
-                        <a
-                            href="/zueg/create"
-                            class="mt-4 inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                        >
-                            写第一篇随笔
-                        </a>
                     </div>
                 )
             }
 
             <!-- 分页 -->
             {
-                sortedZueg.length > 0 && (
-                    <div class="flex justify-center items-center space-x-2 mt-12">
-                        <a
-                            href="#"
-                            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                        >
-                            上一页
-                        </a>
-                        <span class="px-4 py-2 bg-blue-500 text-white rounded">
-                            1
-                        </span>
-                        <a
-                            href="#"
-                            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                        >
-                            2
-                        </a>
-                        <a
-                            href="#"
-                            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                        >
-                            3
-                        </a>
-                        <span class="px-2">...</span>
-                        <a
-                            href="#"
-                            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                        >
-                            10
-                        </a>
-                        <a
-                            href="#"
-                            class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                        >
-                            下一页
-                        </a>
-                    </div>
+                pagination.totalPages > 1 && (
+                    <Pagination pagination={pagination} basePath="/zueg" />
                 )
             }
         </div>

@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import ProfileCard from "../../components/ProfileCard.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 // 获取所有博客文章
@@ -56,67 +58,126 @@ const monthNames = [
 ---
 
 <BaseLayout title={`归档 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
-    <main class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
-            <h1
-                class="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100"
-            >
-                博客归档
-            </h1>
-            <p class="text-lg mb-8 text-gray-700 dark:text-gray-300">
-                按时间浏览所有文章。
-            </p>
+	<main>
+		<div class="homepage-container">
+			<div class="homepage-layout">
+				<!-- 左侧：个人信息 + 侧边栏 -->
+				<div class="homepage-sidebar">
+					<ProfileCard />
+					<Sidebar />
+				</div>
 
-            <div class="space-y-16">
-                {
-                    allYears.map((year) => (
-                        <div>
-                            <h2 class="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100">
-                                {year}年
-                            </h2>
+				<!-- 右侧：归档内容 -->
+				<div class="homepage-content">
+					<h2 class="section-title">博客归档</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300">
+						按时间浏览所有文章。
+					</p>
 
-                            {Object.keys(postsByYear[year])
-                                .sort((a, b) => parseInt(b) - parseInt(a))
-                                .map((month) => (
-                                    <div class="mb-8">
-                                        <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-                                            {monthNames[parseInt(month) - 1]}
-                                        </h3>
-                                        <ul class="space-y-2">
-                                            {postsByYear[year][month].map(
-                                                (post) => (
-                                                    <li class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-2 border-gray-100 dark:border-gray-800">
-                                                        <a
-                                                            href={`/blog/${post.id}`}
-                                                            class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-                                                        >
-                                                            {post.data.title}
-                                                        </a>
-                                                        <span class="text-sm text-gray-500 dark:text-gray-400">
-                                                            {post.data.pubDate.toLocaleDateString(
-                                                                "zh-CN",
-                                                            )}
-                                                        </span>
-                                                    </li>
-                                                ),
-                                            )}
-                                        </ul>
-                                    </div>
-                                ))}
-                        </div>
-                    ))
-                }
+					<div class="space-y-16">
+						{
+							allYears.map((year) => (
+								<div>
+									<h2 class="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100">
+										{year}年
+									</h2>
 
-                {
-                    allYears.length === 0 && (
-                        <div class="text-center py-12">
-                            <p class="text-gray-500 dark:text-gray-400">
-                                暂无文章
-                            </p>
-                        </div>
-                    )
-                }
-            </div>
-        </div>
-    </main>
+									{Object.keys(postsByYear[year])
+										.sort((a, b) => parseInt(b) - parseInt(a))
+										.map((month) => (
+											<div class="mb-8">
+												<h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+													{monthNames[parseInt(month) - 1]}
+												</h3>
+												<ul class="space-y-2">
+													{postsByYear[year][month].map(
+														(post) => (
+															<li class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-2 border-gray-100 dark:border-gray-800">
+																<a
+																	href={`/blog/${post.id}`}
+																	class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+																>
+																	{post.data.title}
+																</a>
+																<span class="text-sm text-gray-500 dark:text-gray-400">
+																	{post.data.pubDate.toLocaleDateString(
+																		"zh-CN",
+																	)}
+																</span>
+															</li>
+														),
+													)}
+												</ul>
+											</div>
+										))}
+								</div>
+							))
+						}
+
+						{
+							allYears.length === 0 && (
+								<div class="text-center py-12">
+									<p class="text-gray-500 dark:text-gray-400">
+										暂无文章
+									</p>
+								</div>
+							)
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
 </BaseLayout>
+
+<style>
+	/* 首页容器 */
+	.homepage-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		padding-top: 6rem;
+	}
+
+	/* 首页布局 */
+	.homepage-layout {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: 3rem;
+	}
+
+	/* 左侧边栏 */
+	.homepage-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	/* 右侧内容区 */
+	.homepage-content {
+		min-width: 0;
+	}
+
+	/* 分类标题 */
+	.section-title {
+		font-size: 2rem;
+		font-weight: 700;
+		margin-bottom: 2rem;
+		color: var(--text-primary);
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 1024px) {
+		.homepage-layout {
+			grid-template-columns: 1fr;
+		}
+
+		.homepage-sidebar {
+			order: 2;
+		}
+
+		.homepage-content {
+			order: 1;
+		}
+	}
+</style>
