@@ -1,9 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, render } from "astro:content";
-import BaseHead from "../../components/BaseHead.astro";
-import Footer from "../../components/Footer.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
-import Header from "../../components/Header.astro";
 import Comments from "../../components/Comments.astro";
 import { SITE_TITLE } from "../../consts";
 
@@ -21,113 +19,84 @@ const entry = Astro.props;
 const { Content } = await render(entry);
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-    <head>
-        <BaseHead
-            title={`${entry.data.title} | ${SITE_TITLE}`}
-            description={entry.data.description || "随笔文章"}
-        />
-    </head>
-    <body>
-        <Header />
-        <main class="container mx-auto px-4 py-8">
-            <div class="max-w-3xl mx-auto">
-                <!-- 返回链接 -->
-                <a
-                    href="/zueg"
-                    class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline mb-6"
-                >
-                    ← 返回随笔列表
-                </a>
-
-                <article
-                    class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8"
-                >
-                    <!-- 文章头部 -->
-                    <header class="mb-8">
-                        <h1
-                            class="text-3xl font-bold mb-4 text-gray-800 dark:text-gray-100"
-                        >
-                            {entry.data.title}
-                        </h1>
-
-                        <div
-                            class="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4"
-                        >
-                            <div class="flex items-center gap-2">
-                                <span>📅</span>
-                                <FormattedDate date={entry.data.pubDate} />
+<BaseLayout
+    title={`${entry.data.title} | ${SITE_TITLE}`}
+    description={entry.data.description || "随笔文章"}
+>
+    <main>
+        <article>
+            <div class="prose">
+                <div class="title">
+                    <div class="date">
+                        <FormattedDate date={entry.data.pubDate} />
+                        {entry.data.updatedDate && (
+                            <div class="last-updated-on">
+                                最后更新于 <FormattedDate date={entry.data.updatedDate} />
                             </div>
-
-                            {
-                                entry.data.category && (
-                                    <div class="flex items-center gap-2">
-                                        <span>📂</span>
-                                        <span>{entry.data.category}</span>
-                                    </div>
-                                )
-                            }
-
-                            {
-                                entry.data.readingTime && (
-                                    <div class="flex items-center gap-2">
-                                        <span>⏱️</span>
-                                        <span>
-                                            约 {entry.data.readingTime} 分钟阅读
-                                        </span>
-                                    </div>
-                                )
-                            }
+                        )}
+                    </div>
+                    <h1>{entry.data.title}</h1>
+                    {entry.data.tags && (
+                        <div class="tags">
+                            {entry.data.tags.map((tag) => (
+                                <span class="tag">#{tag}</span>
+                            ))}
                         </div>
-
-                        {
-                            entry.data.tags && (
-                                <div class="flex flex-wrap gap-2">
-                                    {entry.data.tags.map((tag) => (
-                                        <span class="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
-                                            #{tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )
-                        }
-                    </header>
-
-                    <!-- 文章内容 -->
-                    <div class="prose prose-lg dark:prose-invert max-w-none">
-                        <Content />
-                    </div>
-                </article>
-
-                <!-- 评论区 -->
-                <div class="mt-8">
-                    <Comments />
+                    )}
+                    <hr />
                 </div>
-
-                <!-- 导航 -->
-                <nav class="flex justify-between items-center mt-8">
-                    <a
-                        href="/zueg"
-                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                    >
-                        ← 随笔列表
-                    </a>
-
-                    <div class="text-center">
-                        <a
-                            href="/zueg/categories"
-                            class="text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                            浏览分类
-                        </a>
-                    </div>
-
-                    <div class="w-24"></div>
-                    <!-- 占位符保持对称 -->
-                </nav>
+                <Content />
             </div>
-        </main>
-        <Footer />
-    </body>
-</html>
+            
+            <!-- 评论区 -->
+            <Comments />
+        </article>
+    </main>
+</BaseLayout>
+
+<style>
+	main {
+		width: calc(100% - 2em);
+		max-width: 100%;
+		margin: 0;
+	}
+	.prose {
+		width: min(120vw, 1000px);
+		max-width: calc(100% - 2em);
+		margin: auto;
+		padding: clamp(1em, 3vw, 2em);
+		color: rgb(var(--gray-dark));
+		line-height: 1.8;
+		font-size: 1.0625rem;
+	}
+	.title {
+		margin-bottom: 1em;
+		padding: 1em 0;
+		text-align: center;
+		line-height: 1;
+	}
+	.title h1 {
+		margin: 0 0 0.5em 0;
+	}
+	.date {
+		margin-bottom: 0.5em;
+		color: rgb(var(--gray));
+	}
+	.last-updated-on {
+		font-style: italic;
+	}
+	.tags {
+		margin: 0.5em 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5em;
+		justify-content: center;
+	}
+	.tag {
+		padding: 0.25em 0.75em;
+		font-size: 0.875rem;
+		background-color: rgb(var(--accent-light));
+		color: rgb(var(--accent-dark));
+		border-radius: 999px;
+	}
+</style>
