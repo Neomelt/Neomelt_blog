@@ -6,7 +6,11 @@ import FormattedDate from "../components/FormattedDate.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const posts = (await getCollection("blog"))
+const blogPosts = await getCollection("blog");
+const zuegPosts = await getCollection("zueg");
+
+// 合并所有文章并按日期排序
+const allPosts = [...blogPosts, ...zuegPosts]
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 10); // 取最新的10篇文章
 
@@ -33,13 +37,13 @@ function estimateReadingTime(content: string): number {
 				<div class="homepage-content">
 					<h2 class="section-title">最新文章</h2>
 					<div class="post-list">
-						{posts.map((post) => {
+						{allPosts.map((post) => {
 							const readingTime = estimateReadingTime(post.body || "");
 							const wordCount = (post.body || "").length;
-							
+											
 							return (
 								<article class="post-card-item">
-									<a href={`/blog/${post.id}/`} class="post-card-link">
+									<a href={`/${post.collection}/${post.id}/`} class="post-card-link">
 										{post.data.heroImage && (
 											<div class="post-thumbnail">
 												<img 
