@@ -7,8 +7,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="关于我" description={SITE_DESCRIPTION}>
-	<div class="homepage-container">
-		<div class="homepage-layout">
+	<main>
+		<div class="homepage-container">
+			<div class="homepage-layout">
 			<!-- 左侧：个人信息 + 侧边栏 -->
 			<div class="homepage-sidebar">
 				<ProfileCard />
@@ -16,10 +17,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 			</div>
 
 			<!-- 右侧：关于内容 -->
-			<main class="homepage-content">
-		<section class="about-content py-10">
-			<div class="container mx-auto px-4">
-				<div class="prose max-w-3xl mx-auto">
+			<div class="homepage-content">
+				<div class="prose max-w-4xl mx-auto">
 					<h2>个人简介</h2>
 					<p>
 						你好，欢迎来到我的个人博客！我是一名热爱技术的开发者，对编程和新知识充满热情。创建这个博客是为了记录我在技术探索中的经验和思考。
@@ -78,10 +77,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 					</div>
 				</div>
 			</div>
-		</section>
-			</main>
+			</div>
 		</div>
 	</div>
+	</main>
 </BaseLayout>
 
 <style>

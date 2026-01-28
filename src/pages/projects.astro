@@ -6,8 +6,9 @@ import { SITE_DESCRIPTION } from "../consts";
 ---
 
 <BaseLayout title="项目展示" description={SITE_DESCRIPTION}>
-    <div class="homepage-container">
-        <div class="homepage-layout">
+    <main>
+        <div class="homepage-container">
+            <div class="homepage-layout">
             <!-- 左侧：个人信息 + 侧边栏 -->
             <div class="homepage-sidebar">
                 <ProfileCard />
@@ -15,10 +16,9 @@ import { SITE_DESCRIPTION } from "../consts";
             </div>
 
             <!-- 右侧：项目内容 -->
-            <main class="homepage-content">
-        <section class="projects-content py-12">
-            <div class="container mx-auto px-4">
-                <div class="flex flex-col gap-8 mb-12">
+            <div class="homepage-content">
+                <h2 class="section-title">项目展示</h2>
+                <div class="post-list">
                     <!-- 项目卡片 1 -->
                     <div class="project-card">
                         <div class="project-image mb-4">
@@ -349,10 +349,9 @@ import { SITE_DESCRIPTION } from "../consts";
                     </div>
                 </div>
             </div>
-        </section>
-            </main>
         </div>
     </div>
+    </main>
 </BaseLayout>
 
 <style>
@@ -381,6 +380,21 @@ import { SITE_DESCRIPTION } from "../consts";
     /* 右侧内容区 */
     .homepage-content {
         min-width: 0;
+    }
+
+    /* 分类标题 */
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: var(--text-primary);
+    }
+
+    /* 项目列表 */
+    .post-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
     .projects-hero {

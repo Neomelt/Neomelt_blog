@@ -6,8 +6,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title={`友链 - ${SITE_TITLE}`} description="我的友情链接">
-    <div class="homepage-container">
-        <div class="homepage-layout">
+    <main>
+        <div class="homepage-container">
+            <div class="homepage-layout">
             <!-- 左侧：个人信息 + 侧边栏 -->
             <div class="homepage-sidebar">
                 <ProfileCard />
@@ -15,12 +16,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             </div>
 
             <!-- 右侧：友链内容 -->
-            <main class="homepage-content">
-        <section class="friends-content py-12">
-            <div class="container mx-auto px-4 max-w-5xl">
-
+            <div class="homepage-content">
         <!-- 申请友链按钮 -->
-        <div class="text-center mt-12">
+        <div class="text-center mt-12 max-w-4xl mx-auto">
             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-8">
                 <h3
                     class="text-xl font-semibold text-gray-900 dark:text-white mb-4"
@@ -70,10 +68,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
                 </div>
             </div>
         </div>
-        </section>
-            </main>
+            </div>
         </div>
     </div>
+    </main>
 </BaseLayout>
 
 <style>
