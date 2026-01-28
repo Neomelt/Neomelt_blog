@@ -60,11 +60,11 @@ const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 
 										<div class="space-y-3">
 											{seriesPosts[series]
-												.sort(
-													(a, b) =>
-														a.data.pubDate.getTime() -
-														b.data.pubDate.getTime(),
-												)
+												.sort((a, b) => {
+													if (a.data.pinned && !b.data.pinned) return -1;
+													if (!a.data.pinned && b.data.pinned) return 1;
+													return a.data.pubDate.getTime() - b.data.pubDate.getTime();
+												})
 												.map((post, index) => (
 													<div class="flex items-center">
 														<span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mr-2 min-w-[24px] text-center">
@@ -72,10 +72,13 @@ const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 														</span>
 														<a
 															href={`/blog/${post.id}/`}
-															class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 truncate"
+															class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 truncate flex-1"
 														>
 															{post.data.title}
 														</a>
+														{post.data.pinned && (
+															<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-600 ml-1 flex-shrink-0"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
+														)}
 													</div>
 												))}
 										</div>

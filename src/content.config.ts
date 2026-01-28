@@ -16,6 +16,7 @@ const blog = defineCollection({
 			category: z.string().optional(),
 			series: z.string().optional(),
 			tags: z.array(z.string()).optional(),
+			pinned: z.boolean().optional(),
 		}),
 });
 
@@ -32,6 +33,7 @@ const zueg = defineCollection({
 			tags: z.array(z.string()).optional(),
 			heroImage: image().optional(),
 			readingTime: z.number().optional(), // 预估阅读时间（分钟）
+			pinned: z.boolean().optional(),
 		}),
 });
 
