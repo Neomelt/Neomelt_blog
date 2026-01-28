@@ -1,29 +1,35 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import FormattedDate from "../../../components/FormattedDate.astro";
 import Pagination from "../../../components/Pagination.astro";
 import ProfileCard from "../../../components/ProfileCard.astro";
 import Sidebar from "../../../components/Sidebar.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
-import { SITE_DESCRIPTION } from "../../../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../../consts";
 
 export async function getStaticPaths() {
-    const posts = (await getCollection("blog")).sort(
+    const entries = (await getCollection("zueg")).sort(
         (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
     );
 
-    const postsPerPage = 5;
-    const totalPages = Math.ceil(posts.length / postsPerPage);
+    const entriesPerPage = 5;
+    const totalPages = Math.ceil(entries.length / entriesPerPage);
 
     return Array.from({ length: totalPages }, (_, i) => ({
         params: { page: (i + 1).toString() },
-        props: { posts, currentPage: i + 1, totalPages },
+        props: { entries, currentPage: i + 1, totalPages },
     }));
 }
 
-const { posts, currentPage, totalPages } = Astro.props;
-const { items: paginatedPosts, pagination } = paginate(posts, currentPage, 5);
+interface Props {
+	entries: CollectionEntry<"zueg">[];
+	currentPage: number;
+	totalPages: number;
+}
+
+const { entries, currentPage, totalPages } = Astro.props;
+const { items: paginatedPosts, pagination } = paginate(entries, currentPage, 5);
 
 // 简单的阅读时间估算（基于字数）
 function estimateReadingTime(content: string): number {
@@ -31,15 +37,10 @@ function estimateReadingTime(content: string): number {
 	const wordCount = content.length;
 	return Math.ceil(wordCount / wordsPerMinute);
 }
-
-// 获取所有分类
-const allCategories = [
-    ...new Set(posts.map((post) => post.data.category || "未分类")),
-];
 ---
 
 <BaseLayout
-    title={`博客文章 - 第${currentPage}页`}
+    title={`随笔 - 第${currentPage}页`}
     description={SITE_DESCRIPTION}
 >
 	<main>
@@ -51,71 +52,51 @@ const allCategories = [
 					<Sidebar />
 				</div>
 
-				<!-- 右侧：博客列表 -->
+				<!-- 右侧：随笔列表 -->
 				<div class="homepage-content">
-					<h2 class="section-title">博客文章 - 第 {currentPage} 页</h2>
-					<!-- 分类筛选 -->
-					<div
-						class="category-filter mb-8 flex flex-wrap justify-center gap-4"
-					>
-						<a
-							href="/blog"
-							class="category-link active"
-							data-category="all">全部</a
-						>
-						{
-							allCategories.map((category) => (
-								<a
-									href="#"
-									class="category-link"
-									data-category={category}
-								>
-									{category}
-								</a>
-							))
-						}
-					</div>
-
-					<!-- 文章列表 -->
+					<h2 class="section-title">随笔文章 - 第 {currentPage} 页</h2>
+					
+					<!-- 随笔文章列表 -->
 					<div class="post-list">
-						{paginatedPosts.map((post) => {
-							const readingTime = estimateReadingTime(post.body || "");
-							const wordCount = (post.body || "").length;
+						{paginatedPosts.map((entry) => {
+							const readingTime = estimateReadingTime(entry.body || "");
+							const wordCount = (entry.body || "").length;
 							
 							return (
-								<article class="post-card-item" data-category={post.data.category || "未分类"}>
-									<a href={`/blog/${post.id}/`} class="post-card-link">
-										{post.data.heroImage && (
+								<article class="post-card-item">
+									<a href={`/zueg/${entry.id}/`} class="post-card-link">
+										{entry.data.heroImage && (
 											<div class="post-thumbnail">
-												<img 
-													src={typeof post.data.heroImage === 'string' 
-														? post.data.heroImage 
-														: post.data.heroImage.src
-													} 
-													alt={post.data.title}
+												<img
+													src={typeof entry.data.heroImage === "string"
+														? entry.data.heroImage
+														: entry.data.heroImage?.src ||
+														  "/images/projects/placeholder-image.svg"
+													}
+													alt={entry.data.title}
 												/>
 											</div>
 										)}
 										<div class="post-content">
 											<div class="post-header">
 												<div class="post-date">
-													<FormattedDate date={post.data.pubDate} />
+													<FormattedDate date={entry.data.pubDate} />
 												</div>
-												{post.data.category && (
-													<span class="post-category">{post.data.category}</span>
+												{entry.data.category && (
+													<span class="post-category">{entry.data.category}</span>
 												)}
 											</div>
-											<h3 class="post-title">{post.data.title}</h3>
-											<p class="post-description">{post.data.description}</p>
+											<h3 class="post-title">{entry.data.title}</h3>
+											<p class="post-description">{entry.data.description}</p>
 											<div class="post-meta">
 												<span>{wordCount} 字</span>
 												<span>|</span>
 												<span>{readingTime} 分钟</span>
-												{post.data.tags && post.data.tags.length > 0 && (
+												{entry.data.tags && entry.data.tags.length > 0 && (
 													<>
 														<span>|</span>
 														<div class="post-tags">
-															{post.data.tags.slice(0, 3).map(tag => (
+															{entry.data.tags.slice(0, 3).map((tag) => (
 																<span class="post-tag">#{tag}</span>
 															))}
 														</div>
@@ -143,7 +124,7 @@ const allCategories = [
 					<!-- 分页组件 -->
 					{
 						pagination.totalPages > 1 && (
-							<Pagination pagination={pagination} basePath="/blog" />
+							<Pagination pagination={pagination} basePath="/zueg" />
 						)
 					}
 				</div>
@@ -158,7 +139,7 @@ const allCategories = [
 		max-width: 1400px;
 		margin: 0 auto;
 		padding: 2rem 1rem;
-		padding-top: 6rem; /* 为固定header留出空间 */
+		padding-top: 6rem;
 	}
 
 	/* 首页布局 */
@@ -308,33 +289,6 @@ const allCategories = [
 		color: rgb(37, 99, 235);
 	}
 
-	/* 分类筛选 */
-	.category-filter {
-		margin-bottom: 2rem;
-	}
-
-	.category-link {
-		padding: 0.5rem 1.5rem;
-		border-radius: 9999px;
-		border: 1px solid var(--border-color);
-		background: var(--bg-secondary);
-		color: var(--text-primary);
-		text-decoration: none;
-		transition: all 0.2s;
-		font-size: 0.875rem;
-	}
-
-	.category-link:hover {
-		border-color: rgb(59, 130, 246);
-		color: rgb(59, 130, 246);
-	}
-
-	.category-link.active {
-		background: rgb(59, 130, 246);
-		color: white;
-		border-color: rgb(59, 130, 246);
-	}
-
 	/* 响应式设计 */
 	@media (max-width: 1024px) {
 		.homepage-layout {
@@ -350,42 +304,3 @@ const allCategories = [
 		}
 	}
 </style>
-
-<script>
-	// 分类筛选功能
-	document.addEventListener("DOMContentLoaded", function () {
-		const categoryLinks = document.querySelectorAll(".category-link");
-		const postCards = document.querySelectorAll(".post-card-item");
-
-		categoryLinks.forEach((link) => {
-			link.addEventListener("click", function (e) {
-				const linkElement = e.target as HTMLElement;
-				if (!linkElement.getAttribute("href")?.startsWith("/")) {
-					e.preventDefault();
-				}
-
-				// 更新激活状态
-				categoryLinks.forEach((l) => l.classList.remove("active"));
-				linkElement.classList.add("active");
-
-				const selectedCategory =
-					linkElement.getAttribute("data-category");
-
-				// 筛选文章
-				postCards.forEach((card) => {
-					const cardElement = card as HTMLElement;
-					const cardCategory =
-						cardElement.getAttribute("data-category");
-					if (
-						selectedCategory === "all" ||
-						cardCategory === selectedCategory
-					) {
-						cardElement.style.display = "block";
-					} else {
-						cardElement.style.display = "none";
-					}
-				});
-			});
-		});
-	});
-</script>
