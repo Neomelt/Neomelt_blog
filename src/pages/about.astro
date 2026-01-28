@@ -1,11 +1,22 @@
 ---
 import AboutHeroImage from "../assets/head.svg";
+import ProfileCard from "../components/ProfileCard.astro";
+import Sidebar from "../components/Sidebar.astro";
 import { SITE_DESCRIPTION } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="关于我" description={SITE_DESCRIPTION}>
-	<main class="pt-24">
+	<div class="homepage-container">
+		<div class="homepage-layout">
+			<!-- 左侧：个人信息 + 侧边栏 -->
+			<div class="homepage-sidebar">
+				<ProfileCard />
+				<Sidebar />
+			</div>
+
+			<!-- 右侧：关于内容 -->
+			<main class="homepage-content">
 		<section class="about-content py-10">
 			<div class="container mx-auto px-4">
 				<div class="prose max-w-3xl mx-auto">
@@ -68,10 +79,39 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 				</div>
 			</div>
 		</section>
-	</main>
+			</main>
+		</div>
+	</div>
 </BaseLayout>
 
 <style>
+	/* 首页容器 */
+	.homepage-container {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+		padding-top: 6rem;
+	}
+
+	/* 首页布局 */
+	.homepage-layout {
+		display: grid;
+		grid-template-columns: 320px 1fr;
+		gap: 3rem;
+	}
+
+	/* 左侧边栏 */
+	.homepage-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	/* 右侧内容区 */
+	.homepage-content {
+		min-width: 0;
+	}
+
 	.about-hero {
 		background: linear-gradient(
 			to bottom,
@@ -123,5 +163,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 	}
 	.contact-list li {
 		margin-bottom: 0.75rem;
+	}
+
+	@media (max-width: 1024px) {
+		.homepage-layout {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.homepage-sidebar {
+			max-width: 600px;
+			margin: 0 auto;
+		}
 	}
 </style>

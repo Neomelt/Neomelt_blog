@@ -1,0 +1,187 @@
+---
+// TableOfContents.astro - 文章目录组件
+export interface Props {
+	headings: { depth: number; slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+
+// 过滤只显示 h2 和 h3
+const tocHeadings = headings.filter(h => h.depth <= 3);
+---
+
+<aside class="toc-container">
+	<div class="toc-wrapper">
+		<h2 class="toc-title">目录</h2>
+		<nav class="toc-nav">
+			<ul class="toc-list">
+				{tocHeadings.map((heading) => (
+					<li class={`toc-item toc-depth-${heading.depth}`}>
+						<a href={`#${heading.slug}`} class="toc-link">
+							{heading.text}
+						</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+	</div>
+</aside>
+
+<style>
+	.toc-container {
+		position: sticky;
+		top: 6rem;
+		max-height: calc(100vh - 8rem);
+		overflow-y: auto;
+	}
+
+	.toc-wrapper {
+		background: var(--bg-secondary);
+		border-radius: 12px;
+		padding: 1.5rem;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(var(--gray-light), 0.2);
+	}
+
+	.toc-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: var(--text-primary);
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 2px solid var(--accent);
+	}
+
+	.toc-nav {
+		font-size: 0.875rem;
+	}
+
+	.toc-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.toc-item {
+		margin: 0;
+		padding: 0;
+	}
+
+	.toc-link {
+		display: block;
+		padding: 0.5rem 0;
+		color: var(--text-secondary);
+		text-decoration: none;
+		transition: all 0.2s ease;
+		border-left: 2px solid transparent;
+		padding-left: 0.5rem;
+	}
+
+	.toc-link:hover {
+		color: var(--accent);
+		border-left-color: var(--accent);
+		padding-left: 1rem;
+	}
+
+	/* h2 级别 */
+	.toc-depth-2 .toc-link {
+		font-weight: 600;
+	}
+
+	/* h3 级别 */
+	.toc-depth-3 .toc-link {
+		padding-left: 1.5rem;
+		font-size: 0.85rem;
+	}
+
+	.toc-depth-3 .toc-link:hover {
+		padding-left: 2rem;
+	}
+
+	/* 激活状态 */
+	.toc-link.active {
+		color: var(--accent);
+		border-left-color: var(--accent);
+		font-weight: 600;
+	}
+
+	/* 滚动条样式 */
+	.toc-container::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.toc-container::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.toc-container::-webkit-scrollbar-thumb {
+		background: rgba(var(--gray-light), 0.5);
+		border-radius: 2px;
+	}
+
+	.toc-container::-webkit-scrollbar-thumb:hover {
+		background: rgba(var(--gray-light), 0.8);
+	}
+
+	@media (max-width: 1024px) {
+		.toc-container {
+			position: static;
+			max-height: none;
+			margin-bottom: 2rem;
+		}
+	}
+</style>
+
+<script>
+	// 目录高亮滚动监听
+	document.addEventListener('DOMContentLoaded', () => {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					const id = entry.target.getAttribute('id');
+					const tocLink = document.querySelector(`.toc-link[href="#${id}"]`);
+					
+					if (entry.isIntersecting) {
+						// 移除所有激活状态
+						document.querySelectorAll('.toc-link').forEach((link) => {
+							link.classList.remove('active');
+						});
+						// 添加当前激活状态
+						if (tocLink) {
+							tocLink.classList.add('active');
+						}
+					}
+				});
+			},
+			{
+				rootMargin: '-100px 0px -66%',
+				threshold: 1.0
+			}
+		);
+
+		// 监听所有标题
+		document.querySelectorAll('article h2, article h3').forEach((heading) => {
+			observer.observe(heading);
+		});
+
+		// 平滑滚动
+		document.querySelectorAll('.toc-link').forEach((link) => {
+			link.addEventListener('click', (e) => {
+				e.preventDefault();
+				const targetId = link.getAttribute('href')?.slice(1);
+				const targetElement = document.getElementById(targetId || '');
+				
+				if (targetElement) {
+					const offset = 100; // 顶部偏移量
+					const elementPosition = targetElement.getBoundingClientRect().top;
+					const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+					window.scrollTo({
+						top: offsetPosition,
+						behavior: 'smooth'
+					});
+				}
+			});
+		});
+	});
+</script>

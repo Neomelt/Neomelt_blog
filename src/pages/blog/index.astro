@@ -2,6 +2,8 @@
 import { getCollection } from "astro:content";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Pagination from "../../components/Pagination.astro";
+import ProfileCard from "../../components/ProfileCard.astro";
+import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
 import { SITE_DESCRIPTION } from "../../consts";
@@ -19,7 +21,16 @@ const allCategories = [
 ---
 
 <BaseLayout title="博客文章" description={SITE_DESCRIPTION}>
-	<main class="pt-24">
+	<div class="homepage-container">
+		<div class="homepage-layout">
+			<!-- 左侧：个人信息 + 侧边栏 -->
+			<div class="homepage-sidebar">
+				<ProfileCard />
+				<Sidebar />
+			</div>
+
+			<!-- 右侧：博客列表 -->
+			<main class="homepage-content">
 		<section class="blog-content py-12">
 			<div class="container mx-auto px-4">
 				<!-- 分类筛选 -->
@@ -44,10 +55,8 @@ const allCategories = [
 					}
 				</div>
 
-				<!-- 文章列表 - 每行5个 -->
-				<div
-					class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-				>
+				<!-- 文章列表 - 单列布局 -->
+				<div class="flex flex-col gap-6">
 					{
 						paginatedPosts.map((post) => (
 							<article
@@ -112,8 +121,39 @@ const allCategories = [
 				}
 			</div>
 		</section>
-	</main>
-	<style>
+		</main>
+		</div>
+	</div>
+</BaseLayout>
+
+<style>
+		/* 首页容器 */
+		.homepage-container {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 2rem 1rem;
+			padding-top: 6rem;
+		}
+
+		/* 首页布局 */
+		.homepage-layout {
+			display: grid;
+			grid-template-columns: 320px 1fr;
+			gap: 3rem;
+		}
+
+		/* 左侧边栏 */
+		.homepage-sidebar {
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+		}
+
+		/* 右侧内容区 */
+		.homepage-content {
+			min-width: 0;
+		}
+
 		.blog-hero {
 			background: linear-gradient(
 				to bottom,
@@ -147,6 +187,18 @@ const allCategories = [
 		.post-card:hover {
 			transform: translateY(-5px);
 			box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+		}
+
+		@media (max-width: 1024px) {
+			.homepage-layout {
+				grid-template-columns: 1fr;
+				gap: 2rem;
+			}
+
+			.homepage-sidebar {
+				max-width: 600px;
+				margin: 0 auto;
+			}
 		}
 	</style>
 
@@ -184,4 +236,3 @@ const allCategories = [
 			});
 		});
 	</script>
-</BaseLayout>
