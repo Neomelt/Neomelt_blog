@@ -4,14 +4,17 @@ import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Comments from "../components/Comments.astro";
 import TableOfContents from "../components/TableOfContents.astro";
+import PostNavigation from "../components/PostNavigation.astro";
 import BaseLayout from "./BaseLayout.astro";
 
 export interface Props {
 	post: CollectionEntry<"blog">;
 	headings: { depth: number; slug: string; text: string }[];
+	prevPost?: CollectionEntry<"blog"> | null;
+	nextPost?: CollectionEntry<"blog"> | null;
 }
 
-const { post, headings } = Astro.props;
+const { post, headings, prevPost, nextPost } = Astro.props;
 const { title, description, pubDate, updatedDate, heroImage } = post.data;
 ---
 
@@ -51,6 +54,9 @@ const { title, description, pubDate, updatedDate, heroImage } = post.data;
 						</div>
 						<slot />
 					</div>
+
+					<!-- 上一篇/下一篇 导航 -->
+					<PostNavigation prevPost={prevPost} nextPost={nextPost} collection="blog" />
 					
 					<!-- 评论区 -->
 					<Comments />
