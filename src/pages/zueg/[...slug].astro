@@ -4,19 +4,30 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import Comments from "../../components/Comments.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
+import PostNavigation from "../../components/PostNavigation.astro";
 import { SITE_TITLE } from "../../consts";
 
 export async function getStaticPaths() {
-    const zuegEntries = await getCollection("zueg");
-    return zuegEntries.map((entry) => ({
+    const zuegEntries = (await getCollection("zueg")).sort(
+        (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    );
+    return zuegEntries.map((entry, index) => ({
         params: { slug: entry.id },
-        props: entry,
+        props: {
+            entry,
+            prevPost: index < zuegEntries.length - 1 ? zuegEntries[index + 1] : null,
+            nextPost: index > 0 ? zuegEntries[index - 1] : null,
+        },
     }));
 }
 
-type Props = CollectionEntry<"zueg">;
+type Props = {
+    entry: CollectionEntry<"zueg">;
+    prevPost: CollectionEntry<"zueg"> | null;
+    nextPost: CollectionEntry<"zueg"> | null;
+};
 
-const entry = Astro.props;
+const { entry, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(entry);
 ---
 
@@ -51,6 +62,9 @@ const { Content, headings } = await render(entry);
                         </div>
                         <Content />
                     </div>
+
+                    <!-- 上一篇/下一篇 导航 -->
+                    <PostNavigation prevPost={prevPost} nextPost={nextPost} collection="zueg" />
                     
                     <!-- 评论区 -->
                     <Comments />

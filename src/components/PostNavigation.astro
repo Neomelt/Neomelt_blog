@@ -1,0 +1,78 @@
+---
+const { prevPost, nextPost, collection } = Astro.props;
+---
+
+<div class="post-navigation">
+    <div class="nav-item prev">
+        {prevPost && (
+            <a href={`/${collection}/${prevPost.id}/`}>
+                <span class="nav-label">← 上一篇</span>
+                <span class="nav-title">{prevPost.data.title}</span>
+            </a>
+        )}
+    </div>
+    <div class="nav-item next">
+        {nextPost && (
+            <a href={`/${collection}/${nextPost.id}/`}>
+                <span class="nav-label">下一篇 →</span>
+                <span class="nav-title">{nextPost.data.title}</span>
+            </a>
+        )}
+    </div>
+</div>
+
+<style>
+    .post-navigation {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 4rem 0 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color, #eee);
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-item.next {
+        text-align: right;
+        align-items: flex-end;
+    }
+
+    .nav-item a {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease;
+        max-width: 100%;
+    }
+
+    .nav-item a:hover {
+        transform: translateY(-2px);
+    }
+
+    .nav-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary, #666);
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-title {
+        font-weight: 600;
+        color: var(--text-primary, #333);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    @media (max-width: 640px) {
+        .post-navigation {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+</style>
