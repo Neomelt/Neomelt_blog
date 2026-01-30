@@ -5,7 +5,7 @@ pubDate: '2026-01-23'
 heroImage: '../../assets/cover.svg'
 category: 'study'
 series: ''
-tags: ['coding', 'python', 'study', 'cs61A']
+tags: ['python', 'cs']
 ---
 
 # 高阶函数

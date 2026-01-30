@@ -5,7 +5,7 @@ pubDate: '2026-01-21'
 heroImage: '../../assets/cover.svg'
 category: 'study'
 series: ''
-tags: ['coding', 'python', 'study']
+tags: ['cs', 'python']
 ---
 
 # 数字表达式

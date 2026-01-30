@@ -5,7 +5,7 @@ pubDate: '2026-01-22'
 heroImage: '../../assets/cover.svg'
 category: 'study'
 series: ''
-tags: ['coding', 'python', 'study', 'cs61A']
+tags: ['python', 'cs']
 ---
 
 # 表达式和语句
