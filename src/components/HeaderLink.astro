@@ -20,21 +20,22 @@ const isActive = href === pathname || href === "/" + (subpath?.[0] || "");
 	.kawaii-nav-link {
 		display: inline-flex;
 		align-items: center;
+		padding: 0.5rem 1rem;
 		text-decoration: none;
 		position: relative;
 		overflow: hidden;
-		color: rgba(255, 255, 255, 0.7);
+		color: var(--text-secondary);
 		transition: color 0.3s ease;
 		font-weight: 500;
 	}
 
 	.kawaii-nav-link:hover {
-		color: rgba(255, 255, 255, 1);
+		color: var(--text-primary);
 	}
 
 	.kawaii-nav-link.active {
 		font-weight: 700;
-		color: #3b82f6 !important;
+		color: var(--accent) !important;
 		position: relative;
 	}
 
@@ -45,7 +46,7 @@ const isActive = href === pathname || href === "/" + (subpath?.[0] || "");
 		left: 0;
 		width: 100%;
 		height: 2px;
-		background: linear-gradient(90deg, #1e3a8a, #3b82f6, #1e3a8a);
+		background: linear-gradient(90deg, var(--accent), var(--accent-dark), var(--accent));
 		background-size: 200% 100%;
 		animation: gradientMove 3s infinite linear;
 	}
@@ -59,14 +60,14 @@ const isActive = href === pathname || href === "/" + (subpath?.[0] || "");
 		}
 	}
 
-	.kawaii-nav-link:hover::before {
+	.kawaii-nav-link::before {
 		content: "";
 		position: absolute;
 		bottom: 0;
 		left: 50%;
 		width: 0;
 		height: 1px;
-		background-color: rgba(255, 255, 255, 0.5);
+		background-color: var(--accent);
 		transition: all 0.3s ease;
 	}
 
