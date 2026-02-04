@@ -2,7 +2,7 @@
 title: '用rust写CRC库'
 description: 'CRC算法的rust实现'
 pubDate: '2025-2-1'
-pinned: true
+pinned: false
 heroImage: '../../assets/cover.svg'
 category: 'coding'
 series: ''
