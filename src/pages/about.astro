@@ -1,178 +1,47 @@
 ---
-import AboutHeroImage from "../assets/head.svg";
-import ProfileCard from "../components/ProfileCard.astro";
-import Sidebar from "../components/Sidebar.astro";
-import { SITE_DESCRIPTION } from "../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout title="关于我" description={SITE_DESCRIPTION}>
-	<main>
-		<div class="homepage-container">
-			<div class="homepage-layout">
-			<!-- 左侧：个人信息 + 侧边栏 -->
-			<div class="homepage-sidebar">
-				<ProfileCard />
-				<Sidebar />
-			</div>
+<BaseLayout title={`关于 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+    <main>
+        <div class="container">
+            <nav class="breadcrumb" aria-label="面包屑导航">
+                <a href="/">首页</a>
+                <span>›</span>
+                <span>关于</span>
+            </nav>
 
-			<!-- 右侧：关于内容 -->
-			<div class="homepage-content">
-				<div class="prose max-w-4xl mx-auto">
-					<h2>个人简介</h2>
-					<p>
-						你好，欢迎来到我的个人博客！我是一名热爱技术的开发者，对编程和新知识充满热情。创建这个博客是为了记录我在技术探索中的经验和思考。
-					</p>
-
-					<h2>专业技能</h2>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
-						<p>待补充</p>
-					</div>
-
-					<h2>经历</h2>
-					<div class="timeline my-6">
-						<div class="timeline-item mb-8">
-							<div class="timeline-date font-bold">
-								2023 - 至今
-							</div>
-							<div class="timeline-content">
-								<h3>jiangsu university 本科就读</h3>
-								<p>车辆工程系</p>
-								<p>
-									在学校的RM社团负责视觉部分，涉猎cv、slam和其他机器人相关内容
-								</p>
-							</div>
-						</div>
-					</div>
-
-					<h2>兴趣爱好</h2>
-					<p>
-						除了编程，我还喜欢阅读技术书籍和其他各种类别的书籍，常常因为学习而压榨自己的休息时间（这是不对的）。业余时间也会参与开源项目和技术社区讨论，同时在推进项目的同时写点小工具玩玩，并且喜欢不断探索新技术和创意想法，所以如果你熟悉我，你就会发现我涉猎极其广，但很多技术只是简单的涉猎（来自三分钟热度选手的悲鸣）。
-					</p>
-
-					<h2>联系方式</h2>
-					<p>
-						如果你对我的博客内容有任何问题或建议，或者想要进行技术交流，欢迎通过以下方式联系我：
-					</p>
-					<ul class="contact-list">
-						<li>Email: 3212929002@qq.com</li>
-						<li>
-							GitHub: <a
-								href="https://github.com/Neomelt"
-								target="_blank">@Neomelt</a
-							>
-						</li>
-						<li>
-							Bilibili: <a
-								href="https://space.bilibili.com/1025251137"
-								target="_blank">Neomelt</a
-							>
-						</li>
-						<!-- 可以添加更多联系方式 -->
-						<p>(没错,我是全网同id 2333)</p>
-					</ul>
-
-					<div class="my-8 text-center">
-						<p class="text-gray-600 italic">感谢您访问我的博客！</p>
-					</div>
-				</div>
-			</div>
-			</div>
-		</div>
-	</div>
-	</main>
+            <article class="prose">
+                <h1>关于我</h1>
+                <p>
+                    个人主页正在建设中，敬请期待。
+                </p>
+                <p>
+                    你可以在 <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a> 上找到我。
+                </p>
+            </article>
+        </div>
+    </main>
 </BaseLayout>
 
 <style>
-	/* 首页容器 */
-	.homepage-container {
-		max-width: 1400px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		padding-top: 6rem;
-	}
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+    }
 
-	/* 首页布局 */
-	.homepage-layout {
-		display: grid;
-		grid-template-columns: 320px 1fr;
-		gap: 3rem;
-	}
+    .breadcrumb a {
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color var(--transition);
+    }
 
-	/* 左侧边栏 */
-	.homepage-sidebar {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
-
-	/* 右侧内容区 */
-	.homepage-content {
-		min-width: 0;
-	}
-
-	.about-hero {
-		background: linear-gradient(
-			to bottom,
-			rgba(var(--gray-light), 0.3),
-			var(--bg-primary)
-		);
-		padding: 4rem 0;
-	}
-	.prose h2 {
-		color: var(--accent-dark);
-		margin-top: 2rem;
-		margin-bottom: 1rem;
-		font-size: 1.75rem;
-	}
-	.prose h3 {
-		color: var(--text-primary);
-		margin-top: 1.5rem;
-		margin-bottom: 0.75rem;
-		font-size: 1.5rem;
-	}
-	.prose p {
-		margin-bottom: 1.5rem;
-		line-height: 1.8;
-		color: var(--text-primary);
-	}
-	.prose ul {
-		margin-bottom: 1.5rem;
-		padding-left: 1.5rem;
-		list-style-type: disc;
-	}
-	.prose li {
-		margin-bottom: 0.5rem;
-	}
-	.skill-category {
-		background-color: var(--bg-secondary);
-		padding: 1.5rem;
-		border-radius: 0.5rem;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		border: 1px solid rgba(var(--gray-light), 0.2);
-	}
-	.timeline-item {
-		position: relative;
-		padding-left: 2rem;
-		border-left: 2px solid var(--accent);
-	}
-	.timeline-date {
-		margin-bottom: 0.5rem;
-		color: var(--accent-dark);
-	}
-	.contact-list li {
-		margin-bottom: 0.75rem;
-	}
-
-	@media (max-width: 1024px) {
-		.homepage-layout {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-		.homepage-sidebar {
-			max-width: 600px;
-			margin: 0 auto;
-		}
-	}
+    .breadcrumb a:hover {
+        color: var(--accent);
+    }
 </style>

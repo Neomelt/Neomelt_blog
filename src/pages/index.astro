@@ -1,320 +1,148 @@
 ---
 import { getCollection } from "astro:content";
-import ProfileCard from "../components/ProfileCard.astro";
-import Sidebar from "../components/Sidebar.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_DESCRIPTION, SITE_TITLE, SITE_SUBTITLE } from "../consts";
 
 const blogPosts = await getCollection("blog");
 const zuegPosts = await getCollection("zueg");
 
-// 合并所有文章并按日期排序，置顶文章优先
-const allPosts = [...blogPosts, ...zuegPosts]
-	.sort((a, b) => {
-		if (a.data.pinned && !b.data.pinned) return -1;
-		if (!a.data.pinned && b.data.pinned) return 1;
-		return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
-	})
-	.slice(0, 10); // 取最新的10篇文章
+const allPosts = [...blogPosts, ...zuegPosts].sort((a, b) => {
+    if (a.data.pinned && !b.data.pinned) return -1;
+    if (!a.data.pinned && b.data.pinned) return 1;
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
 
-// 简单的阅读时间估算（基于字数）
-function estimateReadingTime(content: string): number {
-	const wordsPerMinute = 200;
-	const wordCount = content.length;
-	return Math.ceil(wordCount / wordsPerMinute);
-}
+const recentPosts = allPosts.slice(0, 5);
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<main>
-		<!-- 主要内容区域 -->
-		<div class="homepage-container">
-			<div class="homepage-layout">
-				<!-- 左侧：个人信息 + 侧边栏 -->
-				<div class="homepage-sidebar">
-					<ProfileCard />
-					<Sidebar />
-				</div>
+    <main>
+        <div class="container">
+            <!-- Site intro -->
+            <section class="hero">
+                <h1 class="hero-title">👋 欢迎来到 Neomelt 的博客</h1>
+                <div class="hero-bio">
+                    <p>
+                        你好，我是 <strong>Neomelt</strong>。一个喜欢折腾的工科生，对计算机视觉、机器人和系统编程感兴趣。
+                    </p>
+                    <p>
+                        这里是我记录学习过程、技术思考和日常随笔的地方。内容可能涉及 ROS2、Rust、C++、深度学习，以及一些不那么技术的东西。
+                    </p>
+                    <p class="hero-links">
+                        <a href="https://github.com/Neomelt" target="_blank" rel="noopener" class="hero-link">GitHub</a>
+                        <span class="hero-sep">·</span>
+                        <a href="/posts" class="hero-link">全部文章</a>
+                        <span class="hero-sep">·</span>
+                        <a href="/posts/archive" class="hero-link">归档</a>
+                    </p>
+                </div>
+            </section>
 
-				<!-- 右侧：文章列表 -->
-				<div class="homepage-content">
-					<h2 class="section-title">最新文章</h2>
-					<div class="post-list">
-						{allPosts.map((post) => {
-							const readingTime = estimateReadingTime(post.body || "");
-							const wordCount = (post.body || "").length;
-											
-							return (
-								<article class="post-card-item">
-									<a href={`/${post.collection}/${post.id}/`} class="post-card-link">
-										{post.data.heroImage && (
-											<div class="post-thumbnail">
-												<img 
-													src={typeof post.data.heroImage === 'string' 
-														? post.data.heroImage 
-														: post.data.heroImage.src
-													} 
-													alt={post.data.title}
-												/>
-											</div>
-										)}
-										<div class="post-content">
-											<div class="post-header">
-												<div class="post-date">
-													<FormattedDate date={post.data.pubDate} />
-												</div>
-												{post.data.category && (
-													<span class="post-category">{post.data.category}</span>
-												)}
-												{post.data.pinned && (
-													<span class="post-pinned">
-														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-														置顶
-													</span>
-												)}
-											</div>
-											<h3 class="post-title">{post.data.title}</h3>
-											<p class="post-description">{post.data.description}</p>
-											<div class="post-meta">
-												<span>{wordCount} 字</span>
-												<span>|</span>
-												<span>{readingTime} 分钟</span>
-												{post.data.tags && post.data.tags.length > 0 && (
-													<>
-														<span>|</span>
-														<div class="post-tags">
-															{post.data.tags.slice(0, 3).map(tag => (
-																<span class="post-tag">#{tag}</span>
-															))}
-														</div>
-													</>
-												)}
-											</div>
-										</div>
-									</a>
-								</article>
-							);
-						})}
-					</div>
-					
-					<div class="view-more">
-						<a href="/blog" class="view-more-btn">查看所有文章 →</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>
+            <!-- Recent posts -->
+            <section>
+                <div class="section-header">
+                    <h2 class="section-heading">最近文章</h2>
+                    <a href="/posts" class="view-all">全部文章 →</a>
+                </div>
+
+                <div class="post-list">
+                    {recentPosts.map((post) => {
+                        const isZueg = post.collection === "zueg";
+                        const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
+                        return (
+                            <a href={url} class="post-card">
+                                <div class="post-card-meta">
+                                    <FormattedDate date={post.data.pubDate} />
+                                    {isZueg && <span class="tag">随笔</span>}
+                                    {post.data.pinned && <span class="badge-pinned">置顶</span>}
+                                </div>
+                                <div class="post-card-title">{post.data.title}</div>
+                                {post.data.description && (
+                                    <div class="post-card-desc">{post.data.description}</div>
+                                )}
+                            </a>
+                        );
+                    })}
+                </div>
+            </section>
+        </div>
+    </main>
 </BaseLayout>
 
 <style>
-	/* 首页容器 */
-	.homepage-container {
-		max-width: 1400px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		padding-top: 6rem; /* 为固定header留出空间 */
-	}
+    .hero {
+        padding: 3rem 0 2.5rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 3rem;
+    }
 
-	/* 首页布局 */
-	.homepage-layout {
-		display: grid;
-		grid-template-columns: 320px 1fr;
-		gap: 3rem;
-	}
+    .hero-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+        line-height: 1.25;
+    }
 
-	/* 左侧边栏 */
-	.homepage-sidebar {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
+    .hero-bio {
+        max-width: 600px;
+    }
 
-	/* 右侧内容区 */
-	.homepage-content {
-		min-width: 0;
-	}
+    .hero-bio p {
+        font-size: 1rem;
+        color: var(--text-muted);
+        line-height: 1.8;
+        margin-bottom: 0.9rem;
+    }
 
-	/* 分类标题 */
-	.section-title {
-		font-size: 2rem;
-		font-weight: 700;
-		margin-bottom: 2rem;
-		color: var(--text-primary);
-	}
+    .hero-bio strong {
+        color: var(--text);
+        font-weight: 600;
+    }
 
-	/* 文章列表 */
-	.post-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
+    .hero-links {
+        margin-top: 1.5rem;
+        margin-bottom: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
 
-	/* 文章卡片 */
-	.post-card-item {
-		background: var(--bg-secondary);
-		border: 1px solid var(--border-color);
-		border-radius: 12px;
-		overflow: hidden;
-		transition: all 0.3s ease;
-	}
+    .hero-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: color var(--transition);
+    }
 
-	.post-card-item:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-		border-color: rgb(59, 130, 246);
-	}
+    .hero-link:hover {
+        color: var(--accent-hover);
+        text-decoration: underline;
+    }
 
-	.post-card-link {
-		display: block;
-		text-decoration: none;
-		color: inherit;
-	}
+    .hero-sep {
+        color: var(--border);
+        font-size: 0.9rem;
+    }
 
-	.post-thumbnail {
-		width: 100%;
-		height: 240px;
-		overflow: hidden;
-		background: var(--bg-tertiary);
-	}
+    .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
 
-	.post-thumbnail img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 0.3s ease;
-	}
+    .view-all {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color var(--transition);
+    }
 
-	.post-card-item:hover .post-thumbnail img {
-		transform: scale(1.05);
-	}
-
-	.post-content {
-		padding: 1.5rem;
-	}
-
-	.post-header {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		margin-bottom: 0.75rem;
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-	}
-
-	.post-category {
-		background: rgba(59, 130, 246, 0.1);
-		color: rgb(59, 130, 246);
-		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
-		font-size: 0.813rem;
-	}
-
-	.post-pinned {
-		background: rgba(234, 179, 8, 0.1);
-		color: rgb(202, 138, 4);
-		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
-		font-size: 0.813rem;
-		display: flex;
-		align-items: center;
-	}
-
-	.post-title {
-		font-size: 1.5rem;
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-		color: var(--text-primary);
-		line-height: 1.4;
-	}
-
-	.post-card-link:hover .post-title {
-		color: rgb(59, 130, 246);
-	}
-
-	.post-description {
-		color: var(--text-secondary);
-		line-height: 1.6;
-		margin-bottom: 1rem;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.post-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-		flex-wrap: wrap;
-	}
-
-	.post-tags {
-		display: flex;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-	}
-
-	.post-tag {
-		color: rgb(59, 130, 246);
-	}
-
-	/* 查看更多按钮 */
-	.view-more {
-		margin-top: 3rem;
-		text-align: center;
-	}
-
-	.view-more-btn {
-		display: inline-block;
-		padding: 0.75rem 2rem;
-		background: linear-gradient(135deg, rgb(59, 130, 246) 0%, rgb(147, 51, 234) 100%);
-		color: white;
-		text-decoration: none;
-		border-radius: 9999px;
-		font-weight: 600;
-		transition: all 0.3s ease;
-	}
-
-	.view-more-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
-	}
-
-	/* 响应式设计 */
-	@media (max-width: 1024px) {
-		.homepage-layout {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-		.homepage-sidebar {
-			max-width: 600px;
-			margin: 0 auto;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.homepage-container {
-			padding: 1.5rem 1rem;
-		}
-
-		.section-title {
-			font-size: 1.75rem;
-		}
-
-		.post-thumbnail {
-			height: 200px;
-		}
-
-		.post-title {
-			font-size: 1.25rem;
-		}
-
-		.view-more-btn {
-			padding: 0.625rem 1.5rem;
-		}
-	}
+    .view-all:hover {
+        color: var(--accent);
+    }
 </style>

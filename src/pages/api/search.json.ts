@@ -17,32 +17,24 @@ export const GET: APIRoute = async () => {
                 title: post.data.title,
                 description: post.data.description,
                 content: post.body || "",
-                url: `/blog/${post.id}`,
+                url: `/posts/${post.id}`,
                 type: "博客",
                 date: post.data.pubDate.toISOString().split('T')[0],
                 tags: post.data.tags || [],
                 category: post.data.category || "未分类"
             })),
-            
             // 随笔
-            
-            // 随笔条目
-            ...zuegEntries.map(entry => {
-                let url = `/zueg/${entry.id}`;
-                let type = "随笔";
-                
-                return {
-                    id: entry.id,
-                    title: entry.data.title,
-                    description: entry.data.description,
-                    content: entry.body || "",
-                    url: url,
-                    type: type,
-                    date: entry.data.pubDate.toISOString().split('T')[0],
-                    tags: entry.data.tags || [],
-                    category: entry.data.category || ""
-                };
-            })
+            ...zuegEntries.map(entry => ({
+                id: entry.id,
+                title: entry.data.title,
+                description: entry.data.description,
+                content: entry.body || "",
+                url: `/posts/zueg/${entry.id}`,
+                type: "随笔",
+                date: entry.data.pubDate.toISOString().split('T')[0],
+                tags: entry.data.tags || [],
+                category: entry.data.category || ""
+            }))
         ];
 
         return new Response(JSON.stringify(searchIndex), {

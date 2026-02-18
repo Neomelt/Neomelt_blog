@@ -4,190 +4,57 @@ import type { PaginationInfo } from "../utils/pagination.ts";
 export interface Props {
     pagination: PaginationInfo;
     basePath: string;
-    showInfo?: boolean;
 }
 
-const { pagination, basePath, showInfo = true } = Astro.props;
+const { pagination, basePath } = Astro.props;
 const { currentPage, totalPages, hasNext, hasPrev } = pagination;
 
-// 生成页码链接
-function generatePageLinks(): number[] {
-    const links: number[] = [];
-    const maxVisiblePages = 5;
-
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    // 调整起始页以确保显示足够的页码
-    if (endPage - startPage + 1 < maxVisiblePages) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-        links.push(i);
-    }
-
-    return links;
+function pageUrl(page: number) {
+    return page === 1 ? basePath : `${basePath}/page/${page}`;
 }
 
-const pageLinks = generatePageLinks();
-const prevUrl = hasPrev
-    ? currentPage === 2
-        ? basePath
-        : `${basePath}/page/${currentPage - 1}`
-    : null;
-const nextUrl = hasNext ? `${basePath}/page/${currentPage + 1}` : null;
+// Generate visible page numbers
+function visiblePages(): number[] {
+    const pages: number[] = [];
+    const start = Math.max(1, currentPage - 2);
+    const end = Math.min(totalPages, currentPage + 2);
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+}
+
+const pages = visiblePages();
+const prevUrl = hasPrev ? pageUrl(currentPage - 1) : null;
+const nextUrl = hasNext ? pageUrl(currentPage + 1) : null;
 ---
 
-<div class="pagination-container">
-    {
-        showInfo && (
-            <div class="pagination-info text-center mb-4 text-sm text-gray-600 dark:text-gray-400">
-                页 {currentPage} / {totalPages}
-            </div>
-        )
+<nav class="pagination" aria-label="分页">
+    {hasPrev
+        ? <a href={prevUrl} aria-label="上一页">←</a>
+        : <span class="disabled" aria-disabled="true">←</span>
     }
 
-    <nav
-        class="pagination flex justify-center items-center space-x-2"
-        aria-label="分页导航"
-    >
-        <!-- 上一页 -->
-        {
-            hasPrev ? (
-                <a href={prevUrl} class="pagination-btn" aria-label="上一页">
-                    ← 上一页
-                </a>
-            ) : (
-                <span class="pagination-btn pagination-disabled">← 上一页</span>
-            )
-        }
+    {pages[0] > 1 && (
+        <>
+            <a href={pageUrl(1)}>1</a>
+            {pages[0] > 2 && <span class="ellipsis">…</span>}
+        </>
+    )}
 
-        <!-- 第一页 -->
-        {
-            pageLinks[0] > 1 && (
-                <>
-                    <a
-                        href={basePath}
-                        class="pagination-number"
-                        aria-label="第1页"
-                    >
-                        1
-                    </a>
-                    {pageLinks[0] > 2 && (
-                        <span class="pagination-ellipsis">…</span>
-                    )}
-                </>
-            )
-        }
+    {pages.map(p =>
+        p === currentPage
+            ? <span class="current" aria-current="page">{p}</span>
+            : <a href={pageUrl(p)}>{p}</a>
+    )}
 
-        <!-- 页码 -->
-        {
-            pageLinks.map((page) =>
-                page === currentPage ? (
-                    <span
-                        class="pagination-number pagination-current"
-                        aria-current="page"
-                        aria-label={`当前页，第${page}页`}
-                    >
-                        {page}
-                    </span>
-                ) : (
-                    <a
-                        href={
-                            page === 1 ? basePath : `${basePath}/page/${page}`
-                        }
-                        class="pagination-number"
-                        aria-label={`第${page}页`}
-                    >
-                        {page}
-                    </a>
-                ),
-            )
-        }
+    {pages[pages.length - 1] < totalPages && (
+        <>
+            {pages[pages.length - 1] < totalPages - 1 && <span class="ellipsis">…</span>}
+            <a href={pageUrl(totalPages)}>{totalPages}</a>
+        </>
+    )}
 
-        <!-- 最后一页 -->
-        {
-            pageLinks[pageLinks.length - 1] < totalPages && (
-                <>
-                    {pageLinks[pageLinks.length - 1] < totalPages - 1 && (
-                        <span class="pagination-ellipsis">…</span>
-                    )}
-                    <a
-                        href={`${basePath}/page/${totalPages}`}
-                        class="pagination-number"
-                        aria-label={`第${totalPages}页`}
-                    >
-                        {totalPages}
-                    </a>
-                </>
-            )
-        }
-
-        <!-- 下一页 -->
-        {
-            hasNext ? (
-                <a href={nextUrl} class="pagination-btn" aria-label="下一页">
-                    下一页 →
-                </a>
-            ) : (
-                <span class="pagination-btn pagination-disabled">下一页 →</span>
-            )
-        }
-    </nav>
-</div>
-
-<style>
-    .pagination-container {
-        margin: 2rem 0;
+    {hasNext
+        ? <a href={nextUrl} aria-label="下一页">→</a>
+        : <span class="disabled" aria-disabled="true">→</span>
     }
-
-    .pagination-btn {
-        @apply px-4 py-2 rounded-lg transition-colors duration-200;
-        @apply bg-gray-100 hover:bg-gray-200 text-gray-700;
-        @apply dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300;
-        text-decoration: none;
-    }
-
-    .pagination-disabled {
-        @apply opacity-50 cursor-not-allowed;
-        @apply bg-gray-100 text-gray-400;
-        @apply dark:bg-gray-800 dark:text-gray-600;
-    }
-
-    .pagination-number {
-        @apply w-10 h-10 flex items-center justify-center rounded-lg transition-colors duration-200;
-        @apply bg-gray-100 hover:bg-gray-200 text-gray-700;
-        @apply dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300;
-        text-decoration: none;
-    }
-
-    .pagination-current {
-        @apply bg-blue-500 text-white;
-        @apply dark:bg-blue-600;
-    }
-
-    .pagination-ellipsis {
-        @apply w-10 h-10 flex items-center justify-center text-gray-400;
-        @apply dark:text-gray-600;
-    }
-
-    /* 响应式调整 */
-    @media (max-width: 640px) {
-        .pagination {
-            flex-wrap: wrap;
-            gap: 0.25rem;
-        }
-
-        .pagination-btn {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-        }
-
-        .pagination-number {
-            width: 2rem;
-            height: 2rem;
-            font-size: 0.875rem;
-        }
-    }
-</style>
+</nav>
