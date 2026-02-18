@@ -1,362 +1,125 @@
 ---
-const today = new Date();
-
-// 计算博客运行时间
-const startDate = new Date("2025-08-13"); // 可以修改为你的博客开始日期
-const timeDiff = today.getTime() - startDate.getTime();
-const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-const months = Math.floor(days / 30);
-const years = Math.floor(days / 365);
-const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-const runningTime = `${years} 年 ${months % 12} 月 ${days % 30} 天 ${hours} 小时 ${minutes} 分钟 ${seconds} 秒`;
-
-// 动漫角色语录
-const animeQuotes = [
-	"相信奇迹的人，本身就和奇迹一样了不起。 —— 《魔卡少女樱》",
-	"无论何时，无论何地，我的心一直都在。 —— 《犬夜叉》",
-	"重要的不是你是什么，而是你想要成为什么。 —— 《火影忍者》",
-	"人的感情就是这样，有些话来不及说，就再也没机会了。 —— 《秒速五厘米》",
-	"无论发生什么，永远不要放弃希望。 —— 《进击的巨人》",
-];
-
-// 随机选择一条语录
-const randomQuote = animeQuotes[Math.floor(Math.random() * animeQuotes.length)];
+const startDate = new Date("2025-08-13");
 ---
 
-<footer
-	class="anime-footer py-10 bg-white dark:bg-dark-primary transition-colors duration-300"
->
-	<div class="container mx-auto px-4">
-		<!-- 随机动漫语录 -->
-		<div class="anime-quote text-center mb-10">
-			<p class="text-lg italic font-medium">{randomQuote}</p>
-		</div>
+<footer id="site-footer">
+    <div class="footer-inner">
+        <div class="footer-left">
+            <span class="footer-copy">© {new Date().getFullYear()} Neomelt</span>
+            <span class="footer-sep">·</span>
+            <span class="footer-runtime">
+                已运行 <span id="runtime-display" data-start={startDate.toISOString()}>...</span>
+            </span>
+        </div>
 
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-			<!-- 关于网站 -->
-			<div class="footer-section">
-				<h3 class="text-lg font-bold mb-4">关于本站</h3>
-				<p class="mb-2">
-					基于 <a
-						href="https://astro.build/"
-						target="_blank"
-						class="footer-link-inline">Astro</a
-					> 开发的个人博客
-				</p>
-				<p
-					class="running-time"
-					data-start-date={startDate.toISOString()}
-				>
-					已运行 <span id="running-time-span" class="highlight"
-						>{runningTime}</span
-					>
-				</p>
-			</div>
-
-			<!-- 快速链接 -->
-			<div class="footer-section">
-				<h3 class="text-lg font-bold mb-4">快速链接</h3>
-				<ul class="space-y-2">
-					<li>
-						<a href="/blog" class="footer-link"> 博客文章 </a>
-					</li>
-					<li>
-						<a href="/tags" class="footer-link"> 文章标签 </a>
-					</li>
-					<li>
-						<a href="/projects" class="footer-link"> 项目展示 </a>
-					</li>
-					<li>
-						<a href="/about" class="footer-link"> 关于我 </a>
-					</li>
-				</ul>
-			</div>
-
-			<!-- 友情链接 -->
-			<div class="footer-section">
-				<h3 class="text-lg font-bold mb-4">友情链接</h3>
-				<ul class="space-y-2">
-					<li>
-						<a
-							href="https://astro.build/"
-							target="_blank"
-							class="footer-link"
-						>
-							Astro 官网
-						</a>
-					</li>
-				</ul>
-			</div>
-
-			<!-- 联系方式 -->
-			<div class="footer-section">
-				<h3 class="text-lg font-bold mb-4">联系我</h3>
-				<div class="social-links flex space-x-4">
-					<a
-						href="https://github.com/Neomelt"
-						target="_blank"
-						aria-label="GitHub"
-						class="social-icon-link"
-					>
-						<svg
-							viewBox="0 0 16 16"
-							aria-hidden="true"
-							width="24"
-							height="24"
-						>
-							<path
-								fill="currentColor"
-								d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-							></path>
-						</svg>
-					</a>
-					<!-- 社交图标 -->
-					<a
-						href="#"
-						target="_blank"
-						aria-label="Bilibili"
-						class="social-icon-link"
-					>
-						<svg viewBox="0 0 24 24" width="24" height="24">
-							<path
-								fill="currentColor"
-								d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906L17.813 4.653zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773H5.333zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"
-							></path>
-						</svg>
-					</a>
-					<a
-						href="#"
-						target="_blank"
-						aria-label="Netease Music"
-						class="social-icon-link"
-					>
-						<svg viewBox="0 0 24 24" width="24" height="24">
-							<path
-								fill="currentColor"
-								d="M0 12a12 12 0 1 1 24 0 12 12 0 0 1-24 0zm11.9-9.827L9.828 5.12 5.142 7.2l-2 4.898-.142 2.334 1.714 3.856 4.286 3.428 4.286.714 4.428-1.428 3.572-4.428.714-4.143-1-4.571-3.143-3.143-3.857-1.857-2.142.143V2.172zm7.428 4.857c.286 0 .714-.143.714-.571s-.428-.572-.714-.572-.714.143-.714.572c0 .428.428.571.714.571zm-2.428.428c.428 0 .714-.143.714-.571s-.286-.572-.714-.572-.714.143-.714.572c0 .428.286.571.714.571zm-8.286 1.572c-.428 0-.857.143-.857.571s.428.571.857.571.857-.143.857-.571c-.143-.428-.429-.571-.857-.571zm-2.143.428c-.428 0-.857.143-.857.571s.429.572.857.572.857-.143.857-.572-.429-.571-.857-.571zm10.143.429c-3.428 0-6.286 2.714-6.286 6.143S15.186 21 18.614 21s6.143-2.714 6.143-6.143-2.715-5.999-6.143-5.999zm0 10c-2.143 0-3.857-1.714-3.857-4s1.714-3.857 3.857-3.857c2.143 0 3.857 1.714 3.857 3.857s-1.714 4-3.857 4zm-12.571-7.571c-.429 0-.714.143-.714.571 0 .429.285.572.714.572.428 0 .714-.143.714-.572 0-.428-.286-.571-.714-.571zm9.428 2.428c-.428 0-.714.143-.714.571 0 .429.286.572.714.572s.714-.143.714-.572c.143-.428-.143-.571-.714-.571zm-3.143 2c-.428 0-.714.143-.714.571s.286.571.714.571.714-.143.714-.571-.286-.571-.714-.571z"
-							></path>
-						</svg>
-					</a>
-				</div>
-			</div>
-		</div>
-
-		<!-- 访问计数 -->
-		<div class="moe-counter mt-8 text-center">
-			<p class="text-lg mb-2">
-				已有 <span class="text-blue-500 font-bold">NaN</span> 位小伙伴来访
-			</p>
-		</div>
-
-		<div class="mt-8 pt-6 border-t border-blue-900 text-center">
-			<p class="footer-copyright">
-				&copy; {today.getFullYear()}
-				<span class="text-blue-500">Neomeltの博客</span> · 由 Astro 强力驱动
-			</p>
-		</div>
-	</div>
+        <div class="footer-right">
+            <!-- GitHub -->
+            <a href="https://github.com/Neomelt" target="_blank" rel="noopener" aria-label="GitHub" class="footer-icon">
+                <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+            </a>
+            <!-- Bilibili -->
+            <a href="https://space.bilibili.com/1025251137" target="_blank" rel="noopener" aria-label="Bilibili" class="footer-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+                    <path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"/>
+                </svg>
+            </a>
+            <!-- Email -->
+            <a href="mailto:3212929002@qq.com" aria-label="Email" class="footer-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+            </a>
+            <!-- RSS -->
+            <a href="/rss.xml" aria-label="RSS" class="footer-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/>
+                    <circle cx="5" cy="19" r="1" fill="currentColor" stroke="none"/>
+                </svg>
+            </a>
+        </div>
+    </div>
 </footer>
 
-<style>
-	.anime-footer {
-		background-color: #1a1f35;
-		background-image: url("https://cdn.hakochest.net/blog-bg.webp");
-		background-size: cover;
-		background-position: center;
-		background-blend-mode: overlay;
-		position: relative;
-		overflow: hidden;
-		color: rgba(255, 255, 255, 0.7);
-	}
-
-	.anime-decoration {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		left: 0;
-		pointer-events: none;
-	}
-
-	.anime-character {
-		position: absolute;
-		bottom: -20px;
-		width: 180px;
-		height: 240px;
-		background-size: contain;
-		background-repeat: no-repeat;
-		opacity: 0.5;
-	}
-
-	.anime-character.left {
-		left: 5%;
-		background-image: url("https://cdn.hakochest.net/char1.png");
-		transform: scaleX(-1);
-	}
-
-	.anime-character.right {
-		right: 5%;
-		background-image: url("https://cdn.hakochest.net/char2.png");
-	}
-
-	.anime-quote {
-		background-color: rgba(26, 31, 53, 0.7);
-		border-radius: 1rem;
-		padding: 1.5rem;
-		max-width: 800px;
-		margin: 0 auto 2rem;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-		border-left: 4px solid #3b82f6;
-	}
-
-	.footer-section h3 {
-		color: #3b82f6;
-		border-bottom: 2px dashed rgba(59, 130, 246, 0.4);
-		padding-bottom: 0.5rem;
-		display: inline-block;
-	}
-
-	.footer-link {
-		display: inline-flex;
-		align-items: center;
-		color: rgba(255, 255, 255, 0.7);
-		transition: all 0.3s ease;
-		text-decoration: none;
-	}
-
-	.footer-link:hover {
-		color: #3b82f6;
-		transform: translateX(5px);
-	}
-
-	.footer-link-inline {
-		color: #3b82f6;
-		text-decoration: none;
-		transition: all 0.3s ease;
-	}
-
-	.footer-link-inline:hover {
-		text-decoration: underline;
-	}
-
-	.emoji {
-		margin-right: 0.5rem;
-		font-size: 1.2em;
-	}
-
-	.social-icon-link {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: rgba(255, 255, 255, 0.7);
-		transition: all 0.3s ease;
-		background: rgba(255, 255, 255, 0.1);
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-	}
-
-	.social-icon-link:hover {
-		color: #3b82f6;
-		transform: translateY(-3px);
-		background: rgba(255, 255, 255, 0.15);
-	}
-
-	.running-time {
-		font-family: "Consolas", monospace;
-		color: rgba(255, 255, 255, 0.7);
-	}
-
-	.highlight {
-		color: #3b82f6;
-		font-weight: 600;
-	}
-
-	.sakura-btn {
-		background-color: rgba(59, 130, 246, 0.2);
-		color: #3b82f6;
-		border: 1px solid rgba(59, 130, 246, 0.3);
-		padding: 0.5rem 1.5rem;
-		border-radius: 2rem;
-		font-weight: bold;
-		cursor: pointer;
-		transition: all 0.3s ease;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-	}
-
-	.sakura-btn:hover {
-		background-color: rgba(59, 130, 246, 0.3);
-		transform: translateY(-2px);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-	}
-
-	.footer-copyright {
-		font-size: 0.9rem;
-		color: rgba(255, 255, 255, 0.5);
-	}
-
-	@media (max-width: 768px) {
-		.anime-character {
-			display: none;
-		}
-	}
-</style>
-
 <script>
-	document.addEventListener("DOMContentLoaded", () => {
-		// --- 博客运行时间自动更新 ---
-		const runningTimeElement = document.querySelector(
-			".running-time",
-		) as HTMLElement; // <--- FIX #1
-		const timeSpan = document.getElementById("running-time-span");
+    function updateRuntime() {
+        const el = document.getElementById("runtime-display");
+        if (!el) return;
+        const start = new Date(el.dataset.start || "2025-08-13");
+        const now = new Date();
+        const diff = now.getTime() - start.getTime();
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        el.textContent = `${d} 天 ${h} 时 ${m} 分 ${s} 秒`;
+    }
 
-		if (runningTimeElement && timeSpan) {
-			const startDateString = runningTimeElement.dataset.startDate;
-			if (startDateString) {
-				const startDate = new Date(startDateString);
-
-				const updateRunningTime = () => {
-					const today = new Date();
-					const timeDiff = today.getTime() - startDate.getTime();
-
-					const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-					const hours = Math.floor(
-						(timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-					);
-					const minutes = Math.floor(
-						(timeDiff % (1000 * 60 * 60)) / (1000 * 60),
-					);
-					const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-					const years = Math.floor(days / 365);
-					const remainingDays = days % 365;
-					const months = Math.floor(remainingDays / 30);
-					const finalDays = remainingDays % 30;
-
-					const runningTimeText = `${years} 年 ${months} 月 ${finalDays} 天 ${hours} 小时 ${minutes} 分钟 ${seconds} 秒`;
-					timeSpan.textContent = runningTimeText;
-				};
-
-				updateRunningTime();
-				setInterval(updateRunningTime, 1000);
-			}
-		}
-
-		const style = document.createElement("style");
-		style.textContent = `
-            @keyframes fall {
-                0% { transform: translateY(0) rotate(0deg); }
-                100% { transform: translateY(100vh) rotate(360deg); }
-            }
-            @keyframes rotate {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        `;
-		document.head.appendChild(style);
-	});
+    document.addEventListener("DOMContentLoaded", () => {
+        updateRuntime();
+        setInterval(updateRuntime, 1000);
+    });
 </script>
+
+<style>
+    #site-footer {
+        border-top: 1px solid var(--border);
+        padding: 1.25rem 0;
+        margin-top: auto;
+    }
+
+    .footer-inner {
+        max-width: var(--content-width);
+        margin: 0 auto;
+        padding: 0 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        flex-wrap: wrap;
+    }
+
+    .footer-sep {
+        color: var(--border);
+    }
+
+    .footer-right {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .footer-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        color: var(--text-muted);
+        transition: color 150ms ease, background 150ms ease;
+    }
+
+    .footer-icon:hover {
+        color: var(--text);
+        background: var(--bg-code);
+    }
+
+    @media (max-width: 480px) {
+        .footer-inner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>

@@ -1,0 +1,71 @@
+---
+import { getCollection } from "astro:content";
+import FormattedDate from "../../components/FormattedDate.astro";
+import Pagination from "../../components/Pagination.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { paginate } from "../../utils/pagination.ts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+
+// Merge blog + zueg, sort pinned first then by date
+const blogPosts = await getCollection("blog");
+const zuegPosts = await getCollection("zueg");
+
+const allPosts = [...blogPosts, ...zuegPosts].sort((a, b) => {
+    if (a.data.pinned && !b.data.pinned) return -1;
+    if (!a.data.pinned && b.data.pinned) return 1;
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
+
+const { items: paginatedPosts, pagination } = paginate(allPosts, 1, 10);
+
+function estimateReadingTime(content: string): number {
+    return Math.max(1, Math.ceil(content.length / 400));
+}
+---
+
+<BaseLayout title={`文章 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+    <main>
+        <div class="container">
+            <h1 class="section-heading">文章</h1>
+
+            <div class="post-list">
+                {paginatedPosts.map((post) => {
+                    const isZueg = post.collection === "zueg";
+                    const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
+                    const readingTime = estimateReadingTime(post.body || "");
+                    return (
+                        <a href={url} class="post-card">
+                            <div class="post-card-meta">
+                                <FormattedDate date={post.data.pubDate} />
+                                {isZueg && <span class="tag">随笔</span>}
+                                {post.data.pinned && (
+                                    <span class="badge-pinned">置顶</span>
+                                )}
+                                <span>{readingTime} 分钟</span>
+                            </div>
+                            <div class="post-card-title">{post.data.title}</div>
+                            {post.data.description && (
+                                <div class="post-card-desc">{post.data.description}</div>
+                            )}
+                            {post.data.tags && post.data.tags.length > 0 && (
+                                <div class="post-card-tags">
+                                    {post.data.tags.slice(0, 4).map((tag: string) => (
+                                        <span class="tag">#{tag}</span>
+                                    ))}
+                                </div>
+                            )}
+                        </a>
+                    );
+                })}
+            </div>
+
+            {allPosts.length === 0 && (
+                <p class="text-muted" style="text-align:center;padding:3rem 0">暂无文章</p>
+            )}
+
+            {pagination.totalPages > 1 && (
+                <Pagination pagination={pagination} basePath="/posts" />
+            )}
+        </div>
+    </main>
+</BaseLayout>
