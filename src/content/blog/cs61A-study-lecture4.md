@@ -8,7 +8,7 @@ series: ''
 tags: ['python', 'cs']
 ---
 
-# 高阶函数
+## 高阶函数
 
 普通函数处理数字，高阶函数处理逻辑
 
@@ -40,7 +40,7 @@ result2 = summation(10, square)
 print(result1, result2)  # 输出 3025 385
 ```
 
-# 柯里化
+## 柯里化
 
 柯里化是一种将多变量输入函数通过嵌套函数的方式简化为通过系数的思维的单输入的函数
 
@@ -60,7 +60,7 @@ print(add(5, 3))          # 一次性给齐
 print(curried_add(5)(3))  # 分两次给，第一个括号返回的是一个函数
 ```
 
-# Lambda 表达式
+## Lambda 表达式
 
 Lambda 表达式在python中被称为匿名函数，通常用于一次性使用的函数，不想起函数名但又需要的情况
 
@@ -103,7 +103,7 @@ $$\text{lambda} \quad \text{arguments} : \text{expression}$$
     print(double(10)) # 20
     ```
 
-# 函数装饰器
+## 函数装饰器
 
 装饰器（Decorator）是 Python 中最优雅也最强大的语法之一。简单来说，它是一种“在不修改原函数代码的前提下，给函数增加新功能”的工具，是python语言中的语法糖。
 
