@@ -1,7 +1,7 @@
 ---
 title: '2026 最新：国内环境低成本注册 Claude 账号防封教程'
 description: '记录下注册claude账号的过程'
-pubDate: '2026-02-18'
+pubDate: '2026-02-19'
 pinned: false
 heroImage: '../../assets/cover.svg'
 category: ''
