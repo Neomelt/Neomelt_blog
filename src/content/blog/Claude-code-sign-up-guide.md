@@ -66,6 +66,4 @@ tags: ['ai', 'vibecoding', 'claude']
 
 - 尽量不要随意切换ip登录 claude.ai，最少也要隔6小时。
 
-## Reference
-
 [^1]: [Redis 之父称「手写代码不再必要」，你如何看待 AI 对编程的影响？](https://www.zhihu.com/question/1995213825918641040/answer/1999195986283749895)
