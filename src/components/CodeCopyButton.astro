@@ -2,81 +2,240 @@
 ---
 
 <script>
-  function addCopyButtons() {
-    const codeBlocks = document.querySelectorAll('pre');
+  const COLLAPSE_LINE_THRESHOLD = 14;
+
+  function toTitleCase(value) {
+    if (!value) return "Code";
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function formatLanguage(language) {
+    const normalized = (language || "").trim().toLowerCase();
+    if (!normalized) return "Code";
+
+    const aliases = {
+      js: "JavaScript",
+      jsx: "JSX",
+      ts: "TypeScript",
+      tsx: "TSX",
+      py: "Python",
+      rb: "Ruby",
+      rs: "Rust",
+      c: "C",
+      cpp: "C++",
+      csharp: "C#",
+      cs: "C#",
+      sh: "Shell",
+      bash: "Bash",
+      shell: "Shell",
+      zsh: "Zsh",
+      yml: "YAML",
+      yaml: "YAML",
+      md: "Markdown",
+      tex: "TeX",
+      plaintext: "Text",
+      text: "Text"
+    };
+
+    return aliases[normalized] || toTitleCase(normalized);
+  }
+
+  function getCodeText(codeBlock) {
+    const code = codeBlock.querySelector("code");
+    return code ? code.innerText : codeBlock.innerText;
+  }
+
+  function getLanguage(codeBlock) {
+    const byData = codeBlock.getAttribute("data-language");
+    if (byData) return formatLanguage(byData);
+
+    const langClass = Array.from(codeBlock.classList).find((item) =>
+      item.startsWith("language-")
+    );
+    if (langClass) return formatLanguage(langClass.replace("language-", ""));
+
+    return "Code";
+  }
+
+  function getCodeLineCount(codeBlock) {
+    const lines = codeBlock.querySelectorAll("code .line");
+    if (lines.length > 0) return lines.length;
+
+    const text = getCodeText(codeBlock).replace(/\n+$/, "");
+    return text ? text.split("\n").length : 0;
+  }
+
+  function createCopyButton(codeBlock) {
+    const button = document.createElement("button");
+    button.className = "code-header-button copy-code-button";
+    button.type = "button";
+    button.setAttribute("aria-label", "复制代码");
+    button.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    `;
+
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(getCodeText(codeBlock));
+        button.classList.add("copied");
+        setTimeout(() => button.classList.remove("copied"), 2000);
+      } catch (err) {
+        console.error("无法复制内容: ", err);
+      }
+    });
+
+    return button;
+  }
+
+  function updateCollapseState(wrapper, toggleButton) {
+    const isCollapsed = wrapper.classList.contains("is-collapsed");
+    toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    toggleButton.setAttribute("aria-label", isCollapsed ? "展开代码块" : "折叠代码块");
+  }
+
+  function createToggleButton(wrapper) {
+    const button = document.createElement("button");
+    button.className = "code-toggle-trigger";
+    button.type = "button";
+    button.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="toggle-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      <span class="code-language"></span>
+    `;
+
+    button.addEventListener("click", () => {
+      wrapper.classList.toggle("is-collapsed");
+      updateCollapseState(wrapper, button);
+    });
+
+    updateCollapseState(wrapper, button);
+    return button;
+  }
+
+  function createHeader(codeBlock, wrapper) {
+    const header = document.createElement("div");
+    header.className = "code-block-header";
+
+    const toggleButton = createToggleButton(wrapper);
+    const languageNode = toggleButton.querySelector(".code-language");
+    if (languageNode) {
+      languageNode.textContent = getLanguage(codeBlock);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "code-header-actions";
+    actions.appendChild(createCopyButton(codeBlock));
+
+    header.append(toggleButton, actions);
+    return header;
+  }
+
+  function addCodeBlockControls() {
+    const codeBlocks = document.querySelectorAll(".prose pre");
 
     codeBlocks.forEach((codeBlock) => {
-      // 防止重复添加
-      if (codeBlock.querySelector('.copy-code-button')) return;
+      if (codeBlock.dataset.codeEnhanced === "true") return;
+      codeBlock.dataset.codeEnhanced = "true";
 
-      // 确保 pre 是相对定位的，以便定位按钮
-      codeBlock.style.position = 'relative';
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-block-shell";
+      codeBlock.parentNode?.insertBefore(wrapper, codeBlock);
+      wrapper.appendChild(codeBlock);
+      wrapper.insertBefore(createHeader(codeBlock, wrapper), codeBlock);
 
-      const button = document.createElement('button');
-      button.className = 'copy-code-button';
-      button.type = 'button';
-      button.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon copy-button-hidden"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      `;
-
-      button.addEventListener('click', async () => {
-        const code = codeBlock.querySelector('code');
-        const text = code ? code.innerText : codeBlock.innerText;
-
-        try {
-          await navigator.clipboard.writeText(text);
-          
-          // 视觉反馈
-          button.classList.add('copied');
-          setTimeout(() => {
-            button.classList.remove('copied');
-          }, 2000);
-        } catch (err) {
-          console.error('无法复制内容: ', err);
-        }
-      });
-
-      codeBlock.appendChild(button);
+      if (getCodeLineCount(codeBlock) >= COLLAPSE_LINE_THRESHOLD) {
+        wrapper.classList.add("is-collapsed");
+      }
     });
   }
 
-  // 初始加载执行
-  addCopyButtons();
-
-  // 监听 Astro 页面导航（View Transitions）
-  document.addEventListener('astro:page-load', addCopyButtons);
+  addCodeBlockControls();
+  document.addEventListener("astro:page-load", addCodeBlockControls);
 </script>
 
 <style is:global>
-  pre {
-    position: relative;
+  .prose .code-block-shell {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    background: var(--bg-code);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   }
 
-  .copy-code-button {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    opacity: 0;
-    transition: all 0.2s ease;
-    z-index: 10;
+  .prose .code-block-shell pre {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1rem 1.1rem 1.1rem;
+  }
+
+  .code-block-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    min-height: 2.25rem;
+    padding: 0.3rem 0.45rem 0.3rem 0.25rem;
+    background: rgba(0, 0, 0, 0.28);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .dark .code-block-header {
+    background: rgba(0, 0, 0, 0.36);
+  }
+
+  .code-toggle-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    padding: 0.3rem 0.45rem;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .code-toggle-trigger:hover {
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .code-toggle-trigger .toggle-icon {
+    transition: transform 0.18s ease;
+  }
+
+  .code-block-shell:not(.is-collapsed) .code-toggle-trigger .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  .code-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .code-header-button {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    width: 1.95rem;
+    height: 1.95rem;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
 
-  pre:hover .copy-code-button {
-    opacity: 1;
-  }
-
-  .copy-code-button:hover {
-    background: rgba(255, 255, 255, 0.2);
+  .code-header-button:hover {
+    background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.4);
   }
 
@@ -98,7 +257,23 @@
     display: block;
   }
 
-  .copy-button-hidden {
+  .code-block-shell.is-collapsed pre {
     display: none;
+  }
+
+  @media (max-width: 640px) {
+    .code-block-header {
+      min-height: 2.1rem;
+      padding-inline: 0.2rem 0.35rem;
+    }
+
+    .code-toggle-trigger {
+      font-size: 0.84rem;
+    }
+
+    .code-header-button {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
   }
 </style>
