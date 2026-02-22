@@ -87,7 +87,7 @@ patch:
 
 默认的 Fcitx5 皮肤非常原始（只有黑白文字）。我们可以安装 Material 风格的主题。
 
-```Bash
+``` bash
 sudo apt install fcitx5-material-color
 ```
 
@@ -109,7 +109,7 @@ sudo apt install fcitx5-material-color
 
 打开终端，直接写入一个自启文件：
 
-```Bash
+```bash
 mkdir -p ~/.config/autostart
 cat <<EOF > ~/.config/autostart/fcitx5.desktop
 [Desktop Entry]
