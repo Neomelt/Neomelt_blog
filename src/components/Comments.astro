@@ -9,6 +9,7 @@ const { path = Astro.url.pathname } = Astro.props;
 const walinePath = normalizeWalinePath(path);
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 const walineScriptUrls = [
+	"/vendor/waline.umd.js",
 	"https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
 	"https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
 ];
@@ -18,11 +19,16 @@ const walineEmojiUrls = [
 ];
 ---
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.css" />
+<link rel="stylesheet" href="/vendor/waline.css" />
 
 <div class="comments-wrapper">
 	{serverURL ? (
-		<div id="waline"></div>
+		<>
+			<div id="waline"></div>
+			<div id="waline-fallback" class="comments-config-tip" style="display: none;">
+				评论组件加载失败。请刷新重试，或访问 <a href={"https://www.neomelt.cloud" + walinePath}>www.neomelt.cloud</a>。
+			</div>
+		</>
 	) : (
 		<div class="comments-config-tip">
 			未配置 Waline 服务地址。请在环境变量中设置 <code>PUBLIC_WALINE_SERVER_URL</code>。
@@ -34,8 +40,15 @@ const walineEmojiUrls = [
 	serverURL && (
 		<script define:vars={{ serverURL, walinePath, walineScriptUrls, walineEmojiUrls }}>
 			(() => {
+				const showFallback = () => {
+					const fallback = document.getElementById("waline-fallback");
+					if (fallback) fallback.style.display = "block";
+				};
+
 				const loadWalineClient = () => {
-					if (window.Waline?.init) return Promise.resolve(window.Waline);
+					if (window.Waline && typeof window.Waline.init === "function") {
+						return Promise.resolve(window.Waline);
+					}
 					if (window.__walineClientPromise) return window.__walineClientPromise;
 
 					const sources = Array.isArray(walineScriptUrls) ? walineScriptUrls : [];
@@ -51,7 +64,7 @@ const walineEmojiUrls = [
 								`script[data-waline-client-src="${src}"]`,
 							);
 							if (existing) {
-								if (window.Waline?.init) {
+								if (window.Waline && typeof window.Waline.init === "function") {
 									resolve(window.Waline);
 									return;
 								}
@@ -71,7 +84,9 @@ const walineEmojiUrls = [
 							script.async = true;
 							script.dataset.walineClientSrc = src;
 							script.onload = () => {
-								if (window.Waline?.init) resolve(window.Waline);
+								if (window.Waline && typeof window.Waline.init === "function") {
+									resolve(window.Waline);
+								}
 								else reject(new Error(`Waline global not found after loading ${src}`));
 							};
 							script.onerror = () => reject(new Error(`Failed loading ${src}`));
@@ -104,6 +119,7 @@ const walineEmojiUrls = [
 					})
 					.catch((error) => {
 						console.error("[Waline] Failed to initialize comment widget:", error);
+						showFallback();
 					});
 			})();
 		</script>
