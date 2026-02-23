@@ -6,7 +6,6 @@ import ProfileCard from "../../../components/ProfileCard.astro";
 import Sidebar from "../../../components/Sidebar.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
-import { SITE_DESCRIPTION } from "../../../consts";
 import { getWalinePathForPost } from "../../../utils/waline";
 
 export async function getStaticPaths() {
@@ -43,7 +42,6 @@ const allCategories = [
 
 <BaseLayout
     title={`博客文章 - 第${currentPage}页`}
-    description={SITE_DESCRIPTION}
 >
 	<main>
 		<div class="homepage-container">

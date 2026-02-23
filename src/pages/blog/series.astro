@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
@@ -27,7 +27,7 @@ posts.forEach((post) => {
 const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 ---
 
-<BaseLayout title={`系列 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`系列 | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">

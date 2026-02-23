@@ -2,7 +2,7 @@
 import { getCollection } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { SITE_DESCRIPTION, SITE_TITLE, SITE_SUBTITLE } from "../consts";
+import { SITE_TITLE } from "../consts";
 import { getWalinePathForPost } from "../utils/waline";
 
 const blogPosts = await getCollection("blog");
@@ -17,7 +17,7 @@ const allPosts = [...blogPosts, ...zuegPosts].sort((a, b) => {
 const recentPosts = allPosts.slice(0, 5);
 ---
 
-<BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+<BaseLayout title={SITE_TITLE}>
     <main>
         <div class="container">
             <!-- Site intro -->

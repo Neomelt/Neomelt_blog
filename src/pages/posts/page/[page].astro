@@ -4,7 +4,7 @@ import FormattedDate from "../../../components/FormattedDate.astro";
 import Pagination from "../../../components/Pagination.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../../consts";
+import { SITE_TITLE } from "../../../consts";
 import { getWalinePathForPost } from "../../../utils/waline";
 
 export async function getStaticPaths() {
@@ -37,7 +37,7 @@ function estimateReadingTime(content: string): number {
 }
 ---
 
-<BaseLayout title={`文章 第${page}页 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`文章 第${page}页 | ${SITE_TITLE}`}>
     <main>
         <div class="container">
             <h1 class="section-heading" data-i18n="posts.title">文章</h1>

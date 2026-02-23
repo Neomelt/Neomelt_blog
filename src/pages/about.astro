@@ -1,5 +1,5 @@
 ---
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
 import { normalizeWalinePath } from "../utils/waline";
@@ -7,7 +7,7 @@ import { normalizeWalinePath } from "../utils/waline";
 const walinePath = normalizeWalinePath("/about");
 ---
 
-<BaseLayout title={`关于 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`关于 | ${SITE_TITLE}`}>
     <main>
         <div class="container">
             <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑导航">

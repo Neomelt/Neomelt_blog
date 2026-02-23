@@ -6,7 +6,7 @@ import ProfileCard from "../../../components/ProfileCard.astro";
 import Sidebar from "../../../components/Sidebar.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../../consts";
+import { SITE_TITLE } from "../../../consts";
 
 export async function getStaticPaths() {
     const entries = (await getCollection("zueg")).sort((a, b) => {
@@ -43,7 +43,6 @@ function estimateReadingTime(content: string): number {
 
 <BaseLayout
     title={`随笔 - 第${currentPage}页`}
-    description={SITE_DESCRIPTION}
 >
 	<main>
 		<div class="homepage-container">

@@ -8,10 +8,10 @@ import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, UI_TRANSLATIONS } from "../i18n/ui"
 
 export interface Props {
     title: string;
-    description: string;
+    description?: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description = "" } = Astro.props;
 ---
 
 <!doctype html>

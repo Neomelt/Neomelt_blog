@@ -6,7 +6,6 @@ import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
-import { SITE_DESCRIPTION } from "../../consts";
 import { getWalinePathForPost } from "../../utils/waline";
 
 const posts = (await getCollection("blog")).sort((a, b) => {
@@ -30,7 +29,7 @@ const allCategories = [
 ];
 ---
 
-<BaseLayout title="博客文章" description={SITE_DESCRIPTION}>
+<BaseLayout title="博客文章">
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">

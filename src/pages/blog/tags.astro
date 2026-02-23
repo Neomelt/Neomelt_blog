@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 import { getCollection } from "astro:content";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
@@ -30,7 +30,7 @@ const sortedTags = Object.entries(tagCounts)
     .slice(0, 20); // 只显示前20个最常用的标签
 ---
 
-<BaseLayout title={`标签 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`标签 | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">

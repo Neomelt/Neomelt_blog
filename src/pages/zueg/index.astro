@@ -6,7 +6,7 @@ import Sidebar from "../../components/Sidebar.astro";
 import Pagination from "../../components/Pagination.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 
 const zuegEntries = await getCollection("zueg");
 const sortedZueg = zuegEntries.sort((a, b) => {
@@ -25,7 +25,7 @@ function estimateReadingTime(content: string): number {
 }
 ---
 
-<BaseLayout title={`随笔 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`随笔 | ${SITE_TITLE}`}>
     <main>
         <div class="homepage-container">
             <div class="homepage-layout">

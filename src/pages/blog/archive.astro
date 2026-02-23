@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -57,7 +57,7 @@ const monthNames = [
 ];
 ---
 
-<BaseLayout title={`归档 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`归档 | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">
