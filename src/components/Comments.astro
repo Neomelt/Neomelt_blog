@@ -8,9 +8,17 @@ interface Props {
 const { path = Astro.url.pathname } = Astro.props;
 const walinePath = normalizeWalinePath(path);
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
+const walineScriptUrls = [
+	"https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
+	"https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
+];
+const walineEmojiUrls = [
+	"https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bmoji",
+	"https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bilibili",
+];
 ---
 
-<link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.css" />
 
 <div class="comments-wrapper">
 	{serverURL ? (
@@ -24,24 +32,80 @@ const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 
 {
 	serverURL && (
-		<script type="module" define:vars={{ serverURL, walinePath }}>
-			import { init } from "https://unpkg.com/@waline/client@v3/dist/waline.js";
+		<script define:vars={{ serverURL, walinePath, walineScriptUrls, walineEmojiUrls }}>
+			(() => {
+				const loadWalineClient = () => {
+					if (window.Waline?.init) return Promise.resolve(window.Waline);
+					if (window.__walineClientPromise) return window.__walineClientPromise;
 
-			init({
-				el: "#waline",
-				serverURL,
-				path: walinePath,
-				lang: "zh-CN",
-				dark: "html.dark",
-				emoji: [
-					"https://unpkg.com/@waline/emojis@1.4.0/bmoji",
-					"https://unpkg.com/@waline/emojis@1.4.0/bilibili",
-				],
-				pageview: true,
-				comment: true,
-				meta: ["nick", "mail", "link"],
-				requiredMeta: ["nick", "mail"],
-			});
+					const sources = Array.isArray(walineScriptUrls) ? walineScriptUrls : [];
+					const tryLoad = (index) =>
+						new Promise((resolve, reject) => {
+							const src = sources[index];
+							if (!src) {
+								reject(new Error("No Waline client CDN source available"));
+								return;
+							}
+
+							const existing = document.querySelector(
+								`script[data-waline-client-src="${src}"]`,
+							);
+							if (existing) {
+								if (window.Waline?.init) {
+									resolve(window.Waline);
+									return;
+								}
+								existing.addEventListener("load", () => resolve(window.Waline), {
+									once: true,
+								});
+								existing.addEventListener(
+									"error",
+									() => reject(new Error(`Failed loading ${src}`)),
+									{ once: true },
+								);
+								return;
+							}
+
+							const script = document.createElement("script");
+							script.src = src;
+							script.async = true;
+							script.dataset.walineClientSrc = src;
+							script.onload = () => {
+								if (window.Waline?.init) resolve(window.Waline);
+								else reject(new Error(`Waline global not found after loading ${src}`));
+							};
+							script.onerror = () => reject(new Error(`Failed loading ${src}`));
+							document.head.appendChild(script);
+						}).catch((error) => {
+							if (index >= sources.length - 1) throw error;
+							return tryLoad(index + 1);
+						});
+
+					window.__walineClientPromise = tryLoad(0);
+					return window.__walineClientPromise;
+				};
+
+				loadWalineClient()
+					.then((waline) => {
+						if (!document.querySelector("#waline")) return;
+
+						waline.init({
+							el: "#waline",
+							serverURL,
+							path: walinePath,
+							lang: "zh-CN",
+							dark: "html.dark",
+							emoji: walineEmojiUrls,
+							pageview: true,
+							comment: true,
+							meta: ["nick", "mail", "link"],
+							requiredMeta: ["nick", "mail"],
+						});
+					})
+					.catch((error) => {
+						console.error("[Waline] Failed to initialize comment widget:", error);
+					});
+			})();
 		</script>
 	)
 }

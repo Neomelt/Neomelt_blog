@@ -1,10 +1,14 @@
 ---
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
+const walineScriptUrls = [
+	"https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
+	"https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
+];
 ---
 
 {
 	serverURL && (
-		<script type="module" define:vars={{ serverURL }}>
+		<script define:vars={{ serverURL, walineScriptUrls }}>
 			(async () => {
 				const hasPageviewCounter = Boolean(
 					document.querySelector(".waline-pageview-count"),
@@ -19,25 +23,79 @@ const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 				const updateTarget = document.querySelector(
 					".waline-pageview-update[data-path]",
 				);
+				const loadWalineClient = () => {
+					if (window.Waline?.pageviewCount && window.Waline?.commentCount) {
+						return Promise.resolve(window.Waline);
+					}
+					if (window.__walineClientPromise) return window.__walineClientPromise;
+
+					const sources = Array.isArray(walineScriptUrls) ? walineScriptUrls : [];
+					const tryLoad = (index) =>
+						new Promise((resolve, reject) => {
+							const src = sources[index];
+							if (!src) {
+								reject(new Error("No Waline client CDN source available"));
+								return;
+							}
+
+							const existing = document.querySelector(
+								`script[data-waline-client-src="${src}"]`,
+							);
+							if (existing) {
+								if (window.Waline?.pageviewCount && window.Waline?.commentCount) {
+									resolve(window.Waline);
+									return;
+								}
+								existing.addEventListener("load", () => resolve(window.Waline), {
+									once: true,
+								});
+								existing.addEventListener(
+									"error",
+									() => reject(new Error(`Failed loading ${src}`)),
+									{ once: true },
+								);
+								return;
+							}
+
+							const script = document.createElement("script");
+							script.src = src;
+							script.async = true;
+							script.dataset.walineClientSrc = src;
+							script.onload = () => {
+								if (window.Waline?.pageviewCount && window.Waline?.commentCount) {
+									resolve(window.Waline);
+								} else {
+									reject(new Error(`Waline global not found after loading ${src}`));
+								}
+							};
+							script.onerror = () => reject(new Error(`Failed loading ${src}`));
+							document.head.appendChild(script);
+						}).catch((error) => {
+							if (index >= sources.length - 1) throw error;
+							return tryLoad(index + 1);
+						});
+
+					window.__walineClientPromise = tryLoad(0);
+					return window.__walineClientPromise;
+				};
+
+				const waline = await loadWalineClient();
 				const tasks = [];
 
 				if (hasPageviewCounter) {
 					tasks.push(
-						import("https://unpkg.com/@waline/client@v3/dist/pageview.js").then(
-							({ pageviewCount }) =>
-								pageviewCount({
-									serverURL,
-									update: false,
-								}),
-						),
+						waline.pageviewCount({
+							serverURL,
+							update: false,
+						}),
 					);
 				}
 
 				if (hasCommentCounter) {
 					tasks.push(
-						import("https://unpkg.com/@waline/client@v3/dist/comment.js").then(
-							({ commentCount }) => commentCount({ serverURL }),
-						),
+						waline.commentCount({
+							serverURL,
+						}),
 					);
 				}
 
@@ -45,14 +103,11 @@ const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 					const updatePath = updateTarget.getAttribute("data-path");
 					if (updatePath) {
 						tasks.push(
-							import("https://unpkg.com/@waline/client@v3/dist/pageview.js").then(
-								({ pageviewCount }) =>
-									pageviewCount({
-										serverURL,
-										path: updatePath,
-										update: true,
-									}),
-							),
+							waline.pageviewCount({
+								serverURL,
+								path: updatePath,
+								update: true,
+							}),
 						);
 					}
 				}
