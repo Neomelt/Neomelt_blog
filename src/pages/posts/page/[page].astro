@@ -40,6 +40,12 @@ function estimateReadingTime(content: string): number {
 <BaseLayout title={`文章 第${page}页 | ${SITE_TITLE}`}>
     <main>
         <div class="container">
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
+                <a href="/" data-i18n="common.home">首页</a>
+                <span class="breadcrumb-sep">/</span>
+                <a href="/posts" data-i18n="common.posts">文章</a>
+            </nav>
+
             <h1 class="section-heading" data-i18n="posts.title">文章</h1>
 
             <div class="post-list">
