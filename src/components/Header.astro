@@ -92,13 +92,13 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 
 <script define:vars={{ defaultLocaleLabelZh, defaultLocaleLabelEn }}>
     // ---- Theme ----
-    function getTheme(): "dark" | "light" {
+    function getTheme() {
         const saved = localStorage.getItem("theme");
         if (saved === "dark" || saved === "light") return saved;
         return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
 
-    function applyTheme(theme: "dark" | "light") {
+    function applyTheme(theme) {
         const moon = document.getElementById("moon-icon");
         const sun  = document.getElementById("sun-icon");
         if (theme === "dark") {
@@ -149,7 +149,7 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
         const localeToggle = document.getElementById("locale-toggle");
 
         const updateLocaleLabel = () => {
-            const i18n = (window as any).__siteI18n;
+            const i18n = window.__siteI18n;
             const locale = i18n?.getLocale?.() === "en" ? "en" : "zh";
             const localeLabel = document.getElementById("locale-toggle-label");
             if (!localeLabel) return;
@@ -159,19 +159,19 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 
         if (localeToggle && !localeToggle.dataset.bound) {
             localeToggle.addEventListener("click", () => {
-                const i18n = (window as any).__siteI18n;
+                const i18n = window.__siteI18n;
                 i18n?.toggleLocale?.();
                 updateLocaleLabel();
             });
             localeToggle.dataset.bound = "true";
         }
 
-        const previousLocaleHandler = (window as any).__headerLocaleHandler;
+        const previousLocaleHandler = window.__headerLocaleHandler;
         if (previousLocaleHandler) {
             document.removeEventListener("site:locale-change", previousLocaleHandler);
         }
         document.addEventListener("site:locale-change", updateLocaleLabel);
-        (window as any).__headerLocaleHandler = updateLocaleLabel;
+        window.__headerLocaleHandler = updateLocaleLabel;
         updateLocaleLabel();
 
         // ---- Active nav link ----

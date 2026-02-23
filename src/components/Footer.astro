@@ -57,9 +57,9 @@ const runtimeFallbacks = {
 </footer>
 
 <script define:vars={{ runtimeFallbacks }}>
-    const getI18n = () => (window as any).__siteI18n;
-    const fallback = (key: string) => (runtimeFallbacks as Record<string, string>)[key] || key;
-    const formatRuntime = (days: number, hours: number, minutes: number, seconds: number) => {
+    const getI18n = () => window.__siteI18n;
+    const fallback = (key) => runtimeFallbacks[key] || key;
+    const formatRuntime = (days, hours, minutes, seconds) => {
         const i18n = getI18n();
         const locale = i18n?.getLocale?.() === "en" ? "en" : "zh";
         if (locale === "en") {
@@ -81,11 +81,20 @@ const runtimeFallbacks = {
         el.textContent = formatRuntime(d, h, m, s);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    function initRuntimeTicker() {
         updateRuntime();
-        setInterval(updateRuntime, 1000);
-    });
-    document.addEventListener("astro:page-load", updateRuntime);
+        if (!window.__footerRuntimeInterval) {
+            window.__footerRuntimeInterval = window.setInterval(updateRuntime, 1000);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initRuntimeTicker, { once: true });
+    } else {
+        initRuntimeTicker();
+    }
+
+    document.addEventListener("astro:page-load", initRuntimeTicker);
     document.addEventListener("site:locale-change", updateRuntime);
 </script>
 
