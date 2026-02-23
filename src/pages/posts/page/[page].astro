@@ -5,6 +5,7 @@ import Pagination from "../../../components/Pagination.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
 import { SITE_TITLE } from "../../../consts";
+import { getDefaultUiText } from "../../../i18n/ui";
 import { getWalinePathForPost } from "../../../utils/waline";
 
 export async function getStaticPaths() {
@@ -31,22 +32,23 @@ const { page } = Astro.params;
 const { allPosts } = Astro.props;
 const currentPage = parseInt(page as string);
 const { items: paginatedPosts, pagination } = paginate(allPosts, currentPage, 10);
+const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiText("legacy.pagePrefix")}${page}${getDefaultUiText("legacy.pageSuffix")}`;
 
 function estimateReadingTime(content: string): number {
     return Math.max(1, Math.ceil(content.length / 400));
 }
 ---
 
-<BaseLayout title={`文章 第${page}页 | ${SITE_TITLE}`}>
+<BaseLayout title={`${pageTitleLabel} | ${SITE_TITLE}`}>
     <main>
         <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
-                <a href="/" data-i18n="common.home">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
                 <span class="breadcrumb-sep">/</span>
-                <a href="/posts" data-i18n="common.posts">文章</a>
+                <a href="/posts" data-i18n="common.posts">{getDefaultUiText("common.posts")}</a>
             </nav>
 
-            <h1 class="section-heading" data-i18n="posts.title">文章</h1>
+            <h1 class="section-heading" data-i18n="posts.title">{getDefaultUiText("posts.title")}</h1>
 
             <div class="post-list">
                 {paginatedPosts.map((post) => {
@@ -58,19 +60,19 @@ function estimateReadingTime(content: string): number {
                         <a href={url} class="post-card">
                             <div class="post-card-meta">
                                 <FormattedDate date={post.data.pubDate} />
-                                {isZueg && <span class="tag" data-i18n="common.essay">随笔</span>}
+                                {isZueg && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 {post.data.pinned && (
-                                    <span class="badge-pinned" data-i18n="common.pinned">置顶</span>
+                                    <span class="badge-pinned" data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
                                 )}
-                                <span>{readingTime} <span data-i18n="common.minutes">分钟</span></span>
+                                <span>{readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span></span>
                             </div>
                             <div class="post-card-title">{post.data.title}</div>
                             {post.data.description && (
                                 <div class="post-card-desc">{post.data.description}</div>
                             )}
                             <div class="post-card-stats text-muted text-sm">
-                                <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
-                                <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
+                                <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
+                                <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span>
                             </div>
                             {post.data.tags && post.data.tags.length > 0 && (
                                 <div class="post-card-tags">

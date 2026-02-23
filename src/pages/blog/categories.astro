@@ -4,6 +4,7 @@ import { SITE_TITLE } from "../../consts";
 import { getCollection } from "astro:content";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
+import { getDefaultUiText } from "../../i18n/ui";
 
 // 获取所有博客文章
 const posts = await getCollection("blog");
@@ -78,9 +79,14 @@ const defaultStyle = {
     darkBgColor: "dark:bg-gray-700",
     icon: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
 };
+
+const categoryTextFallbacks = {
+    "legacy.articlesSuffix": getDefaultUiText("legacy.articlesSuffix"),
+    "common.pinned": getDefaultUiText("common.pinned"),
+} as const;
 ---
 
-<BaseLayout title={`分类 | ${SITE_TITLE}`}>
+<BaseLayout title={`${getDefaultUiText("legacy.categories.title")} | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">
@@ -92,10 +98,8 @@ const defaultStyle = {
 
 				<!-- 右侧内容区 -->
 				<div class="homepage-content">
-					<h2 class="section-title" data-i18n="legacy.categories.title">博客分类</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.categories.desc">
-						浏览不同主题的文章。
-					</p>
+					<h2 class="section-title" data-i18n="legacy.categories.title">{getDefaultUiText("legacy.categories.title")}</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.categories.desc">{getDefaultUiText("legacy.categories.desc")}</p>
 
 					<div class="space-y-8">
 						{
@@ -131,7 +135,7 @@ const defaultStyle = {
 													{category}
 												</h3>
 												<p class="text-gray-600 dark:text-gray-300 text-center">
-													{count} <span data-i18n="legacy.articlesSuffix">篇文章</span>
+													{count} <span data-i18n="legacy.articlesSuffix">{getDefaultUiText("legacy.articlesSuffix")}</span>
 												</p>
 											</div>
 										);
@@ -155,11 +159,9 @@ const defaultStyle = {
 										</svg>
 									</div>
 									<h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-										<span data-i18n="legacy.categories.emptyTitle">暂无分类</span>
+										<span data-i18n="legacy.categories.emptyTitle">{getDefaultUiText("legacy.categories.emptyTitle")}</span>
 									</h3>
-									<p class="text-gray-500 dark:text-gray-400" data-i18n="legacy.categories.emptyDesc">
-										还没有创建任何文章分类。
-									</p>
+									<p class="text-gray-500 dark:text-gray-400" data-i18n="legacy.categories.emptyDesc">{getDefaultUiText("legacy.categories.emptyDesc")}</p>
 								</div>
 							)
 						}
@@ -176,7 +178,7 @@ const defaultStyle = {
 									id="back-to-categories"
 									class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
 								>
-									<span>←</span> <span data-i18n="legacy.categories.back">返回分类</span>
+									<span>←</span> <span data-i18n="legacy.categories.back">{getDefaultUiText("legacy.categories.back")}</span>
 								</button>
 							</div>
 
@@ -191,8 +193,9 @@ const defaultStyle = {
 	</main>
 </BaseLayout>
 
-<script define:vars={{ categoryPosts }}>
-    const t = (key, fallback) => (window.__siteI18n && window.__siteI18n.t ? window.__siteI18n.t(key, fallback) : fallback);
+<script define:vars={{ categoryPosts, categoryTextFallbacks }}>
+    const fallbackText = (key, fallback = "") => (categoryTextFallbacks && categoryTextFallbacks[key]) || fallback || key;
+    const t = (key, fallback = "") => (window.__siteI18n && window.__siteI18n.t ? window.__siteI18n.t(key, fallbackText(key, fallback)) : fallbackText(key, fallback));
 
     // 分类过滤功能
     const categoryFilters = document.querySelectorAll(".category-filter-card");
@@ -213,7 +216,7 @@ const defaultStyle = {
 
             // 设置分类标题
             if (categoryTitle) {
-                categoryTitle.textContent = `${category} (${posts.length} ${t("legacy.articlesSuffix", "篇文章")})`;
+                categoryTitle.textContent = `${category} (${posts.length} ${t("legacy.articlesSuffix")})`;
             }
 
             // 生成文章列表
@@ -237,7 +240,7 @@ const defaultStyle = {
                                                 ${post.data.pinned ? `
                                                     <span class="post-pinned">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 0.25rem;"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-                                                        ${t("common.pinned", "置顶")}
+                                                        ${t("common.pinned")}
                                                     </span>
                                                 ` : ""}
                                             </div>

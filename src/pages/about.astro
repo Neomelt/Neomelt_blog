@@ -1,5 +1,6 @@
 ---
 import { SITE_TITLE } from "../consts";
+import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
 import { normalizeWalinePath } from "../utils/waline";
@@ -7,26 +8,24 @@ import { normalizeWalinePath } from "../utils/waline";
 const walinePath = normalizeWalinePath("/about");
 ---
 
-<BaseLayout title={`关于 | ${SITE_TITLE}`}>
+<BaseLayout title={`${getDefaultUiText("about.metaTitle")} | ${SITE_TITLE}`}>
     <main>
         <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑导航">
-                <a href="/" data-i18n="common.home">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
                 <span>›</span>
-                <span data-i18n="about.pageCrumb">关于</span>
+                <span data-i18n="about.pageCrumb">{getDefaultUiText("about.pageCrumb")}</span>
             </nav>
 
             <article class="prose">
-                <h1 data-i18n="about.title">关于我</h1>
+                <h1 data-i18n="about.title">{getDefaultUiText("about.title")}</h1>
                 <p class="about-stats">
-                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
-                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
+                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
+                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span>
                 </p>
-                <p data-i18n="about.desc1">
-                    个人主页正在建设中，敬请期待。
-                </p>
+                <p data-i18n="about.desc1">{getDefaultUiText("about.desc1")}</p>
                 <p>
-                    <span data-i18n="about.desc2Prefix">你可以在</span> <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a><span data-i18n="about.desc2Suffix">上找到我。</span>
+                    <span data-i18n="about.desc2Prefix">{getDefaultUiText("about.desc2Prefix")}</span> <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a><span data-i18n="about.desc2Suffix">{getDefaultUiText("about.desc2Suffix")}</span>
                 </p>
             </article>
 

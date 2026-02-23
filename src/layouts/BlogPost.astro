@@ -6,6 +6,7 @@ import TableOfContents from "../components/TableOfContents.astro";
 import PostNavigation from "../components/PostNavigation.astro";
 import BaseLayout from "./BaseLayout.astro";
 import { getWalinePathForPost } from "../utils/waline";
+import { getDefaultUiText } from "../i18n/ui";
 
 export interface Props {
     post: CollectionEntry<"blog"> | CollectionEntry<"zueg">;
@@ -35,10 +36,10 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
 
         <main class="container">
             <!-- Breadcrumb -->
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
-                <a href="/" data-i18n="common.home">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
                 <span class="breadcrumb-sep">/</span>
-                <a href="/posts" data-i18n="common.posts">文章</a>
+                <a href="/posts" data-i18n="common.posts">{getDefaultUiText("common.posts")}</a>
                 <span class="breadcrumb-sep">/</span>
                 <span>{title}</span>
             </nav>
@@ -50,18 +51,18 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                     <div class="post-meta-row">
                         <FormattedDate date={pubDate} />
                         {updatedDate && (
-                            <span class="text-muted text-sm">（<span data-i18n="common.updatedAt">更新于</span> <FormattedDate date={updatedDate} />）</span>
+                            <span class="text-muted text-sm">（<span data-i18n="common.updatedAt">{getDefaultUiText("common.updatedAt")}</span> <FormattedDate date={updatedDate} />）</span>
                         )}
                         <span class="text-muted">·</span>
                         <span class="text-muted text-sm">
-                            {wordCount} <span data-i18n="common.words">字</span> · {readingTime} <span data-i18n="common.minutes">分钟</span>
+                            {wordCount} <span data-i18n="common.words">{getDefaultUiText("common.words")}</span> · {readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span>
                         </span>
-                        {collection === "zueg" && <span class="tag" data-i18n="common.essay">随笔</span>}
+                        {collection === "zueg" && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                     </div>
-                    <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label="阅读和评论统计">
+                    <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label={getDefaultUiText("post.statsAria")}>
                         <p class="post-stats-line">
-                            <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
-                            <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
+                            <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
+                            <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span>
                         </p>
                     </div>
                     {tags && tags.length > 0 && (
@@ -76,7 +77,7 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                 <!-- Mobile TOC (collapsible) -->
                 {hasToc && (
                     <details class="mobile-toc">
-                        <summary data-i18n="common.toc">目录</summary>
+                        <summary data-i18n="common.toc">{getDefaultUiText("common.toc")}</summary>
                         <TableOfContents headings={headings} />
                     </details>
                 )}

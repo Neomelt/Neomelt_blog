@@ -1,12 +1,23 @@
 ---
-// 搜索模态框组件
+import { getDefaultUiText } from "../i18n/ui";
+
+const searchFallbacks = {
+    "search.dialogAria": getDefaultUiText("search.dialogAria"),
+    "search.title": getDefaultUiText("search.title"),
+    "search.closeAria": getDefaultUiText("search.closeAria"),
+    "search.placeholder": getDefaultUiText("search.placeholder"),
+    "search.emptyStart": getDefaultUiText("search.emptyStart"),
+    "search.emptyNotFound": getDefaultUiText("search.emptyNotFound"),
+    "search.emptyMinChars": getDefaultUiText("search.emptyMinChars"),
+    "search.emptyLoading": getDefaultUiText("search.emptyLoading"),
+} as const;
 ---
 
 <div id="search-modal" class="search-overlay" aria-hidden="true">
-    <div class="search-box" role="dialog" aria-modal="true" data-i18n-aria-label="search.dialogAria" aria-label="搜索">
+    <div class="search-box" role="dialog" aria-modal="true" data-i18n-aria-label="search.dialogAria" aria-label={searchFallbacks["search.dialogAria"]}>
         <div class="search-header">
-            <h3 class="search-title" data-i18n="search.title">搜索内容</h3>
-            <button id="close-search" class="search-close" data-i18n-aria-label="search.closeAria" aria-label="关闭搜索">
+            <h3 class="search-title" data-i18n="search.title">{searchFallbacks["search.title"]}</h3>
+            <button id="close-search" class="search-close" data-i18n-aria-label="search.closeAria" aria-label={searchFallbacks["search.closeAria"]}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -22,18 +33,18 @@
                     id="search-input"
                     class="search-input"
                     data-i18n-placeholder="search.placeholder"
-                    placeholder="输入关键词搜索..."
+                    placeholder={searchFallbacks["search.placeholder"]}
                     autocomplete="off"
                 />
             </div>
             <div id="search-results" class="search-results">
-                <div class="search-empty" data-i18n="search.emptyStart">开始输入以搜索文章和页面</div>
+                <div class="search-empty" data-i18n="search.emptyStart">{searchFallbacks["search.emptyStart"]}</div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+<script define:vars={{ searchFallbacks }}>
     interface SearchItem {
         id: string;
         title: string;
@@ -52,7 +63,11 @@
         let searchIndex: SearchItem[] = [];
         let isLoading = false;
         const i18n = (window as any).__siteI18n;
-        const t = (key: string, fallback: string) => i18n?.t?.(key, fallback) || fallback;
+        const getFallback = (key: string, fallback = "") => {
+            const fromDict = (searchFallbacks as Record<string, string>)[key];
+            return fromDict || fallback || key;
+        };
+        const t = (key: string, fallback = "") => i18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
 
         const searchToggle = document.getElementById("search-toggle");
         const searchModal = document.getElementById("search-modal");
@@ -62,7 +77,7 @@
 
         if (!searchModal || !closeSearch || !searchInput || !searchResults) return;
 
-        function renderEmpty(key: string, fallback: string) {
+        function renderEmpty(key: string, fallback = "") {
             searchResults.innerHTML = `<div class="search-empty">${t(key, fallback)}</div>`;
         }
 
@@ -72,7 +87,7 @@
             searchInput.focus();
             document.body.style.overflow = "hidden";
             if (!searchInput.value.trim()) {
-                renderEmpty("search.emptyStart", "开始输入以搜索文章和页面");
+                renderEmpty("search.emptyStart");
             }
             loadSearchIndex();
         }
@@ -93,7 +108,7 @@
                     searchIndex = (await response.json()) as SearchItem[];
                 }
             } catch (e) {
-                console.error("搜索索引加载失败:", e);
+                console.error("[Search] Failed to load search index:", e);
             } finally {
                 isLoading = false;
             }
@@ -129,7 +144,7 @@
         function renderResults(results: SearchItem[], query: string) {
             if (!searchResults) return;
             if (results.length === 0) {
-                renderEmpty("search.emptyNotFound", "没有找到相关内容");
+                renderEmpty("search.emptyNotFound");
                 return;
             }
             searchResults.innerHTML = results
@@ -198,11 +213,11 @@
                 debounce(async () => {
                     const query = searchInput.value.trim();
                     if (query.length < 2) {
-                        renderEmpty("search.emptyMinChars", "请输入至少 2 个字符");
+                        renderEmpty("search.emptyMinChars");
                         return;
                     }
                     if (searchIndex.length === 0 && !isLoading) {
-                        renderEmpty("search.emptyLoading", "正在加载搜索索引...");
+                        renderEmpty("search.emptyLoading");
                         await loadSearchIndex();
                     }
                     renderResults(performSearch(query), query);
@@ -219,9 +234,9 @@
             const query = searchInput.value.trim();
             if (!searchModal.classList.contains("open")) return;
             if (!query) {
-                renderEmpty("search.emptyStart", "开始输入以搜索文章和页面");
+                renderEmpty("search.emptyStart");
             } else if (query.length < 2) {
-                renderEmpty("search.emptyMinChars", "请输入至少 2 个字符");
+                renderEmpty("search.emptyMinChars");
             }
         };
         document.addEventListener("site:locale-change", localeHandler);

@@ -1,9 +1,19 @@
 ---
+import { getDefaultUiText } from "../i18n/ui";
+
+const codeFallbacks = {
+  "code.copy": getDefaultUiText("code.copy"),
+  "code.expand": getDefaultUiText("code.expand"),
+  "code.collapse": getDefaultUiText("code.collapse"),
+} as const;
 ---
 
-<script>
+<script define:vars={{ codeFallbacks }}>
   const COLLAPSE_LINE_THRESHOLD = 14;
-  const t = (key, fallback) => (window as any).__siteI18n?.t?.(key, fallback) || fallback;
+  const getFallback = (key, fallback = "") =>
+    (codeFallbacks as Record<string, string>)[key] || fallback || key;
+  const t = (key, fallback = "") =>
+    (window as any).__siteI18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
 
   function toTitleCase(value) {
     if (!value) return "Code";
@@ -70,7 +80,7 @@
     const button = document.createElement("button");
     button.className = "code-header-button copy-code-button";
     button.type = "button";
-    button.setAttribute("aria-label", t("code.copy", "复制代码"));
+    button.setAttribute("aria-label", t("code.copy"));
     button.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -82,7 +92,7 @@
         button.classList.add("copied");
         setTimeout(() => button.classList.remove("copied"), 2000);
       } catch (err) {
-        console.error("无法复制内容: ", err);
+        console.error("[CodeCopy] Failed to copy code:", err);
       }
     });
 
@@ -94,7 +104,7 @@
     toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
     toggleButton.setAttribute(
       "aria-label",
-      isCollapsed ? t("code.expand", "展开代码块") : t("code.collapse", "折叠代码块")
+      isCollapsed ? t("code.expand") : t("code.collapse")
     );
   }
 
@@ -157,7 +167,7 @@
   document.addEventListener("astro:page-load", addCodeBlockControls);
   document.addEventListener("site:locale-change", () => {
     document.querySelectorAll(".copy-code-button").forEach((button) => {
-      button.setAttribute("aria-label", t("code.copy", "复制代码"));
+      button.setAttribute("aria-label", t("code.copy"));
     });
     document.querySelectorAll(".code-block-shell").forEach((wrapper) => {
       const toggleButton = wrapper.querySelector(".code-toggle-trigger");
