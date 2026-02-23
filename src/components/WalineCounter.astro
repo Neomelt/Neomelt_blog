@@ -1,0 +1,66 @@
+---
+const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
+---
+
+{
+	serverURL && (
+		<script type="module" define:vars={{ serverURL }}>
+			(async () => {
+				const hasPageviewCounter = Boolean(
+					document.querySelector(".waline-pageview-count"),
+				);
+				const hasCommentCounter = Boolean(
+					document.querySelector(".waline-comment-count"),
+				);
+
+				if (!hasPageviewCounter && !hasCommentCounter) return;
+
+				const hasCommentWidget = Boolean(document.querySelector("#waline"));
+				const updateTarget = document.querySelector(
+					".waline-pageview-update[data-path]",
+				);
+				const tasks = [];
+
+				if (hasPageviewCounter) {
+					tasks.push(
+						import("https://unpkg.com/@waline/client@v3/dist/pageview.js").then(
+							({ pageviewCount }) =>
+								pageviewCount({
+									serverURL,
+									update: false,
+								}),
+						),
+					);
+				}
+
+				if (hasCommentCounter) {
+					tasks.push(
+						import("https://unpkg.com/@waline/client@v3/dist/comment.js").then(
+							({ commentCount }) => commentCount({ serverURL }),
+						),
+					);
+				}
+
+				if (updateTarget && !hasCommentWidget) {
+					const updatePath = updateTarget.getAttribute("data-path");
+					if (updatePath) {
+						tasks.push(
+							import("https://unpkg.com/@waline/client@v3/dist/pageview.js").then(
+								({ pageviewCount }) =>
+									pageviewCount({
+										serverURL,
+										path: updatePath,
+										update: true,
+									}),
+							),
+						);
+					}
+				}
+
+				await Promise.all(tasks);
+			})().catch((error) => {
+				console.error("[WalineCounter] Failed to load counters:", error);
+			});
+		</script>
+	)
+}

@@ -1,26 +1,46 @@
 ---
-// Comments.astro - Giscus 评论组件
+import { normalizeWalinePath } from "../utils/waline";
+
+interface Props {
+	path?: string;
+}
+
+const { path = Astro.url.pathname } = Astro.props;
+const walinePath = normalizeWalinePath(path);
+const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 ---
 
+<link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
+
 <div class="comments-wrapper">
-	<script 
-		src="https://giscus.app/client.js"
-		data-repo="Neomelt/Neomelt_blog"
-		data-repo-id="R_kgDOPdZhoQ"
-		data-category="General"
-		data-category-id="DIC_kwDOPdZhoc4C1Pa-"
-		data-mapping="pathname"
-		data-strict="0"
-		data-reactions-enabled="1"
-		data-emit-metadata="0"
-		data-input-position="top"
-		data-theme="preferred_color_scheme"
-		data-lang="zh-CN"
-		data-loading="lazy"
-		crossorigin="anonymous"
-		async>
-	</script>
+	{serverURL ? (
+		<div id="waline"></div>
+	) : (
+		<div class="comments-config-tip">
+			未配置 Waline 服务地址。请在环境变量中设置 <code>PUBLIC_WALINE_SERVER_URL</code>。
+		</div>
+	)}
 </div>
+
+{
+	serverURL && (
+		<script type="module" define:vars={{ serverURL, walinePath }}>
+			import { init } from "https://unpkg.com/@waline/client@v3/dist/waline.js";
+
+			init({
+				el: "#waline",
+				serverURL,
+				path: walinePath,
+				lang: "zh-CN",
+				dark: "html.dark",
+				pageview: true,
+				comment: true,
+				meta: ["nick", "mail", "link"],
+				requiredMeta: ["nick", "mail"],
+			});
+		</script>
+	)
+}
 
 <style>
 	.comments-wrapper {
@@ -28,39 +48,34 @@
 		max-width: calc(100% - 2em);
 		margin: 4rem auto 0;
 		padding: 2rem clamp(1em, 3vw, 2em) 0;
-		border-top: 1px solid var(--border-color);
+		border-top: 1px solid var(--border);
 	}
 
-	/* 暗色模式适配 */
-	:global(.dark) .comments-wrapper {
-		border-top-color: rgba(255, 255, 255, 0.1);
+	.comments-config-tip {
+		padding: 0.9rem 1rem;
+		border: 1px dashed var(--border);
+		border-radius: 8px;
+		background: var(--bg-code);
+		color: var(--text-muted);
+		font-size: 0.9rem;
+	}
+
+	.comments-config-tip code {
+		color: var(--text);
+		font-family: var(--font-mono);
+	}
+
+	:global(.wl-editor),
+	:global(.wl-panel),
+	:global(.wl-card),
+	:global(.wl-empty) {
+		background: var(--bg-card);
+		border-color: var(--border);
+	}
+
+	:global(.wl-textarea),
+	:global(.wl-input),
+	:global(.wl-count) {
+		color: var(--text);
 	}
 </style>
-
-<script>
-	// 监听主题变化，自动切换评论系统主题
-	function updateGiscusTheme() {
-		const isDark = document.documentElement.classList.contains('dark');
-		const theme = isDark ? 'dark' : 'light';
-		
-		const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-		if (iframe?.contentWindow) {
-			iframe.contentWindow.postMessage(
-				{ giscus: { setConfig: { theme } } },
-				'https://giscus.app'
-			);
-		}
-	}
-
-	// 监听主题切换
-	const observer = new MutationObserver(updateGiscusTheme);
-	observer.observe(document.documentElement, {
-		attributes: true,
-		attributeFilter: ['class']
-	});
-
-	// 初始化时设置主题
-	document.addEventListener('DOMContentLoaded', () => {
-		setTimeout(updateGiscusTheme, 1000);
-	});
-</script>

@@ -5,6 +5,7 @@ import Comments from "../components/Comments.astro";
 import TableOfContents from "../components/TableOfContents.astro";
 import PostNavigation from "../components/PostNavigation.astro";
 import BaseLayout from "./BaseLayout.astro";
+import { getWalinePathForPost } from "../utils/waline";
 
 export interface Props {
     post: CollectionEntry<"blog"> | CollectionEntry<"zueg">;
@@ -16,6 +17,7 @@ export interface Props {
 
 const { post, headings, prevPost, nextPost, collection = "blog" } = Astro.props;
 const { title, description, pubDate, updatedDate, tags } = post.data;
+const walinePath = getWalinePathForPost(post.id, collection);
 
 const wordCount = (post.body || "").length;
 const readingTime = Math.max(1, Math.ceil(wordCount / 400));
@@ -54,6 +56,16 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                         <span class="text-muted text-sm">{wordCount} 字 · {readingTime} 分钟</span>
                         {collection === "zueg" && <span class="tag">随笔</span>}
                     </div>
+                    <div class="post-stats" aria-label="阅读和评论统计">
+                        <p class="post-stats-line">
+                            <span class="waline-pageview-count" data-path={walinePath}>0</span> views /
+                            <span class="waline-comment-count" data-path={walinePath}>0</span> comments
+                        </p>
+                        <p class="post-stats-line">
+                            <span class="waline-pageview-count" data-path={walinePath}>0</span> 次浏览 /
+                            <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
+                        </p>
+                    </div>
                     {tags && tags.length > 0 && (
                         <div class="post-tags-row">
                             {tags.map((tag: string) => (
@@ -80,7 +92,7 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                 <PostNavigation prevPost={prevPost} nextPost={nextPost} collection={collection} />
 
                 <!-- Comments -->
-                <Comments />
+                <Comments path={walinePath} />
             </article>
         </main>
     </div>
@@ -130,6 +142,17 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
         display: flex;
         flex-wrap: wrap;
         gap: 0.4rem;
+    }
+
+    .post-stats {
+        margin-bottom: 0.9rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-style: italic;
+    }
+
+    .post-stats-line {
+        margin: 0.1rem 0;
     }
 
     /* Mobile TOC */
