@@ -198,13 +198,14 @@ import SearchModal from "./SearchModal.astro";
     }
 
     .header-inner {
-        max-width: var(--content-width);
+        max-width: 1120px;
         margin: 0 auto;
-        padding: 0 1.25rem;
+        padding: 0 1.5rem;
         height: 100%;
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
         align-items: center;
-        gap: 1.5rem;
+        gap: 1rem;
     }
 
     .site-title {
@@ -214,6 +215,7 @@ import SearchModal from "./SearchModal.astro";
         text-decoration: none;
         white-space: nowrap;
         flex-shrink: 0;
+        justify-self: start;
     }
 
     .site-title:hover {
@@ -223,8 +225,10 @@ import SearchModal from "./SearchModal.astro";
     .nav-links {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.25rem;
-        flex: 1;
+        justify-self: center;
+        white-space: nowrap;
     }
 
     .nav-link {
@@ -245,8 +249,9 @@ import SearchModal from "./SearchModal.astro";
     .nav-controls {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 0.25rem;
-        margin-left: auto;
+        justify-self: end;
     }
 
     .icon-btn {
