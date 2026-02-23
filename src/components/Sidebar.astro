@@ -29,7 +29,7 @@ const topTags = Object.entries(allTags)
 <aside class="sidebar">
 	<!-- 分类 -->
 	<div class="sidebar-section">
-		<h3 class="sidebar-title">分类</h3>
+		<h3 class="sidebar-title" data-i18n="sidebar.categories">分类</h3>
 		<div class="category-list">
 			{categoryCounts.map(({ name, count }) => (
 				<a 
@@ -41,12 +41,12 @@ const topTags = Object.entries(allTags)
 				</a>
 			))}
 		</div>
-		<a href="/blog/categories" class="sidebar-more">查看更多 →</a>
+		<a href="/blog/categories" class="sidebar-more" data-i18n="sidebar.more">查看更多 →</a>
 	</div>
 
 	<!-- 标签云 -->
 	<div class="sidebar-section">
-		<h3 class="sidebar-title">标签</h3>
+		<h3 class="sidebar-title" data-i18n="sidebar.tags">标签</h3>
 		<div class="tag-cloud">
 			{topTags.map(({ tag, count }) => (
 				<a 
@@ -58,7 +58,7 @@ const topTags = Object.entries(allTags)
 				</a>
 			))}
 		</div>
-		<a href="/blog/tags" class="sidebar-more">查看更多 →</a>
+		<a href="/blog/tags" class="sidebar-more" data-i18n="sidebar.more">查看更多 →</a>
 	</div>
 </aside>
 

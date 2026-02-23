@@ -42,8 +42,8 @@ const sortedTags = Object.entries(tagCounts)
 
 				<!-- 右侧内容区 -->
 				<div class="homepage-content">
-					<h2 class="section-title">标签云</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300">
+					<h2 class="section-title" data-i18n="legacy.tags.title">标签云</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.tags.desc">
 						所有文章的标签集合，点击标签可以查看相关文章。
 					</p>
 
@@ -63,7 +63,7 @@ const sortedTags = Object.entries(tagCounts)
 					</div>
 
 					<h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100">
-						所有文章
+						<span data-i18n="legacy.tags.allPosts">所有文章</span>
 					</h3>
 
 					<div class="post-list">
@@ -85,7 +85,7 @@ const sortedTags = Object.entries(tagCounts)
 												{post.data.pinned && (
 													<span class="post-pinned">
 														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-														置顶
+														<span data-i18n="common.pinned">置顶</span>
 													</span>
 												)}
 											</div>

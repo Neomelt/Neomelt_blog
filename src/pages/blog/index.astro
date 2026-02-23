@@ -40,9 +40,9 @@ const allCategories = [
 				<Sidebar />
 			</div>
 
-			<!-- 右侧：博客列表 -->
-			<div class="homepage-content">
-				<h2 class="section-title">博客文章</h2>
+				<!-- 右侧：博客列表 -->
+				<div class="homepage-content">
+				<h2 class="section-title" data-i18n="legacy.blog.postsTitle">博客文章</h2>
 				<!-- 分类筛选 -->
 				<div
 					class="category-filter mb-8 flex flex-wrap justify-center gap-4"
@@ -50,7 +50,8 @@ const allCategories = [
 					<a
 						href="/blog"
 						class="category-link active"
-						data-category="all">全部</a
+						data-category="all"
+						data-i18n="legacy.all">全部</a
 					>
 					{
 						allCategories.map((category) => (
@@ -97,20 +98,20 @@ const allCategories = [
 											{post.data.pinned && (
 												<span class="post-pinned">
 													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-													置顶
+													<span data-i18n="common.pinned">置顶</span>
 												</span>
 											)}
 										</div>
 										<h3 class="post-title">{post.data.title}</h3>
 										<p class="post-description">{post.data.description}</p>
 										<div class="post-meta">
-											<span>{wordCount} 字</span>
+											<span>{wordCount} <span data-i18n="common.words">字</span></span>
 											<span>|</span>
-											<span>{readingTime} 分钟</span>
+											<span>{readingTime} <span data-i18n="common.minutes">分钟</span></span>
 											<span>|</span>
-											<span><span class="waline-pageview-count" data-path={walinePath}>0</span> views</span>
+											<span><span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span></span>
 											<span>|</span>
-											<span><span class="waline-comment-count" data-path={walinePath}>0</span> comments</span>
+											<span><span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span></span>
 											{post.data.tags && post.data.tags.length > 0 && (
 												<>
 													<span>|</span>
@@ -134,8 +135,8 @@ const allCategories = [
 					paginatedPosts.length === 0 && (
 						<div class="text-center py-12">
 							<div class="text-6xl mb-4">📝</div>
-							<h3 class="text-xl font-semibold mb-2">暂无文章</h3>
-							<p class="text-gray-600 dark:text-gray-400">
+							<h3 class="text-xl font-semibold mb-2" data-i18n="posts.empty">暂无文章</h3>
+							<p class="text-gray-600 dark:text-gray-400" data-i18n="legacy.blog.noPostsDesc">
 								还没有发布任何博客文章
 							</p>
 						</div>
@@ -355,7 +356,7 @@ const allCategories = [
 		// 分类筛选功能
 		document.addEventListener("DOMContentLoaded", () => {
 			const categoryLinks = document.querySelectorAll(".category-link");
-			const postCards = document.querySelectorAll(".post-card");
+			const postCards = document.querySelectorAll(".post-card-item");
 
 			categoryLinks.forEach((link: Element) => {
 				link.addEventListener("click", (e: Event) => {

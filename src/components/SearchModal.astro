@@ -3,10 +3,10 @@
 ---
 
 <div id="search-modal" class="search-overlay" aria-hidden="true">
-    <div class="search-box" role="dialog" aria-modal="true" aria-label="搜索">
+    <div class="search-box" role="dialog" aria-modal="true" data-i18n-aria-label="search.dialogAria" aria-label="搜索">
         <div class="search-header">
-            <h3 class="search-title">搜索内容</h3>
-            <button id="close-search" class="search-close" aria-label="关闭搜索">
+            <h3 class="search-title" data-i18n="search.title">搜索内容</h3>
+            <button id="close-search" class="search-close" data-i18n-aria-label="search.closeAria" aria-label="关闭搜索">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -21,12 +21,13 @@
                     type="text"
                     id="search-input"
                     class="search-input"
+                    data-i18n-placeholder="search.placeholder"
                     placeholder="输入关键词搜索..."
                     autocomplete="off"
                 />
             </div>
             <div id="search-results" class="search-results">
-                <div class="search-empty">开始输入以搜索文章和页面</div>
+                <div class="search-empty" data-i18n="search.emptyStart">开始输入以搜索文章和页面</div>
             </div>
         </div>
     </div>
@@ -50,6 +51,8 @@
     function initSearch() {
         let searchIndex: SearchItem[] = [];
         let isLoading = false;
+        const i18n = (window as any).__siteI18n;
+        const t = (key: string, fallback: string) => i18n?.t?.(key, fallback) || fallback;
 
         const searchToggle = document.getElementById("search-toggle");
         const searchModal = document.getElementById("search-modal");
@@ -59,11 +62,18 @@
 
         if (!searchModal || !closeSearch || !searchInput || !searchResults) return;
 
+        function renderEmpty(key: string, fallback: string) {
+            searchResults.innerHTML = `<div class="search-empty">${t(key, fallback)}</div>`;
+        }
+
         function openModal() {
             searchModal!.classList.add("open");
             searchModal!.setAttribute("aria-hidden", "false");
             searchInput.focus();
             document.body.style.overflow = "hidden";
+            if (!searchInput.value.trim()) {
+                renderEmpty("search.emptyStart", "开始输入以搜索文章和页面");
+            }
             loadSearchIndex();
         }
 
@@ -119,7 +129,7 @@
         function renderResults(results: SearchItem[], query: string) {
             if (!searchResults) return;
             if (results.length === 0) {
-                searchResults.innerHTML = `<div class="search-empty">没有找到相关内容</div>`;
+                renderEmpty("search.emptyNotFound", "没有找到相关内容");
                 return;
             }
             searchResults.innerHTML = results
@@ -151,12 +161,25 @@
         }
 
         // 事件绑定
-        searchToggle?.addEventListener("click", openModal);
-        closeSearch.addEventListener("click", closeModal);
-        searchModal.addEventListener("click", (e) => {
-            if (e.target === searchModal) closeModal();
-        });
-        document.addEventListener("keydown", (e) => {
+        if (searchToggle && !searchToggle.dataset.searchBound) {
+            searchToggle.addEventListener("click", openModal);
+            searchToggle.dataset.searchBound = "true";
+        }
+        if (!closeSearch.dataset.searchBound) {
+            closeSearch.addEventListener("click", closeModal);
+            closeSearch.dataset.searchBound = "true";
+        }
+        if (!searchModal.dataset.searchBound) {
+            searchModal.addEventListener("click", (e) => {
+                if (e.target === searchModal) closeModal();
+            });
+            searchModal.dataset.searchBound = "true";
+        }
+        const previousKeydownHandler = (window as any).__searchKeydownHandler;
+        if (previousKeydownHandler) {
+            document.removeEventListener("keydown", previousKeydownHandler);
+        }
+        const keydownHandler = (e: KeyboardEvent) => {
             if (e.key === "Escape" && searchModal.classList.contains("open")) {
                 closeModal();
             }
@@ -165,23 +188,44 @@
                 e.preventDefault();
                 searchModal.classList.contains("open") ? closeModal() : openModal();
             }
-        });
+        };
+        document.addEventListener("keydown", keydownHandler);
+        (window as any).__searchKeydownHandler = keydownHandler;
 
-        searchInput.addEventListener(
-            "input",
-            debounce(async () => {
-                const query = searchInput.value.trim();
-                if (query.length < 2) {
-                    searchResults.innerHTML = `<div class="search-empty">请输入至少 2 个字符</div>`;
-                    return;
-                }
-                if (searchIndex.length === 0 && !isLoading) {
-                    searchResults.innerHTML = `<div class="search-empty">正在加载搜索索引...</div>`;
-                    await loadSearchIndex();
-                }
-                renderResults(performSearch(query), query);
-            }, 250)
-        );
+        if (!searchInput.dataset.searchBound) {
+            searchInput.addEventListener(
+                "input",
+                debounce(async () => {
+                    const query = searchInput.value.trim();
+                    if (query.length < 2) {
+                        renderEmpty("search.emptyMinChars", "请输入至少 2 个字符");
+                        return;
+                    }
+                    if (searchIndex.length === 0 && !isLoading) {
+                        renderEmpty("search.emptyLoading", "正在加载搜索索引...");
+                        await loadSearchIndex();
+                    }
+                    renderResults(performSearch(query), query);
+                }, 250)
+            );
+            searchInput.dataset.searchBound = "true";
+        }
+
+        const previousLocaleHandler = (window as any).__searchLocaleHandler;
+        if (previousLocaleHandler) {
+            document.removeEventListener("site:locale-change", previousLocaleHandler);
+        }
+        const localeHandler = () => {
+            const query = searchInput.value.trim();
+            if (!searchModal.classList.contains("open")) return;
+            if (!query) {
+                renderEmpty("search.emptyStart", "开始输入以搜索文章和页面");
+            } else if (query.length < 2) {
+                renderEmpty("search.emptyMinChars", "请输入至少 2 个字符");
+            }
+        };
+        document.addEventListener("site:locale-change", localeHandler);
+        (window as any).__searchLocaleHandler = localeHandler;
     }
 
     // 初始化（兼容普通加载和 Astro view transitions）

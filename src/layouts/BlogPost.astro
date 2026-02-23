@@ -35,10 +35,10 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
 
         <main class="container">
             <!-- Breadcrumb -->
-            <nav class="breadcrumb" aria-label="面包屑">
-                <a href="/">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
+                <a href="/" data-i18n="common.home">首页</a>
                 <span class="breadcrumb-sep">/</span>
-                <a href="/posts">文章</a>
+                <a href="/posts" data-i18n="common.posts">文章</a>
                 <span class="breadcrumb-sep">/</span>
                 <span>{title}</span>
             </nav>
@@ -50,16 +50,18 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                     <div class="post-meta-row">
                         <FormattedDate date={pubDate} />
                         {updatedDate && (
-                            <span class="text-muted text-sm">（更新于 <FormattedDate date={updatedDate} />）</span>
+                            <span class="text-muted text-sm">（<span data-i18n="common.updatedAt">更新于</span> <FormattedDate date={updatedDate} />）</span>
                         )}
                         <span class="text-muted">·</span>
-                        <span class="text-muted text-sm">{wordCount} 字 · {readingTime} 分钟</span>
-                        {collection === "zueg" && <span class="tag">随笔</span>}
+                        <span class="text-muted text-sm">
+                            {wordCount} <span data-i18n="common.words">字</span> · {readingTime} <span data-i18n="common.minutes">分钟</span>
+                        </span>
+                        {collection === "zueg" && <span class="tag" data-i18n="common.essay">随笔</span>}
                     </div>
-                    <div class="post-stats" aria-label="阅读和评论统计">
+                    <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label="阅读和评论统计">
                         <p class="post-stats-line">
-                            <span class="waline-pageview-count" data-path={walinePath}>0</span> 次浏览 /
-                            <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
+                            <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
+                            <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
                         </p>
                     </div>
                     {tags && tags.length > 0 && (
@@ -74,7 +76,7 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                 <!-- Mobile TOC (collapsible) -->
                 {hasToc && (
                     <details class="mobile-toc">
-                        <summary>目录</summary>
+                        <summary data-i18n="common.toc">目录</summary>
                         <TableOfContents headings={headings} />
                     </details>
                 )}

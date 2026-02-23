@@ -48,15 +48,15 @@ const walinePath = getWalinePathForPost(entry.id, "zueg");
                                 <FormattedDate date={entry.data.pubDate} />
                                 {entry.data.updatedDate && (
                                     <div class="last-updated-on">
-                                        最后更新于 <FormattedDate date={entry.data.updatedDate} />
+                                        <span data-i18n="legacy.zueg.lastUpdated">最后更新于</span> <FormattedDate date={entry.data.updatedDate} />
                                     </div>
                                 )}
                             </div>
                             <h1>{entry.data.title}</h1>
-                            <div class="post-stats" aria-label="阅读和评论统计">
+                            <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label="阅读和评论统计">
                                 <p class="post-stats-line">
-                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> 次浏览 /
-                                    <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
+                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
+                                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
                                 </p>
                             </div>
                             {entry.data.tags && (

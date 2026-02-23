@@ -69,8 +69,8 @@ const monthNames = [
 
 				<!-- 右侧：归档内容 -->
 				<div class="homepage-content">
-					<h2 class="section-title">博客归档</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300">
+					<h2 class="section-title" data-i18n="legacy.archive.title">博客归档</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.archive.desc">
 						按时间浏览所有文章。
 					</p>
 
@@ -79,14 +79,14 @@ const monthNames = [
 							allYears.map((year) => (
 								<div>
 									<h2 class="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100">
-										{year}年
+										{year}<span data-i18n="legacy.yearSuffix">年</span>
 									</h2>
 
 									{Object.keys(postsByYear[year])
 										.sort((a, b) => parseInt(b) - parseInt(a))
 										.map((month) => (
 											<div class="mb-8">
-												<h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+												<h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 archive-month-name" data-month-index={parseInt(month) - 1}>
 													{monthNames[parseInt(month) - 1]}
 												</h3>
 												<ul class="space-y-2">
@@ -117,7 +117,7 @@ const monthNames = [
 						{
 							allYears.length === 0 && (
 								<div class="text-center py-12">
-									<p class="text-gray-500 dark:text-gray-400">
+									<p class="text-gray-500 dark:text-gray-400" data-i18n="posts.empty">
 										暂无文章
 									</p>
 								</div>
@@ -129,6 +129,24 @@ const monthNames = [
 		</div>
 	</main>
 </BaseLayout>
+
+<script>
+    const monthNamesZh = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+    const monthNamesEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    function updateArchiveMonthNames() {
+        const locale = (window as any).__siteI18n?.getLocale?.() === "en" ? "en" : "zh";
+        document.querySelectorAll(".archive-month-name").forEach((element) => {
+            const idx = Number(element.getAttribute("data-month-index"));
+            if (Number.isNaN(idx) || idx < 0 || idx > 11) return;
+            element.textContent = locale === "en" ? monthNamesEn[idx] : monthNamesZh[idx];
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", updateArchiveMonthNames);
+    document.addEventListener("astro:page-load", updateArchiveMonthNames);
+    document.addEventListener("site:locale-change", updateArchiveMonthNames);
+</script>
 
 <style>
 	/* 首页容器 */

@@ -4,6 +4,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import CodeCopyButton from "../components/CodeCopyButton.astro";
 import WalineCounter from "../components/WalineCounter.astro";
+import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, UI_TRANSLATIONS } from "../i18n/ui";
 
 export interface Props {
     title: string;
@@ -25,6 +26,99 @@ const { title, description } = Astro.props;
         />
     </head>
     <body>
+        <script define:vars={{ defaultLocale: DEFAULT_LOCALE, localeStorageKey: LOCALE_STORAGE_KEY, uiTranslations: UI_TRANSLATIONS }}>
+            (() => {
+                const normalizeLocale = (value) => (value === "en" ? "en" : "zh");
+
+                const getStoredLocale = () => {
+                    try {
+                        return localStorage.getItem(localeStorageKey);
+                    } catch {
+                        return null;
+                    }
+                };
+
+                const setStoredLocale = (locale) => {
+                    try {
+                        localStorage.setItem(localeStorageKey, locale);
+                    } catch {
+                        // Ignore storage errors (private mode, disabled storage, etc.)
+                    }
+                };
+
+                const t = (key, locale, fallback = "") => {
+                    const langDict = uiTranslations[locale] || uiTranslations.zh || {};
+                    const zhDict = uiTranslations.zh || {};
+                    if (Object.prototype.hasOwnProperty.call(langDict, key)) return langDict[key];
+                    if (Object.prototype.hasOwnProperty.call(zhDict, key)) return zhDict[key];
+                    return fallback || key;
+                };
+
+                const applyToDom = (locale) => {
+                    document.documentElement.setAttribute("lang", locale === "en" ? "en" : "zh-CN");
+                    document.documentElement.dataset.locale = locale;
+
+                    document.querySelectorAll("[data-i18n]").forEach((element) => {
+                        const key = element.getAttribute("data-i18n");
+                        if (!key) return;
+                        element.textContent = t(key, locale, element.textContent || "");
+                    });
+
+                    document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+                        const key = element.getAttribute("data-i18n-aria-label");
+                        if (!key) return;
+                        element.setAttribute("aria-label", t(key, locale, element.getAttribute("aria-label") || ""));
+                    });
+
+                    document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+                        const key = element.getAttribute("data-i18n-placeholder");
+                        if (!key) return;
+                        if ("placeholder" in element) {
+                            element.placeholder = t(key, locale, element.placeholder || "");
+                        }
+                    });
+
+                    document.dispatchEvent(
+                        new CustomEvent("site:locale-change", {
+                            detail: { locale },
+                        }),
+                    );
+                };
+
+                let currentLocale = normalizeLocale(getStoredLocale() || defaultLocale);
+
+                const setLocale = (locale) => {
+                    const normalized = normalizeLocale(locale);
+                    currentLocale = normalized;
+                    setStoredLocale(normalized);
+                    applyToDom(normalized);
+                    return normalized;
+                };
+
+                const getLocale = () => currentLocale;
+                const toggleLocale = () => setLocale(currentLocale === "zh" ? "en" : "zh");
+
+                window.__siteI18n = {
+                    t: (key, fallback = "") => t(key, currentLocale, fallback),
+                    getLocale,
+                    setLocale,
+                    toggleLocale,
+                };
+
+                const syncLocale = () => {
+                    const stored = normalizeLocale(getStoredLocale() || currentLocale);
+                    currentLocale = stored;
+                    applyToDom(stored);
+                };
+
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", syncLocale, { once: true });
+                } else {
+                    syncLocale();
+                }
+                document.addEventListener("astro:page-load", syncLocale);
+            })();
+        </script>
         <Header />
         <slot />
         <WalineCounter />

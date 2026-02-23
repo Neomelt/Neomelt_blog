@@ -29,23 +29,23 @@ const friendLinks: FriendLink[] = [
 <BaseLayout title={`友链 | ${SITE_TITLE}`} description="友情链接与互链申请">
     <main>
         <div class="container">
-            <nav class="breadcrumb" aria-label="面包屑导航">
-                <a href="/">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑导航">
+                <a href="/" data-i18n="common.home">首页</a>
                 <span>›</span>
-                <span>友链</span>
+                <span data-i18n="friends.pageCrumb">友链</span>
             </nav>
 
             <header class="friends-header">
-                <h1>友情链接</h1>
-                <p class="friends-lead">欢迎交换友链，一起记录与分享。</p>
+                <h1 data-i18n="friends.title">友情链接</h1>
+                <p class="friends-lead" data-i18n="friends.lead">欢迎交换友链，一起记录与分享。</p>
                 <p class="friends-stats">
-                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> 次浏览 /
-                    <span class="waline-comment-count" data-path={walinePath}>0</span> 条留言
+                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
+                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.messages">条留言</span>
                 </p>
             </header>
 
             <section class="friends-section" aria-labelledby="friends-list-title">
-                <h2 id="friends-list-title">已收录友链</h2>
+                <h2 id="friends-list-title" data-i18n="friends.listTitle">已收录友链</h2>
                 {friendLinks.length > 0 ? (
                     <ul class="friends-grid">
                         {friendLinks.map((link) => (
@@ -59,7 +59,7 @@ const friendLinks: FriendLink[] = [
                                     {link.avatar ? (
                                         <img
                                             src={link.avatar}
-                                            alt={`${link.name} 头像`}
+                                            alt={link.name}
                                             class="friend-avatar"
                                             loading="lazy"
                                         />
@@ -84,19 +84,19 @@ const friendLinks: FriendLink[] = [
                         ))}
                     </ul>
                 ) : (
-                    <div class="empty-state">
+                    <div class="empty-state" data-i18n="friends.empty">
                         暂时还没有收录友链，欢迎成为第一位互链伙伴。
                     </div>
                 )}
             </section>
 
             <section class="friends-section" aria-labelledby="friends-apply-title">
-                <h2 id="friends-apply-title">申请友链</h2>
-                <p class="section-desc">
+                <h2 id="friends-apply-title" data-i18n="friends.applyTitle">申请友链</h2>
+                <p class="section-desc" data-i18n="friends.applyDesc">
                     可以通过邮件、GitHub Issue，或页面底部评论区提交申请。
                 </p>
                 <div class="apply-actions">
-                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary">
+                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary" data-i18n="friends.applyEmail">
                         邮件申请
                     </a>
                     <a
@@ -110,12 +110,12 @@ const friendLinks: FriendLink[] = [
                 </div>
 
                 <div class="apply-template">
-                    <h3>建议提供以下信息</h3>
+                    <h3 data-i18n="friends.infoTitle">建议提供以下信息</h3>
                     <ul>
-                        <li>网站名称</li>
-                        <li>网站地址（`https://`）</li>
-                        <li>网站简介（一句话）</li>
-                        <li>头像或 Logo 地址（可选）</li>
+                        <li data-i18n="friends.infoName">网站名称</li>
+                        <li data-i18n="friends.infoUrl">网站地址（`https://`）</li>
+                        <li data-i18n="friends.infoDesc">网站简介（一句话）</li>
+                        <li data-i18n="friends.infoAvatar">头像或 Logo 地址（可选）</li>
                     </ul>
                 </div>
             </section>

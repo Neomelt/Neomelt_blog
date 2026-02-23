@@ -108,7 +108,7 @@ const walineEmojiUrls = [
 							el: "#waline",
 							serverURL,
 							path: walinePath,
-							lang: "zh-CN",
+							lang: localStorage.getItem("site-locale") === "en" ? "en-US" : "zh-CN",
 							dark: "html.dark",
 							emoji: walineEmojiUrls,
 							pageview: true,

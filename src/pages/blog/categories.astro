@@ -92,8 +92,8 @@ const defaultStyle = {
 
 				<!-- 右侧内容区 -->
 				<div class="homepage-content">
-					<h2 class="section-title">博客分类</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300">
+					<h2 class="section-title" data-i18n="legacy.categories.title">博客分类</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.categories.desc">
 						浏览不同主题的文章。
 					</p>
 
@@ -131,7 +131,7 @@ const defaultStyle = {
 													{category}
 												</h3>
 												<p class="text-gray-600 dark:text-gray-300 text-center">
-													{count} 篇文章
+													{count} <span data-i18n="legacy.articlesSuffix">篇文章</span>
 												</p>
 											</div>
 										);
@@ -155,9 +155,9 @@ const defaultStyle = {
 										</svg>
 									</div>
 									<h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-										暂无分类
+										<span data-i18n="legacy.categories.emptyTitle">暂无分类</span>
 									</h3>
-									<p class="text-gray-500 dark:text-gray-400">
+									<p class="text-gray-500 dark:text-gray-400" data-i18n="legacy.categories.emptyDesc">
 										还没有创建任何文章分类。
 									</p>
 								</div>
@@ -176,7 +176,7 @@ const defaultStyle = {
 									id="back-to-categories"
 									class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
 								>
-									<span>←</span> 返回分类
+									<span>←</span> <span data-i18n="legacy.categories.back">返回分类</span>
 								</button>
 							</div>
 
@@ -192,6 +192,8 @@ const defaultStyle = {
 </BaseLayout>
 
 <script define:vars={{ categoryPosts }}>
+    const t = (key, fallback) => (window.__siteI18n && window.__siteI18n.t ? window.__siteI18n.t(key, fallback) : fallback);
+
     // 分类过滤功能
     const categoryFilters = document.querySelectorAll(".category-filter-card");
     const postsContainer = document.querySelector(".posts-container");
@@ -211,11 +213,12 @@ const defaultStyle = {
 
             // 设置分类标题
             if (categoryTitle) {
-                categoryTitle.textContent = `${category} (${posts.length} 篇文章)`;
+                categoryTitle.textContent = `${category} (${posts.length} ${t("legacy.articlesSuffix", "篇文章")})`;
             }
 
             // 生成文章列表
             if (postsList) {
+                const dateLocale = window.__siteI18n && window.__siteI18n.getLocale && window.__siteI18n.getLocale() === "en" ? "en-US" : "zh-CN";
                 postsList.innerHTML = posts
                     .sort((a, b) => {
                         if (a.data.pinned && !b.data.pinned) return -1;
@@ -229,12 +232,12 @@ const defaultStyle = {
                                         <div class="post-content">
                                             <div class="post-header">
                                                 <div class="post-date">
-                                                    ${new Date(post.data.pubDate).toLocaleDateString("zh-CN")}
+                                                    ${new Date(post.data.pubDate).toLocaleDateString(dateLocale)}
                                                 </div>
                                                 ${post.data.pinned ? `
                                                     <span class="post-pinned">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 0.25rem;"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-                                                        置顶
+                                                        ${t("common.pinned", "置顶")}
                                                     </span>
                                                 ` : ""}
                                             </div>

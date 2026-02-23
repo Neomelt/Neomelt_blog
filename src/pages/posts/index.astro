@@ -27,7 +27,7 @@ function estimateReadingTime(content: string): number {
 <BaseLayout title={`文章 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
     <main>
         <div class="container">
-            <h1 class="section-heading">文章</h1>
+            <h1 class="section-heading" data-i18n="posts.title">文章</h1>
 
             <div class="post-list">
                 {paginatedPosts.map((post) => {
@@ -39,19 +39,19 @@ function estimateReadingTime(content: string): number {
                         <a href={url} class="post-card">
                             <div class="post-card-meta">
                                 <FormattedDate date={post.data.pubDate} />
-                                {isZueg && <span class="tag">随笔</span>}
+                                {isZueg && <span class="tag" data-i18n="common.essay">随笔</span>}
                                 {post.data.pinned && (
-                                    <span class="badge-pinned">置顶</span>
+                                    <span class="badge-pinned" data-i18n="common.pinned">置顶</span>
                                 )}
-                                <span>{readingTime} 分钟</span>
+                                <span>{readingTime} <span data-i18n="common.minutes">分钟</span></span>
                             </div>
                             <div class="post-card-title">{post.data.title}</div>
                             {post.data.description && (
                                 <div class="post-card-desc">{post.data.description}</div>
                             )}
                             <div class="post-card-stats text-muted text-sm">
-                                <span class="waline-pageview-count" data-path={walinePath}>0</span> views /
-                                <span class="waline-comment-count" data-path={walinePath}>0</span> comments
+                                <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
+                                <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
                             </div>
                             {post.data.tags && post.data.tags.length > 0 && (
                                 <div class="post-card-tags">
@@ -66,7 +66,7 @@ function estimateReadingTime(content: string): number {
             </div>
 
             {allPosts.length === 0 && (
-                <p class="text-muted" style="text-align:center;padding:3rem 0">暂无文章</p>
+                <p class="text-muted" style="text-align:center;padding:3rem 0" data-i18n="posts.empty">暂无文章</p>
             )}
 
             {pagination.totalPages > 1 && (
