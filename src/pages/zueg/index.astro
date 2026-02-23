@@ -7,6 +7,7 @@ import Pagination from "../../components/Pagination.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
 import { SITE_TITLE } from "../../consts";
+import { getDefaultUiText } from "../../i18n/ui";
 
 const zuegEntries = await getCollection("zueg");
 const sortedZueg = zuegEntries.sort((a, b) => {
@@ -25,7 +26,7 @@ function estimateReadingTime(content: string): number {
 }
 ---
 
-<BaseLayout title={`随笔 | ${SITE_TITLE}`}>
+<BaseLayout title={`${getDefaultUiText("legacy.zueg.title")} | ${SITE_TITLE}`}>
     <main>
         <div class="homepage-container">
             <div class="homepage-layout">
@@ -37,7 +38,7 @@ function estimateReadingTime(content: string): number {
 
             <!-- 右侧：随笔列表 -->
             <div class="homepage-content">
-            <h2 class="section-title" data-i18n="legacy.zueg.title">随笔文章</h2>
+            <h2 class="section-title" data-i18n="legacy.zueg.title">{getDefaultUiText("legacy.zueg.title")}</h2>
             <!-- 分类过滤器 -->
             <div class="flex flex-wrap gap-3 mb-8">
                 <button
@@ -60,7 +61,7 @@ function estimateReadingTime(content: string): number {
                                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                             ></path>
                         </svg>
-                        <span data-i18n="legacy.all">全部</span>
+                        <span data-i18n="legacy.all">{getDefaultUiText("legacy.all")}</span>
                     </span>
                 </button>
                 <button
@@ -83,7 +84,7 @@ function estimateReadingTime(content: string): number {
                                 d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                             ></path>
                         </svg>
-                        <span data-i18n="legacy.zueg.programming">编程</span>
+                        <span data-i18n="legacy.zueg.programming">{getDefaultUiText("legacy.zueg.programming")}</span>
                     </span>
                 </button>
                 <button
@@ -106,7 +107,7 @@ function estimateReadingTime(content: string): number {
                                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                             ></path>
                         </svg>
-                        <span data-i18n="legacy.zueg.thinking">思考</span>
+                        <span data-i18n="legacy.zueg.thinking">{getDefaultUiText("legacy.zueg.thinking")}</span>
                     </span>
                 </button>
             </div>
@@ -143,16 +144,16 @@ function estimateReadingTime(content: string): number {
                                         {entry.data.pinned && (
                                             <span class="post-pinned">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-                                                <span data-i18n="common.pinned">置顶</span>
+                                                <span data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
                                             </span>
                                         )}
                                     </div>
                                     <h3 class="post-title">{entry.data.title}</h3>
                                     <p class="post-description">{entry.data.description}</p>
                                     <div class="post-meta">
-                                        <span>{wordCount} <span data-i18n="common.words">字</span></span>
+                                        <span>{wordCount} <span data-i18n="common.words">{getDefaultUiText("common.words")}</span></span>
                                         <span>|</span>
-                                        <span>{readingTime} <span data-i18n="common.minutes">分钟</span></span>
+                                        <span>{readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span></span>
                                         {entry.data.tags && entry.data.tags.length > 0 && (
                                             <>
                                                 <span>|</span>
@@ -176,7 +177,7 @@ function estimateReadingTime(content: string): number {
                 paginatedPosts.length === 0 && (
                     <div class="text-center py-12">
                         <div class="text-gray-500 dark:text-gray-400 text-lg" data-i18n="legacy.zueg.empty">
-                            还没有随笔文章。
+                            {getDefaultUiText("legacy.zueg.empty")}
                         </div>
                     </div>
                 )

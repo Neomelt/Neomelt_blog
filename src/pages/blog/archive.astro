@@ -4,6 +4,7 @@ import { SITE_TITLE } from "../../consts";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getDefaultUiText } from "../../i18n/ui";
 
 // 获取所有博客文章
 const posts = await getCollection("blog");
@@ -57,7 +58,7 @@ const monthNames = [
 ];
 ---
 
-<BaseLayout title={`归档 | ${SITE_TITLE}`}>
+<BaseLayout title={`${getDefaultUiText("archive.metaTitle")} | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">
@@ -69,17 +70,15 @@ const monthNames = [
 
 				<!-- 右侧：归档内容 -->
 				<div class="homepage-content">
-					<h2 class="section-title" data-i18n="legacy.archive.title">博客归档</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.archive.desc">
-						按时间浏览所有文章。
-					</p>
+					<h2 class="section-title" data-i18n="legacy.archive.title">{getDefaultUiText("legacy.archive.title")}</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.archive.desc">{getDefaultUiText("legacy.archive.desc")}</p>
 
 					<div class="space-y-16">
 						{
 							allYears.map((year) => (
 								<div>
 									<h2 class="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100">
-										{year}<span data-i18n="legacy.yearSuffix">年</span>
+										{year}<span data-i18n="legacy.yearSuffix">{getDefaultUiText("legacy.yearSuffix")}</span>
 									</h2>
 
 									{Object.keys(postsByYear[year])
@@ -117,9 +116,7 @@ const monthNames = [
 						{
 							allYears.length === 0 && (
 								<div class="text-center py-12">
-									<p class="text-gray-500 dark:text-gray-400" data-i18n="posts.empty">
-										暂无文章
-									</p>
+									<p class="text-gray-500 dark:text-gray-400" data-i18n="posts.empty">{getDefaultUiText("posts.empty")}</p>
 								</div>
 							)
 						}

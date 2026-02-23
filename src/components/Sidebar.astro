@@ -1,15 +1,17 @@
 ---
 // Sidebar.astro - 侧边栏组件（分类和标签）
 import { getCollection } from "astro:content";
+import { getDefaultUiText } from "../i18n/ui";
 
 const posts = await getCollection("blog");
 const zuegPosts = await getCollection("zueg");
+const uncategorizedLabel = getDefaultUiText("legacy.uncategorized");
 
 // 获取所有分类
-const categories = [...new Set(posts.map(post => post.data.category || "未分类"))];
+const categories = [...new Set(posts.map(post => post.data.category || uncategorizedLabel))];
 const categoryCounts = categories.map(cat => ({
 	name: cat,
-	count: posts.filter(p => (p.data.category || "未分类") === cat).length
+	count: posts.filter(p => (p.data.category || uncategorizedLabel) === cat).length
 })).sort((a, b) => b.count - a.count);
 
 // 获取所有标签
@@ -29,7 +31,7 @@ const topTags = Object.entries(allTags)
 <aside class="sidebar">
 	<!-- 分类 -->
 	<div class="sidebar-section">
-		<h3 class="sidebar-title" data-i18n="sidebar.categories">分类</h3>
+		<h3 class="sidebar-title" data-i18n="sidebar.categories">{getDefaultUiText("sidebar.categories")}</h3>
 		<div class="category-list">
 			{categoryCounts.map(({ name, count }) => (
 				<a 
@@ -41,12 +43,12 @@ const topTags = Object.entries(allTags)
 				</a>
 			))}
 		</div>
-		<a href="/blog/categories" class="sidebar-more" data-i18n="sidebar.more">查看更多 →</a>
+		<a href="/blog/categories" class="sidebar-more" data-i18n="sidebar.more">{getDefaultUiText("sidebar.more")}</a>
 	</div>
 
 	<!-- 标签云 -->
 	<div class="sidebar-section">
-		<h3 class="sidebar-title" data-i18n="sidebar.tags">标签</h3>
+		<h3 class="sidebar-title" data-i18n="sidebar.tags">{getDefaultUiText("sidebar.tags")}</h3>
 		<div class="tag-cloud">
 			{topTags.map(({ tag, count }) => (
 				<a 
@@ -58,7 +60,7 @@ const topTags = Object.entries(allTags)
 				</a>
 			))}
 		</div>
-		<a href="/blog/tags" class="sidebar-more" data-i18n="sidebar.more">查看更多 →</a>
+		<a href="/blog/tags" class="sidebar-more" data-i18n="sidebar.more">{getDefaultUiText("sidebar.more")}</a>
 	</div>
 </aside>
 

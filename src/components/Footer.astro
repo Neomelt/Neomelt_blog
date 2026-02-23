@@ -1,5 +1,18 @@
 ---
+import { getDefaultUiText, UI_TRANSLATIONS } from "../i18n/ui";
 const startDate = new Date("2025-08-13");
+
+const runtimeFallbacks = {
+    "footer.running": getDefaultUiText("footer.running"),
+    "footer.day": getDefaultUiText("footer.day"),
+    "footer.hour": getDefaultUiText("footer.hour"),
+    "footer.minute": getDefaultUiText("footer.minute"),
+    "footer.second": getDefaultUiText("footer.second"),
+    enDay: UI_TRANSLATIONS.en["footer.day"],
+    enHour: UI_TRANSLATIONS.en["footer.hour"],
+    enMinute: UI_TRANSLATIONS.en["footer.minute"],
+    enSecond: UI_TRANSLATIONS.en["footer.second"],
+} as const;
 ---
 
 <footer id="site-footer">
@@ -8,7 +21,7 @@ const startDate = new Date("2025-08-13");
             <span class="footer-copy">© {new Date().getFullYear()} Neomelt</span>
             <span class="footer-sep">·</span>
             <span class="footer-runtime">
-                <span data-i18n="footer.running">已运行</span> <span id="runtime-display" data-start={startDate.toISOString()}>...</span>
+                <span data-i18n="footer.running">{runtimeFallbacks["footer.running"]}</span> <span id="runtime-display" data-start={startDate.toISOString()}>...</span>
             </span>
         </div>
 
@@ -43,15 +56,16 @@ const startDate = new Date("2025-08-13");
     </div>
 </footer>
 
-<script>
+<script define:vars={{ runtimeFallbacks }}>
     const getI18n = () => (window as any).__siteI18n;
+    const fallback = (key: string) => (runtimeFallbacks as Record<string, string>)[key] || key;
     const formatRuntime = (days: number, hours: number, minutes: number, seconds: number) => {
         const i18n = getI18n();
         const locale = i18n?.getLocale?.() === "en" ? "en" : "zh";
         if (locale === "en") {
-            return `${days}${i18n?.t?.("footer.day", "d") || "d"} ${hours}${i18n?.t?.("footer.hour", "h") || "h"} ${minutes}${i18n?.t?.("footer.minute", "m") || "m"} ${seconds}${i18n?.t?.("footer.second", "s") || "s"}`;
+            return `${days}${i18n?.t?.("footer.day", fallback("enDay")) || fallback("enDay")} ${hours}${i18n?.t?.("footer.hour", fallback("enHour")) || fallback("enHour")} ${minutes}${i18n?.t?.("footer.minute", fallback("enMinute")) || fallback("enMinute")} ${seconds}${i18n?.t?.("footer.second", fallback("enSecond")) || fallback("enSecond")}`;
         }
-        return `${days} ${i18n?.t?.("footer.day", "天") || "天"} ${hours} ${i18n?.t?.("footer.hour", "时") || "时"} ${minutes} ${i18n?.t?.("footer.minute", "分") || "分"} ${seconds} ${i18n?.t?.("footer.second", "秒") || "秒"}`;
+        return `${days} ${i18n?.t?.("footer.day", fallback("footer.day")) || fallback("footer.day")} ${hours} ${i18n?.t?.("footer.hour", fallback("footer.hour")) || fallback("footer.hour")} ${minutes} ${i18n?.t?.("footer.minute", fallback("footer.minute")) || fallback("footer.minute")} ${seconds} ${i18n?.t?.("footer.second", fallback("footer.second")) || fallback("footer.second")}`;
     };
 
     function updateRuntime() {

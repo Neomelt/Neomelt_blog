@@ -7,6 +7,7 @@ import TableOfContents from "../../components/TableOfContents.astro";
 import PostNavigation from "../../components/PostNavigation.astro";
 import { SITE_TITLE } from "../../consts";
 import { getWalinePathForPost } from "../../utils/waline";
+import { getDefaultUiText } from "../../i18n/ui";
 
 export async function getStaticPaths() {
     const zuegEntries = (await getCollection("zueg")).sort(
@@ -35,7 +36,7 @@ const walinePath = getWalinePathForPost(entry.id, "zueg");
 
 <BaseLayout
     title={`${entry.data.title} | ${SITE_TITLE}`}
-    description={entry.data.description || "随笔文章"}
+    description={entry.data.description || getDefaultUiText("legacy.zueg.title")}
 >
     <div class="page-container">
         <div class="page-layout">
@@ -48,15 +49,15 @@ const walinePath = getWalinePathForPost(entry.id, "zueg");
                                 <FormattedDate date={entry.data.pubDate} />
                                 {entry.data.updatedDate && (
                                     <div class="last-updated-on">
-                                        <span data-i18n="legacy.zueg.lastUpdated">最后更新于</span> <FormattedDate date={entry.data.updatedDate} />
+                                        <span data-i18n="legacy.zueg.lastUpdated">{getDefaultUiText("legacy.zueg.lastUpdated")}</span> <FormattedDate date={entry.data.updatedDate} />
                                     </div>
                                 )}
                             </div>
                             <h1>{entry.data.title}</h1>
-                            <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label="阅读和评论统计">
+                            <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label={getDefaultUiText("post.statsAria")}>
                                 <p class="post-stats-line">
-                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
-                                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
+                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
+                                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span>
                                 </p>
                             </div>
                             {entry.data.tags && (

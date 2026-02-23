@@ -1,11 +1,22 @@
 ---
 // BackgroundModal.astro - 背景设置弹窗
+import { getDefaultUiText } from "../../i18n/ui";
+
+const bgModalText = {
+    title: getDefaultUiText("background.modalTitle"),
+    quote: getDefaultUiText("background.quote"),
+    enableWallpaper: getDefaultUiText("background.enableWallpaper"),
+    styleTitle: getDefaultUiText("background.styleTitle"),
+    styleAltSuffix: getDefaultUiText("background.styleAltSuffix"),
+    opacityTitle: getDefaultUiText("background.opacityTitle"),
+    blurTitle: getDefaultUiText("background.blurTitle"),
+};
 ---
 
 <div class="background-modal-overlay" id="background-modal-overlay">
     <div class="background-modal">
         <div class="modal-header">
-            <h3>🎨 背景设置</h3>
+            <h3 data-i18n="background.modalTitle">{bgModalText.title}</h3>
             <button class="close-btn" id="close-background-modal">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -23,26 +34,26 @@
         </div>
 
         <div class="modal-content">
-            <p class="modal-description">世界并不美丽，但却因此而美丽。</p>
+            <p class="modal-description" data-i18n="background.quote">{bgModalText.quote}</p>
 
             <!-- 启用壁纸开关 -->
             <div class="setting-group">
                 <label class="checkbox-container">
                     <input type="checkbox" id="enable-wallpaper" checked />
                     <span class="checkmark"></span>
-                    <span class="label-text">启用壁纸</span>
+                    <span class="label-text" data-i18n="background.enableWallpaper">{bgModalText.enableWallpaper}</span>
                 </label>
             </div>
 
             <!-- 背景选择 -->
             <div class="setting-group">
-                <h4 class="setting-title">🎨 背景样式</h4>
+                <h4 class="setting-title" data-i18n="background.styleTitle">{bgModalText.styleTitle}</h4>
                 <div class="background-options">
                     <div class="bg-option" data-bg="t1.svg">
                         <div class="bg-preview">
                             <img
                                 src="/images/hero-images/t1.svg"
-                                alt="T1 样式"
+                                alt={`T1 ${bgModalText.styleAltSuffix}`}
                             />
                         </div>
                         <div class="bg-info">
@@ -53,7 +64,7 @@
                         <div class="bg-preview">
                             <img
                                 src="/images/hero-images/t2.svg"
-                                alt="T2 样式"
+                                alt={`T2 ${bgModalText.styleAltSuffix}`}
                             />
                         </div>
                         <div class="bg-info">
@@ -64,7 +75,7 @@
                         <div class="bg-preview">
                             <img
                                 src="/images/hero-images/t3.svg"
-                                alt="T3 样式"
+                                alt={`T3 ${bgModalText.styleAltSuffix}`}
                             />
                         </div>
                         <div class="bg-info">
@@ -75,7 +86,7 @@
                         <div class="bg-preview">
                             <img
                                 src="/images/hero-images/t4.svg"
-                                alt="T4 样式"
+                                alt={`T4 ${bgModalText.styleAltSuffix}`}
                             />
                         </div>
                         <div class="bg-info">
@@ -86,7 +97,7 @@
                         <div class="bg-preview">
                             <img
                                 src="/images/hero-images/t5.svg"
-                                alt="T5 样式"
+                                alt={`T5 ${bgModalText.styleAltSuffix}`}
                             />
                         </div>
                         <div class="bg-info">
@@ -97,7 +108,7 @@
 
             <!-- 透明度控制 -->
             <div class="setting-group">
-                <h4 class="setting-title">🔍 透明度</h4>
+                <h4 class="setting-title" data-i18n="background.opacityTitle">{bgModalText.opacityTitle}</h4>
                 <div class="slider-container">
                     <input
                         type="range"
@@ -113,7 +124,7 @@
 
             <!-- 模糊度控制 -->
             <div class="setting-group">
-                <h4 class="setting-title">💫 模糊度</h4>
+                <h4 class="setting-title" data-i18n="background.blurTitle">{bgModalText.blurTitle}</h4>
                 <div class="slider-container">
                     <input
                         type="range"

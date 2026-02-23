@@ -1,8 +1,13 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
+import { getDefaultUiText } from "../../i18n/ui";
 
 export const GET: APIRoute = async () => {
     try {
+        const uncategorizedLabel = getDefaultUiText("legacy.uncategorized");
+        const blogTypeLabel = getDefaultUiText("search.typeBlog");
+        const essayTypeLabel = getDefaultUiText("search.typeEssay");
+
         // 获取所有内容并生成搜索索引
         const [blogPosts, zuegEntries] = await Promise.all([
             getCollection("blog"),
@@ -18,10 +23,10 @@ export const GET: APIRoute = async () => {
                 description: post.data.description,
                 content: post.body || "",
                 url: `/posts/${post.id}`,
-                type: "博客",
+                type: blogTypeLabel,
                 date: post.data.pubDate.toISOString().split('T')[0],
                 tags: post.data.tags || [],
-                category: post.data.category || "未分类"
+                category: post.data.category || uncategorizedLabel
             })),
             // 随笔
             ...zuegEntries.map(entry => ({
@@ -30,7 +35,7 @@ export const GET: APIRoute = async () => {
                 description: entry.data.description,
                 content: entry.body || "",
                 url: `/posts/zueg/${entry.id}`,
-                type: "随笔",
+                type: essayTypeLabel,
                 date: entry.data.pubDate.toISOString().split('T')[0],
                 tags: entry.data.tags || [],
                 category: entry.data.category || ""
@@ -44,7 +49,7 @@ export const GET: APIRoute = async () => {
             },
         });
     } catch (error) {
-        console.error("搜索索引生成错误:", error);
+        console.error("[Search API] Failed to build search index:", error);
         return new Response(JSON.stringify([]), {
             status: 500,
             headers: {

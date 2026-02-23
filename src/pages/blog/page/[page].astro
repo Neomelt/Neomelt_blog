@@ -6,6 +6,7 @@ import ProfileCard from "../../../components/ProfileCard.astro";
 import Sidebar from "../../../components/Sidebar.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
+import { getDefaultUiText } from "../../../i18n/ui";
 import { getWalinePathForPost } from "../../../utils/waline";
 
 export async function getStaticPaths() {
@@ -26,6 +27,8 @@ export async function getStaticPaths() {
 
 const { posts, currentPage, totalPages } = Astro.props;
 const { items: paginatedPosts, pagination } = paginate(posts, currentPage, 5);
+const uncategorizedLabel = getDefaultUiText("legacy.uncategorized");
+const pageTitleLabel = `${getDefaultUiText("legacy.blog.postsTitle")} - ${getDefaultUiText("legacy.pagePrefix")} ${currentPage}${getDefaultUiText("legacy.pageSuffix") ? ` ${getDefaultUiText("legacy.pageSuffix")}` : ""}`;
 
 // 简单的阅读时间估算（基于字数）
 function estimateReadingTime(content: string): number {
@@ -36,13 +39,11 @@ function estimateReadingTime(content: string): number {
 
 // 获取所有分类
 const allCategories = [
-    ...new Set(posts.map((post) => post.data.category || "未分类")),
+    ...new Set(posts.map((post) => post.data.category || uncategorizedLabel)),
 ];
 ---
 
-<BaseLayout
-    title={`博客文章 - 第${currentPage}页`}
->
+<BaseLayout title={pageTitleLabel}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">
@@ -54,7 +55,7 @@ const allCategories = [
 
 				<!-- 右侧：博客列表 -->
 				<div class="homepage-content">
-					<h2 class="section-title"><span data-i18n="legacy.blog.postsTitle">博客文章</span> - <span data-i18n="legacy.pagePrefix">第</span> {currentPage} <span data-i18n="legacy.pageSuffix">页</span></h2>
+					<h2 class="section-title"><span data-i18n="legacy.blog.postsTitle">{getDefaultUiText("legacy.blog.postsTitle")}</span> - <span data-i18n="legacy.pagePrefix">{getDefaultUiText("legacy.pagePrefix")}</span> {currentPage} <span data-i18n="legacy.pageSuffix">{getDefaultUiText("legacy.pageSuffix")}</span></h2>
 					<!-- 分类筛选 -->
 					<div
 						class="category-filter mb-8 flex flex-wrap justify-center gap-4"
@@ -63,7 +64,7 @@ const allCategories = [
 							href="/blog"
 							class="category-link active"
 							data-category="all"
-							data-i18n="legacy.all">全部</a
+							data-i18n="legacy.all">{getDefaultUiText("legacy.all")}</a
 						>
 						{
 							allCategories.map((category) => (
@@ -86,7 +87,7 @@ const allCategories = [
 							const walinePath = getWalinePathForPost(post.id, "blog");
 							
 							return (
-								<article class="post-card-item" data-category={post.data.category || "未分类"}>
+								<article class="post-card-item" data-category={post.data.category || uncategorizedLabel}>
 									<a href={`/blog/${post.id}/`} class="post-card-link">
 										{post.data.heroImage && (
 											<div class="post-thumbnail">
@@ -110,20 +111,20 @@ const allCategories = [
 												{post.data.pinned && (
 													<span class="post-pinned">
 														<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-														<span data-i18n="common.pinned">置顶</span>
+														<span data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
 													</span>
 												)}
 											</div>
 											<h3 class="post-title">{post.data.title}</h3>
 											<p class="post-description">{post.data.description}</p>
 											<div class="post-meta">
-												<span>{wordCount} <span data-i18n="common.words">字</span></span>
+												<span>{wordCount} <span data-i18n="common.words">{getDefaultUiText("common.words")}</span></span>
 												<span>|</span>
-												<span>{readingTime} <span data-i18n="common.minutes">分钟</span></span>
+												<span>{readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span></span>
 												<span>|</span>
-												<span><span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span></span>
+												<span><span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span></span>
 												<span>|</span>
-												<span><span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span></span>
+												<span><span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span></span>
 												{post.data.tags && post.data.tags.length > 0 && (
 													<>
 														<span>|</span>
@@ -147,7 +148,7 @@ const allCategories = [
 						paginatedPosts.length === 0 && (
 							<div class="text-center py-12">
 								<div class="text-gray-500 dark:text-gray-400 text-lg" data-i18n="posts.empty">
-									暂无文章
+									{getDefaultUiText("posts.empty")}
 								</div>
 							</div>
 						)

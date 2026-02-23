@@ -4,6 +4,7 @@ import { SITE_TITLE } from "../../consts";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
+import { getDefaultUiText } from "../../i18n/ui";
 
 // 获取所有博客文章
 const posts = await getCollection("blog");
@@ -27,7 +28,7 @@ posts.forEach((post) => {
 const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 ---
 
-<BaseLayout title={`系列 | ${SITE_TITLE}`}>
+<BaseLayout title={`${getDefaultUiText("legacy.series.title")} | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">
@@ -39,10 +40,8 @@ const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 
 				<!-- 右侧内容区 -->
 				<div class="homepage-content">
-					<h2 class="section-title" data-i18n="legacy.series.title">博客系列</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.series.desc">
-						按系列浏览相关文章。
-					</p>
+					<h2 class="section-title" data-i18n="legacy.series.title">{getDefaultUiText("legacy.series.title")}</h2>
+					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.series.desc">{getDefaultUiText("legacy.series.desc")}</p>
 
 					{
 						sortedSeries.length > 0 ? (
@@ -54,7 +53,7 @@ const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 												{series}
 											</h3>
 											<span class="text-sm text-gray-500 dark:text-gray-400">
-												{count} <span data-i18n="legacy.articlesSuffix">篇文章</span>
+												{count} <span data-i18n="legacy.articlesSuffix">{getDefaultUiText("legacy.articlesSuffix")}</span>
 											</span>
 										</div>
 
@@ -103,11 +102,9 @@ const sortedSeries = Object.entries(seriesCounts).sort(([, a], [, b]) => b - a);
 									</svg>
 								</div>
 								<h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-									<span data-i18n="legacy.series.emptyTitle">暂无系列文章</span>
+									<span data-i18n="legacy.series.emptyTitle">{getDefaultUiText("legacy.series.emptyTitle")}</span>
 								</h3>
-								<p class="text-gray-500 dark:text-gray-400" data-i18n="legacy.series.emptyDesc">
-									还没有创建任何文章系列。
-								</p>
+								<p class="text-gray-500 dark:text-gray-400" data-i18n="legacy.series.emptyDesc">{getDefaultUiText("legacy.series.emptyDesc")}</p>
 							</div>
 						)
 					}

@@ -29,6 +29,14 @@ export const UI_TRANSLATIONS = {
         "footer.minute": "分",
         "footer.second": "秒",
 
+        "background.modalTitle": "🎨 背景设置",
+        "background.quote": "世界并不美丽，但却因此而美丽。",
+        "background.enableWallpaper": "启用壁纸",
+        "background.styleTitle": "🎨 背景样式",
+        "background.styleAltSuffix": "样式",
+        "background.opacityTitle": "🔍 透明度",
+        "background.blurTitle": "💫 模糊度",
+
         "search.dialogAria": "搜索",
         "search.title": "搜索内容",
         "search.closeAria": "关闭搜索",
@@ -37,6 +45,8 @@ export const UI_TRANSLATIONS = {
         "search.emptyNotFound": "没有找到相关内容",
         "search.emptyMinChars": "请输入至少 2 个字符",
         "search.emptyLoading": "正在加载搜索索引...",
+        "search.typeBlog": "博客",
+        "search.typeEssay": "随笔",
 
         "pagination.aria": "分页",
         "pagination.prev": "上一页",
@@ -75,13 +85,19 @@ export const UI_TRANSLATIONS = {
         "about.desc2Suffix": "上找到我。",
 
         "posts.title": "文章",
+        "posts.metaTitle": "文章",
         "posts.empty": "暂无文章",
 
         "archive.title": "归档",
+        "archive.metaTitle": "归档",
         "archive.countUnit": "篇",
 
         "tags.title": "标签",
+        "tags.metaTitle": "标签",
         "tags.countUnit": "个",
+
+        "comments.loadFailedPrefix": "评论组件加载失败。请刷新重试，或访问",
+        "comments.noServerPrefix": "未配置 Waline 服务地址。请在环境变量中设置",
 
         "legacy.all": "全部",
         "legacy.pagePrefix": "第",
@@ -109,6 +125,7 @@ export const UI_TRANSLATIONS = {
         "legacy.series.desc": "按系列浏览相关文章。",
         "legacy.series.emptyTitle": "暂无系列文章",
         "legacy.series.emptyDesc": "还没有创建任何文章系列。",
+        "legacy.uncategorized": "未分类",
 
         "legacy.zueg.title": "随笔文章",
         "legacy.zueg.programming": "编程",
@@ -120,6 +137,8 @@ export const UI_TRANSLATIONS = {
         "legacy.projects.repo": "GitHub 仓库",
         "legacy.projects.preview": "在线预览",
         "legacy.projects.docs": "API 文档",
+        "legacy.projects.imageAlt": "项目截图",
+        "legacy.projects.imagePlaceholderText": "项目图片",
         "legacy.projects.p1.title": "个人博客网站",
         "legacy.projects.p1.desc":
             "基于 Astro 构建的个人博客网站，使用 TailwindCSS 进行样式设计，支持 Markdown 和 MDX 内容创作。",
@@ -193,6 +212,14 @@ export const UI_TRANSLATIONS = {
         "footer.minute": "m",
         "footer.second": "s",
 
+        "background.modalTitle": "🎨 Background Settings",
+        "background.quote": "The world is not beautiful, therefore it is.",
+        "background.enableWallpaper": "Enable wallpaper",
+        "background.styleTitle": "🎨 Background Style",
+        "background.styleAltSuffix": "style",
+        "background.opacityTitle": "🔍 Opacity",
+        "background.blurTitle": "💫 Blur",
+
         "search.dialogAria": "Search",
         "search.title": "Search",
         "search.closeAria": "Close search",
@@ -201,6 +228,8 @@ export const UI_TRANSLATIONS = {
         "search.emptyNotFound": "No matching content found",
         "search.emptyMinChars": "Please enter at least 2 characters",
         "search.emptyLoading": "Loading search index...",
+        "search.typeBlog": "Blog",
+        "search.typeEssay": "Essay",
 
         "pagination.aria": "Pagination",
         "pagination.prev": "Previous page",
@@ -239,13 +268,19 @@ export const UI_TRANSLATIONS = {
         "about.desc2Suffix": ".",
 
         "posts.title": "Posts",
+        "posts.metaTitle": "Posts",
         "posts.empty": "No posts yet",
 
         "archive.title": "Archive",
+        "archive.metaTitle": "Archive",
         "archive.countUnit": "posts",
 
         "tags.title": "Tags",
+        "tags.metaTitle": "Tags",
         "tags.countUnit": "tags",
+
+        "comments.loadFailedPrefix": "Failed to load comments. Please refresh, or visit",
+        "comments.noServerPrefix": "Waline server URL is not configured. Please set",
 
         "legacy.all": "All",
         "legacy.pagePrefix": "Page",
@@ -273,6 +308,7 @@ export const UI_TRANSLATIONS = {
         "legacy.series.desc": "Browse related posts by series.",
         "legacy.series.emptyTitle": "No series yet",
         "legacy.series.emptyDesc": "No article series has been created yet.",
+        "legacy.uncategorized": "Uncategorized",
 
         "legacy.zueg.title": "Essays",
         "legacy.zueg.programming": "Programming",
@@ -284,6 +320,8 @@ export const UI_TRANSLATIONS = {
         "legacy.projects.repo": "GitHub Repo",
         "legacy.projects.preview": "Live Preview",
         "legacy.projects.docs": "API Docs",
+        "legacy.projects.imageAlt": "Project screenshot",
+        "legacy.projects.imagePlaceholderText": "Project image",
         "legacy.projects.p1.title": "Personal Blog Website",
         "legacy.projects.p1.desc":
             "A personal blog built with Astro and styled using TailwindCSS, supporting Markdown and MDX content.",
@@ -333,3 +371,11 @@ export const UI_TRANSLATIONS = {
         "toc.label": "Contents",
     },
 } as const satisfies Record<SiteLocale, Record<string, string>>;
+
+export type UiTranslationKey = keyof (typeof UI_TRANSLATIONS)["zh"];
+
+const DEFAULT_UI_TRANSLATIONS = UI_TRANSLATIONS[DEFAULT_LOCALE];
+
+export function getDefaultUiText(key: UiTranslationKey, fallback = ""): string {
+    return DEFAULT_UI_TRANSLATIONS[key] ?? (fallback || key);
+}

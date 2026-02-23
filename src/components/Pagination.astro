@@ -1,5 +1,6 @@
 ---
 import type { PaginationInfo } from "../utils/pagination.ts";
+import { getDefaultUiText } from "../i18n/ui";
 
 export interface Props {
     pagination: PaginationInfo;
@@ -27,9 +28,9 @@ const prevUrl = hasPrev ? pageUrl(currentPage - 1) : null;
 const nextUrl = hasNext ? pageUrl(currentPage + 1) : null;
 ---
 
-<nav class="pagination" data-i18n-aria-label="pagination.aria" aria-label="分页">
+<nav class="pagination" data-i18n-aria-label="pagination.aria" aria-label={getDefaultUiText("pagination.aria")}>
     {hasPrev
-        ? <a href={prevUrl} data-i18n-aria-label="pagination.prev" aria-label="上一页">←</a>
+        ? <a href={prevUrl} data-i18n-aria-label="pagination.prev" aria-label={getDefaultUiText("pagination.prev")}>←</a>
         : <span class="disabled" aria-disabled="true">←</span>
     }
 
@@ -54,7 +55,7 @@ const nextUrl = hasNext ? pageUrl(currentPage + 1) : null;
     )}
 
     {hasNext
-        ? <a href={nextUrl} data-i18n-aria-label="pagination.next" aria-label="下一页">→</a>
+        ? <a href={nextUrl} data-i18n-aria-label="pagination.next" aria-label={getDefaultUiText("pagination.next")}>→</a>
         : <span class="disabled" aria-disabled="true">→</span>
     }
 </nav>

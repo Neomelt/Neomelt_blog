@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { SITE_TITLE } from "../consts";
+import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const blogPosts = await getCollection("blog");
@@ -17,18 +18,18 @@ for (const post of allPosts) {
 const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 ---
 
-<BaseLayout title={`标签 | ${SITE_TITLE}`}>
+<BaseLayout title={`${getDefaultUiText("tags.metaTitle")} | ${SITE_TITLE}`}>
     <main>
         <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
-                <a href="/" data-i18n="common.home">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
                 <span class="breadcrumb-sep">/</span>
-                <span data-i18n="tags.title">标签</span>
+                <span data-i18n="tags.title">{getDefaultUiText("tags.title")}</span>
             </nav>
 
             <h1 class="section-heading">
-                <span data-i18n="tags.title">标签</span>
-                <span class="text-muted text-sm">({tags.length} <span data-i18n="tags.countUnit">个</span>)</span>
+                <span data-i18n="tags.title">{getDefaultUiText("tags.title")}</span>
+                <span class="text-muted text-sm">({tags.length} <span data-i18n="tags.countUnit">{getDefaultUiText("tags.countUnit")}</span>)</span>
             </h1>
 
             <div class="tag-cloud">

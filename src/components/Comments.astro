@@ -1,5 +1,6 @@
 ---
 import { normalizeWalinePath } from "../utils/waline";
+import { getDefaultUiText } from "../i18n/ui";
 
 interface Props {
 	path?: string;
@@ -17,6 +18,10 @@ const walineEmojiUrls = [
 	"https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bmoji",
 	"https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bilibili",
 ];
+const commentsFallbacks = {
+	loadFailedPrefix: getDefaultUiText("comments.loadFailedPrefix"),
+	noServerPrefix: getDefaultUiText("comments.noServerPrefix"),
+};
 ---
 
 <link rel="stylesheet" href="/vendor/waline.css" />
@@ -26,12 +31,12 @@ const walineEmojiUrls = [
 		<>
 			<div id="waline"></div>
 			<div id="waline-fallback" class="comments-config-tip" style="display: none;">
-				评论组件加载失败。请刷新重试，或访问 <a href={"https://www.neomelt.cloud" + walinePath}>www.neomelt.cloud</a>。
+				{commentsFallbacks.loadFailedPrefix} <a href={"https://www.neomelt.cloud" + walinePath}>www.neomelt.cloud</a>。
 			</div>
 		</>
 	) : (
 		<div class="comments-config-tip">
-			未配置 Waline 服务地址。请在环境变量中设置 <code>PUBLIC_WALINE_SERVER_URL</code>。
+			{commentsFallbacks.noServerPrefix} <code>PUBLIC_WALINE_SERVER_URL</code>。
 		</div>
 	)}
 </div>

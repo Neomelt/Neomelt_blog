@@ -1,5 +1,6 @@
 ---
 import { SITE_TITLE } from "../consts";
+import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
 import { normalizeWalinePath } from "../utils/waline";
@@ -26,26 +27,29 @@ const friendLinks: FriendLink[] = [
 ];
 ---
 
-<BaseLayout title={`友链 | ${SITE_TITLE}`} description="友情链接与互链申请">
+<BaseLayout
+    title={`${getDefaultUiText("friends.metaTitle")} | ${SITE_TITLE}`}
+    description={getDefaultUiText("friends.metaDescription")}
+>
     <main>
         <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑导航">
-                <a href="/" data-i18n="common.home">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
                 <span>›</span>
-                <span data-i18n="friends.pageCrumb">友链</span>
+                <span data-i18n="friends.pageCrumb">{getDefaultUiText("friends.pageCrumb")}</span>
             </nav>
 
             <header class="friends-header">
-                <h1 data-i18n="friends.title">友情链接</h1>
-                <p class="friends-lead" data-i18n="friends.lead">欢迎交换友链，一起记录与分享。</p>
+                <h1 data-i18n="friends.title">{getDefaultUiText("friends.title")}</h1>
+                <p class="friends-lead" data-i18n="friends.lead">{getDefaultUiText("friends.lead")}</p>
                 <p class="friends-stats">
-                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
-                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.messages">条留言</span>
+                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
+                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.messages">{getDefaultUiText("common.messages")}</span>
                 </p>
             </header>
 
             <section class="friends-section" aria-labelledby="friends-list-title">
-                <h2 id="friends-list-title" data-i18n="friends.listTitle">已收录友链</h2>
+                <h2 id="friends-list-title" data-i18n="friends.listTitle">{getDefaultUiText("friends.listTitle")}</h2>
                 {friendLinks.length > 0 ? (
                     <ul class="friends-grid">
                         {friendLinks.map((link) => (
@@ -84,21 +88,15 @@ const friendLinks: FriendLink[] = [
                         ))}
                     </ul>
                 ) : (
-                    <div class="empty-state" data-i18n="friends.empty">
-                        暂时还没有收录友链，欢迎成为第一位互链伙伴。
-                    </div>
+                    <div class="empty-state" data-i18n="friends.empty">{getDefaultUiText("friends.empty")}</div>
                 )}
             </section>
 
             <section class="friends-section" aria-labelledby="friends-apply-title">
-                <h2 id="friends-apply-title" data-i18n="friends.applyTitle">申请友链</h2>
-                <p class="section-desc" data-i18n="friends.applyDesc">
-                    可以通过邮件、GitHub Issue，或页面底部评论区提交申请。
-                </p>
+                <h2 id="friends-apply-title" data-i18n="friends.applyTitle">{getDefaultUiText("friends.applyTitle")}</h2>
+                <p class="section-desc" data-i18n="friends.applyDesc">{getDefaultUiText("friends.applyDesc")}</p>
                 <div class="apply-actions">
-                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary" data-i18n="friends.applyEmail">
-                        邮件申请
-                    </a>
+                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary" data-i18n="friends.applyEmail">{getDefaultUiText("friends.applyEmail")}</a>
                     <a
                         href="https://github.com/Neomelt/Neomelt_blog/issues"
                         target="_blank"
@@ -110,12 +108,12 @@ const friendLinks: FriendLink[] = [
                 </div>
 
                 <div class="apply-template">
-                    <h3 data-i18n="friends.infoTitle">建议提供以下信息</h3>
+                    <h3 data-i18n="friends.infoTitle">{getDefaultUiText("friends.infoTitle")}</h3>
                     <ul>
-                        <li data-i18n="friends.infoName">网站名称</li>
-                        <li data-i18n="friends.infoUrl">网站地址（`https://`）</li>
-                        <li data-i18n="friends.infoDesc">网站简介（一句话）</li>
-                        <li data-i18n="friends.infoAvatar">头像或 Logo 地址（可选）</li>
+                        <li data-i18n="friends.infoName">{getDefaultUiText("friends.infoName")}</li>
+                        <li data-i18n="friends.infoUrl">{getDefaultUiText("friends.infoUrl")}</li>
+                        <li data-i18n="friends.infoDesc">{getDefaultUiText("friends.infoDesc")}</li>
+                        <li data-i18n="friends.infoAvatar">{getDefaultUiText("friends.infoAvatar")}</li>
                     </ul>
                 </div>
             </section>

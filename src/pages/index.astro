@@ -4,6 +4,7 @@ import FormattedDate from "../components/FormattedDate.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { SITE_TITLE } from "../consts";
 import { getWalinePathForPost } from "../utils/waline";
+import { DEFAULT_LOCALE, UI_TRANSLATIONS } from "../i18n/ui";
 
 const blogPosts = await getCollection("blog");
 const zuegPosts = await getCollection("zueg");
@@ -15,6 +16,7 @@ const allPosts = [...blogPosts, ...zuegPosts].sort((a, b) => {
 });
 
 const recentPosts = allPosts.slice(0, 5);
+const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
 ---
 
 <BaseLayout title={SITE_TITLE}>
@@ -22,20 +24,16 @@ const recentPosts = allPosts.slice(0, 5);
         <div class="container">
             <!-- Site intro -->
             <section class="hero">
-                <h1 class="hero-title" data-i18n="index.heroTitle">👋 欢迎来到 Neomelt 的博客</h1>
+                <h1 class="hero-title" data-i18n="index.heroTitle">{fallbackText["index.heroTitle"]}</h1>
                 <div class="hero-bio">
-                    <p data-i18n="index.heroIntro1">
-                        你好，我是 Neomelt。一个喜欢折腾的工科生，对计算机视觉、机器人和系统编程感兴趣。
-                    </p>
-                    <p data-i18n="index.heroIntro2">
-                        这里是我记录学习过程、技术思考和日常随笔的地方。内容可能涉及 ROS2、Rust、C++、深度学习，以及一些不那么技术的东西。
-                    </p>
+                    <p data-i18n="index.heroIntro1">{fallbackText["index.heroIntro1"]}</p>
+                    <p data-i18n="index.heroIntro2">{fallbackText["index.heroIntro2"]}</p>
                     <p class="hero-links">
                         <a href="https://github.com/Neomelt" target="_blank" rel="noopener" class="hero-link">GitHub</a>
                         <span class="hero-sep">·</span>
-                        <a href="/posts" class="hero-link" data-i18n="index.allPosts">全部文章</a>
+                        <a href="/posts" class="hero-link" data-i18n="index.allPosts">{fallbackText["index.allPosts"]}</a>
                         <span class="hero-sep">·</span>
-                        <a href="/posts/archive" class="hero-link" data-i18n="header.archive">归档</a>
+                        <a href="/posts/archive" class="hero-link" data-i18n="header.archive">{fallbackText["header.archive"]}</a>
                     </p>
                 </div>
             </section>
@@ -43,8 +41,8 @@ const recentPosts = allPosts.slice(0, 5);
             <!-- Recent posts -->
             <section>
                 <div class="section-header">
-                    <h2 class="section-heading" data-i18n="index.recentPosts">最近文章</h2>
-                    <a href="/posts" class="view-all" data-i18n="index.viewAll">全部文章 →</a>
+                    <h2 class="section-heading" data-i18n="index.recentPosts">{fallbackText["index.recentPosts"]}</h2>
+                    <a href="/posts" class="view-all" data-i18n="index.viewAll">{fallbackText["index.viewAll"]}</a>
                 </div>
 
                 <div class="post-list">
@@ -56,17 +54,17 @@ const recentPosts = allPosts.slice(0, 5);
                             <a href={url} class="post-card">
                                 <div class="post-card-meta">
                                     <FormattedDate date={post.data.pubDate} />
-                                    {isZueg && <span class="tag" data-i18n="common.essay">随笔</span>}
-                                    {post.data.pinned && <span class="badge-pinned" data-i18n="common.pinned">置顶</span>}
+                                    {isZueg && <span class="tag" data-i18n="common.essay">{fallbackText["common.essay"]}</span>}
+                                    {post.data.pinned && <span class="badge-pinned" data-i18n="common.pinned">{fallbackText["common.pinned"]}</span>}
                                 </div>
                                 <div class="post-card-title">{post.data.title}</div>
                                 {post.data.description && (
                                     <div class="post-card-desc">{post.data.description}</div>
                                 )}
                                 <div class="post-card-stats">
-                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span>
+                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{fallbackText["common.views"]}</span>
                                     <span class="stats-sep">/</span>
-                                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
+                                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{fallbackText["common.comments"]}</span>
                                 </div>
                             </a>
                         );
