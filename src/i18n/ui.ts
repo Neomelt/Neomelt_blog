@@ -70,9 +70,9 @@ export const UI_TRANSLATIONS = {
 
         "index.heroTitle": "👋 欢迎来到 Neomelt 的博客",
         "index.heroIntro1":
-            "你好，我是 Neomelt。一个喜欢折腾的工科生，对计算机视觉、机器人和系统编程感兴趣。",
+            "你好，我是 Neomelt。一个喜欢创造的工科生，对计算机视觉、机器人和系统编程等领域感兴趣。",
         "index.heroIntro2":
-            "这里是我记录学习过程、技术思考和日常随笔的地方。内容可能涉及 ROS2、Rust、C++、深度学习，以及一些不那么技术的东西。",
+            "这里是我记录技术笔记、代码复盘和日常思考的地方。内容可能涉及编程语言、技术领域，以及一些不那么技术的东西。",
         "index.allPosts": "全部文章",
         "index.recentPosts": "最近文章",
         "index.viewAll": "全部文章 →",
