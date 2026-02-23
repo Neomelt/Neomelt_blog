@@ -1,30 +1,19 @@
 ---
 import { SITE_TITLE } from "../consts";
+import { FRIEND_LINKS } from "../data/friends";
 import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
+import { getFriendCirclePosts } from "../utils/friend-circle";
 import { normalizeWalinePath } from "../utils/waline";
 
-interface FriendLink {
-    name: string;
-    url: string;
-    description: string;
-    avatar?: string;
-    tags?: string[];
-}
-
 const walinePath = normalizeWalinePath("/friends");
-
-const friendLinks: FriendLink[] = [
-    // Add links here:
-    // {
-    //     name: "Example Blog",
-    //     url: "https://example.com",
-    //     description: "A clean and thoughtful tech blog.",
-    //     avatar: "https://example.com/avatar.png",
-    //     tags: ["技术", "随笔"],
-    // },
-];
+const friendLinks = FRIEND_LINKS;
+const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
+    perFeedLimit: 6,
+    totalLimit: 30,
+    timeoutMs: 8000,
+});
 ---
 
 <BaseLayout
@@ -47,6 +36,43 @@ const friendLinks: FriendLink[] = [
                     <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.messages">{getDefaultUiText("common.messages")}</span>
                 </p>
             </header>
+
+            <section class="friends-section" aria-labelledby="friends-circle-title">
+                <h2 id="friends-circle-title" data-i18n="friends.circleTitle">{getDefaultUiText("friends.circleTitle")}</h2>
+                <p class="section-desc" data-i18n="friends.circleLead">{getDefaultUiText("friends.circleLead")}</p>
+                <p class="friends-circle-tip" data-i18n="friends.circleHint">{getDefaultUiText("friends.circleHint")}</p>
+                {friendCirclePosts.length > 0 ? (
+                    <ul class="circle-list">
+                        {friendCirclePosts.map((post) => (
+                            <li class="circle-item">
+                                <a href={post.link} target="_blank" rel="noopener noreferrer" class="circle-link">
+                                    {post.friendAvatar ? (
+                                        <img src={post.friendAvatar} alt={post.friendName} class="circle-avatar" loading="lazy" />
+                                    ) : (
+                                        <span class="circle-avatar circle-avatar-placeholder" aria-hidden="true">
+                                            {post.friendName.slice(0, 1)}
+                                        </span>
+                                    )}
+                                    <div class="circle-main">
+                                        <p class="circle-title">{post.title}</p>
+                                        <p class="circle-source">
+                                            <span>{post.friendName}</span>
+                                            {post.publishedDate && (
+                                                <>
+                                                    <span class="circle-separator">·</span>
+                                                    <time datetime={post.publishedISO}>{post.publishedDate}</time>
+                                                </>
+                                            )}
+                                        </p>
+                                    </div>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div class="empty-state" data-i18n="friends.circleEmpty">{getDefaultUiText("friends.circleEmpty")}</div>
+                )}
+            </section>
 
             <section class="friends-section" aria-labelledby="friends-list-title">
                 <h2 id="friends-list-title" data-i18n="friends.listTitle">{getDefaultUiText("friends.listTitle")}</h2>
@@ -182,6 +208,88 @@ const friendLinks: FriendLink[] = [
     .section-desc {
         margin-bottom: 1rem;
         color: var(--text-muted);
+    }
+
+    .friends-circle-tip {
+        margin-top: -0.3rem;
+        margin-bottom: 1rem;
+        color: var(--text-muted);
+        font-size: 0.88rem;
+    }
+
+    .circle-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.62rem;
+    }
+
+    .circle-item {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--bg);
+        transition: border-color var(--transition), transform var(--transition);
+    }
+
+    .circle-item:hover {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    }
+
+    .circle-link {
+        display: flex;
+        align-items: center;
+        gap: 0.72rem;
+        padding: 0.74rem 0.86rem;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .circle-link:hover {
+        color: inherit;
+    }
+
+    .circle-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .circle-avatar-placeholder {
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font-weight: 700;
+        background: var(--bg-card);
+    }
+
+    .circle-main {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .circle-title {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .circle-source {
+        margin: 0.16rem 0 0;
+        font-size: 0.8rem;
+        line-height: 1.3;
+        color: var(--text-muted);
+    }
+
+    .circle-separator {
+        margin: 0 0.36rem;
     }
 
     .friends-grid {
@@ -335,6 +443,15 @@ const friendLinks: FriendLink[] = [
     @media (max-width: 640px) {
         .friends-section {
             padding: 1rem;
+        }
+
+        .circle-link {
+            padding: 0.68rem 0.72rem;
+        }
+
+        .circle-avatar {
+            width: 34px;
+            height: 34px;
         }
 
         .friend-link {

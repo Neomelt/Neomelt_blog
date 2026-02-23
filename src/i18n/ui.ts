@@ -177,6 +177,10 @@ export const UI_TRANSLATIONS = {
         "friends.infoDesc": "网站简介（一句话）",
         "friends.infoAvatar": "头像或 Logo 地址（可选）",
         "friends.avatarAltSuffix": "头像",
+        "friends.circleTitle": "朋友圈",
+        "friends.circleLead": "最新动态，看看友链朋友都在写什么。",
+        "friends.circleHint": "如果友链没有显示动态，通常是对方暂未提供 RSS 或 RSS 暂时不可用。",
+        "friends.circleEmpty": "暂时还没有抓取到友链动态。",
 
         "post.breadcrumbAria": "面包屑",
         "post.statsAria": "阅读和评论统计",
@@ -360,6 +364,10 @@ export const UI_TRANSLATIONS = {
         "friends.infoDesc": "One-line description",
         "friends.infoAvatar": "Avatar or logo URL (optional)",
         "friends.avatarAltSuffix": "avatar",
+        "friends.circleTitle": "Friends Circle",
+        "friends.circleLead": "Latest updates from linked blogs.",
+        "friends.circleHint": "If no updates appear, the friend site may not expose a working RSS feed yet.",
+        "friends.circleEmpty": "No recent updates were fetched from friend feeds.",
 
         "post.breadcrumbAria": "Breadcrumb",
         "post.statsAria": "Reading and comment stats",
