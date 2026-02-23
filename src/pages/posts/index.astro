@@ -5,6 +5,7 @@ import Pagination from "../../components/Pagination.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { getWalinePathForPost } from "../../utils/waline";
 
 // Merge blog + zueg, sort pinned first then by date
 const blogPosts = await getCollection("blog");
@@ -32,6 +33,7 @@ function estimateReadingTime(content: string): number {
                 {paginatedPosts.map((post) => {
                     const isZueg = post.collection === "zueg";
                     const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
+                    const walinePath = getWalinePathForPost(post.id, isZueg ? "zueg" : "blog");
                     const readingTime = estimateReadingTime(post.body || "");
                     return (
                         <a href={url} class="post-card">
@@ -47,6 +49,10 @@ function estimateReadingTime(content: string): number {
                             {post.data.description && (
                                 <div class="post-card-desc">{post.data.description}</div>
                             )}
+                            <div class="post-card-stats text-muted text-sm">
+                                <span class="waline-pageview-count" data-path={walinePath}>0</span> views /
+                                <span class="waline-comment-count" data-path={walinePath}>0</span> comments
+                            </div>
                             {post.data.tags && post.data.tags.length > 0 && (
                                 <div class="post-card-tags">
                                     {post.data.tags.slice(0, 4).map((tag: string) => (

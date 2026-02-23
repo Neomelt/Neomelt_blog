@@ -6,6 +6,7 @@ import Comments from "../../components/Comments.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import PostNavigation from "../../components/PostNavigation.astro";
 import { SITE_TITLE } from "../../consts";
+import { getWalinePathForPost } from "../../utils/waline";
 
 export async function getStaticPaths() {
     const zuegEntries = (await getCollection("zueg")).sort(
@@ -29,6 +30,7 @@ type Props = {
 
 const { entry, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(entry);
+const walinePath = getWalinePathForPost(entry.id, "zueg");
 ---
 
 <BaseLayout
@@ -51,6 +53,16 @@ const { Content, headings } = await render(entry);
                                 )}
                             </div>
                             <h1>{entry.data.title}</h1>
+                            <div class="post-stats" aria-label="阅读和评论统计">
+                                <p class="post-stats-line">
+                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> views /
+                                    <span class="waline-comment-count" data-path={walinePath}>0</span> comments
+                                </p>
+                                <p class="post-stats-line">
+                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> 次浏览 /
+                                    <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
+                                </p>
+                            </div>
                             {entry.data.tags && (
                                 <div class="tags">
                                     {entry.data.tags.map((tag) => (
@@ -67,7 +79,7 @@ const { Content, headings } = await render(entry);
                     <PostNavigation prevPost={prevPost} nextPost={nextPost} collection="zueg" />
                     
                     <!-- 评论区 -->
-                    <Comments />
+                    <Comments path={walinePath} />
                 </article>
             </main>
 
@@ -132,6 +144,16 @@ const { Content, headings } = await render(entry);
 	}
 	.last-updated-on {
 		font-style: italic;
+	}
+	.post-stats {
+		margin: 0.5em 0 0.9em;
+		color: var(--text-muted);
+		font-size: 0.95rem;
+		font-style: italic;
+		line-height: 1.5;
+	}
+	.post-stats-line {
+		margin: 0.1rem 0;
 	}
 	.tags {
 		margin: 0.5em 0;

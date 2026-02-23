@@ -3,6 +3,7 @@ import BaseHead from "../components/BaseHead.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import CodeCopyButton from "../components/CodeCopyButton.astro";
+import WalineCounter from "../components/WalineCounter.astro";
 
 export interface Props {
     title: string;
@@ -26,6 +27,7 @@ const { title, description } = Astro.props;
     <body>
         <Header />
         <slot />
+        <WalineCounter />
         <CodeCopyButton />
         <Footer />
     </body>

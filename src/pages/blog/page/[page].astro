@@ -7,6 +7,7 @@ import Sidebar from "../../../components/Sidebar.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
 import { SITE_DESCRIPTION } from "../../../consts";
+import { getWalinePathForPost } from "../../../utils/waline";
 
 export async function getStaticPaths() {
     const posts = (await getCollection("blog")).sort((a, b) => {
@@ -83,6 +84,7 @@ const allCategories = [
 						{paginatedPosts.map((post) => {
 							const readingTime = estimateReadingTime(post.body || "");
 							const wordCount = (post.body || "").length;
+							const walinePath = getWalinePathForPost(post.id, "blog");
 							
 							return (
 								<article class="post-card-item" data-category={post.data.category || "未分类"}>
@@ -119,6 +121,10 @@ const allCategories = [
 												<span>{wordCount} 字</span>
 												<span>|</span>
 												<span>{readingTime} 分钟</span>
+												<span>|</span>
+												<span><span class="waline-pageview-count" data-path={walinePath}>0</span> views</span>
+												<span>|</span>
+												<span><span class="waline-comment-count" data-path={walinePath}>0</span> comments</span>
 												{post.data.tags && post.data.tags.length > 0 && (
 													<>
 														<span>|</span>

@@ -1,6 +1,9 @@
 ---
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { normalizeWalinePath } from "../utils/waline";
+
+const walinePath = normalizeWalinePath("/about");
 ---
 
 <BaseLayout title={`关于 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
@@ -14,6 +17,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
             <article class="prose">
                 <h1>关于我</h1>
+                <p class="about-stats en">
+                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> views /
+                    <span class="waline-comment-count" data-path={walinePath}>0</span> comments
+                </p>
+                <p class="about-stats zh">
+                    <span class="waline-pageview-count" data-path={walinePath}>0</span> 次浏览 /
+                    <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
+                </p>
                 <p>
                     个人主页正在建设中，敬请期待。
                 </p>
@@ -43,5 +54,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
     .breadcrumb a:hover {
         color: var(--accent);
+    }
+
+    .about-stats {
+        margin-top: -0.3rem;
+        margin-bottom: 0.35rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-style: italic;
+        line-height: 1.6;
+    }
+
+    .about-stats.zh {
+        margin-bottom: 1.1rem;
     }
 </style>
