@@ -1,6 +1,7 @@
 ---
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 const walineScriptUrls = [
+	"/vendor/waline.umd.js",
 	"https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
 	"https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
 ];
@@ -24,7 +25,11 @@ const walineScriptUrls = [
 					".waline-pageview-update[data-path]",
 				);
 				const loadWalineClient = () => {
-					if (window.Waline?.pageviewCount && window.Waline?.commentCount) {
+					if (
+						window.Waline &&
+						typeof window.Waline.pageviewCount === "function" &&
+						typeof window.Waline.commentCount === "function"
+					) {
 						return Promise.resolve(window.Waline);
 					}
 					if (window.__walineClientPromise) return window.__walineClientPromise;
@@ -42,7 +47,11 @@ const walineScriptUrls = [
 								`script[data-waline-client-src="${src}"]`,
 							);
 							if (existing) {
-								if (window.Waline?.pageviewCount && window.Waline?.commentCount) {
+								if (
+									window.Waline &&
+									typeof window.Waline.pageviewCount === "function" &&
+									typeof window.Waline.commentCount === "function"
+								) {
 									resolve(window.Waline);
 									return;
 								}
@@ -62,7 +71,11 @@ const walineScriptUrls = [
 							script.async = true;
 							script.dataset.walineClientSrc = src;
 							script.onload = () => {
-								if (window.Waline?.pageviewCount && window.Waline?.commentCount) {
+								if (
+									window.Waline &&
+									typeof window.Waline.pageviewCount === "function" &&
+									typeof window.Waline.commentCount === "function"
+								) {
 									resolve(window.Waline);
 								} else {
 									reject(new Error(`Waline global not found after loading ${src}`));

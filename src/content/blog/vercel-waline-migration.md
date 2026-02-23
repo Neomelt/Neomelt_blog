@@ -139,7 +139,8 @@ Waline 首次初始化需要走：
 - 首选 `unpkg`
 - 失败后自动切 `jsdelivr`
 
-这样即使 module/import 支持不完整，也能通过 `window.Waline` 初始化评论和计数。
+后续又补了一层本地兜底：把 `waline.umd.js` 和 `waline.css` 放到站点 `public/vendor`，前端先尝试同源加载，再走 CDN。  
+这样即使 QQ 内置浏览器对第三方 CDN 抽风，也不至于整块评论直接消失。
 
 ## 现在这套方案的取舍
 
