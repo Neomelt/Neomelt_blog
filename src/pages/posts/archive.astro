@@ -23,15 +23,18 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
 <BaseLayout title={`归档 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
     <main>
         <div class="container">
-            <nav class="breadcrumb" aria-label="面包屑">
-                <a href="/">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
+                <a href="/" data-i18n="common.home">首页</a>
                 <span class="breadcrumb-sep">/</span>
-                <a href="/posts">文章</a>
+                <a href="/posts" data-i18n="common.posts">文章</a>
                 <span class="breadcrumb-sep">/</span>
-                <span>归档</span>
+                <span data-i18n="archive.title">归档</span>
             </nav>
 
-            <h1 class="section-heading">归档 <span class="text-muted text-sm">({allPosts.length} 篇)</span></h1>
+            <h1 class="section-heading">
+                <span data-i18n="archive.title">归档</span>
+                <span class="text-muted text-sm">({allPosts.length} <span data-i18n="archive.countUnit">篇</span>)</span>
+            </h1>
 
             {years.map((year) => (
                 <section class="year-section">
@@ -47,7 +50,7 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
                                 <li class="archive-item">
                                     <span class="archive-date">{mm}-{dd}</span>
                                     <a href={url} class="archive-title">{post.data.title}</a>
-                                    {isZueg && <span class="tag" style="font-size:0.7rem">随笔</span>}
+                                    {isZueg && <span class="tag" style="font-size:0.7rem" data-i18n="common.essay">随笔</span>}
                                 </li>
                             );
                         })}

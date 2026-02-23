@@ -8,7 +8,7 @@ const startDate = new Date("2025-08-13");
             <span class="footer-copy">© {new Date().getFullYear()} Neomelt</span>
             <span class="footer-sep">·</span>
             <span class="footer-runtime">
-                已运行 <span id="runtime-display" data-start={startDate.toISOString()}>...</span>
+                <span data-i18n="footer.running">已运行</span> <span id="runtime-display" data-start={startDate.toISOString()}>...</span>
             </span>
         </div>
 
@@ -44,6 +44,16 @@ const startDate = new Date("2025-08-13");
 </footer>
 
 <script>
+    const getI18n = () => (window as any).__siteI18n;
+    const formatRuntime = (days: number, hours: number, minutes: number, seconds: number) => {
+        const i18n = getI18n();
+        const locale = i18n?.getLocale?.() === "en" ? "en" : "zh";
+        if (locale === "en") {
+            return `${days}${i18n?.t?.("footer.day", "d") || "d"} ${hours}${i18n?.t?.("footer.hour", "h") || "h"} ${minutes}${i18n?.t?.("footer.minute", "m") || "m"} ${seconds}${i18n?.t?.("footer.second", "s") || "s"}`;
+        }
+        return `${days} ${i18n?.t?.("footer.day", "天") || "天"} ${hours} ${i18n?.t?.("footer.hour", "时") || "时"} ${minutes} ${i18n?.t?.("footer.minute", "分") || "分"} ${seconds} ${i18n?.t?.("footer.second", "秒") || "秒"}`;
+    };
+
     function updateRuntime() {
         const el = document.getElementById("runtime-display");
         if (!el) return;
@@ -54,13 +64,15 @@ const startDate = new Date("2025-08-13");
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        el.textContent = `${d} 天 ${h} 时 ${m} 分 ${s} 秒`;
+        el.textContent = formatRuntime(d, h, m, s);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
         updateRuntime();
         setInterval(updateRuntime, 1000);
     });
+    document.addEventListener("astro:page-load", updateRuntime);
+    document.addEventListener("site:locale-change", updateRuntime);
 </script>
 
 <style>

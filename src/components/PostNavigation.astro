@@ -15,11 +15,11 @@ function getUrl(post: CollectionEntry<"blog"> | CollectionEntry<"zueg">) {
 ---
 
 {(prevPost || nextPost) && (
-    <nav class="post-nav" aria-label="文章导航">
+    <nav class="post-nav" data-i18n-aria-label="post.navAria" aria-label="文章导航">
         <div class="post-nav-item">
             {prevPost && (
                 <a href={getUrl(prevPost)} class="post-nav-link">
-                    <span class="post-nav-label">← 上一篇</span>
+                    <span class="post-nav-label" data-i18n="post.prev">← 上一篇</span>
                     <span class="post-nav-title">{prevPost.data.title}</span>
                 </a>
             )}
@@ -27,7 +27,7 @@ function getUrl(post: CollectionEntry<"blog"> | CollectionEntry<"zueg">) {
         <div class="post-nav-item post-nav-next">
             {nextPost && (
                 <a href={getUrl(nextPost)} class="post-nav-link">
-                    <span class="post-nav-label">下一篇 →</span>
+                    <span class="post-nav-label" data-i18n="post.next">下一篇 →</span>
                     <span class="post-nav-title">{nextPost.data.title}</span>
                 </a>
             )}

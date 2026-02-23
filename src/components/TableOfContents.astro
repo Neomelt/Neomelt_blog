@@ -9,8 +9,8 @@ const tocHeadings = headings.filter(h => h.depth <= 3);
 ---
 
 {tocHeadings.length > 0 && (
-    <nav class="toc" aria-label="目录">
-        <p class="toc-label">目录</p>
+    <nav class="toc" data-i18n-aria-label="toc.aria" aria-label="目录">
+        <p class="toc-label" data-i18n="toc.label">目录</p>
         <ul class="toc-list">
             {tocHeadings.map((h) => (
                 <li class={`toc-item toc-h${h.depth}`}>

@@ -10,23 +10,23 @@ const walinePath = normalizeWalinePath("/about");
 <BaseLayout title={`关于 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
     <main>
         <div class="container">
-            <nav class="breadcrumb" aria-label="面包屑导航">
-                <a href="/">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑导航">
+                <a href="/" data-i18n="common.home">首页</a>
                 <span>›</span>
-                <span>关于</span>
+                <span data-i18n="about.pageCrumb">关于</span>
             </nav>
 
             <article class="prose">
-                <h1>关于我</h1>
+                <h1 data-i18n="about.title">关于我</h1>
                 <p class="about-stats">
-                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> 次浏览 /
-                    <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
+                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">次浏览</span> /
+                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">条评论</span>
                 </p>
-                <p>
+                <p data-i18n="about.desc1">
                     个人主页正在建设中，敬请期待。
                 </p>
                 <p>
-                    你可以在 <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a> 上找到我。
+                    <span data-i18n="about.desc2Prefix">你可以在</span> <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a><span data-i18n="about.desc2Suffix">上找到我。</span>
                 </p>
             </article>
 

@@ -17,7 +17,7 @@ import { SITE_DESCRIPTION } from "../consts";
 
             <!-- 右侧：项目内容 -->
             <div class="homepage-content">
-                <h2 class="section-title">项目展示</h2>
+                <h2 class="section-title" data-i18n="legacy.projects.title">项目展示</h2>
                 <div class="post-list">
                     <!-- 项目卡片 1 -->
                     <div class="project-card">
@@ -29,8 +29,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">个人博客网站</h2>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100" data-i18n="legacy.projects.p1.title">个人博客网站</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4" data-i18n="legacy.projects.p1.desc">
                             基于 Astro 构建的个人博客网站，使用 TailwindCSS
                             进行样式设计，支持 Markdown 和 MDX 内容创作。
                         </p>
@@ -39,7 +39,7 @@ import { SITE_DESCRIPTION } from "../consts";
                             <span class="tag">Astro</span>
                             <span class="tag">TailwindCSS</span>
                             <span class="tag">Markdown</span>
-                            <span class="tag">响应式设计</span>
+                            <span class="tag" data-i18n="legacy.projects.p1.tag">响应式设计</span>
                         </div>
 
                         <div class="project-links flex gap-4">
@@ -64,7 +64,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                         d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"
                                     ></path>
                                 </svg>
-                                GitHub 仓库
+                                <span data-i18n="legacy.projects.repo">GitHub 仓库</span>
                             </a>
                             <a href="#" class="text-accent hover:underline">
                                 <svg
@@ -89,7 +89,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                     <path d="M11 13l9 -9"></path>
                                     <path d="M15 4h5v5"></path>
                                 </svg>
-                                在线预览
+                                <span data-i18n="legacy.projects.preview">在线预览</span>
                             </a>
                         </div>
                     </div>
@@ -104,8 +104,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">任务管理应用</h2>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100" data-i18n="legacy.projects.p2.title">任务管理应用</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4" data-i18n="legacy.projects.p2.desc">
                             一个基于 React 和 TypeScript
                             开发的任务管理应用，支持任务创建、编辑、删除和状态管理等功能。
                         </p>
@@ -139,7 +139,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                         d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"
                                     ></path>
                                 </svg>
-                                GitHub 仓库
+                                <span data-i18n="legacy.projects.repo">GitHub 仓库</span>
                             </a>
                             <a href="#" class="text-accent hover:underline">
                                 <svg
@@ -164,7 +164,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                     <path d="M11 13l9 -9"></path>
                                     <path d="M15 4h5v5"></path>
                                 </svg>
-                                在线预览
+                                <span data-i18n="legacy.projects.preview">在线预览</span>
                             </a>
                         </div>
                     </div>
@@ -179,8 +179,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">数据可视化面板</h2>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100" data-i18n="legacy.projects.p3.title">数据可视化面板</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4" data-i18n="legacy.projects.p3.desc">
                             使用 Vue.js 和 ECharts
                             实现的数据可视化面板，支持多种图表类型和数据筛选功能。
                         </p>
@@ -188,7 +188,7 @@ import { SITE_DESCRIPTION } from "../consts";
                         <div class="flex flex-wrap gap-2 mb-4">
                             <span class="tag">Vue.js</span>
                             <span class="tag">ECharts</span>
-                            <span class="tag">数据可视化</span>
+                            <span class="tag" data-i18n="legacy.projects.p3.tag">数据可视化</span>
                         </div>
 
                         <div class="project-links flex gap-4">
@@ -213,7 +213,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                         d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"
                                     ></path>
                                 </svg>
-                                GitHub 仓库
+                                <span data-i18n="legacy.projects.repo">GitHub 仓库</span>
                             </a>
                             <a href="#" class="text-accent hover:underline">
                                 <svg
@@ -238,7 +238,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                     <path d="M11 13l9 -9"></path>
                                     <path d="M15 4h5v5"></path>
                                 </svg>
-                                在线预览
+                                <span data-i18n="legacy.projects.preview">在线预览</span>
                             </a>
                         </div>
                     </div>
@@ -253,8 +253,8 @@ import { SITE_DESCRIPTION } from "../consts";
                                 onerror="this.src='https://via.placeholder.com/600x400?text=项目图片'"
                             />
                         </div>
-                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">API 服务</h2>
-                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100" data-i18n="legacy.projects.p4.title">API 服务</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4" data-i18n="legacy.projects.p4.desc">
                             使用 Node.js 和 Express 开发的 RESTful API
                             服务，提供数据存储、查询和身份验证等功能。
                         </p>
@@ -288,7 +288,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                         d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5"
                                     ></path>
                                 </svg>
-                                GitHub 仓库
+                                <span data-i18n="legacy.projects.repo">GitHub 仓库</span>
                             </a>
                             <a href="#" class="text-accent hover:underline">
                                 <svg
@@ -315,7 +315,7 @@ import { SITE_DESCRIPTION } from "../consts";
                                     <path d="M9 13l6 0"></path>
                                     <path d="M9 17l6 0"></path>
                                 </svg>
-                                API 文档
+                                <span data-i18n="legacy.projects.docs">API 文档</span>
                             </a>
                         </div>
                     </div>
@@ -323,27 +323,29 @@ import { SITE_DESCRIPTION } from "../consts";
 
                 <!-- 开源贡献 -->
                 <div class="open-source mb-12">
-                    <h2 class="text-3xl font-bold mb-6">开源贡献</h2>
+                    <h2 class="text-3xl font-bold mb-6" data-i18n="legacy.projects.openSourceTitle">开源贡献</h2>
                     <div class="bg-white rounded-lg p-6 shadow-md">
-                        <p class="mb-4">我还参与了以下开源项目的贡献：</p>
+                        <p class="mb-4" data-i18n="legacy.projects.openSourceDesc">我还参与了以下开源项目的贡献：</p>
                         <ul class="list-disc pl-6 mb-4">
                             <li class="mb-2">
                                 <a
                                     href="#"
                                     class="text-accent hover:underline font-medium"
+                                    data-i18n="legacy.projects.openSourceItem1Name"
                                     >开源项目名称</a
-                                > - 添加了新功能和修复了一些 bug。
+                                > <span data-i18n="legacy.projects.openSourceItem1Desc">- 添加了新功能和修复了一些 bug。</span>
                             </li>
                             <li class="mb-2">
                                 <a
                                     href="#"
                                     class="text-accent hover:underline font-medium"
+                                    data-i18n="legacy.projects.openSourceItem2Name"
                                     >另一个开源项目</a
-                                > - 改进了文档和单元测试。
+                                > <span data-i18n="legacy.projects.openSourceItem2Desc">- 改进了文档和单元测试。</span>
                             </li>
                             <!-- 添加更多开源贡献 -->
                         </ul>
-                        <p>
+                        <p data-i18n="legacy.projects.openSourceFooter">
                             如果你对我的项目有任何建议或想要合作，请随时联系我！
                         </p>
                     </div>

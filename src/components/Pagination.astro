@@ -27,9 +27,9 @@ const prevUrl = hasPrev ? pageUrl(currentPage - 1) : null;
 const nextUrl = hasNext ? pageUrl(currentPage + 1) : null;
 ---
 
-<nav class="pagination" aria-label="分页">
+<nav class="pagination" data-i18n-aria-label="pagination.aria" aria-label="分页">
     {hasPrev
-        ? <a href={prevUrl} aria-label="上一页">←</a>
+        ? <a href={prevUrl} data-i18n-aria-label="pagination.prev" aria-label="上一页">←</a>
         : <span class="disabled" aria-disabled="true">←</span>
     }
 
@@ -54,7 +54,7 @@ const nextUrl = hasNext ? pageUrl(currentPage + 1) : null;
     )}
 
     {hasNext
-        ? <a href={nextUrl} aria-label="下一页">→</a>
+        ? <a href={nextUrl} data-i18n-aria-label="pagination.next" aria-label="下一页">→</a>
         : <span class="disabled" aria-disabled="true">→</span>
     }
 </nav>

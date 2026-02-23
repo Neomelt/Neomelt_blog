@@ -20,13 +20,16 @@ const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
 <BaseLayout title={`标签 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
     <main>
         <div class="container">
-            <nav class="breadcrumb" aria-label="面包屑">
-                <a href="/">首页</a>
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">
+                <a href="/" data-i18n="common.home">首页</a>
                 <span class="breadcrumb-sep">/</span>
-                <span>标签</span>
+                <span data-i18n="tags.title">标签</span>
             </nav>
 
-            <h1 class="section-heading">标签 <span class="text-muted text-sm">({tags.length} 个)</span></h1>
+            <h1 class="section-heading">
+                <span data-i18n="tags.title">标签</span>
+                <span class="text-muted text-sm">({tags.length} <span data-i18n="tags.countUnit">个</span>)</span>
+            </h1>
 
             <div class="tag-cloud">
                 {tags.map(([tag, count]) => (
