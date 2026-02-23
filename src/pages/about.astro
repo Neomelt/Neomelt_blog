@@ -1,6 +1,7 @@
 ---
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Comments from "../components/Comments.astro";
 import { normalizeWalinePath } from "../utils/waline";
 
 const walinePath = normalizeWalinePath("/about");
@@ -28,6 +29,8 @@ const walinePath = normalizeWalinePath("/about");
                     你可以在 <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a> 上找到我。
                 </p>
             </article>
+
+            <Comments path={walinePath} />
         </div>
     </main>
 </BaseLayout>
