@@ -11,9 +11,9 @@ const codeFallbacks = {
 <script define:vars={{ codeFallbacks }}>
   const COLLAPSE_LINE_THRESHOLD = 14;
   const getFallback = (key, fallback = "") =>
-    (codeFallbacks as Record<string, string>)[key] || fallback || key;
+    codeFallbacks[key] || fallback || key;
   const t = (key, fallback = "") =>
-    (window as any).__siteI18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
+    window.__siteI18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
 
   function toTitleCase(value) {
     if (!value) return "Code";

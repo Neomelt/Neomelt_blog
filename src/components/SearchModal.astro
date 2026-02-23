@@ -45,45 +45,31 @@ const searchFallbacks = {
 </div>
 
 <script define:vars={{ searchFallbacks }}>
-    interface SearchItem {
-        id: string;
-        title: string;
-        description: string;
-        content: string;
-        url: string;
-        type: string;
-        date: string;
-        tags: string[];
-        category?: string;
-        mood?: string;
-        location?: string;
-    }
-
     function initSearch() {
-        let searchIndex: SearchItem[] = [];
+        let searchIndex = [];
         let isLoading = false;
-        const i18n = (window as any).__siteI18n;
-        const getFallback = (key: string, fallback = "") => {
-            const fromDict = (searchFallbacks as Record<string, string>)[key];
+        const i18n = window.__siteI18n;
+        const getFallback = (key, fallback = "") => {
+            const fromDict = searchFallbacks[key];
             return fromDict || fallback || key;
         };
-        const t = (key: string, fallback = "") => i18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
+        const t = (key, fallback = "") => i18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
 
         const searchToggle = document.getElementById("search-toggle");
         const searchModal = document.getElementById("search-modal");
         const closeSearch = document.getElementById("close-search");
-        const searchInput = document.getElementById("search-input") as HTMLInputElement;
+        const searchInput = document.getElementById("search-input");
         const searchResults = document.getElementById("search-results");
 
         if (!searchModal || !closeSearch || !searchInput || !searchResults) return;
 
-        function renderEmpty(key: string, fallback = "") {
+        function renderEmpty(key, fallback = "") {
             searchResults.innerHTML = `<div class="search-empty">${t(key, fallback)}</div>`;
         }
 
         function openModal() {
-            searchModal!.classList.add("open");
-            searchModal!.setAttribute("aria-hidden", "false");
+            searchModal.classList.add("open");
+            searchModal.setAttribute("aria-hidden", "false");
             searchInput.focus();
             document.body.style.overflow = "hidden";
             if (!searchInput.value.trim()) {
@@ -93,19 +79,19 @@ const searchFallbacks = {
         }
 
         function closeModal() {
-            searchModal!.classList.remove("open");
-            searchModal!.setAttribute("aria-hidden", "true");
+            searchModal.classList.remove("open");
+            searchModal.setAttribute("aria-hidden", "true");
             document.body.style.overflow = "";
         }
 
         // 加载搜索索引
-        async function loadSearchIndex(): Promise<void> {
+        async function loadSearchIndex() {
             if (searchIndex.length > 0 || isLoading) return;
             isLoading = true;
             try {
                 const response = await fetch("/api/search.json");
                 if (response.ok) {
-                    searchIndex = (await response.json()) as SearchItem[];
+                    searchIndex = await response.json();
                 }
             } catch (e) {
                 console.error("[Search] Failed to load search index:", e);
@@ -115,7 +101,7 @@ const searchFallbacks = {
         }
 
         // 执行搜索
-        function performSearch(query: string): SearchItem[] {
+        function performSearch(query) {
             if (!query.trim()) return [];
             const term = query.toLowerCase();
             return searchIndex
@@ -131,7 +117,7 @@ const searchFallbacks = {
         }
 
         // 高亮关键词
-        function highlight(text: string, query: string): string {
+        function highlight(text, query) {
             if (!query.trim() || !text) return text || "";
             const regex = new RegExp(
                 `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
@@ -141,7 +127,7 @@ const searchFallbacks = {
         }
 
         // 渲染搜索结果
-        function renderResults(results: SearchItem[], query: string) {
+        function renderResults(results, query) {
             if (!searchResults) return;
             if (results.length === 0) {
                 renderEmpty("search.emptyNotFound");
@@ -167,9 +153,9 @@ const searchFallbacks = {
         }
 
         // 防抖
-        function debounce<T extends (...args: any[]) => void>(fn: T, wait: number) {
-            let timer: ReturnType<typeof setTimeout> | null = null;
-            return (...args: Parameters<T>) => {
+        function debounce(fn, wait) {
+            let timer = null;
+            return (...args) => {
                 if (timer) clearTimeout(timer);
                 timer = setTimeout(() => fn(...args), wait);
             };
@@ -190,11 +176,11 @@ const searchFallbacks = {
             });
             searchModal.dataset.searchBound = "true";
         }
-        const previousKeydownHandler = (window as any).__searchKeydownHandler;
+        const previousKeydownHandler = window.__searchKeydownHandler;
         if (previousKeydownHandler) {
             document.removeEventListener("keydown", previousKeydownHandler);
         }
-        const keydownHandler = (e: KeyboardEvent) => {
+        const keydownHandler = (e) => {
             if (e.key === "Escape" && searchModal.classList.contains("open")) {
                 closeModal();
             }
@@ -205,7 +191,7 @@ const searchFallbacks = {
             }
         };
         document.addEventListener("keydown", keydownHandler);
-        (window as any).__searchKeydownHandler = keydownHandler;
+        window.__searchKeydownHandler = keydownHandler;
 
         if (!searchInput.dataset.searchBound) {
             searchInput.addEventListener(
@@ -226,7 +212,7 @@ const searchFallbacks = {
             searchInput.dataset.searchBound = "true";
         }
 
-        const previousLocaleHandler = (window as any).__searchLocaleHandler;
+        const previousLocaleHandler = window.__searchLocaleHandler;
         if (previousLocaleHandler) {
             document.removeEventListener("site:locale-change", previousLocaleHandler);
         }
@@ -240,7 +226,7 @@ const searchFallbacks = {
             }
         };
         document.addEventListener("site:locale-change", localeHandler);
-        (window as any).__searchLocaleHandler = localeHandler;
+        window.__searchLocaleHandler = localeHandler;
     }
 
     // 初始化（兼容普通加载和 Astro view transitions）
