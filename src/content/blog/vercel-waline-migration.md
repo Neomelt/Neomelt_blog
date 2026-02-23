@@ -142,6 +142,13 @@ Waline 首次初始化需要走：
 后续又补了一层本地兜底：把 `waline.umd.js` 和 `waline.css` 放到站点 `public/vendor`，前端先尝试同源加载，再走 CDN。  
 这样即使 QQ 内置浏览器对第三方 CDN 抽风，也不至于整块评论直接消失。
 
+最终这次调整上线后，`neomelt.cloud` 和 `www.neomelt.cloud` 在安卓 QQ 内置浏览器里都已经能正常显示评论区。  
+到这一步，我把评论加载策略就固定成了：
+
+- 同源本地静态资源优先（`/vendor/waline.umd.js`、`/vendor/waline.css`）
+- 外部 CDN 仅作为回退路径
+- 加载失败时给出页面内可见提示，不再静默失败
+
 ## 现在这套方案的取舍
 
 优点很直接：
