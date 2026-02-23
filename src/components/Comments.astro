@@ -33,6 +33,10 @@ const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 				path: walinePath,
 				lang: "zh-CN",
 				dark: "html.dark",
+				emoji: [
+					"https://unpkg.com/@waline/emojis@1.4.0/bmoji",
+					"https://unpkg.com/@waline/emojis@1.4.0/bilibili",
+				],
 				pageview: true,
 				comment: true,
 				meta: ["nick", "mail", "link"],
