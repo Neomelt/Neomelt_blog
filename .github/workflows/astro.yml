@@ -31,6 +31,8 @@ env:
 jobs:
   build:
     name: Build
+    environment:
+      name: github-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,13 +68,22 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
         working-directory: ${{ env.BUILD_PATH }}
+      - name: Validate Waline URL
+        run: |
+          if [ -z "${PUBLIC_WALINE_SERVER_URL}" ]; then
+            echo "PUBLIC_WALINE_SERVER_URL is empty. Set it in repo Variables or Secrets." >&2
+            exit 1
+          fi
+          echo "Waline URL is set."
+        env:
+          PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL || secrets.PUBLIC_WALINE_SERVER_URL }}
       - name: Build with Astro
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
         env:
-          PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL }}
+          PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL || secrets.PUBLIC_WALINE_SERVER_URL }}
         working-directory: ${{ env.BUILD_PATH }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
