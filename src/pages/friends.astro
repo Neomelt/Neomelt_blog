@@ -14,6 +14,26 @@ const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
     totalLimit: 30,
     timeoutMs: 8000,
 });
+
+const myFriendLinkInfo = {
+    name: "Neomelt's Blog",
+    desc: "Keep looking, don't settle",
+    link: "https://neomelt.cloud",
+    avatar: "https://www.neomelt.cloud/head.jpg",
+    rss: "https://www.neomelt.cloud/rss.xml",
+};
+
+const myFriendLinkItems = [
+    { label: "Name", value: myFriendLinkInfo.name },
+    { label: "Desc", value: myFriendLinkInfo.desc },
+    { label: "Link", value: myFriendLinkInfo.link },
+    { label: "Avatar", value: myFriendLinkInfo.avatar },
+    { label: "RSS", value: myFriendLinkInfo.rss },
+];
+
+const myFriendLinkText = myFriendLinkItems
+    .map((item) => `${item.label}: ${item.value}`)
+    .join("\n");
 ---
 
 <BaseLayout
@@ -121,15 +141,54 @@ const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
             <section class="friends-section" aria-labelledby="friends-apply-title">
                 <h2 id="friends-apply-title" data-i18n="friends.applyTitle">{getDefaultUiText("friends.applyTitle")}</h2>
                 <p class="section-desc" data-i18n="friends.applyDesc">{getDefaultUiText("friends.applyDesc")}</p>
+
+                <div class="self-link-card">
+                    <div class="self-link-head">
+                        <h3 data-i18n="friends.selfInfoTitle">{getDefaultUiText("friends.selfInfoTitle")}</h3>
+                        <button
+                            type="button"
+                            class="copy-action copy-all-btn"
+                            data-copy-text={myFriendLinkText}
+                            data-copy-default={getDefaultUiText("friends.copyAll")}
+                            data-copy-success={getDefaultUiText("friends.copied")}
+                        >
+                            <span class="copy-btn-icon" aria-hidden="true">⎘</span>
+                            <span data-copy-label data-i18n="friends.copyAll">{getDefaultUiText("friends.copyAll")}</span>
+                        </button>
+                    </div>
+                    <p class="self-link-desc" data-i18n="friends.selfInfoDesc">{getDefaultUiText("friends.selfInfoDesc")}</p>
+                    <ul class="self-link-list">
+                        {myFriendLinkItems.map((item) => (
+                            <li>
+                                <button
+                                    type="button"
+                                    class="self-link-row copy-action"
+                                    data-copy-text={`${item.label}: ${item.value}`}
+                                    data-copy-default={getDefaultUiText("friends.copy")}
+                                    data-copy-success={getDefaultUiText("friends.copied")}
+                                >
+                                    <span class="self-link-label">{item.label}</span>
+                                    <code class="self-link-value">{item.value}</code>
+                                    <span class="self-link-copy" data-copy-label data-i18n="friends.copy">{getDefaultUiText("friends.copy")}</span>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
                 <div class="apply-actions">
-                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary" data-i18n="friends.applyEmail">{getDefaultUiText("friends.applyEmail")}</a>
+                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary">
+                        <span class="apply-btn-icon" aria-hidden="true">✉</span>
+                        <span data-i18n="friends.applyEmail">{getDefaultUiText("friends.applyEmail")}</span>
+                    </a>
                     <a
                         href="https://github.com/Neomelt/Neomelt_blog/issues"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="apply-btn apply-btn-secondary"
                     >
-                        GitHub Issue
+                        <span class="apply-btn-icon" aria-hidden="true">⌁</span>
+                        <span>GitHub Issue</span>
                     </a>
                 </div>
 
@@ -380,10 +439,131 @@ const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
         background: var(--bg-code);
     }
 
+    .self-link-card {
+        margin-bottom: 1rem;
+        padding: 0.95rem;
+        border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+        border-radius: 11px;
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--accent) 9%, var(--bg-card)) 0%,
+            var(--bg) 100%
+        );
+    }
+
+    .self-link-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .self-link-head h3 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .self-link-desc {
+        margin: 0 0 0.72rem;
+        color: var(--text-muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+    }
+
+    .self-link-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 0.42rem;
+    }
+
+    .self-link-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        align-items: center;
+        gap: 0.62rem;
+        padding: 0.56rem 0.68rem;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--bg);
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color var(--transition), background var(--transition), transform var(--transition);
+    }
+
+    .self-link-row:hover {
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+        transform: translateY(-1px);
+    }
+
+    .self-link-row:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff);
+        outline-offset: 2px;
+    }
+
+    .self-link-label {
+        font-size: 0.84rem;
+        color: var(--text-muted);
+    }
+
+    .self-link-value {
+        min-width: 0;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .self-link-copy {
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        font-size: 0.74rem;
+        color: var(--text-muted);
+        background: var(--bg-card);
+        white-space: nowrap;
+    }
+
+    .copy-all-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.3rem 0.7rem;
+        background: var(--bg);
+        color: var(--text);
+        cursor: pointer;
+        transition: border-color var(--transition), color var(--transition), background var(--transition);
+    }
+
+    .copy-all-btn:hover {
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+        color: var(--accent);
+    }
+
+    .copy-btn-icon {
+        font-size: 0.78rem;
+    }
+
+    .copy-action[data-copied="true"] {
+        border-color: color-mix(in srgb, var(--accent) 66%, var(--border));
+    }
+
+    .copy-action[data-copied="true"] [data-copy-label] {
+        color: var(--accent);
+    }
+
     .apply-actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.65rem;
+        gap: 0.75rem;
         margin-bottom: 1rem;
     }
 
@@ -391,33 +571,69 @@ const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 0.52rem 0.92rem;
-        border-radius: 8px;
-        border: 1px solid transparent;
-        font-weight: 600;
+        gap: 0.42rem;
+        min-width: 150px;
+        padding: 0.64rem 1.02rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-weight: 700;
+        font-size: 0.94rem;
+        letter-spacing: 0.01em;
         text-decoration: none;
-        transition: background var(--transition), border-color var(--transition), color var(--transition);
+        box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
+        transition:
+            transform var(--transition),
+            background var(--transition),
+            border-color var(--transition),
+            color var(--transition),
+            box-shadow var(--transition);
     }
 
     .apply-btn-primary {
-        background: var(--accent);
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--accent) 92%, #fff) 0%,
+            color-mix(in srgb, var(--accent-hover) 85%, #111) 100%
+        );
+        border-color: color-mix(in srgb, var(--accent) 75%, var(--border));
         color: #fff;
     }
 
     .apply-btn-primary:hover {
-        background: var(--accent-hover);
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--accent-hover) 95%, #fff) 0%,
+            color-mix(in srgb, var(--accent-hover) 90%, #111) 100%
+        );
         color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
     }
 
     .apply-btn-secondary {
-        border-color: var(--border);
-        background: var(--bg);
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--bg-card) 80%, #000) 0%,
+            var(--bg) 100%
+        );
         color: var(--text);
     }
 
     .apply-btn-secondary:hover {
         border-color: var(--accent);
         color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    .apply-btn:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff);
+        outline-offset: 2px;
+    }
+
+    .apply-btn-icon {
+        font-size: 0.88rem;
+        line-height: 1;
     }
 
     .apply-template {
@@ -445,6 +661,25 @@ const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
             padding: 1rem;
         }
 
+        .self-link-card {
+            padding: 0.8rem;
+        }
+
+        .self-link-head {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .self-link-row {
+            grid-template-columns: 52px 1fr;
+        }
+
+        .self-link-copy {
+            grid-column: 2;
+            justify-self: start;
+            margin-top: 0.16rem;
+        }
+
         .circle-link {
             padding: 0.68rem 0.72rem;
         }
@@ -464,3 +699,63 @@ const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
         }
     }
 </style>
+
+<script>
+    async function fallbackCopy(text) {
+        const helper = document.createElement("textarea");
+        helper.value = text;
+        helper.setAttribute("readonly", "readonly");
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand("copy");
+        document.body.removeChild(helper);
+    }
+
+    async function copyText(text) {
+        if (!text) return false;
+        try {
+            if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                await fallbackCopy(text);
+            }
+            return true;
+        } catch {
+            try {
+                await fallbackCopy(text);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+    }
+
+    function bindCopyActions() {
+        const copyButtons = document.querySelectorAll(".copy-action");
+        copyButtons.forEach((button) => {
+            if (!(button instanceof HTMLElement)) return;
+            if (button.dataset.copyBound === "1") return;
+            button.dataset.copyBound = "1";
+            button.addEventListener("click", async () => {
+                const copyValue = button.getAttribute("data-copy-text") ?? "";
+                const defaultLabel = button.getAttribute("data-copy-default") ?? "Copy";
+                const successLabel = button.getAttribute("data-copy-success") ?? "Copied";
+                const label = button.querySelector("[data-copy-label]");
+                const copied = await copyText(copyValue);
+                if (!copied) return;
+
+                button.setAttribute("data-copied", "true");
+                if (label) label.textContent = successLabel;
+                window.setTimeout(() => {
+                    button.setAttribute("data-copied", "false");
+                    if (label) label.textContent = defaultLabel;
+                }, 1200);
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", bindCopyActions);
+    document.addEventListener("astro:page-load", bindCopyActions);
+</script>
