@@ -17,12 +17,8 @@ const walinePath = normalizeWalinePath("/about");
 
             <article class="prose">
                 <h1>关于我</h1>
-                <p class="about-stats en">
-                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> views /
-                    <span class="waline-comment-count" data-path={walinePath}>0</span> comments
-                </p>
-                <p class="about-stats zh">
-                    <span class="waline-pageview-count" data-path={walinePath}>0</span> 次浏览 /
+                <p class="about-stats">
+                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> 次浏览 /
                     <span class="waline-comment-count" data-path={walinePath}>0</span> 条评论
                 </p>
                 <p>
@@ -65,7 +61,7 @@ const walinePath = normalizeWalinePath("/about");
         line-height: 1.6;
     }
 
-    .about-stats.zh {
+    .about-stats {
         margin-bottom: 1.1rem;
     }
 </style>
