@@ -46,7 +46,7 @@ GitHub Pages 本身没问题，我原来也是一直这么跑。
 
 ```yaml
 env:
-  PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL }}
+  PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL || secrets.PUBLIC_WALINE_SERVER_URL }}
 ```
 
 Vercel 这边我没走“再套一层 GitHub Action 推送”，直接让 Vercel 连 Git 仓库自动部署，链路更短，也更不容易出幺蛾子。
@@ -122,6 +122,24 @@ Waline 首次初始化需要走：
 
 我自己还踩了个前端层面的坑：页面同时渲染了两组统计文案（中英文各一行），看起来像“数字对不上”。  
 最后直接删掉重复行，只保留一组统计展示，问题就消失了。
+
+### 4) 安卓 QQ 内置浏览器看不到评论框
+
+这个坑挺隐蔽：Edge 和 Android 系统浏览器都正常，只有 QQ 内置浏览器不显示评论。  
+最后定位到前端加载方式兼容性问题。
+
+我原来是这样加载 Waline 的：
+
+- `<script type="module">`
+- 动态 `import("https://unpkg.com/...")`
+
+这套在某些 X5 内核环境下会直接不执行，结果就是评论节点一直空白。  
+最终修法是改成 `UMD` 版本，并加双 CDN 回退：
+
+- 首选 `unpkg`
+- 失败后自动切 `jsdelivr`
+
+这样即使 module/import 支持不完整，也能通过 `window.Waline` 初始化评论和计数。
 
 ## 现在这套方案的取舍
 
