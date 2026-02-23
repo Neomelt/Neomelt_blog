@@ -1,6 +1,6 @@
 ---
 import { getCollection } from "astro:content";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 // Merge both collections
@@ -20,7 +20,7 @@ for (const post of allPosts) {
 const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
 ---
 
-<BaseLayout title={`归档 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`归档 | ${SITE_TITLE}`}>
     <main>
         <div class="container">
             <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label="面包屑">

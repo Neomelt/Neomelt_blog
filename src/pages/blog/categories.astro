@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 import { getCollection } from "astro:content";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
@@ -80,7 +80,7 @@ const defaultStyle = {
 };
 ---
 
-<BaseLayout title={`分类 | ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
+<BaseLayout title={`分类 | ${SITE_TITLE}`}>
 	<main>
 		<div class="homepage-container">
 			<div class="homepage-layout">
