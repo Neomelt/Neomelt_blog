@@ -16,8 +16,21 @@
 	--text-muted: #71717a;
 	--accent: #2563eb;
 	--accent-hover: #1d4ed8;
+	--accent-rgb: 37, 99, 235;
 	--tag-bg: #eff6ff;
 	--tag-text: #2563eb;
+
+	/* Legacy token compatibility */
+	--bg-primary: var(--bg);
+	--bg-secondary: var(--bg-card);
+	--bg-tertiary: var(--bg-code);
+	--border-color: var(--border);
+	--text-primary: var(--text);
+	--text-secondary: var(--text-muted);
+	--accent-dark: var(--accent-hover);
+	--accent-light: 219, 234, 254;
+	--gray: 113, 113, 122;
+	--gray-light: 228, 228, 231;
 
 	/* Typography */
 	--font-sans: 'Inter', 'Noto Serif SC', system-ui, -apple-system, sans-serif;
@@ -26,6 +39,9 @@
 	/* Spacing */
 	--content-width: 800px;
 	--header-height: 64px;
+	--dynamic-narrow-width: 100%;
+	--dynamic-content-width: 100%;
+	--dynamic-wide-width: 100%;
 
 	/* Transitions */
 	--transition: 150ms ease;
@@ -41,8 +57,19 @@
 	--text-muted: #a1a1aa;
 	--accent: #60a5fa;
 	--accent-hover: #93c5fd;
+	--accent-rgb: 96, 165, 250;
 	--tag-bg: #1e3a5f;
 	--tag-text: #93c5fd;
+	--bg-primary: var(--bg);
+	--bg-secondary: var(--bg-card);
+	--bg-tertiary: var(--bg-code);
+	--border-color: var(--border);
+	--text-primary: var(--text);
+	--text-secondary: var(--text-muted);
+	--accent-dark: var(--accent-hover);
+	--accent-light: 30, 58, 95;
+	--gray: 161, 161, 170;
+	--gray-light: 63, 63, 70;
 }
 
 /* ---------- Reset & Base ---------- */
