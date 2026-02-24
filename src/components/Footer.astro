@@ -8,10 +8,14 @@ const runtimeFallbacks = {
     "footer.hour": getDefaultUiText("footer.hour"),
     "footer.minute": getDefaultUiText("footer.minute"),
     "footer.second": getDefaultUiText("footer.second"),
+    "footer.sitePolicy": getDefaultUiText("footer.sitePolicy"),
+    "footer.themePowered": getDefaultUiText("footer.themePowered"),
     enDay: UI_TRANSLATIONS.en["footer.day"],
     enHour: UI_TRANSLATIONS.en["footer.hour"],
     enMinute: UI_TRANSLATIONS.en["footer.minute"],
     enSecond: UI_TRANSLATIONS.en["footer.second"],
+    enSitePolicy: UI_TRANSLATIONS.en["footer.sitePolicy"],
+    enThemePowered: UI_TRANSLATIONS.en["footer.themePowered"],
 } as const;
 ---
 
@@ -19,6 +23,10 @@ const runtimeFallbacks = {
     <div class="footer-inner">
         <div class="footer-left">
             <span class="footer-copy">© {new Date().getFullYear()} Neomelt</span>
+            <span class="footer-sep">·</span>
+            <a href="/terms/list" class="footer-link" data-i18n="footer.sitePolicy">{runtimeFallbacks["footer.sitePolicy"]}</a>
+            <span class="footer-sep">·</span>
+            <a href="https://astro.build/themes/" target="_blank" rel="noopener" class="footer-link" data-i18n="footer.themePowered">{runtimeFallbacks["footer.themePowered"]}</a>
             <span class="footer-sep">·</span>
             <span class="footer-runtime">
                 <span data-i18n="footer.running">{runtimeFallbacks["footer.running"]}</span> <span id="runtime-display" data-start={startDate.toISOString()}>...</span>
@@ -127,6 +135,16 @@ const runtimeFallbacks = {
 
     .footer-sep {
         color: var(--border);
+    }
+
+    .footer-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 150ms ease;
+    }
+
+    .footer-link:hover {
+        color: var(--accent);
     }
 
     .footer-right {
