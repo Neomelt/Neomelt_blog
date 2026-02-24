@@ -16,4 +16,10 @@ export const FRIEND_LINKS: FriendLink[] = [
         rss: "https://axi404.top/rss.xml",
         tags: ["技术", "生活", "思考"],
     },
+    {
+        name: "YuxBao",
+        url: "https://yux-bao.site",
+        description: "一程山水，一念清欢",
+        avatar: "https://yux-bao.site/avatar.webp",
+    },
 ];
