@@ -10,13 +10,9 @@ export const GET: APIRoute = async () => {
     try {
         const uncategorizedLabel = getDefaultUiText("legacy.uncategorized");
         const blogTypeLabel = getDefaultUiText("search.typeBlog");
-        const essayTypeLabel = getDefaultUiText("search.typeEssay");
 
         // 获取所有内容并生成搜索索引
-        const [blogPosts, zuegEntries] = await Promise.all([
-            getCollection("blog"),
-            getCollection("zueg")
-        ]);
+        const blogPosts = await getCollection("blog");
 
         // 构建轻量搜索索引（避免下发完整正文）
         const searchIndex = [
@@ -46,37 +42,6 @@ export const GET: APIRoute = async () => {
                     url: `/posts/${post.id}`,
                     type: blogTypeLabel,
                     date: post.data.pubDate.toISOString().split('T')[0],
-                    tags,
-                    category,
-                    searchText,
-                };
-            }),
-            // 随笔
-            ...zuegEntries.map(entry => {
-                const tags = entry.data.tags || [];
-                const description = normalizeText(entry.data.description);
-                const bodyText = normalizeText(entry.body);
-                const excerpt = (description || bodyText).slice(0, 220);
-                const category = entry.data.category || "";
-                const searchText = [
-                    entry.data.title,
-                    description,
-                    bodyText.slice(0, 1800),
-                    tags.join(" "),
-                    category,
-                    essayTypeLabel,
-                ]
-                    .join(" ")
-                    .toLowerCase();
-
-                return {
-                    id: entry.id,
-                    title: entry.data.title,
-                    description,
-                    excerpt,
-                    url: `/posts/zueg/${entry.id}`,
-                    type: essayTypeLabel,
-                    date: entry.data.pubDate.toISOString().split('T')[0],
                     tags,
                     category,
                     searchText,

@@ -5,12 +5,9 @@ import { getDefaultUiText } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
-// Merge both collections
-const blogPosts = await getCollection("blog");
-const zuegPosts = await getCollection("zueg");
-const allPosts = [...blogPosts, ...zuegPosts];
-const postDatesMap = await resolvePostDatesMap(allPosts);
-allPosts.sort((a, b) => {
+const posts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(posts);
+posts.sort((a, b) => {
     const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
     const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
     return bDate.valueOf() - aDate.valueOf();
@@ -25,8 +22,8 @@ function formatArchiveDate(date: Date): string {
 }
 
 // Group by year
-const byYear: Record<string, typeof allPosts> = {};
-for (const post of allPosts) {
+const byYear: Record<string, typeof posts> = {};
+for (const post of posts) {
     const resolvedPubDate = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
     const year = resolvedPubDate.getFullYear().toString();
     if (!byYear[year]) byYear[year] = [];
@@ -48,7 +45,7 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
 
             <h1 class="section-heading">
                 <span data-i18n="archive.title">{getDefaultUiText("archive.title")}</span>
-                <span class="text-muted text-sm">({allPosts.length} <span data-i18n="archive.countUnit">{getDefaultUiText("archive.countUnit")}</span>)</span>
+                <span class="text-muted text-sm">({posts.length} <span data-i18n="archive.countUnit">{getDefaultUiText("archive.countUnit")}</span>)</span>
             </h1>
 
             {years.map((year) => (
@@ -56,14 +53,12 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
                     <h2 class="year-title">{year}</h2>
                     <ul class="archive-list">
                         {byYear[year].map((post) => {
-                            const isZueg = post.collection === "zueg";
-                            const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
+                            const url = `/posts/${post.id}`;
                             const date = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
                             return (
                                 <li class="archive-item">
                                     <span class="archive-date">{formatArchiveDate(date)}</span>
                                     <a href={url} class="archive-title">{post.data.title}</a>
-                                    {isZueg && <span class="tag" style="font-size:0.7rem" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 </li>
                             );
                         })}

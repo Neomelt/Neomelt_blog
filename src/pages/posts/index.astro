@@ -9,13 +9,10 @@ import { getDefaultUiText } from "../../i18n/ui";
 import { getWalinePathForPost } from "../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
-// Merge blog + zueg, sort pinned first then by date
-const blogPosts = await getCollection("blog");
-const zuegPosts = await getCollection("zueg");
-const allPosts = [...blogPosts, ...zuegPosts];
-const postDatesMap = await resolvePostDatesMap(allPosts);
+const posts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(posts);
 
-allPosts.sort((a, b) => {
+posts.sort((a, b) => {
     if (a.data.pinned && !b.data.pinned) return -1;
     if (!a.data.pinned && b.data.pinned) return 1;
     const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
@@ -23,7 +20,7 @@ allPosts.sort((a, b) => {
     return bDate.valueOf() - aDate.valueOf();
 });
 
-const { items: paginatedPosts, pagination } = paginate(allPosts, 1, 10);
+const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
 
 function estimateReadingTime(content: string): number {
     return Math.max(1, Math.ceil(content.length / 400));
@@ -43,9 +40,8 @@ function estimateReadingTime(content: string): number {
 
             <div class="post-list">
                 {paginatedPosts.map((post) => {
-                    const isZueg = post.collection === "zueg";
-                    const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
-                    const walinePath = getWalinePathForPost(post.id, isZueg ? "zueg" : "blog");
+                    const url = `/posts/${post.id}`;
+                    const walinePath = getWalinePathForPost(post.id);
                     const readingTime = estimateReadingTime(post.body || "");
                     const resolvedPubDate =
                         postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
@@ -53,7 +49,6 @@ function estimateReadingTime(content: string): number {
                         <a href={url} class="post-card">
                             <div class="post-card-meta">
                                 <FormattedDate date={resolvedPubDate} />
-                                {isZueg && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 {post.data.pinned && (
                                     <span class="badge-pinned" data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
                                 )}
@@ -79,7 +74,7 @@ function estimateReadingTime(content: string): number {
                 })}
             </div>
 
-            {allPosts.length === 0 && (
+            {posts.length === 0 && (
                 <p class="text-muted" style="text-align:center;padding:3rem 0" data-i18n="posts.empty">{getDefaultUiText("posts.empty")}</p>
             )}
 

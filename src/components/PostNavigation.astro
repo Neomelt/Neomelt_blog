@@ -3,15 +3,14 @@ import type { CollectionEntry } from "astro:content";
 import { getDefaultUiText } from "../i18n/ui";
 
 interface Props {
-    prevPost?: CollectionEntry<"blog"> | CollectionEntry<"zueg"> | null;
-    nextPost?: CollectionEntry<"blog"> | CollectionEntry<"zueg"> | null;
-    collection?: "blog" | "zueg";
+    prevPost?: CollectionEntry<"blog"> | null;
+    nextPost?: CollectionEntry<"blog"> | null;
 }
 
-const { prevPost, nextPost, collection = "blog" } = Astro.props;
+const { prevPost, nextPost } = Astro.props;
 
-function getUrl(post: CollectionEntry<"blog"> | CollectionEntry<"zueg">) {
-    return post.collection === "zueg" ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
+function getUrl(post: CollectionEntry<"blog">) {
+    return `/posts/${post.id}`;
 }
 ---
 

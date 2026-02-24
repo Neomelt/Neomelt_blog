@@ -77,7 +77,7 @@ const allCategories = [
 					{paginatedPosts.map((post) => {
 						const readingTime = estimateReadingTime(post.body || "");
 						const wordCount = (post.body || "").length;
-						const walinePath = getWalinePathForPost(post.id, "blog");
+						const walinePath = getWalinePathForPost(post.id);
 						const resolvedPubDate =
 							postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
 						
