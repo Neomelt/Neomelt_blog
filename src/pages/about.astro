@@ -6,6 +6,30 @@ import Comments from "../components/Comments.astro";
 import { normalizeWalinePath } from "../utils/waline";
 
 const walinePath = normalizeWalinePath("/about");
+
+const deploymentNodes = [
+    {
+        name: "Vercel",
+        url: "https://www.neomelt.cloud",
+        host: "www.neomelt.cloud",
+        tagKey: "about.nodePrimary",
+        iconClass: "is-vercel",
+    },
+    {
+        name: "GitHub Pages",
+        url: "https://neomelt.cloud",
+        host: "neomelt.cloud",
+        tagKey: "about.nodeMirror",
+        iconClass: "is-github",
+    },
+    {
+        name: "GitHub Pages Direct",
+        url: "https://neomelt.github.io/Neomelt_blog/",
+        host: "neomelt.github.io/Neomelt_blog",
+        tagKey: "about.nodeFallback",
+        iconClass: "is-direct",
+    },
+] as const;
 ---
 
 <BaseLayout title={`${getDefaultUiText("about.metaTitle")} | ${SITE_TITLE}`}>
@@ -28,6 +52,29 @@ const walinePath = normalizeWalinePath("/about");
                     <span data-i18n="about.desc2Prefix">{getDefaultUiText("about.desc2Prefix")}</span> <a href="https://github.com/Neomelt" target="_blank" rel="noopener">GitHub</a><span data-i18n="about.desc2Suffix">{getDefaultUiText("about.desc2Suffix")}</span>
                 </p>
             </article>
+
+            <section class="distribution-section" aria-labelledby="distribution-title">
+                <h2 id="distribution-title" data-i18n="about.distributionTitle">{getDefaultUiText("about.distributionTitle")}</h2>
+                <p class="distribution-lead" data-i18n="about.distributionLead">{getDefaultUiText("about.distributionLead")}</p>
+
+                <div class="distribution-grid">
+                    {deploymentNodes.map((node) => (
+                        <a href={node.url} target="_blank" rel="noopener noreferrer" class="distribution-card">
+                            <span class:list={["distribution-icon", node.iconClass]} aria-hidden="true">{node.name.slice(0, 1)}</span>
+                            <span class="distribution-main">
+                                <span class="distribution-name">{node.name}</span>
+                                <span class="distribution-host">{node.host}</span>
+                            </span>
+                            <span class="distribution-meta">
+                                <span class="distribution-tag" data-i18n={node.tagKey}>{getDefaultUiText(node.tagKey)}</span>
+                                <span class="distribution-arrow" aria-hidden="true">›</span>
+                            </span>
+                        </a>
+                    ))}
+                </div>
+
+                <p class="distribution-hint" data-i18n="about.distributionHint">{getDefaultUiText("about.distributionHint")}</p>
+            </section>
 
             <Comments path={walinePath} />
         </div>
@@ -65,5 +112,145 @@ const walinePath = normalizeWalinePath("/about");
 
     .about-stats {
         margin-bottom: 1.1rem;
+    }
+
+    .distribution-section {
+        margin-top: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .distribution-section h2 {
+        margin: 0;
+        margin-bottom: 0.65rem;
+        font-size: clamp(1.25rem, 2vw, 1.5rem);
+        line-height: 1.3;
+    }
+
+    .distribution-lead {
+        margin: 0 0 1rem;
+        color: var(--text-muted);
+    }
+
+    .distribution-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .distribution-card {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.78rem 0.88rem;
+        background: var(--bg-card);
+        color: inherit;
+        text-decoration: none;
+        transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+
+    .distribution-card:hover {
+        border-color: color-mix(in srgb, var(--accent) 56%, var(--border));
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+        color: inherit;
+    }
+
+    .distribution-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-size: 0.84rem;
+        font-weight: 700;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: var(--bg);
+    }
+
+    .distribution-icon.is-vercel {
+        color: #ffffff;
+        background: #111111;
+        border-color: #111111;
+    }
+
+    .distribution-icon.is-github {
+        color: #ffffff;
+        background: #1f2937;
+        border-color: #1f2937;
+    }
+
+    .distribution-icon.is-direct {
+        color: #ffffff;
+        background: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .distribution-main {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+    }
+
+    .distribution-name {
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--text);
+    }
+
+    .distribution-host {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .distribution-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.48rem;
+    }
+
+    .distribution-tag {
+        font-size: 0.72rem;
+        line-height: 1;
+        padding: 0.28rem 0.48rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text-muted);
+    }
+
+    .distribution-arrow {
+        color: var(--text-muted);
+        font-size: 1.15rem;
+        line-height: 1;
+    }
+
+    .distribution-hint {
+        margin: 0.95rem 0 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+    }
+
+    @media (max-width: 640px) {
+        .distribution-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .distribution-card {
+            padding: 0.72rem 0.8rem;
+        }
+
+        .distribution-icon {
+            width: 32px;
+            height: 32px;
+        }
     }
 </style>
