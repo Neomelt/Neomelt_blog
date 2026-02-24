@@ -7,6 +7,7 @@ import PostNavigation from "../components/PostNavigation.astro";
 import BaseLayout from "./BaseLayout.astro";
 import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
+import { resolvePostDates } from "../utils/post-dates";
 
 export interface Props {
     post: CollectionEntry<"blog"> | CollectionEntry<"zueg">;
@@ -17,7 +18,8 @@ export interface Props {
 }
 
 const { post, headings, prevPost, nextPost, collection = "blog" } = Astro.props;
-const { title, description, pubDate, updatedDate, tags } = post.data;
+const { title, description, updatedDate, tags } = post.data;
+const { pubDate: resolvedPubDate, updatedDate: resolvedUpdatedDate } = await resolvePostDates(post);
 const walinePath = getWalinePathForPost(post.id, collection);
 
 const wordCount = (post.body || "").length;
@@ -49,9 +51,9 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                 <header class="post-header">
                     <h1 class="post-title">{title}</h1>
                     <div class="post-meta-row">
-                        <FormattedDate date={pubDate} />
+                        <FormattedDate date={resolvedPubDate} showTime={true} />
                         {updatedDate && (
-                            <span class="text-muted text-sm">（<span data-i18n="common.updatedAt">{getDefaultUiText("common.updatedAt")}</span> <FormattedDate date={updatedDate} />）</span>
+                            <span class="text-muted text-sm">（<span data-i18n="common.updatedAt">{getDefaultUiText("common.updatedAt")}</span> <FormattedDate date={resolvedUpdatedDate} showTime={true} />）</span>
                         )}
                         <span class="text-muted">·</span>
                         <span class="text-muted text-sm">

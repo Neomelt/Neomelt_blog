@@ -8,6 +8,7 @@ import PostNavigation from "../../components/PostNavigation.astro";
 import { SITE_TITLE } from "../../consts";
 import { getWalinePathForPost } from "../../utils/waline";
 import { getDefaultUiText } from "../../i18n/ui";
+import { resolvePostDates } from "../../utils/post-dates";
 
 export async function getStaticPaths() {
     const zuegEntries = (await getCollection("zueg")).sort(
@@ -31,6 +32,7 @@ type Props = {
 
 const { entry, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(entry);
+const { pubDate: resolvedPubDate, updatedDate: resolvedUpdatedDate } = await resolvePostDates(entry);
 const walinePath = getWalinePathForPost(entry.id, "zueg");
 ---
 
@@ -46,10 +48,10 @@ const walinePath = getWalinePathForPost(entry.id, "zueg");
                     <div class="prose">
                         <div class="title">
                             <div class="date">
-                                <FormattedDate date={entry.data.pubDate} />
+                                <FormattedDate date={resolvedPubDate} showTime={true} />
                                 {entry.data.updatedDate && (
                                     <div class="last-updated-on">
-                                        <span data-i18n="legacy.zueg.lastUpdated">{getDefaultUiText("legacy.zueg.lastUpdated")}</span> <FormattedDate date={entry.data.updatedDate} />
+                                        <span data-i18n="legacy.zueg.lastUpdated">{getDefaultUiText("legacy.zueg.lastUpdated")}</span> <FormattedDate date={resolvedUpdatedDate} showTime={true} />
                                     </div>
                                 )}
                             </div>
