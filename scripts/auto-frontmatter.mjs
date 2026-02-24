@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { watch } from "node:fs";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const CONTENT_DIR = path.resolve(process.cwd(), "src/content/blog");
@@ -79,8 +79,19 @@ async function injectFrontmatterIfMissing(filePath) {
 	console.log(`[auto-frontmatter] injected: ${path.relative(process.cwd(), filePath)}`);
 }
 
+async function repairExistingFiles() {
+	const names = await readdir(CONTENT_DIR);
+	await Promise.all(
+		names.map(async (name) => {
+			const filePath = path.join(CONTENT_DIR, name);
+			await injectFrontmatterIfMissing(filePath);
+		})
+	);
+}
+
 async function main() {
 	await mkdir(CONTENT_DIR, { recursive: true });
+	await repairExistingFiles();
 	console.log(`[auto-frontmatter] watching: ${CONTENT_DIR}`);
 
 	const timers = new Map();
@@ -95,7 +106,7 @@ async function main() {
 				console.error(`[auto-frontmatter] failed: ${filePath}`);
 				console.error(error?.message || error);
 			}
-		}, 200);
+		}, 20);
 		timers.set(filePath, next);
 	};
 
