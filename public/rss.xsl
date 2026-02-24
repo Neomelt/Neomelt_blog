@@ -5,6 +5,7 @@
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
 	xmlns:media="http://search.yahoo.com/mrss/"
 	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:dcterms="http://purl.org/dc/terms/"
 >
 	<xsl:output method="html" encoding="UTF-8" indent="yes" />
 	<xsl:template match="/">
@@ -171,8 +172,15 @@
 									<xsl:value-of select="title" />
 								</a>
 								<p class="item-date">
+									Published:
 									<xsl:value-of select="pubDate" />
 								</p>
+								<xsl:if test="dcterms:modified">
+									<p class="item-date">
+										Updated:
+										<xsl:value-of select="dcterms:modified" />
+									</p>
+								</xsl:if>
 								<p class="item-desc">
 									<xsl:value-of select="description" />
 								</p>
