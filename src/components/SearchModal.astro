@@ -64,7 +64,11 @@ const searchFallbacks = {
         if (!searchModal || !closeSearch || !searchInput || !searchResults) return;
 
         function renderEmpty(key, fallback = "") {
-            searchResults.innerHTML = `<div class="search-empty">${t(key, fallback)}</div>`;
+            searchResults.replaceChildren();
+            const emptyNode = document.createElement("div");
+            emptyNode.className = "search-empty";
+            emptyNode.textContent = t(key, fallback);
+            searchResults.appendChild(emptyNode);
         }
 
         function openModal() {
@@ -91,7 +95,8 @@ const searchFallbacks = {
             try {
                 const response = await fetch("/api/search.json");
                 if (response.ok) {
-                    searchIndex = await response.json();
+                    const payload = await response.json();
+                    searchIndex = Array.isArray(payload) ? payload : [];
                 }
             } catch (e) {
                 console.error("[Search] Failed to load search index:", e);
@@ -100,30 +105,75 @@ const searchFallbacks = {
             }
         }
 
+        function getSearchText(item) {
+            if (typeof item.searchText === "string" && item.searchText) {
+                return item.searchText;
+            }
+
+            const fallbackText = [
+                item.title || "",
+                item.description || "",
+                item.excerpt || "",
+                item.content || "",
+                Array.isArray(item.tags) ? item.tags.join(" ") : "",
+            ]
+                .join(" ")
+                .toLowerCase();
+
+            item.searchText = fallbackText;
+            return fallbackText;
+        }
+
         // 执行搜索
         function performSearch(query) {
             if (!query.trim()) return [];
             const term = query.toLowerCase();
             return searchIndex
-                .filter((item) => {
-                    return (
-                        item.title.toLowerCase().includes(term) ||
-                        item.description?.toLowerCase().includes(term) ||
-                        item.content?.toLowerCase().includes(term) ||
-                        item.tags?.some((t) => t.toLowerCase().includes(term))
-                    );
-                })
+                .filter((item) => getSearchText(item).includes(term))
                 .slice(0, 10);
         }
 
-        // 高亮关键词
-        function highlight(text, query) {
-            if (!query.trim() || !text) return text || "";
-            const regex = new RegExp(
-                `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-                "gi"
-            );
-            return text.replace(regex, '<mark>$1</mark>');
+        function createHighlightedFragment(text, query) {
+            const source = String(text || "");
+            const term = query.trim();
+            const fragment = document.createDocumentFragment();
+
+            if (!term) {
+                fragment.appendChild(document.createTextNode(source));
+                return fragment;
+            }
+
+            const escapedQuery = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const matcher = new RegExp(escapedQuery, "gi");
+            let lastIndex = 0;
+            let match = matcher.exec(source);
+
+            while (match) {
+                const start = match.index;
+                const end = start + match[0].length;
+
+                if (start > lastIndex) {
+                    fragment.appendChild(
+                        document.createTextNode(source.slice(lastIndex, start))
+                    );
+                }
+
+                const mark = document.createElement("mark");
+                mark.textContent = source.slice(start, end);
+                fragment.appendChild(mark);
+
+                lastIndex = end;
+                if (matcher.lastIndex === match.index) {
+                    matcher.lastIndex += 1;
+                }
+                match = matcher.exec(source);
+            }
+
+            if (lastIndex < source.length) {
+                fragment.appendChild(document.createTextNode(source.slice(lastIndex)));
+            }
+
+            return fragment;
         }
 
         // 渲染搜索结果
@@ -133,23 +183,43 @@ const searchFallbacks = {
                 renderEmpty("search.emptyNotFound");
                 return;
             }
-            searchResults.innerHTML = results
-                .map((item) => {
-                    const desc = item.description
-                        ? `<div class="result-desc">${highlight(item.description, query)}</div>`
-                        : "";
-                    const tags = item.tags?.length
-                        ? `<div class="result-tags">${item.tags.map((t) => `<span class="result-tag">#${t}</span>`).join("")}</div>`
-                        : "";
-                    return `
-                        <a href="${item.url}" class="result-item" onclick="document.getElementById('search-modal')?.classList.remove('open');document.body.style.overflow=''">
-                            <div class="result-title">${highlight(item.title, query)}</div>
-                            ${desc}
-                            ${tags}
-                        </a>
-                    `;
-                })
-                .join("");
+            searchResults.replaceChildren();
+
+            const resultNodes = results.map((item) => {
+                const link = document.createElement("a");
+                link.href = item.url || "#";
+                link.className = "result-item";
+                link.addEventListener("click", () => closeModal());
+
+                const titleNode = document.createElement("div");
+                titleNode.className = "result-title";
+                titleNode.appendChild(createHighlightedFragment(item.title || "", query));
+                link.appendChild(titleNode);
+
+                const descText = item.description || item.excerpt || "";
+                if (descText) {
+                    const descNode = document.createElement("div");
+                    descNode.className = "result-desc";
+                    descNode.appendChild(createHighlightedFragment(descText, query));
+                    link.appendChild(descNode);
+                }
+
+                if (Array.isArray(item.tags) && item.tags.length > 0) {
+                    const tagsNode = document.createElement("div");
+                    tagsNode.className = "result-tags";
+                    item.tags.forEach((tag) => {
+                        const tagNode = document.createElement("span");
+                        tagNode.className = "result-tag";
+                        tagNode.textContent = `#${tag}`;
+                        tagsNode.appendChild(tagNode);
+                    });
+                    link.appendChild(tagsNode);
+                }
+
+                return link;
+            });
+
+            searchResults.append(...resultNodes);
         }
 
         // 防抖
