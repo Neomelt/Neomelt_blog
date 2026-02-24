@@ -5,22 +5,53 @@ import { getCollection } from "astro:content";
 import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // 获取所有博客文章
 const posts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(posts);
 
 // 统计分类
 const categoryCounts: Record<string, number> = {};
 const categoryPosts: Record<string, typeof posts> = {};
+const categoryPostsForClient: Record<
+    string,
+    {
+        id: string;
+        data: {
+            title: string;
+            description: string;
+            pinned?: boolean;
+            tags?: string[];
+            pubDate: string;
+            pubDateMs: number;
+        };
+    }[]
+> = {};
 
 posts.forEach((post) => {
     const category = post.data.category;
     if (category) {
+        const resolvedPubDate = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
         categoryCounts[category] = (categoryCounts[category] || 0) + 1;
         if (!categoryPosts[category]) {
             categoryPosts[category] = [];
         }
+        if (!categoryPostsForClient[category]) {
+            categoryPostsForClient[category] = [];
+        }
         categoryPosts[category].push(post);
+        categoryPostsForClient[category].push({
+            id: post.id,
+            data: {
+                title: post.data.title,
+                description: post.data.description,
+                pinned: post.data.pinned,
+                tags: post.data.tags,
+                pubDate: resolvedPubDate.toISOString(),
+                pubDateMs: resolvedPubDate.getTime(),
+            },
+        });
     }
 });
 
@@ -193,7 +224,7 @@ const categoryTextFallbacks = {
 	</main>
 </BaseLayout>
 
-<script define:vars={{ categoryPosts, categoryTextFallbacks }}>
+<script define:vars={{ categoryPostsForClient, categoryTextFallbacks }}>
     const fallbackText = (key, fallback = "") => (categoryTextFallbacks && categoryTextFallbacks[key]) || fallback || key;
     const t = (key, fallback = "") => (window.__siteI18n && window.__siteI18n.t ? window.__siteI18n.t(key, fallbackText(key, fallback)) : fallbackText(key, fallback));
 
@@ -208,7 +239,7 @@ const categoryTextFallbacks = {
     categoryFilters.forEach((filter) => {
         filter.addEventListener("click", () => {
             const category = filter.getAttribute("data-category");
-            const posts = categoryPosts[category] || [];
+            const posts = categoryPostsForClient[category] || [];
 
             // 隐藏分类网格，显示文章列表
             categoriesGrid?.classList.add("hidden");
@@ -226,7 +257,7 @@ const categoryTextFallbacks = {
                     .sort((a, b) => {
                         if (a.data.pinned && !b.data.pinned) return -1;
                         if (!a.data.pinned && b.data.pinned) return 1;
-                        return new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime();
+                        return b.data.pubDateMs - a.data.pubDateMs;
                     })
                     .map(
                         (post) => `
@@ -235,7 +266,7 @@ const categoryTextFallbacks = {
                                         <div class="post-content">
                                             <div class="post-header">
                                                 <div class="post-date">
-                                                    ${new Date(post.data.pubDate).toLocaleDateString(dateLocale)}
+                                                    ${new Date(post.data.pubDate).toLocaleString(dateLocale, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, hourCycle: "h23" })}
                                                 </div>
                                                 ${post.data.pinned ? `
                                                     <span class="post-pinned">

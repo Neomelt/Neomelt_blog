@@ -3,10 +3,12 @@ import { getCollection } from "astro:content";
 import { SITE_TITLE } from "../consts";
 import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
 
 const blogPosts = await getCollection("blog");
 const zuegPosts = await getCollection("zueg");
 const allPosts = [...blogPosts, ...zuegPosts];
+const postDatesMap = await resolvePostDatesMap(allPosts);
 
 // Collect all tags with counts
 const tagCounts: Record<string, number> = {};
@@ -16,6 +18,15 @@ for (const post of allPosts) {
     }
 }
 const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+
+function formatDateTime(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
 ---
 
 <BaseLayout title={`${getDefaultUiText("tags.metaTitle")} | ${SITE_TITLE}`}>
@@ -45,7 +56,11 @@ const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
             {tags.map(([tag]) => {
                 const tagPosts = allPosts
                     .filter(p => p.data.tags?.includes(tag))
-                    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+                    .sort((a, b) => {
+                        const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+                        const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+                        return bDate.valueOf() - aDate.valueOf();
+                    });
                 return (
                     <section id={tag} class="tag-section">
                         <h2 class="tag-section-title">#{tag} <span class="text-muted text-sm">({tagPosts.length})</span></h2>
@@ -53,8 +68,9 @@ const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
                             {tagPosts.map((post) => {
                                 const isZueg = post.collection === "zueg";
                                 const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
-                                const d = post.data.pubDate;
-                                const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                                const resolvedPubDate =
+                                    postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+                                const dateStr = formatDateTime(resolvedPubDate);
                                 return (
                                     <li class="archive-item">
                                         <span class="archive-date">{dateStr}</span>

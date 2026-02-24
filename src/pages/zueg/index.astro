@@ -8,12 +8,16 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 const zuegEntries = await getCollection("zueg");
+const postDatesMap = await resolvePostDatesMap(zuegEntries);
 const sortedZueg = zuegEntries.sort((a, b) => {
     if (a.data.pinned && !b.data.pinned) return -1;
     if (!a.data.pinned && b.data.pinned) return 1;
-    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+    return bDate.valueOf() - aDate.valueOf();
 });
 
 const { items: paginatedPosts, pagination } = paginate(sortedZueg, 1, 5);
@@ -117,6 +121,8 @@ function estimateReadingTime(content: string): number {
                 {paginatedPosts.map((entry) => {
                     const readingTime = estimateReadingTime(entry.body || "");
                     const wordCount = (entry.body || "").length;
+                    const resolvedPubDate =
+                        postDatesMap.get(getPostDateKey(entry))?.pubDate ?? entry.data.pubDate;
                     
                     return (
                         <article class="post-card-item" data-category={entry.data.category || "随笔"}>
@@ -136,7 +142,7 @@ function estimateReadingTime(content: string): number {
                                 <div class="post-content">
                                     <div class="post-header">
                                         <div class="post-date">
-                                            <FormattedDate date={entry.data.pubDate} />
+                                            <FormattedDate date={resolvedPubDate} />
                                         </div>
                                         {entry.data.category && (
                                             <span class="post-category">{entry.data.category}</span>

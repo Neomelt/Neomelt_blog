@@ -6,13 +6,17 @@ import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import FormattedDate from "../../components/FormattedDate.astro";
 import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // 获取所有博客文章
 const allPosts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(allPosts);
 const posts = allPosts.sort((a, b) => {
     if (a.data.pinned && !b.data.pinned) return -1;
     if (!a.data.pinned && b.data.pinned) return 1;
-    return b.data.pubDate.getTime() - a.data.pubDate.getTime();
+    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+    return bDate.getTime() - aDate.getTime();
 });
 
 // 统计标签
@@ -67,7 +71,10 @@ const sortedTags = Object.entries(tagCounts)
 
 					<div class="post-list">
 						{
-							posts.map((post) => (
+							posts.map((post) => {
+								const resolvedPubDate =
+									postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+								return (
 								<article
 									class="post-card-item post-item"
 									data-tags={post.data.tags?.join(" ") || ""}
@@ -76,7 +83,7 @@ const sortedTags = Object.entries(tagCounts)
 										<div class="post-content">
 											<div class="post-header">
 												<div class="post-date">
-													<FormattedDate date={post.data.pubDate} />
+													<FormattedDate date={resolvedPubDate} />
 												</div>
 												{post.data.category && (
 													<span class="post-category">{post.data.category}</span>
@@ -102,7 +109,8 @@ const sortedTags = Object.entries(tagCounts)
 										</div>
 									</a>
 								</article>
-							))
+								);
+							})
 						}
 					</div>
 				</div>

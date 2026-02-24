@@ -7,6 +7,7 @@ import { paginate } from "../../../utils/pagination.ts";
 import { SITE_TITLE } from "../../../consts";
 import { getDefaultUiText } from "../../../i18n/ui";
 import { getWalinePathForPost } from "../../../utils/waline";
+import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
 
 export async function getStaticPaths() {
     const blogPosts = await getCollection("blog");
@@ -31,6 +32,14 @@ interface Props {
 const { page } = Astro.params;
 const { allPosts } = Astro.props;
 const currentPage = parseInt(page as string);
+const postDatesMap = await resolvePostDatesMap(allPosts);
+allPosts.sort((a, b) => {
+    if (a.data.pinned && !b.data.pinned) return -1;
+    if (!a.data.pinned && b.data.pinned) return 1;
+    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+    return bDate.valueOf() - aDate.valueOf();
+});
 const { items: paginatedPosts, pagination } = paginate(allPosts, currentPage, 10);
 const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiText("legacy.pagePrefix")}${page}${getDefaultUiText("legacy.pageSuffix")}`;
 
@@ -56,10 +65,12 @@ function estimateReadingTime(content: string): number {
                     const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
                     const walinePath = getWalinePathForPost(post.id, isZueg ? "zueg" : "blog");
                     const readingTime = estimateReadingTime(post.body || "");
+                    const resolvedPubDate =
+                        postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
                     return (
                         <a href={url} class="post-card">
                             <div class="post-card-meta">
-                                <FormattedDate date={post.data.pubDate} />
+                                <FormattedDate date={resolvedPubDate} />
                                 {isZueg && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 {post.data.pinned && (
                                     <span class="badge-pinned" data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
