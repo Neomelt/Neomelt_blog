@@ -10,37 +10,36 @@ import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
 
 export async function getStaticPaths() {
-    const blogPosts = await getCollection("blog");
-    const zuegPosts = await getCollection("zueg");
-    const allPosts = [...blogPosts, ...zuegPosts].sort((a, b) => {
+    const posts = await getCollection("blog");
+    const sortedPosts = posts.sort((a, b) => {
         if (a.data.pinned && !b.data.pinned) return -1;
         if (!a.data.pinned && b.data.pinned) return 1;
         return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
     });
 
-    const totalPages = Math.ceil(allPosts.length / 10) || 1;
+    const totalPages = Math.ceil(sortedPosts.length / 10) || 1;
     return Array.from({ length: totalPages }, (_, i) => ({
         params: { page: String(i + 2) },
-        props: { allPosts },
+        props: { posts: sortedPosts },
     }));
 }
 
 interface Props {
-    allPosts: (CollectionEntry<"blog"> | CollectionEntry<"zueg">)[];
+    posts: CollectionEntry<"blog">[];
 }
 
 const { page } = Astro.params;
-const { allPosts } = Astro.props;
+const { posts } = Astro.props;
 const currentPage = parseInt(page as string);
-const postDatesMap = await resolvePostDatesMap(allPosts);
-allPosts.sort((a, b) => {
+const postDatesMap = await resolvePostDatesMap(posts);
+posts.sort((a, b) => {
     if (a.data.pinned && !b.data.pinned) return -1;
     if (!a.data.pinned && b.data.pinned) return 1;
     const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
     const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
     return bDate.valueOf() - aDate.valueOf();
 });
-const { items: paginatedPosts, pagination } = paginate(allPosts, currentPage, 10);
+const { items: paginatedPosts, pagination } = paginate(posts, currentPage, 10);
 const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiText("legacy.pagePrefix")}${page}${getDefaultUiText("legacy.pageSuffix")}`;
 
 function estimateReadingTime(content: string): number {
@@ -61,9 +60,8 @@ function estimateReadingTime(content: string): number {
 
             <div class="post-list">
                 {paginatedPosts.map((post) => {
-                    const isZueg = post.collection === "zueg";
-                    const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
-                    const walinePath = getWalinePathForPost(post.id, isZueg ? "zueg" : "blog");
+                    const url = `/posts/${post.id}`;
+                    const walinePath = getWalinePathForPost(post.id);
                     const readingTime = estimateReadingTime(post.body || "");
                     const resolvedPubDate =
                         postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
@@ -71,7 +69,6 @@ function estimateReadingTime(content: string): number {
                         <a href={url} class="post-card">
                             <div class="post-card-meta">
                                 <FormattedDate date={resolvedPubDate} />
-                                {isZueg && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 {post.data.pinned && (
                                     <span class="badge-pinned" data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
                                 )}

@@ -10,17 +10,16 @@ import { getDefaultUiText } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
 
 export interface Props {
-    post: CollectionEntry<"blog"> | CollectionEntry<"zueg">;
+    post: CollectionEntry<"blog">;
     headings: { depth: number; slug: string; text: string }[];
-    prevPost?: CollectionEntry<"blog"> | CollectionEntry<"zueg"> | null;
-    nextPost?: CollectionEntry<"blog"> | CollectionEntry<"zueg"> | null;
-    collection?: "blog" | "zueg";
+    prevPost?: CollectionEntry<"blog"> | null;
+    nextPost?: CollectionEntry<"blog"> | null;
 }
 
-const { post, headings, prevPost, nextPost, collection = "blog" } = Astro.props;
+const { post, headings, prevPost, nextPost } = Astro.props;
 const { title, description, tags } = post.data;
 const { pubDate: resolvedPubDate, updatedDate: resolvedUpdatedDate } = await resolvePostDates(post);
-const walinePath = getWalinePathForPost(post.id, collection);
+const walinePath = getWalinePathForPost(post.id);
 const shouldShowUpdated = resolvedUpdatedDate.valueOf() > resolvedPubDate.valueOf();
 
 const wordCount = (post.body || "").length;
@@ -60,7 +59,6 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                         <span class="text-muted text-sm">
                             {wordCount} <span data-i18n="common.words">{getDefaultUiText("common.words")}</span> · {readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span>
                         </span>
-                        {collection === "zueg" && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                     </div>
                     <div class="post-stats" data-i18n-aria-label="post.statsAria" aria-label={getDefaultUiText("post.statsAria")}>
                         <p class="post-stats-line">
@@ -91,7 +89,7 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                 </div>
 
                 <!-- Post navigation -->
-                <PostNavigation prevPost={prevPost} nextPost={nextPost} collection={collection} />
+                <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 
                 <!-- Comments -->
                 <Comments path={walinePath} />

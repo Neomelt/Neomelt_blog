@@ -3,7 +3,7 @@ import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
 
-type PostEntry = CollectionEntry<"blog"> | CollectionEntry<"zueg">;
+type PostEntry = CollectionEntry<"blog">;
 export type ResolvedPostDates = { pubDate: Date; updatedDate: Date };
 
 type GitIsoParts = {

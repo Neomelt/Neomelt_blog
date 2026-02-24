@@ -4,7 +4,6 @@ import { getCollection } from "astro:content";
 import { getDefaultUiText } from "../i18n/ui";
 
 const posts = await getCollection("blog");
-const zuegPosts = await getCollection("zueg");
 const uncategorizedLabel = getDefaultUiText("legacy.uncategorized");
 
 // 获取所有分类
@@ -15,7 +14,7 @@ const categoryCounts = categories.map(cat => ({
 })).sort((a, b) => b.count - a.count);
 
 // 获取所有标签
-const allTags = [...posts, ...zuegPosts]
+const allTags = posts
 	.flatMap(post => post.data.tags || [])
 	.reduce((acc, tag) => {
 		acc[tag] = (acc[tag] || 0) + 1;

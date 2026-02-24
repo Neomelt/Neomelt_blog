@@ -20,21 +20,4 @@ const blog = defineCollection({
 		}),
 });
 
-const zueg = defineCollection({
-	// Load Markdown files in the `src/content/zueg/` directory.
-	loader: glob({ base: './src/content/zueg', pattern: '**/*.{md,mdx}' }),
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			pubDate: z.coerce.date(),
-			updatedDate: z.coerce.date().optional(),
-			category: z.string(), // 随笔分类：技术、生活、思考等
-			tags: z.array(z.string()).optional(),
-			heroImage: image().optional(),
-			readingTime: z.number().optional(), // 预估阅读时间（分钟）
-			pinned: z.boolean().optional(),
-		}),
-});
-
-export const collections = { blog, zueg };
+export const collections = { blog };

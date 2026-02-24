@@ -5,14 +5,12 @@ import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
 
-const blogPosts = await getCollection("blog");
-const zuegPosts = await getCollection("zueg");
-const allPosts = [...blogPosts, ...zuegPosts];
-const postDatesMap = await resolvePostDatesMap(allPosts);
+const posts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(posts);
 
 // Collect all tags with counts
 const tagCounts: Record<string, number> = {};
-for (const post of allPosts) {
+for (const post of posts) {
     for (const tag of (post.data.tags || [])) {
         tagCounts[tag] = (tagCounts[tag] || 0) + 1;
     }
@@ -54,7 +52,7 @@ function formatDateTime(date: Date): string {
 
             <!-- Posts grouped by tag -->
             {tags.map(([tag]) => {
-                const tagPosts = allPosts
+                const tagPosts = posts
                     .filter(p => p.data.tags?.includes(tag))
                     .sort((a, b) => {
                         const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
@@ -66,8 +64,7 @@ function formatDateTime(date: Date): string {
                         <h2 class="tag-section-title">#{tag} <span class="text-muted text-sm">({tagPosts.length})</span></h2>
                         <ul class="archive-list">
                             {tagPosts.map((post) => {
-                                const isZueg = post.collection === "zueg";
-                                const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
+                                const url = `/posts/${post.id}`;
                                 const resolvedPubDate =
                                     postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
                                 const dateStr = formatDateTime(resolvedPubDate);

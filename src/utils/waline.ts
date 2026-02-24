@@ -9,8 +9,6 @@ export function normalizeWalinePath(path: string): string {
 
 export function getWalinePathForPost(
     postId: string,
-    collection: "blog" | "zueg" = "blog",
 ): string {
-    const basePath = collection === "zueg" ? `/posts/zueg/${postId}` : `/posts/${postId}`;
-    return normalizeWalinePath(basePath);
+    return normalizeWalinePath(`/posts/${postId}`);
 }

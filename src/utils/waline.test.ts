@@ -9,8 +9,7 @@ describe("waline path utils", () => {
         expect(normalizeWalinePath("/posts/test/")).toBe("/posts/test");
     });
 
-    it("builds post path for blog and zueg collections", () => {
-        expect(getWalinePathForPost("hello-world", "blog")).toBe("/posts/hello-world");
-        expect(getWalinePathForPost("thoughts", "zueg")).toBe("/posts/zueg/thoughts");
+    it("builds post path for blog posts", () => {
+        expect(getWalinePathForPost("hello-world")).toBe("/posts/hello-world");
     });
 });
