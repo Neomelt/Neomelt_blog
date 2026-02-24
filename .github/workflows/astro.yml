@@ -68,6 +68,9 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
         working-directory: ${{ env.BUILD_PATH }}
+      - name: Run unit tests
+        run: ${{ steps.detect-package-manager.outputs.runner }} vitest run
+        working-directory: ${{ env.BUILD_PATH }}
       - name: Validate Waline URL
         run: |
           if [ -z "${PUBLIC_WALINE_SERVER_URL}" ]; then
