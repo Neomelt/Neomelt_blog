@@ -18,11 +18,50 @@ import { getDefaultUiText } from "../../i18n/ui";
             <article class="policy-card">
                 <header class="policy-head">
                     <h1 data-i18n="terms.privacyTitle">{getDefaultUiText("terms.privacyTitle")}</h1>
-                    <p><span data-i18n="terms.updatedLabel">{getDefaultUiText("terms.updatedLabel")}</span>: 2026-02-24</p>
+                    <p>
+                        <span data-i18n="terms.updatedLabel">{getDefaultUiText("terms.updatedLabel")}</span>:
+                        <span data-i18n="terms.effectiveDate">{getDefaultUiText("terms.effectiveDate")}</span>
+                    </p>
                 </header>
-                <p data-i18n="terms.privacyBody1">{getDefaultUiText("terms.privacyBody1")}</p>
-                <p data-i18n="terms.privacyBody2">{getDefaultUiText("terms.privacyBody2")}</p>
-                <p data-i18n="terms.privacyBody3">{getDefaultUiText("terms.privacyBody3")}</p>
+                <p class="policy-intro" data-i18n="terms.privacyIntro">{getDefaultUiText("terms.privacyIntro")}</p>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.privacyS1Title">{getDefaultUiText("terms.privacyS1Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.privacyS1Item1">{getDefaultUiText("terms.privacyS1Item1")}</li>
+                        <li data-i18n="terms.privacyS1Item2">{getDefaultUiText("terms.privacyS1Item2")}</li>
+                        <li data-i18n="terms.privacyS1Item3">{getDefaultUiText("terms.privacyS1Item3")}</li>
+                    </ul>
+                </section>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.privacyS2Title">{getDefaultUiText("terms.privacyS2Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.privacyS2Item1">{getDefaultUiText("terms.privacyS2Item1")}</li>
+                        <li data-i18n="terms.privacyS2Item2">{getDefaultUiText("terms.privacyS2Item2")}</li>
+                        <li data-i18n="terms.privacyS2Item3">{getDefaultUiText("terms.privacyS2Item3")}</li>
+                    </ul>
+                </section>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.privacyS3Title">{getDefaultUiText("terms.privacyS3Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.privacyS3Item1">{getDefaultUiText("terms.privacyS3Item1")}</li>
+                        <li data-i18n="terms.privacyS3Item2">{getDefaultUiText("terms.privacyS3Item2")}</li>
+                        <li data-i18n="terms.privacyS3Item3">{getDefaultUiText("terms.privacyS3Item3")}</li>
+                    </ul>
+                </section>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.privacyS4Title">{getDefaultUiText("terms.privacyS4Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.privacyS4Item1">{getDefaultUiText("terms.privacyS4Item1")}</li>
+                        <li data-i18n="terms.privacyS4Item2">{getDefaultUiText("terms.privacyS4Item2")}</li>
+                        <li data-i18n="terms.privacyS4Item3">{getDefaultUiText("terms.privacyS4Item3")}</li>
+                    </ul>
+                </section>
+
+                <p class="policy-contact" data-i18n="terms.contact">{getDefaultUiText("terms.contact")}</p>
                 <a href="/terms/list" class="policy-back" data-i18n="terms.backToList">{getDefaultUiText("terms.backToList")}</a>
             </article>
         </div>
@@ -37,7 +76,7 @@ import { getDefaultUiText } from "../../i18n/ui";
     .policy-card {
         border: 1px solid var(--border);
         border-radius: 14px;
-        padding: 1.05rem;
+        padding: 1.15rem;
         background: var(--bg-card);
     }
 
@@ -58,6 +97,35 @@ import { getDefaultUiText } from "../../i18n/ui";
 
     .policy-card p {
         margin-bottom: 0.9rem;
+    }
+
+    .policy-intro {
+        color: var(--text-muted);
+    }
+
+    .policy-section {
+        margin-bottom: 1rem;
+    }
+
+    .policy-section h2 {
+        margin: 0 0 0.45rem;
+        font-size: 1.02rem;
+    }
+
+    .policy-list {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: var(--text-muted);
+    }
+
+    .policy-list li {
+        margin-bottom: 0.45rem;
+    }
+
+    .policy-contact {
+        margin-top: 0.2rem;
+        color: var(--text-muted);
+        font-size: 0.92rem;
     }
 
     .policy-back {

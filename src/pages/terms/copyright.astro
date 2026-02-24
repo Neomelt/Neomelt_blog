@@ -18,11 +18,50 @@ import { getDefaultUiText } from "../../i18n/ui";
             <article class="policy-card">
                 <header class="policy-head">
                     <h1 data-i18n="terms.copyrightTitle">{getDefaultUiText("terms.copyrightTitle")}</h1>
-                    <p><span data-i18n="terms.updatedLabel">{getDefaultUiText("terms.updatedLabel")}</span>: 2026-02-24</p>
+                    <p>
+                        <span data-i18n="terms.updatedLabel">{getDefaultUiText("terms.updatedLabel")}</span>:
+                        <span data-i18n="terms.effectiveDate">{getDefaultUiText("terms.effectiveDate")}</span>
+                    </p>
                 </header>
-                <p data-i18n="terms.copyrightBody1">{getDefaultUiText("terms.copyrightBody1")}</p>
-                <p data-i18n="terms.copyrightBody2">{getDefaultUiText("terms.copyrightBody2")}</p>
-                <p data-i18n="terms.copyrightBody3">{getDefaultUiText("terms.copyrightBody3")}</p>
+                <p class="policy-intro" data-i18n="terms.copyrightIntro">{getDefaultUiText("terms.copyrightIntro")}</p>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.copyrightS1Title">{getDefaultUiText("terms.copyrightS1Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.copyrightS1Item1">{getDefaultUiText("terms.copyrightS1Item1")}</li>
+                        <li data-i18n="terms.copyrightS1Item2">{getDefaultUiText("terms.copyrightS1Item2")}</li>
+                        <li data-i18n="terms.copyrightS1Item3">{getDefaultUiText("terms.copyrightS1Item3")}</li>
+                    </ul>
+                </section>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.copyrightS2Title">{getDefaultUiText("terms.copyrightS2Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.copyrightS2Item1">{getDefaultUiText("terms.copyrightS2Item1")}</li>
+                        <li data-i18n="terms.copyrightS2Item2">{getDefaultUiText("terms.copyrightS2Item2")}</li>
+                        <li data-i18n="terms.copyrightS2Item3">{getDefaultUiText("terms.copyrightS2Item3")}</li>
+                    </ul>
+                </section>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.copyrightS3Title">{getDefaultUiText("terms.copyrightS3Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.copyrightS3Item1">{getDefaultUiText("terms.copyrightS3Item1")}</li>
+                        <li data-i18n="terms.copyrightS3Item2">{getDefaultUiText("terms.copyrightS3Item2")}</li>
+                        <li data-i18n="terms.copyrightS3Item3">{getDefaultUiText("terms.copyrightS3Item3")}</li>
+                    </ul>
+                </section>
+
+                <section class="policy-section">
+                    <h2 data-i18n="terms.copyrightS4Title">{getDefaultUiText("terms.copyrightS4Title")}</h2>
+                    <ul class="policy-list">
+                        <li data-i18n="terms.copyrightS4Item1">{getDefaultUiText("terms.copyrightS4Item1")}</li>
+                        <li data-i18n="terms.copyrightS4Item2">{getDefaultUiText("terms.copyrightS4Item2")}</li>
+                        <li data-i18n="terms.copyrightS4Item3">{getDefaultUiText("terms.copyrightS4Item3")}</li>
+                    </ul>
+                </section>
+
+                <p class="policy-contact" data-i18n="terms.contact">{getDefaultUiText("terms.contact")}</p>
                 <a href="/terms/list" class="policy-back" data-i18n="terms.backToList">{getDefaultUiText("terms.backToList")}</a>
             </article>
         </div>
@@ -37,7 +76,7 @@ import { getDefaultUiText } from "../../i18n/ui";
     .policy-card {
         border: 1px solid var(--border);
         border-radius: 14px;
-        padding: 1.05rem;
+        padding: 1.15rem;
         background: var(--bg-card);
     }
 
@@ -58,6 +97,35 @@ import { getDefaultUiText } from "../../i18n/ui";
 
     .policy-card p {
         margin-bottom: 0.9rem;
+    }
+
+    .policy-intro {
+        color: var(--text-muted);
+    }
+
+    .policy-section {
+        margin-bottom: 1rem;
+    }
+
+    .policy-section h2 {
+        margin: 0 0 0.45rem;
+        font-size: 1.02rem;
+    }
+
+    .policy-list {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: var(--text-muted);
+    }
+
+    .policy-list li {
+        margin-bottom: 0.45rem;
+    }
+
+    .policy-contact {
+        margin-top: 0.2rem;
+        color: var(--text-muted);
+        font-size: 0.92rem;
     }
 
     .policy-back {
