@@ -1,4 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import type { FriendLink } from "../data/friends";
 
@@ -25,6 +28,11 @@ interface FriendCircleOptions {
     timeoutMs?: number;
 }
 
+interface FetchFeedResult {
+    posts: FriendCirclePost[];
+    fetched: boolean;
+}
+
 const xmlParser = new XMLParser({
     ignoreAttributes: false,
     attributeNamePrefix: "@_",
@@ -32,6 +40,11 @@ const xmlParser = new XMLParser({
     parseAttributeValue: false,
     trimValues: true,
 });
+
+const FRIEND_CIRCLE_CACHE_FILE = new URL(
+    "../../.cache/friend-circle.json",
+    import.meta.url,
+);
 
 function toArray<T>(value: T | T[] | undefined | null): T[] {
     if (Array.isArray(value)) return value;
@@ -152,8 +165,8 @@ function parseAtomPosts(parsed: Record<string, unknown>, fallbackBase: string): 
 async function fetchFeedPosts(
     friend: FriendLink,
     options: Required<FriendCircleOptions>,
-): Promise<FriendCirclePost[]> {
-    if (!friend.rss) return [];
+): Promise<FetchFeedResult> {
+    if (!friend.rss) return { posts: [], fetched: false };
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
@@ -166,10 +179,10 @@ async function fetchFeedPosts(
             },
         });
 
-        if (!response.ok) return [];
+        if (!response.ok) return { posts: [], fetched: false };
 
         const xmlContent = await response.text();
-        if (!xmlContent.trim()) return [];
+        if (!xmlContent.trim()) return { posts: [], fetched: true };
 
         const parsed = xmlParser.parse(xmlContent) as Record<string, unknown>;
         const feedPosts = [
@@ -179,7 +192,9 @@ async function fetchFeedPosts(
             .sort((a, b) => b.publishedAt - a.publishedAt)
             .slice(0, options.perFeedLimit);
 
-        return feedPosts.map((post) => ({
+        return {
+            fetched: true,
+            posts: feedPosts.map((post) => ({
             friendName: friend.name,
             friendUrl: friend.url,
             friendAvatar: friend.avatar,
@@ -188,11 +203,70 @@ async function fetchFeedPosts(
             publishedAt: post.publishedAt,
             publishedDate: toDateLabel(post.publishedAt),
             publishedISO: toDateIso(post.publishedAt),
-        }));
+            })),
+        };
     } catch {
-        return [];
+        return { posts: [], fetched: false };
     } finally {
         clearTimeout(timeout);
+    }
+}
+
+function dedupeAndLimitPosts(
+    posts: FriendCirclePost[],
+    totalLimit: number,
+): FriendCirclePost[] {
+    const dedupedPosts: FriendCirclePost[] = [];
+    const seenLinks = new Set<string>();
+    for (const post of posts) {
+        if (!post?.link || seenLinks.has(post.link)) continue;
+        seenLinks.add(post.link);
+        dedupedPosts.push(post);
+        if (dedupedPosts.length >= totalLimit) break;
+    }
+    return dedupedPosts;
+}
+
+function isValidCachedPost(value: unknown): value is FriendCirclePost {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return typeof candidate.link === "string"
+        && typeof candidate.title === "string"
+        && typeof candidate.friendName === "string";
+}
+
+async function readCachedPosts(totalLimit: number): Promise<FriendCirclePost[]> {
+    try {
+        const cacheRaw = await readFile(FRIEND_CIRCLE_CACHE_FILE, "utf-8");
+        const parsed = JSON.parse(cacheRaw) as { posts?: unknown[] } | null;
+        const cachedPosts = Array.isArray(parsed?.posts)
+            ? parsed.posts.filter(isValidCachedPost)
+            : [];
+
+        return dedupeAndLimitPosts(cachedPosts, totalLimit);
+    } catch {
+        return [];
+    }
+}
+
+async function writeCachedPosts(posts: FriendCirclePost[]): Promise<void> {
+    try {
+        const cachePath = fileURLToPath(FRIEND_CIRCLE_CACHE_FILE);
+        await mkdir(dirname(cachePath), { recursive: true });
+        await writeFile(
+            cachePath,
+            JSON.stringify(
+                {
+                    updatedAt: new Date().toISOString(),
+                    posts,
+                },
+                null,
+                2,
+            ),
+            "utf-8",
+        );
+    } catch {
+        // 缓存写入失败不应影响页面构建
     }
 }
 
@@ -207,22 +281,25 @@ export async function getFriendCirclePosts(
     };
 
     const feedFriends = friends.filter((friend) => Boolean(friend.rss));
-    const postGroups = await Promise.all(
+    const fetchResults = await Promise.all(
         feedFriends.map((friend) => fetchFeedPosts(friend, resolvedOptions)),
     );
 
-    const mergedPosts = postGroups
-        .flat()
+    const mergedPosts = fetchResults
+        .flatMap((result) => result.posts)
         .sort((a, b) => b.publishedAt - a.publishedAt);
 
-    const dedupedPosts: FriendCirclePost[] = [];
-    const seenLinks = new Set<string>();
-    for (const post of mergedPosts) {
-        if (seenLinks.has(post.link)) continue;
-        seenLinks.add(post.link);
-        dedupedPosts.push(post);
-        if (dedupedPosts.length >= resolvedOptions.totalLimit) break;
+    const dedupedPosts = dedupeAndLimitPosts(
+        mergedPosts,
+        resolvedOptions.totalLimit,
+    );
+
+    if (dedupedPosts.length > 0) {
+        await writeCachedPosts(dedupedPosts);
+        return dedupedPosts;
     }
 
-    return dedupedPosts;
+    // 外站抓取失败或暂无结果时，回退到上次成功缓存，保障构建稳定性
+    const cachedPosts = await readCachedPosts(resolvedOptions.totalLimit);
+    return cachedPosts;
 }
