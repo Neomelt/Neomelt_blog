@@ -70,11 +70,9 @@ function parseBoolean(inputValue, defaultValue = false) {
 }
 
 function buildFrontmatter({
-	type,
 	title,
 	description,
 	pubDate,
-	updatedDate,
 	pinned,
 	heroImage,
 	category,
@@ -82,26 +80,10 @@ function buildFrontmatter({
 	tags,
 }) {
 	const tagText = `[${tags.map((tag) => `'${escapeYamlString(tag)}'`).join(", ")}]`;
-	if (type === "zueg") {
-		return `---
-title: '${escapeYamlString(title)}'
-description: '${escapeYamlString(description)}'
-pubDate: '${pubDate}'
-updatedDate: '${updatedDate}'
-pinned: ${pinned}
-heroImage: '${escapeYamlString(heroImage)}'
-category: '${escapeYamlString(category || "随笔")}'
-tags: ${tagText}
----
-
-`;
-	}
-
 	return `---
 title: '${escapeYamlString(title)}'
 description: '${escapeYamlString(description)}'
 pubDate: '${pubDate}'
-updatedDate: '${updatedDate}'
 pinned: ${pinned}
 heroImage: '${escapeYamlString(heroImage)}'
 category: '${escapeYamlString(category)}'
@@ -113,24 +95,22 @@ tags: ${tagText}
 }
 
 function printHelp() {
-	console.log(`Create a new content file with frontmatter.
+	console.log(`Create a new blog post file with frontmatter.
 
 Usage:
   npm run new:post -- --title "My Post"
-  npm run new:zueg -- --title "My Essay"
+  npm run new -- --title "My Post"
 
 Optional flags:
-  --type blog|zueg
-  --title "Post title"
-  --slug "custom-file-name"
-  --desc "Short description"
-  --tags "tag1,tag2"
-  --category "Category name"
-  --series "Series name"      (blog only)
-  --pinned true|false
+  --title "Post title"                    (required)
+  --slug "custom-file-name"               (default: from title)
+  --desc "Short description"              (default: "")
+  --tags "tag1,tag2"                      (default: [])
+  --category "Category name"              (default: "")
+  --series "Series name"                  (default: "")
+  --pinned true|false                     (default: false)
   --hero "../../assets/cover.svg"
-  --pubDate "2026-02-24T18:30:00+08:00"
-  --updatedDate "2026-02-24T18:30:00+08:00"
+  --pubDate "2026-02-24T18:30:00+08:00"   (default: now)
   --dry-run
   --help`);
 }
@@ -151,17 +131,7 @@ async function main() {
 		return answer.trim() || defaultValue;
 	};
 
-	const rawType = String(args.type || "").trim().toLowerCase();
-	const type =
-		rawType === "blog" || rawType === "zueg"
-			? rawType
-			: canPrompt
-				? await ask("Type [blog/zueg]", "blog")
-				: "blog";
-
-	const normalizedType = type === "zueg" ? "zueg" : "blog";
 	const nowIso = formatLocalIsoWithOffset(new Date());
-
 	const title = (args.title && String(args.title).trim()) || (await ask("Title"));
 	if (!title) {
 		rl?.close();
@@ -169,7 +139,9 @@ async function main() {
 	}
 
 	const defaultSlug = sanitizeSlug(title) || `post-${Date.now()}`;
-	const slug = sanitizeSlug((args.slug && String(args.slug)) || (await ask("Slug", defaultSlug)));
+	const slug = sanitizeSlug(
+		(args.slug && String(args.slug).trim()) || (await ask("Slug", defaultSlug))
+	);
 	if (!slug) {
 		rl?.close();
 		throw new Error("Slug is invalid.");
@@ -177,13 +149,9 @@ async function main() {
 
 	const description =
 		(args.desc && String(args.desc).trim()) || (await ask("Description", ""));
-	const categoryDefault = normalizedType === "zueg" ? "随笔" : "";
 	const category =
-		(args.category && String(args.category).trim()) || (await ask("Category", categoryDefault));
-	const series =
-		normalizedType === "blog"
-			? (args.series && String(args.series).trim()) || (await ask("Series", ""))
-			: "";
+		(args.category && String(args.category).trim()) || (await ask("Category", ""));
+	const series = (args.series && String(args.series).trim()) || (await ask("Series", ""));
 	const tagsInput =
 		(args.tags && String(args.tags).trim()) || (await ask("Tags (comma separated)", ""));
 	const pinned =
@@ -195,18 +163,13 @@ async function main() {
 		(await ask("Hero image", "../../assets/cover.svg"));
 	const pubDate =
 		(args.pubDate && String(args.pubDate).trim()) || (await ask("pubDate", nowIso));
-	const updatedDate =
-		(args.updatedDate && String(args.updatedDate).trim()) ||
-		(await ask("updatedDate", pubDate));
 
-	const dirPath = path.resolve(process.cwd(), "src/content", normalizedType);
+	const dirPath = path.resolve(process.cwd(), "src/content/blog");
 	const filePath = path.join(dirPath, `${slug}.md`);
 	const frontmatter = buildFrontmatter({
-		type: normalizedType,
 		title,
 		description,
 		pubDate,
-		updatedDate,
 		pinned,
 		heroImage,
 		category,

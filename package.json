@@ -9,7 +9,7 @@
     "astro": "astro",
     "test": "vitest run",
     "new:post": "node scripts/new-post.mjs",
-    "new:zueg": "node scripts/new-post.mjs --type zueg"
+    "new": "node scripts/new-post.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

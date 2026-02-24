@@ -18,9 +18,10 @@ export interface Props {
 }
 
 const { post, headings, prevPost, nextPost, collection = "blog" } = Astro.props;
-const { title, description, updatedDate, tags } = post.data;
+const { title, description, tags } = post.data;
 const { pubDate: resolvedPubDate, updatedDate: resolvedUpdatedDate } = await resolvePostDates(post);
 const walinePath = getWalinePathForPost(post.id, collection);
+const shouldShowUpdated = resolvedUpdatedDate.valueOf() > resolvedPubDate.valueOf();
 
 const wordCount = (post.body || "").length;
 const readingTime = Math.max(1, Math.ceil(wordCount / 400));
@@ -52,7 +53,7 @@ const hasToc = headings.filter(h => h.depth <= 3).length > 0;
                     <h1 class="post-title">{title}</h1>
                     <div class="post-meta-row">
                         <FormattedDate date={resolvedPubDate} showTime={true} />
-                        {updatedDate && (
+                        {shouldShowUpdated && (
                             <span class="text-muted text-sm">（<span data-i18n="common.updatedAt">{getDefaultUiText("common.updatedAt")}</span> <FormattedDate date={resolvedUpdatedDate} showTime={true} />）</span>
                         )}
                         <span class="text-muted">·</span>
