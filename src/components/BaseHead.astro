@@ -70,22 +70,6 @@ const shouldNoindex = noindex || isLegacyBlogAliasPath(pathname);
 	}
 </script>
 
-<!-- Font preloads -->
-<link
-	rel="preload"
-	href="/fonts/atkinson-regular.woff"
-	as="font"
-	type="font/woff"
-	crossorigin
-/>
-<link
-	rel="preload"
-	href="/fonts/atkinson-bold.woff"
-	as="font"
-	type="font/woff"
-	crossorigin
-/>
-
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
@@ -108,6 +92,3 @@ const shouldNoindex = noindex || isLegacyBlogAliasPath(pathname);
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image.src, Astro.url)} />
-
-<!-- 背景管理器 -->
-<script src="/js/anime-background.js" is:inline></script>
