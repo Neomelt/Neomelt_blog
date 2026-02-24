@@ -133,11 +133,12 @@ const commentsFallbacks = {
 
 <style>
 	.comments-wrapper {
-		width: min(120vw, 1000px);
-		max-width: calc(100% - 2em);
+		width: 100%;
+		max-width: 1000px;
 		margin: 4rem auto 0;
-		padding: 2rem clamp(1em, 3vw, 2em) 0;
+		padding: 2rem clamp(0.85rem, 3vw, 2em) 0;
 		border-top: 1px solid var(--border);
+		box-sizing: border-box;
 	}
 
 	.comments-config-tip {
@@ -166,5 +167,12 @@ const commentsFallbacks = {
 	:global(.wl-input),
 	:global(.wl-count) {
 		color: var(--text);
+	}
+
+	@media (max-width: 640px) {
+		.comments-wrapper {
+			margin-top: 3rem;
+			padding-top: 1.5rem;
+		}
 	}
 </style>

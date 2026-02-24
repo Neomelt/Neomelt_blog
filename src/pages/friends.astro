@@ -697,6 +697,41 @@ const myFriendLinkText = myFriendLinkItems
             width: 46px;
             height: 46px;
         }
+
+        .friends-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .circle-link {
+            align-items: flex-start;
+        }
+
+        .circle-title {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+        }
+
+        .apply-actions {
+            flex-direction: column;
+        }
+
+        .apply-btn {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .self-link-row {
+            grid-template-columns: 1fr;
+            gap: 0.35rem;
+        }
+
+        .self-link-copy {
+            grid-column: 1;
+            margin-top: 0;
+        }
     }
 </style>
 
