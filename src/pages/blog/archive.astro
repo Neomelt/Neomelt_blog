@@ -5,16 +5,32 @@ import ProfileCard from "../../components/ProfileCard.astro";
 import Sidebar from "../../components/Sidebar.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // 获取所有博客文章
 const posts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(posts);
+
+function getResolvedPubDate(post: (typeof posts)[number]) {
+    return postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+}
+
+function formatArchiveDateTime(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
 
 // 按年份和月份组织文章
 const postsByYear: Record<string, Record<string, typeof posts>> = {};
 
 posts.forEach((post) => {
-    const year = post.data.pubDate.getFullYear().toString();
-    const month = (post.data.pubDate.getMonth() + 1)
+    const resolvedDate = getResolvedPubDate(post);
+    const year = resolvedDate.getFullYear().toString();
+    const month = (resolvedDate.getMonth() + 1)
         .toString()
         .padStart(2, "0");
 
@@ -31,7 +47,7 @@ posts.forEach((post) => {
 Object.keys(postsByYear).forEach((year) => {
     Object.keys(postsByYear[year]).forEach((month) => {
         postsByYear[year][month].sort(
-            (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+            (a, b) => getResolvedPubDate(b).getTime() - getResolvedPubDate(a).getTime(),
         );
     });
 });
@@ -99,9 +115,7 @@ const monthNames = [
 																	{post.data.title}
 																</a>
 																<span class="text-sm text-gray-500 dark:text-gray-400">
-																	{post.data.pubDate.toLocaleDateString(
-																		"zh-CN",
-																	)}
+																	{formatArchiveDateTime(getResolvedPubDate(post))}
 																</span>
 															</li>
 														),

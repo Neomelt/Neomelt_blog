@@ -3,18 +3,32 @@ import { getCollection } from "astro:content";
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // Merge both collections
 const blogPosts = await getCollection("blog");
 const zuegPosts = await getCollection("zueg");
-const allPosts = [...blogPosts, ...zuegPosts].sort(
-    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const allPosts = [...blogPosts, ...zuegPosts];
+const postDatesMap = await resolvePostDatesMap(allPosts);
+allPosts.sort((a, b) => {
+    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+    return bDate.valueOf() - aDate.valueOf();
+});
+
+function formatArchiveDate(date: Date): string {
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${mm}-${dd} ${hh}:${min}`;
+}
 
 // Group by year
 const byYear: Record<string, typeof allPosts> = {};
 for (const post of allPosts) {
-    const year = post.data.pubDate.getFullYear().toString();
+    const resolvedPubDate = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+    const year = resolvedPubDate.getFullYear().toString();
     if (!byYear[year]) byYear[year] = [];
     byYear[year].push(post);
 }
@@ -44,12 +58,10 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
                         {byYear[year].map((post) => {
                             const isZueg = post.collection === "zueg";
                             const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
-                            const date = post.data.pubDate;
-                            const mm = String(date.getMonth() + 1).padStart(2, "0");
-                            const dd = String(date.getDate()).padStart(2, "0");
+                            const date = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
                             return (
                                 <li class="archive-item">
-                                    <span class="archive-date">{mm}-{dd}</span>
+                                    <span class="archive-date">{formatArchiveDate(date)}</span>
                                     <a href={url} class="archive-title">{post.data.title}</a>
                                     {isZueg && <span class="tag" style="font-size:0.7rem" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 </li>

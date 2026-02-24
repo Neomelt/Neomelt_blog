@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
 
 type PostEntry = CollectionEntry<"blog"> | CollectionEntry<"zueg">;
+export type ResolvedPostDates = { pubDate: Date; updatedDate: Date };
 
 type GitIsoParts = {
     iso: string;
@@ -120,7 +121,11 @@ async function readGitDates(filePath?: string): Promise<GitDates> {
     }
 }
 
-export async function resolvePostDates(post: PostEntry): Promise<{ pubDate: Date; updatedDate: Date }> {
+export function getPostDateKey(post: PostEntry): string {
+    return `${post.collection}:${post.id}`;
+}
+
+export async function resolvePostDates(post: PostEntry): Promise<ResolvedPostDates> {
     const [{ pubDateRaw, updatedDateRaw }, gitDates] = await Promise.all([
         readFrontmatterDates(post.filePath),
         readGitDates(post.filePath),
@@ -159,4 +164,11 @@ export async function resolvePostDates(post: PostEntry): Promise<{ pubDate: Date
     }
 
     return { pubDate, updatedDate };
+}
+
+export async function resolvePostDatesMap(posts: PostEntry[]): Promise<Map<string, ResolvedPostDates>> {
+    const pairs = await Promise.all(
+        posts.map(async (post) => [getPostDateKey(post), await resolvePostDates(post)] as const)
+    );
+    return new Map(pairs);
 }

@@ -7,15 +7,20 @@ import { paginate } from "../../utils/pagination.ts";
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
 import { getWalinePathForPost } from "../../utils/waline";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // Merge blog + zueg, sort pinned first then by date
 const blogPosts = await getCollection("blog");
 const zuegPosts = await getCollection("zueg");
+const allPosts = [...blogPosts, ...zuegPosts];
+const postDatesMap = await resolvePostDatesMap(allPosts);
 
-const allPosts = [...blogPosts, ...zuegPosts].sort((a, b) => {
+allPosts.sort((a, b) => {
     if (a.data.pinned && !b.data.pinned) return -1;
     if (!a.data.pinned && b.data.pinned) return 1;
-    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+    return bDate.valueOf() - aDate.valueOf();
 });
 
 const { items: paginatedPosts, pagination } = paginate(allPosts, 1, 10);
@@ -42,10 +47,12 @@ function estimateReadingTime(content: string): number {
                     const url = isZueg ? `/posts/zueg/${post.id}` : `/posts/${post.id}`;
                     const walinePath = getWalinePathForPost(post.id, isZueg ? "zueg" : "blog");
                     const readingTime = estimateReadingTime(post.body || "");
+                    const resolvedPubDate =
+                        postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
                     return (
                         <a href={url} class="post-card">
                             <div class="post-card-meta">
-                                <FormattedDate date={post.data.pubDate} />
+                                <FormattedDate date={resolvedPubDate} />
                                 {isZueg && <span class="tag" data-i18n="common.essay">{getDefaultUiText("common.essay")}</span>}
                                 {post.data.pinned && (
                                     <span class="badge-pinned" data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>

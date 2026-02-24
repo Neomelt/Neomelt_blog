@@ -8,11 +8,16 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { paginate } from "../../utils/pagination.ts";
 import { getDefaultUiText } from "../../i18n/ui";
 import { getWalinePathForPost } from "../../utils/waline";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
-const posts = (await getCollection("blog")).sort((a, b) => {
+const posts = await getCollection("blog");
+const postDatesMap = await resolvePostDatesMap(posts);
+posts.sort((a, b) => {
 	if (a.data.pinned && !b.data.pinned) return -1;
 	if (!a.data.pinned && b.data.pinned) return 1;
-	return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+	const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+	const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+	return bDate.valueOf() - aDate.valueOf();
 });
 
 const { items: paginatedPosts, pagination } = paginate(posts, 1, 5);
@@ -73,6 +78,8 @@ const allCategories = [
 						const readingTime = estimateReadingTime(post.body || "");
 						const wordCount = (post.body || "").length;
 						const walinePath = getWalinePathForPost(post.id, "blog");
+						const resolvedPubDate =
+							postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
 						
 						return (
 							<article class="post-card-item" data-category={post.data.category || uncategorizedLabel}>
@@ -91,7 +98,7 @@ const allCategories = [
 									<div class="post-content">
 										<div class="post-header">
 											<div class="post-date">
-												<FormattedDate date={post.data.pubDate} />
+												<FormattedDate date={resolvedPubDate} />
 											</div>
 											{post.data.category && (
 												<span class="post-category">{post.data.category}</span>
