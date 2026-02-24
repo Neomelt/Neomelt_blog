@@ -1,0 +1,73 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../../consts";
+import { getDefaultUiText } from "../../i18n/ui";
+---
+
+<BaseLayout title={`${getDefaultUiText("terms.conditionsTitle")} | ${SITE_TITLE}`}>
+    <main>
+        <div class="container policy-page">
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
+                <span class="breadcrumb-sep">/</span>
+                <a href="/terms/list" data-i18n="terms.listTitle">{getDefaultUiText("terms.listTitle")}</a>
+                <span class="breadcrumb-sep">/</span>
+                <span data-i18n="terms.conditionsTitle">{getDefaultUiText("terms.conditionsTitle")}</span>
+            </nav>
+
+            <article class="policy-card">
+                <header class="policy-head">
+                    <h1 data-i18n="terms.conditionsTitle">{getDefaultUiText("terms.conditionsTitle")}</h1>
+                    <p><span data-i18n="terms.updatedLabel">{getDefaultUiText("terms.updatedLabel")}</span>: 2026-02-24</p>
+                </header>
+                <p data-i18n="terms.conditionsBody1">{getDefaultUiText("terms.conditionsBody1")}</p>
+                <p data-i18n="terms.conditionsBody2">{getDefaultUiText("terms.conditionsBody2")}</p>
+                <p data-i18n="terms.conditionsBody3">{getDefaultUiText("terms.conditionsBody3")}</p>
+                <a href="/terms/list" class="policy-back" data-i18n="terms.backToList">{getDefaultUiText("terms.backToList")}</a>
+            </article>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .policy-page {
+        padding-top: 0.25rem;
+    }
+
+    .policy-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.05rem;
+        background: var(--bg-card);
+    }
+
+    .policy-head {
+        margin-bottom: 0.8rem;
+    }
+
+    .policy-head h1 {
+        margin: 0 0 0.35rem;
+        font-size: clamp(1.4rem, 3vw, 1.75rem);
+    }
+
+    .policy-head p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .policy-card p {
+        margin-bottom: 0.9rem;
+    }
+
+    .policy-back {
+        display: inline-block;
+        margin-top: 0.4rem;
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+    .policy-back:hover {
+        text-decoration: underline;
+    }
+</style>

@@ -1,0 +1,150 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../../consts";
+import { getDefaultUiText } from "../../i18n/ui";
+
+const policyEntries = [
+    {
+        href: "/terms/privacy-policy",
+        titleKey: "terms.privacyTitle",
+        descKey: "terms.privacyDesc",
+    },
+    {
+        href: "/terms/terms-and-conditions",
+        titleKey: "terms.conditionsTitle",
+        descKey: "terms.conditionsDesc",
+    },
+    {
+        href: "/terms/copyright",
+        titleKey: "terms.copyrightTitle",
+        descKey: "terms.copyrightDesc",
+    },
+    {
+        href: "/terms/disclaimer",
+        titleKey: "terms.disclaimerTitle",
+        descKey: "terms.disclaimerDesc",
+    },
+] as const;
+---
+
+<BaseLayout title={`${getDefaultUiText("terms.metaTitle")} | ${SITE_TITLE}`}>
+    <main>
+        <div class="container terms-page">
+            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
+                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
+                <span class="breadcrumb-sep">/</span>
+                <span data-i18n="terms.listTitle">{getDefaultUiText("terms.listTitle")}</span>
+            </nav>
+
+            <section class="terms-head">
+                <h1 data-i18n="terms.listTitle">{getDefaultUiText("terms.listTitle")}</h1>
+                <p data-i18n="terms.listLead">{getDefaultUiText("terms.listLead")}</p>
+            </section>
+
+            <section class="terms-card" aria-labelledby="terms-card-title">
+                <h2 id="terms-card-title" data-i18n="terms.cardTitle">{getDefaultUiText("terms.cardTitle")}</h2>
+                <ul class="terms-list">
+                    {policyEntries.map((entry) => (
+                        <li>
+                            <a href={entry.href} class="terms-item">
+                                <span class="terms-item-title" data-i18n={entry.titleKey}>{getDefaultUiText(entry.titleKey)}</span>
+                                <span class="terms-item-desc" data-i18n={entry.descKey}>{getDefaultUiText(entry.descKey)}</span>
+                                <span class="terms-item-arrow" aria-hidden="true">›</span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .terms-page {
+        padding-top: 0.25rem;
+    }
+
+    .terms-head {
+        margin-bottom: 1.1rem;
+    }
+
+    .terms-head h1 {
+        margin: 0 0 0.6rem;
+        font-size: clamp(1.7rem, 4vw, 2.05rem);
+        line-height: 1.25;
+    }
+
+    .terms-head p {
+        margin: 0;
+        color: var(--text-muted);
+    }
+
+    .terms-card {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1rem;
+        background: var(--bg-card);
+    }
+
+    .terms-card h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1rem;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .terms-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.6rem;
+    }
+
+    .terms-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.4rem 0.8rem;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.72rem 0.82rem;
+        text-decoration: none;
+        color: inherit;
+        transition: border-color var(--transition), transform var(--transition), background var(--transition);
+    }
+
+    .terms-item:hover {
+        border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+        background: var(--bg);
+        transform: translateY(-1px);
+        color: inherit;
+    }
+
+    .terms-item-title {
+        font-weight: 600;
+    }
+
+    .terms-item-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        grid-column: 1;
+    }
+
+    .terms-item-arrow {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        color: var(--text-muted);
+        font-size: 1.15rem;
+    }
+
+    @media (max-width: 640px) {
+        .terms-card {
+            padding: 0.8rem;
+        }
+
+        .terms-item {
+            padding: 0.66rem 0.72rem;
+        }
+    }
+</style>
