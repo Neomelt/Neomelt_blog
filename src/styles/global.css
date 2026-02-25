@@ -43,6 +43,9 @@
 		-apple-system,
 		sans-serif;
 	--font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+	--prose-width: 66ch;
+	--prose-line-height: 1.76;
+	--prose-letter-spacing: 0.012em;
 
 	/* Spacing */
 	--content-width: 800px;
@@ -61,7 +64,7 @@
 	--bg-card: #1a1a1a;
 	--bg-code: #1e1e1e;
 	--border: #27272a;
-	--text: #fafafa;
+	--text: #e9e9eb;
 	--text-muted: #a1a1aa;
 	--accent: #60a5fa;
 	--accent-hover: #93c5fd;
@@ -101,6 +104,9 @@ body {
 	color: var(--text);
 	font-size: 1.0625rem;
 	line-height: 1.8;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 	min-height: 100vh;
 	overflow-x: hidden;
 	transition: background-color var(--transition), color var(--transition);
@@ -172,10 +178,13 @@ p {
 
 /* ---------- Prose (blog post content) ---------- */
 .prose {
-	max-width: var(--content-width);
+	max-width: var(--prose-width);
 	color: var(--text);
-	font-size: 1rem;
-	line-height: 1.8;
+	font-size: 1.03rem;
+	line-height: var(--prose-line-height);
+	letter-spacing: var(--prose-letter-spacing);
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
 }
 
 .prose h1,
@@ -185,6 +194,7 @@ p {
 	margin-top: 2rem;
 	margin-bottom: 0.75rem;
 	font-weight: 600;
+	letter-spacing: 0.01em;
 	scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
@@ -637,8 +647,10 @@ p {
 	}
 
 	.prose {
-		font-size: 0.96rem;
-		line-height: 1.75;
+		max-width: 100%;
+		font-size: 1rem;
+		line-height: 1.78;
+		letter-spacing: 0.008em;
 	}
 
 	.prose pre {
