@@ -4,6 +4,7 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import CodeCopyButton from "../components/CodeCopyButton.astro";
 import WalineCounter from "../components/WalineCounter.astro";
+import ClickParticleEffect from "../components/ClickParticleEffect.astro";
 import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, UI_TRANSLATIONS } from "../i18n/ui";
 
 export interface Props {
@@ -123,6 +124,7 @@ const { title, description = "" } = Astro.props;
         <slot />
         <WalineCounter />
         <CodeCopyButton />
+        <ClickParticleEffect />
         <Footer />
     </body>
 </html>
