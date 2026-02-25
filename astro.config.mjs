@@ -7,6 +7,7 @@ import { defineConfig } from 'astro/config';
 
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import remarkVideoEmbed from "./src/utils/remark-video-embed.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,7 +15,7 @@ export default defineConfig({
 	integrations: [mdx(), sitemap(), tailwind()],
 
 	markdown: {
-    remarkPlugins: [remarkMath],
+    remarkPlugins: [remarkMath, remarkVideoEmbed],
     rehypePlugins: [rehypeKatex],
   }
 });

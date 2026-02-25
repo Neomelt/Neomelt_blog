@@ -53,6 +53,16 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## 🎬 Video Shortcode
+
+In blog markdown files, you can quickly embed video with one line:
+
+```md
+@[video](https://www.youtube.com/watch?v=M7lc1UVf-VE)
+@[youtube](M7lc1UVf-VE)
+@[bilibili](https://www.bilibili.com/video/BV1xx411c7mD)
+```
+
 ## 👀 Want to learn more?
 
 Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

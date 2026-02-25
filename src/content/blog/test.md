@@ -26,6 +26,16 @@ $$
 ![202601301769774808480](../../../images/2026/01/30.png)  
 图片的快捷插入采用markdown-image插件来实现，需要按下shift+alt+v实现将剪切板的图片插入markdown中，并自动创建文件夹和相对路径链接
 
+## 视频嵌入测试
+
+下面是一行快捷语法（自动识别并渲染 iframe）：
+
+@[video](https://www.youtube.com/watch?v=M7lc1UVf-VE)
+
+也支持直接写平台和视频 ID：
+
+@[youtube](M7lc1UVf-VE)
+
 这是一个参考文献[^1]。
 
 ## 参考文献
