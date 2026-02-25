@@ -2,8 +2,8 @@
    GLOBAL CSS — Minimalist Technical Blog
    ============================================================ */
 
-/* ---------- Google Fonts ---------- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;700&display=swap');
+/* ---------- Web Fonts ---------- */
+@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css');
 
 /* ---------- Design Tokens (Light Mode) ---------- */
 :root {
@@ -33,7 +33,15 @@
 	--gray-light: 228, 228, 231;
 
 	/* Typography */
-	--font-sans: 'Inter', 'Noto Serif SC', system-ui, -apple-system, sans-serif;
+	--font-sans:
+		'LXGW WenKai',
+		'Noto Serif SC',
+		'PingFang SC',
+		'Hiragino Sans GB',
+		'Microsoft YaHei',
+		system-ui,
+		-apple-system,
+		sans-serif;
 	--font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 
 	/* Spacing */
