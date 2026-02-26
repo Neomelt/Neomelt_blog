@@ -9,60 +9,64 @@ series: ''
 tags: ['OpenClaw', 'sub2api', 'Telegram Bot', '排障', '工程复盘']
 ---
 
-这篇不是“我改了什么配置”的流水账，而是一次完整排障复盘：  
-我当时怎么误判、怎么验证、为什么能得出最终结论。
+这篇文章记录一次完整的排障过程，目标是把 OpenClaw 从多错并发的状态恢复至可用。
 
-最终稳定状态是：
+最终结果：
 
-- WebUI 不再报 `No API key found for provider "openai-codex"`。
-- `sub2api/gpt-5.3-codex` 可正常返回内容。
-- Telegram Bot 可连通、可配对、可会话。
+- `No API key found for provider "openai-codex"` 不再出现。
+- `sub2api / gpt-5.3-codex` 能正常返回内容，403 解除。
+- Telegram 机器人完成配对后可稳定对话。
 
-## 问题拆分：先分层，再动手
+为了后续复用，把排障拆成两条主线：模型链路、Telegram 链路。
 
-起始症状有三条：
+## 故障现象
 
-1. `No API key found for provider "openai-codex"`
-2. `403 Your request was blocked.`
-3. Telegram `deleteWebhook/setMyCommands ... Network request failed`
+初始日志中持续出现三类报错：
 
-如果把这三条当成一个问题处理，基本必死。  
-我最后采用的分层是：
+```text
+No API key found for provider "openai-codex"
+telegram deleteWebhook failed: Network request for 'deleteWebhook' failed!
+telegram setMyCommands failed: Network request for 'setMyCommands' failed!
+```
 
-- **模型路由/鉴权层**
-- **上游网关策略层**
-- **Telegram 通道网络层**
+以及一条权限相关提示（后续步骤中用到）：
 
-## 第一条线：模型为什么报 `No API key`
+```text
+security audit: device access upgrade requested ...
+```
 
-### 我一开始的误判
+这三类错误不是同一根因，需要分开处理。
 
-“文件里明明有 key，为什么还说没有 key？是不是 OpenClaw bug？”
+## 三个初始误判
 
-这个判断后来证明是错的。  
-关键不在“有没有 key”，而在“**key 是不是以当前版本可识别的结构存储**”。
+先把错误判断列出来，这比"最终答案"更有参考价值。
 
-### 我怎么验证这个判断
+1. 看到 `No API key` 就认为是 key 本身无效。
+2. 看到 `403 blocked` 就认为是 key 或 model 名配置错误。
+3. 看到 Telegram 网络失败，认为 shell 中的代理变量已经够用。
 
-先看运行时状态，而不是只看静态文件。用：
+这三个判断后来都被逐一推翻。
+
+## 第一阶段：`No API key` 是路由与 auth schema 问题
+
+### 先看运行时，而不是静态配置
 
 ```bash
 openclaw models status --json
 ```
 
-它会告诉你当前 `resolvedDefault`、`provider`、`auth store` 识别结果。  
-当时可以看到会话还在尝试走 `openai-codex`，并且 auth store 中 profile 结构不匹配当前期望。
+这一步的关键不在于核对 key 的值，而是确认当前会话实际走的 provider 路径。
+输出中仍然存在 `openai-codex` 残留路径被尝试，说明问题不是"没写 key"，而是"系统在尝试走一个已被废弃的 provider"。
 
-### `auth-profiles.json` 到底改了什么
+### `auth-profiles.json` 有内容不代表能被当前版本正确读取
 
-旧结构是历史版本风格（key 在，但 schema 不被当前版本消费）。  
-当前版本期望类似：
+当时文件中有内容，但结构不符合当前版本的识别格式。整理后的结构（脱敏）：
 
 ```json
 {
   "version": 1,
   "profiles": {
-    "provider:label": {
+    "provider:xxx": {
       "type": "api_key",
       "provider": "xxx",
       "key": "sk-***"
@@ -73,54 +77,38 @@ openclaw models status --json
 }
 ```
 
-我当时做了两件事：
+处理步骤：先验证 schema 能被正常读取，再把不再使用的 provider 彻底移除，避免旧残留干扰路由。
 
-1. 先迁移成当前 schema（验证读取链路恢复）。
-2. 后续确认不再使用 `openai-codex` 后，直接清空 `profiles`，避免旧 provider 残留误导路由。
+### 模型侧的最终收敛
 
-这个“先迁移再清理”的顺序很重要：  
-先证明不是文件损坏，再做精简，避免一上来全删导致定位信息丢失。
+只保留 `sub2api/gpt-5.3-codex` 这一条可用路径。
+多个 provider 并存时，session 实际走的路径和预期可能不一致，排障结论因此失效。
 
-### 同时做的一个必要动作：路由去残留
+## 第二阶段：`403 blocked` 是上游策略拦截，而非 key 错误
 
-我把模型白名单收敛成单一入口，避免 UI 或旧 session 误选：
+这是整次排障中最不直观的部分。
 
-- 仅保留 `sub2api/gpt-5.3-codex`
-- 移除 `openai/*`、`myapi/*` 等历史条目
+### 排除 key 错误的方法
 
-一句话：**让系统没有“走错路”的机会**。
+用同一把 key 分别测模型枚举接口和推理接口：
 
-## 第二条线：为什么会 `403 Your request was blocked.`
+- 枚举接口（`GET /v1/models`）：正常返回
+- 推理接口（`POST /v1/responses`）：返回 403
 
-### 第二次误判
+结论：不是完全鉴权失败，而是特定类型的请求被上游策略拒绝。
 
-我最初也怀疑是 key 错误或模型名错误。
+### 定位到 User-Agent 的过程
 
-但很快被证据推翻：
+控制变量：同一 endpoint、同一 key、同一 body，仅修改请求头。
 
-- `GET /v1/models` 返回 200（说明 key 至少可用于模型查询）
-- OpenClaw 元数据里 provider/model 都是目标值（说明请求确实到达上游）
-- 只有推理请求失败（`403 blocked`）
+- SDK 风格 UA：403
+- `curl/8.5.0` UA：正常返回
 
-这意味着：不是“没到上游”，而是“上游在拒绝某类推理请求”。
+可以确认：上游对客户端指纹（UA）存在拦截策略，并非账号或模型配置问题。
 
-### 我怎么一步步锁定到 UA 过滤
+### 修复方案
 
-做了一个最小探测矩阵（curl）：
-
-- 同 key、同 endpoint，改不同请求头（尤其 `User-Agent`）
-- 对比 `OpenAI/JS` 风格 UA 与 `curl` UA 的返回差异
-
-结果是关键证据：
-
-- OpenAI SDK 风格 UA -> 403
-- `curl` UA -> 可通过
-
-这就把问题从“鉴权错误”收缩成“**上游风控策略拦截客户端指纹**”。
-
-### 最终修复动作
-
-在 provider 配置显式覆盖请求头：
+在 `sub2api` provider 配置中显式覆盖 User-Agent：
 
 ```json
 {
@@ -136,44 +124,22 @@ openclaw models status --json
 }
 ```
 
-加完后再跑：
+用新 session 验证：
 
 ```bash
 openclaw agent --agent main --session-id <new> --message "回复ok" --json
 ```
 
-返回从 `403` 变成正常文本，这一步才算闭环。
+返回正常内容，模型链路收口。
 
-## 第三条线：Telegram 为什么一直网络失败
+## 第三阶段：Telegram 网络失败是进程环境边界问题
 
-### 第三个误判
+shell 中已配置代理，但 gateway 依旧报 `Network request failed`。
 
-“我 shell 里已经有 `HTTP_PROXY/HTTPS_PROXY`，服务应该也能走代理。”
+原因在于：gateway 是 systemd 用户服务，并非当前终端的子进程。
+在 shell 中 `export HTTP_PROXY` 不会注入到已运行的 systemd service 进程。
 
-这是常见误区。
-
-### 机制解释：为什么 shell 有代理，gateway 还是不通
-
-OpenClaw gateway 是 systemd 用户服务进程，不是你当前终端子进程。  
-你的 shell `export` 只对当前会话和其子进程生效，**不会自动注入到已运行的 systemd 服务**。
-
-另外，Telegram 通道内部走的是自己的 fetch 路径（grammY + undici），最佳做法不是赌全局环境变量，而是给通道显式配置。
-
-### 我怎么验证 Telegram 不是 token 问题
-
-先直接调用：
-
-```bash
-curl "https://api.telegram.org/bot<token>/getMe"
-```
-
-返回 `ok: true`，说明 token 有效。
-
-再用同款代理链路做 API 探测（`getMe/deleteWebhook/setMyCommands`）都 200，说明代理路径本身可用。
-
-### 最终修复动作
-
-在 `channels.telegram` 增加专用代理：
+解决方法是直接在通道配置中写入显式代理：
 
 ```json
 {
@@ -188,70 +154,44 @@ curl "https://api.telegram.org/bot<token>/getMe"
 }
 ```
 
-然后重启服务，观察日志窗口。  
-如果配置生效，你会看到 Telegram provider 重启后，不再刷屏 `setMyCommands/deleteWebhook failed`。
+重启后日志中 `setMyCommands/deleteWebhook` 不再循环报错。
 
-## 一个容易漏掉的步骤：设备授权
+## 容易遗漏的步骤：设备权限批准
 
-这次流程里还有一步很多人会忽略：设备/权限批准。  
-当 CLI 或控制面出现 scope 升级请求时，需要批准设备权限，否则部分操作会卡在 auth 边界。
-
-我当时执行过：
+如果日志中已出现 scope upgrade request，需要执行设备批准：
 
 ```bash
 openclaw devices approve --latest
 ```
 
-这一步不总是必需，但在“新设备 + 新会话 + 配置变更频繁”的排障窗口里，建议显式检查一次。
+这一步缺失会导致 CLI 与 gateway 之间的连接持续被拒。
 
-## 为什么“只回配对码”是对的
+## `dmPolicy = "pairing"` 时机器人只回配对码是预期行为
 
-Telegram 最后阶段我也差点误判。  
-当 `dmPolicy = "pairing"` 时，机器人首次只回：
+首次私聊时，机器人只返回 user id 和 pairing code，这不是故障。
 
-- 你的 Telegram user id
-- pairing code
-- owner 需要执行的批准命令
-
-例如：
+拿到 code 后执行批准命令：
 
 ```bash
 openclaw pairing approve telegram UCJPTR6U
 ```
 
-这不是故障，是设计行为。批准后才能进入正常对话。
+批准完成后，后续消息才会进入正常会话。
 
-## 我这次真正走过的弯路
+## 排障方法论总结
 
-1. **把“有 key”当成“可用 auth”**  
-   忽略了 schema 兼容性。
-2. **把 403 直接归因为 key 错误**  
-   没先做请求头与 endpoint 的对照实验。
-3. **把 shell 代理当成系统服务代理**  
-   忽略了 systemd 进程环境边界。
+这次排障暴露了一个常见误区：按报错文案的字面含义直接修改配置，而不验证实际的运行时状态。
 
-复盘最有价值的不是“最后怎么配”，而是“怎么排除错误路径”。
+更可靠的做法分四步：
 
-## 最终可复用的排障框架
+1. 先确认运行时的实际路由，而非只看静态配置文件。
+2. 将"本地读取问题"与"上游拒绝问题"分开验证。
+3. 对模糊错误（如 403）做最小变量实验，逐一排除 UA、endpoint、body 的影响。
+4. 涉及 systemd 服务时，不依赖 shell 环境继承，所有配置显式写入。
 
-如果你也遇到类似连环问题，我建议按这个顺序：
-
-1. 先用 `openclaw models status --json` 看真实路由与 provider。
-2. 把“本地配置读取失败”与“上游拒绝请求”分开验证。
-3. 用最小 curl 矩阵验证 endpoint、model、headers（尤其 UA）。
-4. 对 systemd 服务，显式配置通道级代理，不依赖 shell export。
-5. Telegram `pairing` 模式下，先批准 pairing code 再测功能。
-6. 检查是否有设备权限批准待处理（`devices approve`）。
+报错文案是排障入口，不是结论。
 
 ## 安全提醒
 
-- 文中所有 key/token 都应脱敏，真实值不要进仓库。
-- 排障结束后建议轮换一次关键凭据。
-- 能放环境变量的就不要硬编码进配置文件。
-
----
-
-这次最大的收获是：  
-**排障深度来自“证据链”，不是“改好了”。**
-
-当你能清楚写出“假设 -> 证据 -> 结论 -> 回归验证”，这篇复盘才真正有复用价值。
+排障过程中出现过真实 key 和 token，文章内已做脱敏处理。
+修复完成后建议对相关凭据做一次轮换，这不是流程形式，而是降低实际泄漏风险的必要动作。
