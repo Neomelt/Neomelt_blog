@@ -9,79 +9,118 @@ series: ''
 tags: ['OpenClaw', 'sub2api', 'Telegram Bot', '排障', '工程复盘']
 ---
 
-这篇文章记录一次完整的生产级排障：  
-目标很明确，就是把 OpenClaw 从“WebUI 报错 + Telegram 不通”的状态，恢复到可稳定对话。
+这篇不是“我改了什么配置”的流水账，而是一次完整排障复盘：  
+我当时怎么误判、怎么验证、为什么能得出最终结论。
 
-最终结果：
+最终稳定状态是：
 
-- WebUI 不再出现 `No API key found for provider "openai-codex"`。
-- 自定义模型提供方 `sub2api` 可正常返回内容。
-- Telegram Bot 能正常接收消息并进入会话（配对后可用）。
+- WebUI 不再报 `No API key found for provider "openai-codex"`。
+- `sub2api/gpt-5.3-codex` 可正常返回内容。
+- Telegram Bot 可连通、可配对、可会话。
 
-为了后续复用，我把排障过程按时间线拆成了两条主线：模型链路、Telegram 链路。
+## 问题拆分：先分层，再动手
 
-## 故障现象
+起始症状有三条：
 
-一开始看起来像是“单点问题”，其实是多个问题叠加：
+1. `No API key found for provider "openai-codex"`
+2. `403 Your request was blocked.`
+3. Telegram `deleteWebhook/setMyCommands ... Network request failed`
 
-1. WebUI 直接报错：
-   `Agent failed before reply: No API key found for provider "openai-codex"`
-2. Telegram 网关持续报错：
-   `deleteWebhook/setMyCommands ... Network request failed`
-3. 切换到自定义 provider 后又出现：
-   `403 Your request was blocked.`
+如果把这三条当成一个问题处理，基本必死。  
+我最后采用的分层是：
 
-这三个错误不是同一个根因，需要拆开处理。
+- **模型路由/鉴权层**
+- **上游网关策略层**
+- **Telegram 通道网络层**
 
-## 第一阶段：模型链路修复
+## 第一条线：模型为什么报 `No API key`
 
-### 1) 先把 `openai-codex` 历史依赖清理干净
+### 我一开始的误判
 
-最早问题是 OpenClaw 还在走 `openai-codex` 的鉴权路径，而当前使用的是普通 API Key 和第三方网关。
+“文件里明明有 key，为什么还说没有 key？是不是 OpenClaw bug？”
 
-处理点：
+这个判断后来证明是错的。  
+关键不在“有没有 key”，而在“**key 是不是以当前版本可识别的结构存储**”。
 
-- 修正 `auth-profiles.json` 结构（确保 schema 有效）。
-- 移除历史 provider 残留，避免 WebUI/会话误选旧模型。
-- 将默认模型收敛为 `sub2api/gpt-5.3-codex`。
+### 我怎么验证这个判断
 
-核心思路是“单一事实来源”：  
-只保留一个可用 provider，避免混杂 `openai/openai-codex/myapi/sub2api` 多路并存导致的路由漂移。
+先看运行时状态，而不是只看静态文件。用：
 
-### 2) 配置切到 `sub2api`（Responses API）
+```bash
+openclaw models status --json
+```
 
-最终使用的模型配置形态如下（脱敏示意）：
+它会告诉你当前 `resolvedDefault`、`provider`、`auth store` 识别结果。  
+当时可以看到会话还在尝试走 `openai-codex`，并且 auth store 中 profile 结构不匹配当前期望。
+
+### `auth-profiles.json` 到底改了什么
+
+旧结构是历史版本风格（key 在，但 schema 不被当前版本消费）。  
+当前版本期望类似：
 
 ```json
 {
-  "models": {
-    "providers": {
-      "sub2api": {
-        "baseUrl": "https://gmn.chuangzuoli.com",
-        "api": "openai-responses",
-        "apiKey": "sk-***",
-        "models": [
-          {
-            "id": "gpt-5.3-codex",
-            "api": "openai-responses"
-          }
-        ]
-      }
+  "version": 1,
+  "profiles": {
+    "provider:label": {
+      "type": "api_key",
+      "provider": "xxx",
+      "key": "sk-***"
     }
-  }
+  },
+  "lastGood": {},
+  "usageStats": {}
 }
 ```
 
-### 3) 新阻塞：`403 Your request was blocked.`
+我当时做了两件事：
 
-这一步最容易误判成“key 错了”。  
-实际上 `GET /v1/models` 是通的，说明 key 和鉴权头至少部分有效。
+1. 先迁移成当前 schema（验证读取链路恢复）。
+2. 后续确认不再使用 `openai-codex` 后，直接清空 `profiles`，避免旧 provider 残留误导路由。
 
-真正关键点在于：该网关对某些客户端指纹做了拦截（典型是 OpenAI SDK 风格请求）。
+这个“先迁移再清理”的顺序很重要：  
+先证明不是文件损坏，再做精简，避免一上来全删导致定位信息丢失。
 
-### 4) 关键突破：自定义请求头绕过上游拦截
+### 同时做的一个必要动作：路由去残留
 
-在 provider 配置中增加 `headers` 后，请求恢复正常：
+我把模型白名单收敛成单一入口，避免 UI 或旧 session 误选：
+
+- 仅保留 `sub2api/gpt-5.3-codex`
+- 移除 `openai/*`、`myapi/*` 等历史条目
+
+一句话：**让系统没有“走错路”的机会**。
+
+## 第二条线：为什么会 `403 Your request was blocked.`
+
+### 第二次误判
+
+我最初也怀疑是 key 错误或模型名错误。
+
+但很快被证据推翻：
+
+- `GET /v1/models` 返回 200（说明 key 至少可用于模型查询）
+- OpenClaw 元数据里 provider/model 都是目标值（说明请求确实到达上游）
+- 只有推理请求失败（`403 blocked`）
+
+这意味着：不是“没到上游”，而是“上游在拒绝某类推理请求”。
+
+### 我怎么一步步锁定到 UA 过滤
+
+做了一个最小探测矩阵（curl）：
+
+- 同 key、同 endpoint，改不同请求头（尤其 `User-Agent`）
+- 对比 `OpenAI/JS` 风格 UA 与 `curl` UA 的返回差异
+
+结果是关键证据：
+
+- OpenAI SDK 风格 UA -> 403
+- `curl` UA -> 可通过
+
+这就把问题从“鉴权错误”收缩成“**上游风控策略拦截客户端指纹**”。
+
+### 最终修复动作
+
+在 provider 配置显式覆盖请求头：
 
 ```json
 {
@@ -97,85 +136,122 @@ tags: ['OpenClaw', 'sub2api', 'Telegram Bot', '排障', '工程复盘']
 }
 ```
 
-加上这一条后，模型调用从 `403` 恢复为可返回 `ok`。  
-这说明故障点不是本地鉴权文件，而是上游网关策略。
+加完后再跑：
 
-## 第二阶段：Telegram 链路修复
+```bash
+openclaw agent --agent main --session-id <new> --message "回复ok" --json
+```
 
-模型通了之后，Telegram 依旧报 `Network request failed`。
+返回从 `403` 变成正常文本，这一步才算闭环。
 
-### 1) 先验证 Bot Token 本身
+## 第三条线：Telegram 为什么一直网络失败
 
-直接调用 Telegram API `getMe` 验证，返回 `ok=true`，确认 token 有效。  
-也就是说不是 BotFather 新 token 配置错误。
+### 第三个误判
 
-### 2) 根因：网关进程的 Telegram 网络路径不可达
+“我 shell 里已经有 `HTTP_PROXY/HTTPS_PROXY`，服务应该也能走代理。”
 
-虽然 shell 下有代理，但 OpenClaw 的 Telegram 通道不一定自动走系统环境。  
-这时候最稳妥做法是给 Telegram 通道显式配置代理：
+这是常见误区。
+
+### 机制解释：为什么 shell 有代理，gateway 还是不通
+
+OpenClaw gateway 是 systemd 用户服务进程，不是你当前终端子进程。  
+你的 shell `export` 只对当前会话和其子进程生效，**不会自动注入到已运行的 systemd 服务**。
+
+另外，Telegram 通道内部走的是自己的 fetch 路径（grammY + undici），最佳做法不是赌全局环境变量，而是给通道显式配置。
+
+### 我怎么验证 Telegram 不是 token 问题
+
+先直接调用：
+
+```bash
+curl "https://api.telegram.org/bot<token>/getMe"
+```
+
+返回 `ok: true`，说明 token 有效。
+
+再用同款代理链路做 API 探测（`getMe/deleteWebhook/setMyCommands`）都 200，说明代理路径本身可用。
+
+### 最终修复动作
+
+在 `channels.telegram` 增加专用代理：
 
 ```json
 {
   "channels": {
     "telegram": {
       "enabled": true,
-      "botToken": "8775***",
       "dmPolicy": "pairing",
+      "botToken": "8775***",
       "proxy": "http://127.0.0.1:7897"
     }
   }
 }
 ```
 
-热重载/重启后，日志不再持续刷 `deleteWebhook/setMyCommands failed`。
+然后重启服务，观察日志窗口。  
+如果配置生效，你会看到 Telegram provider 重启后，不再刷屏 `setMyCommands/deleteWebhook failed`。
 
-### 3) “只回一条配对码”是正常行为
+## 一个容易漏掉的步骤：设备授权
 
-很多人会把这一步当 bug。  
-但当 `dmPolicy = "pairing"` 时，首次私聊只会回：
+这次流程里还有一步很多人会忽略：设备/权限批准。  
+当 CLI 或控制面出现 scope 升级请求时，需要批准设备权限，否则部分操作会卡在 auth 边界。
+
+我当时执行过：
+
+```bash
+openclaw devices approve --latest
+```
+
+这一步不总是必需，但在“新设备 + 新会话 + 配置变更频繁”的排障窗口里，建议显式检查一次。
+
+## 为什么“只回配对码”是对的
+
+Telegram 最后阶段我也差点误判。  
+当 `dmPolicy = "pairing"` 时，机器人首次只回：
 
 - 你的 Telegram user id
 - pairing code
-- 需要 owner 执行的 approve 命令
+- owner 需要执行的批准命令
 
-批准命令示例：
+例如：
 
 ```bash
 openclaw pairing approve telegram UCJPTR6U
 ```
 
-批准后再发消息，才能进入正常会话。
+这不是故障，是设计行为。批准后才能进入正常对话。
 
-## 最终状态
+## 我这次真正走过的弯路
 
-修复完成后的状态可以归纳为：
+1. **把“有 key”当成“可用 auth”**  
+   忽略了 schema 兼容性。
+2. **把 403 直接归因为 key 错误**  
+   没先做请求头与 endpoint 的对照实验。
+3. **把 shell 代理当成系统服务代理**  
+   忽略了 systemd 进程环境边界。
 
-1. 默认模型固定为 `sub2api/gpt-5.3-codex`。
-2. `openai-codex` 历史鉴权依赖被移除，不再误触。
-3. `sub2api` 增加 `User-Agent` 覆盖后，不再触发 403。
-4. Telegram 通过 `channels.telegram.proxy` 走专用代理。
-5. 首次 DM 配对批准后，Bot 可稳定回复。
+复盘最有价值的不是“最后怎么配”，而是“怎么排除错误路径”。
 
-## 可复用的排障清单
+## 最终可复用的排障框架
 
-如果你也遇到类似问题，可以按这个顺序走：
+如果你也遇到类似连环问题，我建议按这个顺序：
 
-1. 先确认“当前会话实际使用的 provider/model”，不要只看配置文件。
-2. 拆分“本地鉴权问题”和“上游网关策略问题”，分别验证。
-3. 用最小 HTTP 探测确认：`models`、`responses`、`chat/completions` 各自状态。
-4. 对第三方网关，优先考虑是否存在 UA/Headers 风控。
-5. Telegram 失败时，优先验证 token，然后配置 channel 级 proxy。
-6. `pairing` 模式下看到配对码是预期行为，不是故障。
+1. 先用 `openclaw models status --json` 看真实路由与 provider。
+2. 把“本地配置读取失败”与“上游拒绝请求”分开验证。
+3. 用最小 curl 矩阵验证 endpoint、model、headers（尤其 UA）。
+4. 对 systemd 服务，显式配置通道级代理，不依赖 shell export。
+5. Telegram `pairing` 模式下，先批准 pairing code 再测功能。
+6. 检查是否有设备权限批准待处理（`devices approve`）。
 
 ## 安全提醒
 
-- 不要把真实 `apiKey`、`botToken` 提交到仓库。
-- 排障时建议用脱敏日志和临时密钥。
-- 修复完成后，建议轮换一次关键 token。
+- 文中所有 key/token 都应脱敏，真实值不要进仓库。
+- 排障结束后建议轮换一次关键凭据。
+- 能放环境变量的就不要硬编码进配置文件。
 
 ---
 
-这次修复最核心的经验是：  
-**同一条错误链路里，常常有多个独立故障叠加。**
+这次最大的收获是：  
+**排障深度来自“证据链”，不是“改好了”。**
 
-把模型侧和消息通道侧拆开做“分层诊断”，远比盲目改配置有效。
+当你能清楚写出“假设 -> 证据 -> 结论 -> 回归验证”，这篇复盘才真正有复用价值。
