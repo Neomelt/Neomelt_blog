@@ -35,6 +35,7 @@
 
 - 新文章放在 `src/content/blog/`。
 - 文章 frontmatter 默认 `heroImage` 使用 `src/assets/cover.svg`。
+- 可以通过 frontmatter 的 `hidden: true` 暂时隐藏文章（不会出现在列表、归档、标签、RSS、搜索，也不会生成公开详情页）。
 - 文章插图优先放在 `images/YYYY/MM/`，在 Markdown 用相对路径引用。
 - 需要固定公网 URL 的资源放在 `public/`。
 
@@ -77,6 +78,7 @@ npm run new -- --title "我的新文章" --tags "astro,blog" --category "开发"
 - `--category` 分类
 - `--series` 系列
 - `--pinned` 是否置顶（`true/false`）
+- `--hidden` 是否隐藏（`true/false`）
 - `--hero` 头图路径（默认 `../../assets/cover.svg`）
 - `--pubDate` 发布时间（默认当前时间）
 - `--dry-run` 只预览，不落盘
