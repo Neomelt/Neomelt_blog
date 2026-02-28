@@ -38,6 +38,7 @@ title: '${escapeYamlString(title)}'
 description: ''
 pubDate: '${formatLocalIsoWithOffset(new Date())}'
 pinned: false
+hidden: false
 heroImage: '../../assets/cover.svg'
 category: ''
 series: ''

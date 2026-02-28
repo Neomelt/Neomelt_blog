@@ -74,6 +74,7 @@ function buildFrontmatter({
 	description,
 	pubDate,
 	pinned,
+	hidden,
 	heroImage,
 	category,
 	series,
@@ -85,6 +86,7 @@ title: '${escapeYamlString(title)}'
 description: '${escapeYamlString(description)}'
 pubDate: '${pubDate}'
 pinned: ${pinned}
+hidden: ${hidden}
 heroImage: '${escapeYamlString(heroImage)}'
 category: '${escapeYamlString(category)}'
 series: '${escapeYamlString(series)}'
@@ -109,6 +111,7 @@ Optional flags:
   --category "Category name"              (default: "")
   --series "Series name"                  (default: "")
   --pinned true|false                     (default: false)
+  --hidden true|false                     (default: false)
   --hero "../../assets/cover.svg"
   --pubDate "2026-02-24T18:30:00+08:00"   (default: now)
   --dry-run
@@ -158,6 +161,10 @@ async function main() {
 		typeof args.pinned === "string"
 			? parseBoolean(args.pinned, false)
 			: parseBoolean(await ask("Pinned [true/false]", "false"), false);
+	const hidden =
+		typeof args.hidden === "string"
+			? parseBoolean(args.hidden, false)
+			: parseBoolean(await ask("Hidden [true/false]", "false"), false);
 	const heroImage =
 		(args.hero && String(args.hero).trim()) ||
 		(await ask("Hero image", "../../assets/cover.svg"));
@@ -171,6 +178,7 @@ async function main() {
 		description,
 		pubDate,
 		pinned,
+		hidden,
 		heroImage,
 		category,
 		series,
