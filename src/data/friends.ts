@@ -22,4 +22,10 @@ export const FRIEND_LINKS: FriendLink[] = [
         description: "一程山水，一念清欢",
         avatar: "https://yux-bao.site/avatar.webp",
     },
+    {
+        name: "game-life04",
+        url: "https://game-life04.github.io/",
+        description: "ICPC选手 | 医疗AI探索者",
+        avatar: "https://game-life04.github.io/img/avatar.png",
+    },
 ];
