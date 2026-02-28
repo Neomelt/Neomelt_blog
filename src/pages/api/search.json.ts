@@ -12,7 +12,7 @@ export const GET: APIRoute = async () => {
         const blogTypeLabel = getDefaultUiText("search.typeBlog");
 
         // 获取所有内容并生成搜索索引
-        const blogPosts = await getCollection("blog");
+        const blogPosts = await getCollection("blog", ({ data }) => !data.hidden);
 
         // 构建轻量搜索索引（避免下发完整正文）
         const searchIndex = [

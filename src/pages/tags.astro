@@ -5,7 +5,7 @@ import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
 
-const posts = await getCollection("blog");
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 
 // Collect all tags with counts

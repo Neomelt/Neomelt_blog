@@ -67,7 +67,7 @@ function buildItemCustomData({ author, publishedDate, updatedDate, imageUrl, ima
 
 export async function GET(context) {
 	const site = context.site ?? FALLBACK_SITE;
-	const posts = await getCollection('blog');
+	const posts = await getCollection('blog', ({ data }) => !data.hidden);
 	const postsWithResolvedDates = await Promise.all(
 		posts.map(async (post) => {
 			const { pubDate, updatedDate } = await resolvePostDates(post);

@@ -8,7 +8,7 @@ import { getDefaultUiText } from "../../i18n/ui";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // 获取所有博客文章
-const posts = await getCollection("blog");
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 
 function getResolvedPubDate(post: (typeof posts)[number]) {
