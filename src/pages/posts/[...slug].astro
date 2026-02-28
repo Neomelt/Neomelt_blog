@@ -3,7 +3,7 @@ import { type CollectionEntry, getCollection, render } from 'astro:content';
 import BlogPost from '../../layouts/BlogPost.astro';
 
 export async function getStaticPaths() {
-    const posts = (await getCollection('blog')).sort(
+    const posts = (await getCollection('blog', ({ data }) => !data.hidden)).sort(
         (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
     );
     return posts.map((post, index) => ({

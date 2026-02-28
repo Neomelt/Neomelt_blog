@@ -10,7 +10,7 @@ import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
 
 export async function getStaticPaths() {
-    const posts = await getCollection("blog");
+    const posts = await getCollection("blog", ({ data }) => !data.hidden);
     const sortedPosts = posts.sort((a, b) => {
         if (a.data.pinned && !b.data.pinned) return -1;
         if (!a.data.pinned && b.data.pinned) return 1;

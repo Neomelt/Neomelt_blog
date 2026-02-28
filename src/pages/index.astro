@@ -7,7 +7,7 @@ import { getWalinePathForPost } from "../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
 import { DEFAULT_LOCALE, UI_TRANSLATIONS } from "../i18n/ui";
 
-const posts = await getCollection("blog");
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 
 posts.sort((a, b) => {

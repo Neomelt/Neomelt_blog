@@ -7,7 +7,7 @@ import Sidebar from "../../components/Sidebar.astro";
 import { getDefaultUiText } from "../../i18n/ui";
 
 // 获取所有博客文章
-const posts = await getCollection("blog");
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
 
 // 统计系列
 const seriesCounts: Record<string, number> = {};

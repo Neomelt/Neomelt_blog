@@ -11,7 +11,7 @@ import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
 
 export async function getStaticPaths() {
-    const posts = (await getCollection("blog")).sort((a, b) => {
+    const posts = (await getCollection("blog", ({ data }) => !data.hidden)).sort((a, b) => {
         if (a.data.pinned && !b.data.pinned) return -1;
         if (!a.data.pinned && b.data.pinned) return 1;
         return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();

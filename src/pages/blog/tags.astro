@@ -9,7 +9,7 @@ import { getDefaultUiText } from "../../i18n/ui";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 
 // 获取所有博客文章
-const allPosts = await getCollection("blog");
+const allPosts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(allPosts);
 const posts = allPosts.sort((a, b) => {
     if (a.data.pinned && !b.data.pinned) return -1;
