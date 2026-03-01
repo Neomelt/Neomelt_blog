@@ -52,11 +52,11 @@ tags: ['ai', 'vibecoding', 'claude']
 
 找到自己的代理软件的 profiles 界面，找到下面这个方框
 
-![alt text](../../../public/blog/Claude-code-sign-up-guide/1.png)
+![alt text](../../../public/blog/claude-sign-up-guide/1.png)
 
 然后右键edit进入代码界面,将自己的节点名称写进去（一个字也不能错）
 
-![alt text](../../../public/blog/Claude-code-sign-up-guide/2.png)
+![alt text](../../../public/blog/claude-sign-up-guide/2.png)
 
 设置完之后save然后重启内核即可生效，但是一定要记得将代理模式切为rule，不然如果走的是global的话一旦切换了节点，你Claude的ip也会跳，会引发很大的封号危机。
 
