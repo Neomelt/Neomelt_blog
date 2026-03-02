@@ -28,4 +28,10 @@ export const FRIEND_LINKS: FriendLink[] = [
         description: "ICPC选手 | 医疗AI探索者",
         avatar: "https://game-life04.github.io/img/avatar.png",
     },
+    {
+        name: "MareSera",
+        url: "https://blog.maresera.top/friend",
+        description: "如今只愿岁月停留，生怕走得太急",
+        avatar: "https://blog.maresera.top/profile.png",
+    },
 ];
