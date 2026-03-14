@@ -32,6 +32,7 @@ const resolvedCanonicalPath = canonicalPath
 	: getPrimaryCanonicalPath(pathname);
 const canonicalURL = new URL(resolvedCanonicalPath, Astro.site);
 const shouldNoindex = noindex || isLegacyBlogAliasPath(pathname);
+const primaryHostname = canonicalURL.hostname;
 ---
 
 <!-- Global Metadata -->
@@ -72,6 +73,20 @@ const shouldNoindex = noindex || isLegacyBlogAliasPath(pathname);
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
+
+<script is:inline define:vars={{ primaryHostname, shouldNoindex }}>
+	if (!shouldNoindex && window.location.hostname !== primaryHostname) {
+		const existingRobots = document.head.querySelector('meta[name="robots"]');
+		if (existingRobots) {
+			existingRobots.setAttribute("content", "noindex,follow");
+		} else {
+			const robots = document.createElement("meta");
+			robots.name = "robots";
+			robots.content = "noindex,follow";
+			document.head.appendChild(robots);
+		}
+	}
+</script>
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>

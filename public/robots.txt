@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Host: www.neomelt.cloud
+Sitemap: https://www.neomelt.cloud/sitemap-index.xml
