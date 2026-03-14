@@ -83,9 +83,9 @@ jobs:
       - name: Build with Astro
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} astro build \
-            --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
         env:
+          PUBLIC_IS_FALLBACK_DEPLOYMENT: "true"
           PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL || secrets.PUBLIC_WALINE_SERVER_URL }}
         working-directory: ${{ env.BUILD_PATH }}
       - name: Upload artifact
