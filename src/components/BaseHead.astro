@@ -4,7 +4,7 @@
 import "../styles/global.css";
 import type { ImageMetadata } from "astro";
 import FallbackImage from "../assets/cover.svg";
-import { SITE_TITLE } from "../consts";
+import { SITE_ORIGIN, SITE_TITLE } from "../consts";
 import {
 	getPrimaryCanonicalPath,
 	isLegacyBlogAliasPath,
@@ -27,11 +27,38 @@ const {
 	noindex = false,
 } = Astro.props;
 const pathname = normalizePathname(Astro.url.pathname);
+const basePathname = normalizePathname(import.meta.env.BASE_URL);
+const stripBasePrefix = (value: string): string => {
+	if (basePathname === "/") return value;
+	if (value === basePathname) return "/";
+	if (value.startsWith(`${basePathname}/`)) {
+		return value.slice(basePathname.length) || "/";
+	}
+
+	const baseWithoutLeadingSlash = basePathname.startsWith("/")
+		? basePathname.slice(1)
+		: basePathname;
+	if (value.startsWith(`${baseWithoutLeadingSlash}/`)) {
+		return `/${value.slice(baseWithoutLeadingSlash.length)}`;
+	}
+
+	return value;
+};
+const canonicalSourcePath = normalizePathname(stripBasePrefix(pathname));
 const resolvedCanonicalPath = canonicalPath
 	? normalizePathname(canonicalPath)
-	: getPrimaryCanonicalPath(pathname);
-const canonicalURL = new URL(resolvedCanonicalPath, Astro.site);
-const shouldNoindex = noindex || isLegacyBlogAliasPath(pathname);
+	: getPrimaryCanonicalPath(canonicalSourcePath);
+const siteOrigin = new URL(SITE_ORIGIN);
+const resolvedImagePath = stripBasePrefix(image.src);
+const canonicalURL = new URL(resolvedCanonicalPath, siteOrigin);
+const rssURL = new URL("rss.xml", siteOrigin);
+const metaImageURL = new URL(resolvedImagePath, siteOrigin);
+const isFallbackDeployment =
+	import.meta.env.PUBLIC_IS_FALLBACK_DEPLOYMENT === "true";
+const shouldNoindex =
+	noindex ||
+	isLegacyBlogAliasPath(canonicalSourcePath) ||
+	isFallbackDeployment;
 const primaryHostname = canonicalURL.hostname;
 ---
 
@@ -44,7 +71,7 @@ const primaryHostname = canonicalURL.hostname;
 	rel="alternate"
 	type="application/rss+xml"
 	title={SITE_TITLE}
-	href={new URL("rss.xml", Astro.site)}
+	href={rssURL}
 />
 <meta name="generator" content={Astro.generator} />
 
@@ -99,11 +126,11 @@ const primaryHostname = canonicalURL.hostname;
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:image" content={metaImageURL} />
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:url" content={canonicalURL} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image.src, Astro.url)} />
+<meta property="twitter:image" content={metaImageURL} />
