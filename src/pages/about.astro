@@ -59,7 +59,7 @@ const deploymentNodes = [
 
                 <div class="distribution-grid">
                     {deploymentNodes.map((node) => (
-                        <a href={node.url} target="_blank" rel="noopener noreferrer" class="distribution-card">
+                        <a href={node.url} target="_blank" rel="nofollow noopener noreferrer" class="distribution-card">
                             <span class:list={["distribution-icon", node.iconClass]} aria-hidden="true">{node.name.slice(0, 1)}</span>
                             <span class="distribution-main">
                                 <span class="distribution-name">{node.name}</span>
