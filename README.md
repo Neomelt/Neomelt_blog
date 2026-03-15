@@ -6,9 +6,6 @@
 
 ![Neomelt Blog 架构图](docs/architecture/neomelt-blog-architecture.png)
 
-- 可编辑源文件：`docs/architecture/neomelt-blog-architecture.dot`
-- 矢量版本：`docs/architecture/neomelt-blog-architecture.svg`
-
 ## 目录结构
 
 ```text
