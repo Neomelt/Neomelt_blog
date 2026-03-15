@@ -2,10 +2,19 @@
 
 基于 Astro 的个人博客项目。
 
+## 架构图
+
+![Neomelt Blog 架构图](docs/architecture/neomelt-blog-architecture.png)
+
+- 可编辑源文件：`docs/architecture/neomelt-blog-architecture.dot`
+- 矢量版本：`docs/architecture/neomelt-blog-architecture.svg`
+
 ## 目录结构
 
 ```text
 .
+├── docs/
+│   └── architecture/         # README 中使用的站点架构图
 ├── public/                  # 直接静态资源（按 URL 原样输出）
 │   ├── blog/                # 文章内使用的公开图片资源
 │   ├── fonts/
