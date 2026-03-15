@@ -244,4 +244,17 @@ export const FRIEND_LINKS: FriendLink[] = [
         description: "个人博客",
         rss: "https://yuanchaofa.com/rss.xml",
     },
+    {
+        name: "HongLiu的小站",
+        url: "https://hongliu.icu",
+        description: "做自己所爱的事，爱自己所做的事。",
+        avatar: "https://hongliu.icu/image/avator_1.jpg",
+        rss: "https://hongliu.icu/rss.xml",
+    },
+    {
+        name: "MTFTau-5",
+        url: "https://mtftau-5.github.io/",
+        description: "不喜欢佳代子的都是坏人😭",
+        avatar: "https://mtftau-5.github.io/images/logo/favicon.jpg",
+    },
 ];
