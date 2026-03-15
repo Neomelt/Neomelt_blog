@@ -9,11 +9,15 @@ import { normalizeWalinePath } from "../utils/waline";
 
 const walinePath = normalizeWalinePath("/friends");
 const friendLinks = FRIEND_LINKS;
+const friendCircleDisplayLimit = 6;
 const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
-    perFeedLimit: 6,
-    totalLimit: 30,
+    perFeedLimit: 4,
+    totalLimit: 18,
+    maxAgeDays: 21,
     timeoutMs: 8000,
 });
+const initialFriendCirclePosts = friendCirclePosts.slice(0, friendCircleDisplayLimit);
+const serializedFriendCirclePosts = JSON.stringify(friendCirclePosts).replaceAll("<", "\\u003c");
 
 const myFriendLinkInfo = {
     name: "Neomelt's Blog",
@@ -56,42 +60,6 @@ const myFriendLinkText = myFriendLinkItems
                     <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.messages">{getDefaultUiText("common.messages")}</span>
                 </p>
             </header>
-
-            <section class="friends-section" aria-labelledby="friends-circle-title">
-                <h2 id="friends-circle-title" data-i18n="friends.circleTitle">{getDefaultUiText("friends.circleTitle")}</h2>
-                <p class="section-desc" data-i18n="friends.circleLead">{getDefaultUiText("friends.circleLead")}</p>
-                {friendCirclePosts.length > 0 ? (
-                    <ul class="circle-list">
-                        {friendCirclePosts.map((post) => (
-                            <li class="circle-item">
-                                <a href={post.link} target="_blank" rel="noopener noreferrer" class="circle-link">
-                                    {post.friendAvatar ? (
-                                        <img src={post.friendAvatar} alt={post.friendName} class="circle-avatar" loading="lazy" />
-                                    ) : (
-                                        <span class="circle-avatar circle-avatar-placeholder" aria-hidden="true">
-                                            {post.friendName.slice(0, 1)}
-                                        </span>
-                                    )}
-                                    <div class="circle-main">
-                                        <p class="circle-title">{post.title}</p>
-                                        <p class="circle-source">
-                                            <span>{post.friendName}</span>
-                                            {post.publishedDate && (
-                                                <>
-                                                    <span class="circle-separator">·</span>
-                                                    <time datetime={post.publishedISO}>{post.publishedDate}</time>
-                                                </>
-                                            )}
-                                        </p>
-                                    </div>
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <div class="empty-state" data-i18n="friends.circleEmpty">{getDefaultUiText("friends.circleEmpty")}</div>
-                )}
-            </section>
 
             <section class="friends-section" aria-labelledby="friends-list-title">
                 <h2 id="friends-list-title" data-i18n="friends.listTitle">{getDefaultUiText("friends.listTitle")}</h2>
@@ -202,6 +170,54 @@ const myFriendLinkText = myFriendLinkItems
                 </div>
             </section>
 
+            <section class="friends-section friends-circle-section" aria-labelledby="friends-circle-title">
+                <div class="friends-section-head">
+                    <div class="friends-section-copy">
+                        <h2 id="friends-circle-title" data-i18n="friends.circleTitle">{getDefaultUiText("friends.circleTitle")}</h2>
+                        <p class="section-desc" data-i18n="friends.circleLead">{getDefaultUiText("friends.circleLead")}</p>
+                    </div>
+                    {friendCirclePosts.length > friendCircleDisplayLimit && (
+                        <button
+                            type="button"
+                            class="circle-refresh-btn"
+                            id="friends-circle-refresh"
+                            data-i18n="friends.circleRefresh"
+                            aria-label={getDefaultUiText("friends.circleRefresh")}
+                        >
+                            <span class="circle-refresh-icon" aria-hidden="true">↻</span>
+                            <span>{getDefaultUiText("friends.circleRefresh")}</span>
+                        </button>
+                    )}
+                </div>
+                {friendCirclePosts.length > 0 ? (
+                    <ul class="circle-list" id="friends-circle-list" data-display-limit={String(friendCircleDisplayLimit)}>
+                        {initialFriendCirclePosts.map((post) => (
+                            <li class="circle-item">
+                                <a href={post.link} target="_blank" rel="noopener noreferrer" class="circle-link">
+                                    {post.friendAvatar ? (
+                                        <img src={post.friendAvatar} alt={post.friendName} class="circle-avatar" loading="lazy" />
+                                    ) : (
+                                        <span class="circle-avatar circle-avatar-placeholder" aria-hidden="true">
+                                            {post.friendName.slice(0, 1)}
+                                        </span>
+                                    )}
+                                    <div class="circle-main">
+                                        <p class="circle-title">{post.title}</p>
+                                        <p class="circle-source">{post.friendName}</p>
+                                    </div>
+                                    {post.publishedDate && (
+                                        <time class="circle-date" datetime={post.publishedISO}>{post.publishedDate}</time>
+                                    )}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div class="empty-state" data-i18n="friends.circleEmpty">{getDefaultUiText("friends.circleEmpty")}</div>
+                )}
+            </section>
+            <script type="application/json" id="friend-circle-data" set:html={serializedFriendCirclePosts}></script>
+
             <Comments path={walinePath} />
         </div>
     </main>
@@ -268,49 +284,119 @@ const myFriendLinkText = myFriendLinkItems
         color: var(--text-muted);
     }
 
+    .friends-section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .friends-section-copy h2 {
+        margin-bottom: 0.25rem;
+    }
+
+    .friends-section-copy .section-desc {
+        margin-bottom: 0;
+    }
+
+    .friends-circle-section {
+        border-color: color-mix(in srgb, var(--accent) 18%, var(--border));
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 0%,
+            var(--bg-card) 100%
+        );
+    }
+
+    .circle-refresh-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.58rem 0.9rem;
+        border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.88rem;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: border-color var(--transition), color var(--transition), transform var(--transition), background var(--transition);
+    }
+
+    .circle-refresh-btn:hover {
+        color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+        transform: translateY(-1px);
+    }
+
+    .circle-refresh-btn:active {
+        transform: translateY(0);
+    }
+
+    .circle-refresh-btn[data-spinning="true"] .circle-refresh-icon {
+        animation: circle-refresh-spin 0.6s linear;
+    }
+
+    .circle-refresh-icon {
+        display: inline-grid;
+        place-items: center;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
     .circle-list {
         list-style: none;
         margin: 0;
         padding: 0;
         display: grid;
-        gap: 0.62rem;
-    }
-
-    .circle-item {
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        background: var(--bg);
-        transition: border-color var(--transition), transform var(--transition);
-    }
-
-    .circle-item:hover {
-        transform: translateY(-1px);
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-    }
-
-    .circle-link {
-        display: flex;
-        align-items: center;
         gap: 0.72rem;
-        padding: 0.74rem 0.86rem;
+    }
+
+    :global(.circle-item) {
+        transition: transform var(--transition);
+    }
+
+    :global(.circle-item:hover) {
+        transform: translateY(-1px);
+    }
+
+    :global(.circle-link) {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.82rem;
+        padding: 0.82rem 0.94rem;
+        border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--bg) 86%, var(--accent) 4%);
         color: inherit;
         text-decoration: none;
+        transition: border-color var(--transition), background var(--transition), transform var(--transition);
     }
 
-    .circle-link:hover {
+    :global(.circle-link:hover) {
         color: inherit;
+        border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+        background: color-mix(in srgb, var(--bg) 80%, var(--accent) 7%);
     }
 
-    .circle-avatar {
-        width: 36px;
-        height: 36px;
+    :global(.circle-avatar) {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px;
+        min-height: 42px;
+        max-width: 42px;
+        max-height: 42px;
+        flex: 0 0 42px;
         border-radius: 50%;
         border: 1px solid var(--border);
         object-fit: cover;
-        flex-shrink: 0;
+        overflow: hidden;
     }
 
-    .circle-avatar-placeholder {
+    :global(.circle-avatar-placeholder) {
         display: grid;
         place-items: center;
         color: var(--accent);
@@ -318,29 +404,38 @@ const myFriendLinkText = myFriendLinkItems
         background: var(--bg-card);
     }
 
-    .circle-main {
+    :global(.circle-main) {
         min-width: 0;
         flex: 1;
     }
 
-    .circle-title {
+    :global(.circle-title) {
         margin: 0;
-        font-size: 0.95rem;
-        line-height: 1.4;
+        font-size: 0.94rem;
+        line-height: 1.35;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
-    .circle-source {
-        margin: 0.16rem 0 0;
-        font-size: 0.8rem;
+    :global(.circle-source) {
+        margin: 0.2rem 0 0;
+        font-size: 0.78rem;
         line-height: 1.3;
         color: var(--text-muted);
     }
 
-    .circle-separator {
-        margin: 0 0.36rem;
+    :global(.circle-date) {
+        justify-self: end;
+        padding: 0.24rem 0.62rem;
+        border-radius: 999px;
+        border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
+        background: color-mix(in srgb, var(--bg-card) 72%, var(--accent) 4%);
+        color: var(--text-muted);
+        font-size: 0.76rem;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
     }
 
     .friends-grid {
@@ -648,9 +743,24 @@ const myFriendLinkText = myFriendLinkItems
         margin-bottom: 0.35rem;
     }
 
+    @keyframes circle-refresh-spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
     @media (max-width: 640px) {
         .friends-section {
             padding: 1rem;
+        }
+
+        .friends-section-head {
+            flex-direction: column;
+            align-items: stretch;
         }
 
         .self-link-card {
@@ -672,13 +782,26 @@ const myFriendLinkText = myFriendLinkItems
             margin-top: 0.16rem;
         }
 
-        .circle-link {
-            padding: 0.68rem 0.72rem;
+        :global(.circle-link) {
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: flex-start;
+            padding: 0.72rem 0.78rem;
         }
 
-        .circle-avatar {
-            width: 34px;
-            height: 34px;
+        :global(.circle-avatar) {
+            width: 34px !important;
+            height: 34px !important;
+            min-width: 34px;
+            min-height: 34px;
+            max-width: 34px;
+            max-height: 34px;
+            flex-basis: 34px;
+        }
+
+        :global(.circle-date) {
+            grid-column: 2;
+            justify-self: start;
+            margin-top: 0.18rem;
         }
 
         .friend-link {
@@ -694,11 +817,7 @@ const myFriendLinkText = myFriendLinkItems
             grid-template-columns: 1fr;
         }
 
-        .circle-link {
-            align-items: flex-start;
-        }
-
-        .circle-title {
+        :global(.circle-title) {
             white-space: normal;
             overflow: visible;
             text-overflow: clip;
@@ -759,6 +878,158 @@ const myFriendLinkText = myFriendLinkItems
         }
     }
 
+    function parseFriendCirclePosts() {
+        const dataElement = document.getElementById("friend-circle-data");
+        if (!(dataElement instanceof HTMLScriptElement) || !dataElement.textContent) return [];
+
+        try {
+            const parsed = JSON.parse(dataElement.textContent);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+
+    function getFriendCircleSelectionKey(posts) {
+        return posts
+            .map((post) => post.link ?? "")
+            .sort()
+            .join("|");
+    }
+
+    function pickRandomFriendCirclePosts(posts, limit, previousSelectionKey = "") {
+        const shuffledPosts = [...posts];
+        for (let index = shuffledPosts.length - 1; index > 0; index -= 1) {
+            const randomIndex = Math.floor(Math.random() * (index + 1));
+            [shuffledPosts[index], shuffledPosts[randomIndex]] = [shuffledPosts[randomIndex], shuffledPosts[index]];
+        }
+
+        const selectedPosts = shuffledPosts
+            .slice(0, limit)
+            .sort((left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0));
+
+        if (posts.length <= limit || !previousSelectionKey) {
+            return selectedPosts;
+        }
+
+        let nextPosts = selectedPosts;
+        let attempt = 0;
+        while (
+            attempt < 4
+            && getFriendCircleSelectionKey(nextPosts) === previousSelectionKey
+        ) {
+            attempt += 1;
+            shuffledPosts.sort(() => Math.random() - 0.5);
+            nextPosts = shuffledPosts
+                .slice(0, limit)
+                .sort((left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0));
+        }
+
+        return nextPosts;
+    }
+
+    function createFriendCircleItem(post) {
+        const item = document.createElement("li");
+        item.className = "circle-item";
+
+        const link = document.createElement("a");
+        link.className = "circle-link";
+        link.href = post.link ?? "#";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        if (post.friendAvatar) {
+            const avatar = document.createElement("img");
+            avatar.className = "circle-avatar";
+            avatar.src = post.friendAvatar;
+            avatar.alt = post.friendName ?? "";
+            avatar.loading = "lazy";
+            link.appendChild(avatar);
+        } else {
+            const avatarPlaceholder = document.createElement("span");
+            avatarPlaceholder.className = "circle-avatar circle-avatar-placeholder";
+            avatarPlaceholder.setAttribute("aria-hidden", "true");
+            avatarPlaceholder.textContent = (post.friendName ?? "").slice(0, 1);
+            link.appendChild(avatarPlaceholder);
+        }
+
+        const main = document.createElement("div");
+        main.className = "circle-main";
+
+        const title = document.createElement("p");
+        title.className = "circle-title";
+        title.textContent = post.title ?? "";
+        main.appendChild(title);
+
+        const source = document.createElement("p");
+        source.className = "circle-source";
+        source.textContent = post.friendName ?? "";
+        main.appendChild(source);
+        link.appendChild(main);
+
+        if (post.publishedDate && post.publishedISO) {
+            const time = document.createElement("time");
+            time.className = "circle-date";
+            time.dateTime = post.publishedISO;
+            time.textContent = post.publishedDate;
+            link.appendChild(time);
+        }
+
+        item.appendChild(link);
+        return item;
+    }
+
+    function renderFriendCirclePosts(list, posts) {
+        const fragment = document.createDocumentFragment();
+        posts.forEach((post) => {
+            fragment.appendChild(createFriendCircleItem(post));
+        });
+
+        list.replaceChildren(fragment);
+        list.dataset.selectionKey = getFriendCircleSelectionKey(posts);
+    }
+
+    function enhanceFriendCircle() {
+        const list = document.getElementById("friends-circle-list");
+        if (!(list instanceof HTMLElement)) return;
+
+        const refreshButton = document.getElementById("friends-circle-refresh");
+        const displayLimit = Number.parseInt(list.dataset.displayLimit ?? "12", 10);
+        if (!Number.isFinite(displayLimit) || displayLimit <= 0) return;
+
+        const posts = parseFriendCirclePosts();
+        if (!Array.isArray(posts) || posts.length === 0) return;
+
+        const renderNextBatch = () => {
+            const previousSelectionKey = list.dataset.selectionKey ?? "";
+            const selectedPosts = pickRandomFriendCirclePosts(
+                posts,
+                displayLimit,
+                previousSelectionKey,
+            );
+            renderFriendCirclePosts(list, selectedPosts);
+
+            if (refreshButton instanceof HTMLElement) {
+                refreshButton.setAttribute("data-spinning", "true");
+                window.setTimeout(() => {
+                    refreshButton.setAttribute("data-spinning", "false");
+                }, 650);
+            }
+        };
+
+        if (posts.length <= displayLimit) {
+            renderFriendCirclePosts(list, posts);
+            return;
+        }
+
+        renderNextBatch();
+
+        if (refreshButton instanceof HTMLButtonElement && refreshButton.dataset.bound !== "1") {
+            refreshButton.dataset.bound = "1";
+            refreshButton.addEventListener("click", renderNextBatch);
+        }
+    }
+
     function bindCopyActions() {
         const copyButtons = document.querySelectorAll(".copy-action");
         copyButtons.forEach((button) => {
@@ -784,5 +1055,7 @@ const myFriendLinkText = myFriendLinkItems
     }
 
     document.addEventListener("DOMContentLoaded", bindCopyActions);
+    document.addEventListener("DOMContentLoaded", enhanceFriendCircle);
     document.addEventListener("astro:page-load", bindCopyActions);
+    document.addEventListener("astro:page-load", enhanceFriendCircle);
 </script>

@@ -275,7 +275,8 @@ export const UI_TRANSLATIONS = {
         "friends.copy": "复制",
         "friends.copied": "已复制",
         "friends.circleTitle": "朋友圈",
-        "friends.circleLead": "最新动态，看看友链朋友都在写什么。",
+        "friends.circleLead": "最近更新，随机看看朋友们都在写什么。",
+        "friends.circleRefresh": "换一批",
         "friends.circleEmpty": "暂时还没有抓取到友链动态。",
 
         "post.breadcrumbAria": "面包屑",
@@ -558,7 +559,8 @@ export const UI_TRANSLATIONS = {
         "friends.copy": "Copy",
         "friends.copied": "Copied",
         "friends.circleTitle": "Friends Circle",
-        "friends.circleLead": "Latest updates from linked blogs.",
+        "friends.circleLead": "Recent updates, shown a few at a time.",
+        "friends.circleRefresh": "Shuffle",
         "friends.circleEmpty": "No recent updates were fetched from friend feeds.",
 
         "post.breadcrumbAria": "Breadcrumb",
