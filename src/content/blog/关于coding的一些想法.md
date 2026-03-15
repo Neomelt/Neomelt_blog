@@ -1,12 +1,12 @@
 ---
-title: '关于计算机技术的一些想法'
-description: '最近看了很多东西，也想了很多，将自己的心流记录下来'
-pubDate: '2026-2-20'
+title: "关于计算机技术的一些想法"
+description: "最近看了很多东西，也想了很多，将自己的心流记录下来"
+pubDate: "2026-2-20"
 pinned: false
-heroImage: '../../assets/cover.svg'
-category: '随便写写'
-series: ''
-tags: ['思考', 'coding', '计算机']
+heroImage: "../../assets/cover.svg"
+category: "随便写写"
+series: ""
+tags: ["思考", "coding", "计算机"]
 ---
 
 ## 代码是高优先级工具（创造 vs 重复）

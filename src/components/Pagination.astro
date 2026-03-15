@@ -3,24 +3,24 @@ import type { PaginationInfo } from "../utils/pagination.ts";
 import { getDefaultUiText } from "../i18n/ui";
 
 export interface Props {
-    pagination: PaginationInfo;
-    basePath: string;
+  pagination: PaginationInfo;
+  basePath: string;
 }
 
 const { pagination, basePath } = Astro.props;
 const { currentPage, totalPages, hasNext, hasPrev } = pagination;
 
 function pageUrl(page: number) {
-    return page === 1 ? basePath : `${basePath}/page/${page}`;
+  return page === 1 ? basePath : `${basePath}/page/${page}`;
 }
 
 // Generate visible page numbers
 function visiblePages(): number[] {
-    const pages: number[] = [];
-    const start = Math.max(1, currentPage - 2);
-    const end = Math.min(totalPages, currentPage + 2);
-    for (let i = start; i <= end; i++) pages.push(i);
-    return pages;
+  const pages: number[] = [];
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(totalPages, currentPage + 2);
+  for (let i = start; i <= end; i++) pages.push(i);
+  return pages;
 }
 
 const pages = visiblePages();
@@ -28,34 +28,72 @@ const prevUrl = hasPrev ? pageUrl(currentPage - 1) : null;
 const nextUrl = hasNext ? pageUrl(currentPage + 1) : null;
 ---
 
-<nav class="pagination" data-i18n-aria-label="pagination.aria" aria-label={getDefaultUiText("pagination.aria")}>
-    {hasPrev
-        ? <a href={prevUrl} data-i18n-aria-label="pagination.prev" aria-label={getDefaultUiText("pagination.prev")}>←</a>
-        : <span class="disabled" aria-disabled="true">←</span>
-    }
+<nav
+  class="pagination"
+  data-i18n-aria-label="pagination.aria"
+  aria-label={getDefaultUiText("pagination.aria")}
+>
+  {
+    hasPrev ? (
+      <a
+        href={prevUrl}
+        data-i18n-aria-label="pagination.prev"
+        aria-label={getDefaultUiText("pagination.prev")}
+      >
+        ←
+      </a>
+    ) : (
+      <span class="disabled" aria-disabled="true">
+        ←
+      </span>
+    )
+  }
 
-    {pages[0] > 1 && (
-        <>
-            <a href={pageUrl(1)}>1</a>
-            {pages[0] > 2 && <span class="ellipsis">…</span>}
-        </>
-    )}
+  {
+    pages[0] > 1 && (
+      <>
+        <a href={pageUrl(1)}>1</a>
+        {pages[0] > 2 && <span class="ellipsis">…</span>}
+      </>
+    )
+  }
 
-    {pages.map(p =>
-        p === currentPage
-            ? <span class="current" aria-current="page">{p}</span>
-            : <a href={pageUrl(p)}>{p}</a>
-    )}
+  {
+    pages.map((p) =>
+      p === currentPage ? (
+        <span class="current" aria-current="page">
+          {p}
+        </span>
+      ) : (
+        <a href={pageUrl(p)}>{p}</a>
+      ),
+    )
+  }
 
-    {pages[pages.length - 1] < totalPages && (
-        <>
-            {pages[pages.length - 1] < totalPages - 1 && <span class="ellipsis">…</span>}
-            <a href={pageUrl(totalPages)}>{totalPages}</a>
-        </>
-    )}
+  {
+    pages[pages.length - 1] < totalPages && (
+      <>
+        {pages[pages.length - 1] < totalPages - 1 && (
+          <span class="ellipsis">…</span>
+        )}
+        <a href={pageUrl(totalPages)}>{totalPages}</a>
+      </>
+    )
+  }
 
-    {hasNext
-        ? <a href={nextUrl} data-i18n-aria-label="pagination.next" aria-label={getDefaultUiText("pagination.next")}>→</a>
-        : <span class="disabled" aria-disabled="true">→</span>
-    }
+  {
+    hasNext ? (
+      <a
+        href={nextUrl}
+        data-i18n-aria-label="pagination.next"
+        aria-label={getDefaultUiText("pagination.next")}
+      >
+        →
+      </a>
+    ) : (
+      <span class="disabled" aria-disabled="true">
+        →
+      </span>
+    )
+  }
 </nav>

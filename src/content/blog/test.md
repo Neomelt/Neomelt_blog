@@ -1,12 +1,12 @@
 ---
-title: 'test'
-description: 'test'
-pubDate: '2025-11-23'
+title: "test"
+description: "test"
+pubDate: "2025-11-23"
 pinned: false
-heroImage: '../../assets/cover.svg'
-category: ''
-series: ''
-tags: ['test']
+heroImage: "../../assets/cover.svg"
+category: ""
+series: ""
+tags: ["test"]
 ---
 
 ## 用于测试

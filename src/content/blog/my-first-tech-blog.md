@@ -1,11 +1,11 @@
 ---
-title: '为什么我重新搭了一个博客'
-description: '关于写博客这件事，以及我在学什么'
-pubDate: '2025-08-14'
-heroImage: '../../assets/cover.svg'
-category: '随便写写'
-series: ''
-tags: ['随想']
+title: "为什么我重新搭了一个博客"
+description: "关于写博客这件事，以及我在学什么"
+pubDate: "2025-08-14"
+heroImage: "../../assets/cover.svg"
+category: "随便写写"
+series: ""
+tags: ["随想"]
 ---
 
 这不是我第一次搭博客，但应该是认真想用起来的一次。

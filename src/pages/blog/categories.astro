@@ -15,252 +15,283 @@ const postDatesMap = await resolvePostDatesMap(posts);
 const categoryCounts: Record<string, number> = {};
 const categoryPosts: Record<string, typeof posts> = {};
 const categoryPostsForClient: Record<
-    string,
-    {
-        id: string;
-        data: {
-            title: string;
-            description: string;
-            pinned?: boolean;
-            tags?: string[];
-            pubDate: string;
-            pubDateMs: number;
-        };
-    }[]
+  string,
+  {
+    id: string;
+    data: {
+      title: string;
+      description: string;
+      pinned?: boolean;
+      tags?: string[];
+      pubDate: string;
+      pubDateMs: number;
+    };
+  }[]
 > = {};
 
 posts.forEach((post) => {
-    const category = post.data.category;
-    if (category) {
-        const resolvedPubDate = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-        if (!categoryPosts[category]) {
-            categoryPosts[category] = [];
-        }
-        if (!categoryPostsForClient[category]) {
-            categoryPostsForClient[category] = [];
-        }
-        categoryPosts[category].push(post);
-        categoryPostsForClient[category].push({
-            id: post.id,
-            data: {
-                title: post.data.title,
-                description: post.data.description,
-                pinned: post.data.pinned,
-                tags: post.data.tags,
-                pubDate: resolvedPubDate.toISOString(),
-                pubDateMs: resolvedPubDate.getTime(),
-            },
-        });
+  const category = post.data.category;
+  if (category) {
+    const resolvedPubDate =
+      postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    if (!categoryPosts[category]) {
+      categoryPosts[category] = [];
     }
+    if (!categoryPostsForClient[category]) {
+      categoryPostsForClient[category] = [];
+    }
+    categoryPosts[category].push(post);
+    categoryPostsForClient[category].push({
+      id: post.id,
+      data: {
+        title: post.data.title,
+        description: post.data.description,
+        pinned: post.data.pinned,
+        tags: post.data.tags,
+        pubDate: resolvedPubDate.toISOString(),
+        pubDateMs: resolvedPubDate.getTime(),
+      },
+    });
+  }
 });
 
 // 按文章数量排序
 const sortedCategories = Object.entries(categoryCounts).sort(
-    ([, a], [, b]) => b - a,
+  ([, a], [, b]) => b - a,
 );
 
 // 预定义颜色和图标
 const categoryStyles: Record<
-    string,
-    { color: string; bgColor: string; darkBgColor: string; icon: string }
+  string,
+  { color: string; bgColor: string; darkBgColor: string; icon: string }
 > = {
-    技术分享: {
-        color: "blue",
-        bgColor: "bg-blue-100",
-        darkBgColor: "dark:bg-blue-900",
-        icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
-    },
-    Web开发: {
-        color: "green",
-        bgColor: "bg-green-100",
-        darkBgColor: "dark:bg-green-900",
-        icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
-    },
-    工具: {
-        color: "purple",
-        bgColor: "bg-purple-100",
-        darkBgColor: "dark:bg-purple-900",
-        icon: "M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z",
-    },
-    设计: {
-        color: "pink",
-        bgColor: "bg-pink-100",
-        darkBgColor: "dark:bg-pink-900",
-        icon: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01",
-    },
-    教程: {
-        color: "yellow",
-        bgColor: "bg-yellow-100",
-        darkBgColor: "dark:bg-yellow-900",
-        icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
-    },
-    随想: {
-        color: "red",
-        bgColor: "bg-red-100",
-        darkBgColor: "dark:bg-red-900",
-        icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
-    },
+  技术分享: {
+    color: "blue",
+    bgColor: "bg-blue-100",
+    darkBgColor: "dark:bg-blue-900",
+    icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
+  },
+  Web开发: {
+    color: "green",
+    bgColor: "bg-green-100",
+    darkBgColor: "dark:bg-green-900",
+    icon: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
+  },
+  工具: {
+    color: "purple",
+    bgColor: "bg-purple-100",
+    darkBgColor: "dark:bg-purple-900",
+    icon: "M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z",
+  },
+  设计: {
+    color: "pink",
+    bgColor: "bg-pink-100",
+    darkBgColor: "dark:bg-pink-900",
+    icon: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01",
+  },
+  教程: {
+    color: "yellow",
+    bgColor: "bg-yellow-100",
+    darkBgColor: "dark:bg-yellow-900",
+    icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+  },
+  随想: {
+    color: "red",
+    bgColor: "bg-red-100",
+    darkBgColor: "dark:bg-red-900",
+    icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+  },
 };
 
 // 默认样式
 const defaultStyle = {
-    color: "gray",
-    bgColor: "bg-gray-100",
-    darkBgColor: "dark:bg-gray-700",
-    icon: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
+  color: "gray",
+  bgColor: "bg-gray-100",
+  darkBgColor: "dark:bg-gray-700",
+  icon: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
 };
 
 const categoryTextFallbacks = {
-    "legacy.articlesSuffix": getDefaultUiText("legacy.articlesSuffix"),
-    "common.pinned": getDefaultUiText("common.pinned"),
+  "legacy.articlesSuffix": getDefaultUiText("legacy.articlesSuffix"),
+  "common.pinned": getDefaultUiText("common.pinned"),
 } as const;
 ---
 
-<BaseLayout title={`${getDefaultUiText("legacy.categories.title")} | ${SITE_TITLE}`}>
-	<main>
-		<div class="homepage-container">
-			<div class="homepage-layout">
-				<!-- 左侧：个人信息 + 侧边栏 -->
-				<div class="homepage-sidebar">
-					<ProfileCard />
-					<Sidebar />
-				</div>
+<BaseLayout
+  title={`${getDefaultUiText("legacy.categories.title")} | ${SITE_TITLE}`}
+>
+  <main>
+    <div class="homepage-container">
+      <div class="homepage-layout">
+        <!-- 左侧：个人信息 + 侧边栏 -->
+        <div class="homepage-sidebar">
+          <ProfileCard />
+          <Sidebar />
+        </div>
 
-				<!-- 右侧内容区 -->
-				<div class="homepage-content">
-					<h2 class="section-title" data-i18n="legacy.categories.title">{getDefaultUiText("legacy.categories.title")}</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.categories.desc">{getDefaultUiText("legacy.categories.desc")}</p>
+        <!-- 右侧内容区 -->
+        <div class="homepage-content">
+          <h2 class="section-title" data-i18n="legacy.categories.title">
+            {getDefaultUiText("legacy.categories.title")}
+          </h2>
+          <p
+            class="text-lg mb-8 text-gray-700 dark:text-gray-300"
+            data-i18n="legacy.categories.desc"
+          >
+            {getDefaultUiText("legacy.categories.desc")}
+          </p>
 
-					<div class="space-y-8">
-						{
-							sortedCategories.length > 0 ? (
-								<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 categories-grid">
-									{sortedCategories.map(([category, count]) => {
-										const style =
-											categoryStyles[category] || defaultStyle;
-										return (
-											<div
-												class="category-filter-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer border border-gray-200 dark:border-gray-700"
-												data-category={category}
-											>
-												<div
-													class={`w-16 h-16 rounded-full ${style.bgColor} ${style.darkBgColor} flex items-center justify-center mx-auto mb-4`}
-												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														class={`h-8 w-8 text-${style.color}-500`}
-														fill="none"
-														viewBox="0 0 24 24"
-														stroke="currentColor"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d={style.icon}
-														/>
-													</svg>
-												</div>
-												<h3 class="text-xl font-bold mb-2 text-center text-gray-900 dark:text-white">
-													{category}
-												</h3>
-												<p class="text-gray-600 dark:text-gray-300 text-center">
-													{count} <span data-i18n="legacy.articlesSuffix">{getDefaultUiText("legacy.articlesSuffix")}</span>
-												</p>
-											</div>
-										);
-									})}
-								</div>
-							) : (
-								<div class="text-center py-12">
-									<div class="text-gray-400 dark:text-gray-500 mb-4">
-										<svg
-											class="mx-auto h-12 w-12"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-											/>
-										</svg>
-									</div>
-									<h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-										<span data-i18n="legacy.categories.emptyTitle">{getDefaultUiText("legacy.categories.emptyTitle")}</span>
-									</h3>
-									<p class="text-gray-500 dark:text-gray-400" data-i18n="legacy.categories.emptyDesc">{getDefaultUiText("legacy.categories.emptyDesc")}</p>
-								</div>
-							)
-						}
+          <div class="space-y-8">
+            {
+              sortedCategories.length > 0 ? (
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 categories-grid">
+                  {sortedCategories.map(([category, count]) => {
+                    const style = categoryStyles[category] || defaultStyle;
+                    return (
+                      <div
+                        class="category-filter-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer border border-gray-200 dark:border-gray-700"
+                        data-category={category}
+                      >
+                        <div
+                          class={`w-16 h-16 rounded-full ${style.bgColor} ${style.darkBgColor} flex items-center justify-center mx-auto mb-4`}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class={`h-8 w-8 text-${style.color}-500`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d={style.icon}
+                            />
+                          </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-center text-gray-900 dark:text-white">
+                          {category}
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300 text-center">
+                          {count}{" "}
+                          <span data-i18n="legacy.articlesSuffix">
+                            {getDefaultUiText("legacy.articlesSuffix")}
+                          </span>
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div class="text-center py-12">
+                  <div class="text-gray-400 dark:text-gray-500 mb-4">
+                    <svg
+                      class="mx-auto h-12 w-12"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    <span data-i18n="legacy.categories.emptyTitle">
+                      {getDefaultUiText("legacy.categories.emptyTitle")}
+                    </span>
+                  </h3>
+                  <p
+                    class="text-gray-500 dark:text-gray-400"
+                    data-i18n="legacy.categories.emptyDesc"
+                  >
+                    {getDefaultUiText("legacy.categories.emptyDesc")}
+                  </p>
+                </div>
+              )
+            }
 
-						{/* 文章列表区域 */}
-						<div class="posts-container hidden">
-							<div class="flex items-center justify-between mb-6">
-								<h2
-									id="category-title"
-									class="text-2xl font-bold text-gray-800 dark:text-gray-100"
-								>
-								</h2>
-								<button
-									id="back-to-categories"
-									class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
-								>
-									<span>←</span> <span data-i18n="legacy.categories.back">{getDefaultUiText("legacy.categories.back")}</span>
-								</button>
-							</div>
+            {/* 文章列表区域 */}
+            <div class="posts-container hidden">
+              <div class="flex items-center justify-between mb-6">
+                <h2
+                  id="category-title"
+                  class="text-2xl font-bold text-gray-800 dark:text-gray-100"
+                >
+                </h2>
+                <button
+                  id="back-to-categories"
+                  class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
+                >
+                  <span>←</span>
+                  <span data-i18n="legacy.categories.back"
+                    >{getDefaultUiText("legacy.categories.back")}</span
+                  >
+                </button>
+              </div>
 
-							<div id="posts-list" class="post-list">
-								{/* 动态填充文章列表 */}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>
+              <div id="posts-list" class="post-list">
+                {/* 动态填充文章列表 */}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 </BaseLayout>
 
 <script define:vars={{ categoryPostsForClient, categoryTextFallbacks }}>
-    const fallbackText = (key, fallback = "") => (categoryTextFallbacks && categoryTextFallbacks[key]) || fallback || key;
-    const t = (key, fallback = "") => (window.__siteI18n && window.__siteI18n.t ? window.__siteI18n.t(key, fallbackText(key, fallback)) : fallbackText(key, fallback));
+  const fallbackText = (key, fallback = "") =>
+    (categoryTextFallbacks && categoryTextFallbacks[key]) || fallback || key;
+  const t = (key, fallback = "") =>
+    window.__siteI18n && window.__siteI18n.t
+      ? window.__siteI18n.t(key, fallbackText(key, fallback))
+      : fallbackText(key, fallback);
 
-    // 分类过滤功能
-    const categoryFilters = document.querySelectorAll(".category-filter-card");
-    const postsContainer = document.querySelector(".posts-container");
-    const categoriesGrid = document.querySelector(".categories-grid");
-    const categoryTitle = document.getElementById("category-title");
-    const postsList = document.getElementById("posts-list");
-    const backButton = document.getElementById("back-to-categories");
+  // 分类过滤功能
+  const categoryFilters = document.querySelectorAll(".category-filter-card");
+  const postsContainer = document.querySelector(".posts-container");
+  const categoriesGrid = document.querySelector(".categories-grid");
+  const categoryTitle = document.getElementById("category-title");
+  const postsList = document.getElementById("posts-list");
+  const backButton = document.getElementById("back-to-categories");
 
-    categoryFilters.forEach((filter) => {
-        filter.addEventListener("click", () => {
-            const category = filter.getAttribute("data-category");
-            const posts = categoryPostsForClient[category] || [];
+  categoryFilters.forEach((filter) => {
+    filter.addEventListener("click", () => {
+      const category = filter.getAttribute("data-category");
+      const posts = categoryPostsForClient[category] || [];
 
-            // 隐藏分类网格，显示文章列表
-            categoriesGrid?.classList.add("hidden");
-            postsContainer?.classList.remove("hidden");
+      // 隐藏分类网格，显示文章列表
+      categoriesGrid?.classList.add("hidden");
+      postsContainer?.classList.remove("hidden");
 
-            // 设置分类标题
-            if (categoryTitle) {
-                categoryTitle.textContent = `${category} (${posts.length} ${t("legacy.articlesSuffix")})`;
-            }
+      // 设置分类标题
+      if (categoryTitle) {
+        categoryTitle.textContent = `${category} (${posts.length} ${t("legacy.articlesSuffix")})`;
+      }
 
-            // 生成文章列表
-            if (postsList) {
-                const dateLocale = window.__siteI18n && window.__siteI18n.getLocale && window.__siteI18n.getLocale() === "en" ? "en-US" : "zh-CN";
-                postsList.innerHTML = posts
-                    .sort((a, b) => {
-                        if (a.data.pinned && !b.data.pinned) return -1;
-                        if (!a.data.pinned && b.data.pinned) return 1;
-                        return b.data.pubDateMs - a.data.pubDateMs;
-                    })
-                    .map(
-                        (post) => `
+      // 生成文章列表
+      if (postsList) {
+        const dateLocale =
+          window.__siteI18n &&
+          window.__siteI18n.getLocale &&
+          window.__siteI18n.getLocale() === "en"
+            ? "en-US"
+            : "zh-CN";
+        postsList.innerHTML = posts
+          .sort((a, b) => {
+            if (a.data.pinned && !b.data.pinned) return -1;
+            if (!a.data.pinned && b.data.pinned) return 1;
+            return b.data.pubDateMs - a.data.pubDateMs;
+          })
+          .map(
+            (post) => `
                                 <article class="post-card-item">
                                     <a href="/blog/${post.id}" class="post-card-link">
                                         <div class="post-content">
@@ -268,198 +299,206 @@ const categoryTextFallbacks = {
                                                 <div class="post-date">
                                                     ${new Date(post.data.pubDate).toLocaleString(dateLocale, { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, hourCycle: "h23" })}
                                                 </div>
-                                                ${post.data.pinned ? `
+                                                ${
+                                                  post.data.pinned
+                                                    ? `
                                                     <span class="post-pinned">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 0.25rem;"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
                                                         ${t("common.pinned")}
                                                     </span>
-                                                ` : ""}
+                                                `
+                                                    : ""
+                                                }
                                             </div>
                                             <h3 class="post-title">
                                                 ${post.data.title}
                                             </h3>
                                             ${
-                                                post.data.description
-                                                    ? `<p class="post-description">${post.data.description}</p>`
-                                                    : ""
+                                              post.data.description
+                                                ? `<p class="post-description">${post.data.description}</p>`
+                                                : ""
                                             }
                                             <div class="post-meta">
                                                 ${
-                                                    post.data.tags && post.data.tags.length > 0
-                                                        ? `
+                                                  post.data.tags &&
+                                                  post.data.tags.length > 0
+                                                    ? `
                                                     <div class="post-tags">
                                                         ${post.data.tags
-                                                            .slice(0, 3)
-                                                            .map(tag => `<span class="post-tag">#${tag}</span>`)
-                                                            .join("")}
+                                                          .slice(0, 3)
+                                                          .map(
+                                                            (tag) =>
+                                                              `<span class="post-tag">#${tag}</span>`,
+                                                          )
+                                                          .join("")}
                                                     </div>
                                                 `
-                                                        : ""
+                                                    : ""
                                                 }
                                             </div>
                                         </div>
                                     </a>
                                 </article>
                             `,
-                    )
-                    .join("");
-            }
-        });
+          )
+          .join("");
+      }
     });
+  });
 
-    // 返回分类按钮
-    backButton?.addEventListener("click", () => {
-        postsContainer?.classList.add("hidden");
-        categoriesGrid?.classList.remove("hidden");
-    });
+  // 返回分类按钮
+  backButton?.addEventListener("click", () => {
+    postsContainer?.classList.add("hidden");
+    categoriesGrid?.classList.remove("hidden");
+  });
 </script>
 
 <style>
-	/* 首页容器 */
-	.homepage-container {
-		max-width: 1400px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		padding-top: 6rem; /* 为固定header留出空间 */
-	}
+  /* 首页容器 */
+  .homepage-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    padding-top: 6rem; /* 为固定header留出空间 */
+  }
 
-	/* 首页布局 */
-	.homepage-layout {
-		display: grid;
-		grid-template-columns: 320px 1fr;
-		gap: 3rem;
-	}
+  /* 首页布局 */
+  .homepage-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+  }
 
-	/* 左侧边栏 */
-	.homepage-sidebar {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
+  /* 左侧边栏 */
+  .homepage-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
 
-	/* 右侧内容区 */
-	.homepage-content {
-		min-width: 0;
-	}
+  /* 右侧内容区 */
+  .homepage-content {
+    min-width: 0;
+  }
 
-	/* 分类标题 */
-	.section-title {
-		font-size: 2rem;
-		font-weight: 700;
-		margin-bottom: 2rem;
-		color: var(--text-primary);
-	}
+  /* 分类标题 */
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+  }
 
-	/* 文章列表 */
-	.post-list {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
+  /* 文章列表 */
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-	.post-card-item {
-		background: var(--bg-secondary);
-		border: 1px solid var(--border-color);
-		border-radius: 12px;
-		overflow: hidden;
-		transition: all 0.3s ease;
-	}
+  .post-card-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
 
-	.post-card-item:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-		border-color: rgb(59, 130, 246);
-	}
+  .post-card-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: rgb(59, 130, 246);
+  }
 
-	.post-card-link {
-		display: block;
-		text-decoration: none;
-		color: inherit;
-	}
+  .post-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
 
-	.post-content {
-		padding: 1.5rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-	}
+  .post-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 
-	.post-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5rem;
-	}
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
 
-	.post-date {
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-	}
+  .post-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
 
-	.post-pinned {
-		background: rgba(234, 179, 8, 0.1);
-		color: rgb(202, 138, 4);
-		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
-		font-size: 0.813rem;
-		display: flex;
-		align-items: center;
-	}
+  .post-pinned {
+    background: rgba(234, 179, 8, 0.1);
+    color: rgb(202, 138, 4);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.813rem;
+    display: flex;
+    align-items: center;
+  }
 
-	.post-title {
-		font-size: 1.5rem;
-		font-weight: 600;
-		margin-bottom: 0.75rem;
-		color: var(--text-primary);
-		line-height: 1.4;
-	}
+  .post-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
 
-	.post-card-link:hover .post-title {
-		color: rgb(59, 130, 246);
-	}
+  .post-card-link:hover .post-title {
+    color: rgb(59, 130, 246);
+  }
 
-	.post-description {
-		color: var(--text-secondary);
-		line-height: 1.6;
-		margin-bottom: 1rem;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
+  .post-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-	.post-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--text-secondary);
-		flex-wrap: wrap;
-	}
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
 
-	.post-tags {
-		display: flex;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-	}
+  .post-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 
-	.post-tag {
-		color: rgb(59, 130, 246);
-		font-size: 0.875rem;
-	}
+  .post-tag {
+    color: rgb(59, 130, 246);
+    font-size: 0.875rem;
+  }
 
-	/* 响应式设计 */
-	@media (max-width: 1024px) {
-		.homepage-layout {
-			grid-template-columns: 1fr;
-		}
+  /* 响应式设计 */
+  @media (max-width: 1024px) {
+    .homepage-layout {
+      grid-template-columns: 1fr;
+    }
 
-		.homepage-sidebar {
-			order: 2;
-		}
+    .homepage-sidebar {
+      order: 2;
+    }
 
-		.homepage-content {
-			order: 1;
-		}
-	}
+    .homepage-content {
+      order: 1;
+    }
+  }
 </style>

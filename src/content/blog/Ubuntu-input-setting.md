@@ -1,12 +1,12 @@
 ---
-title: 'Ubuntu系统雾凇输入法配置'
-description: '记录下Ubuntu配置雾凇输入法的过程'
-pubDate: '2026-02-18'
+title: "Ubuntu系统雾凇输入法配置"
+description: "记录下Ubuntu配置雾凇输入法的过程"
+pubDate: "2026-02-18"
 pinned: false
-heroImage: '../../assets/cover.svg'
-category: ''
-series: ''
-tags: ['输入法', 'Ubuntu']
+heroImage: "../../assets/cover.svg"
+category: ""
+series: ""
+tags: ["输入法", "Ubuntu"]
 ---
 
 ## 前言
@@ -36,7 +36,7 @@ sudo apt install fcitx5 fcitx5-rime librime-plugin-lua fcitx5-config-qt
 
 安装完成后，通过 im-config 切换输入法框架：
 
-``` bash
+```bash
 im-config -n fcitx5
 ```
 
@@ -48,7 +48,7 @@ Rime 的灵魂在于“配置方案”。我们要把默认的“朙月拼音”
 
 推荐使用 git 部署，这样以后更新词库只需要 git pull，非常方便。
 
-``` bash
+```bash
 # 1. 创建 Fcitx5 的 Rime 目录（如果没有）
 mkdir -p ~/.local/share/fcitx5/rime
 
@@ -65,12 +65,12 @@ git clone --depth 1 https://github.com/iDvel/rime-ice.git .
 
 在 ~/.local/share/fcitx5/rime 目录下新建（或编辑）default.custom.yaml
 
-``` bash
+```bash
 sudo nano ~/.local/share/fcitx5/rime/default.custom.yaml
-## 如果没有这个文件需要自行创建 
+## 如果没有这个文件需要自行创建
 ```
 
-``` yaml
+```yaml
 patch:
   # 1. 只有这一行，Rime 才会真正使用雾淞拼音
   schema_list:
@@ -78,16 +78,17 @@ patch:
 
   # 2. 覆盖快捷键设置
   "ascii_composer/switch_key":
-    Shift_L: commit_code  # 左 Shift：上屏并切换中英
-    Shift_R: noop         # 右 Shift：无操作（防止误触）
-    Control_L: noop       # 屏蔽 Ctrl 切换，避免与系统快捷键冲突
+    Shift_L: commit_code # 左 Shift：上屏并切换中英
+    Shift_R: noop # 右 Shift：无操作（防止误触）
+    Control_L: noop # 屏蔽 Ctrl 切换，避免与系统快捷键冲突
     Control_R: noop
 ```
+
 ## 第四步：告别“黑白框” (美化)
 
 默认的 Fcitx5 皮肤非常原始（只有黑白文字）。我们可以安装 Material 风格的主题。
 
-``` bash
+```bash
 sudo apt install fcitx5-material-color
 ```
 
@@ -101,8 +102,8 @@ sudo apt install fcitx5-material-color
 
 建议把 字体 (Font) 调大一点（例如 14 或 16）。
 
-
 ## 第五步：踩坑记录 (无法开机自启)
+
 这是我在 Ubuntu (Gnome) 上遇到的最大问题：重启后 Fcitx5 不会自动运行，按快捷键也没反应。
 
 解决方法：强制添加开机自启。

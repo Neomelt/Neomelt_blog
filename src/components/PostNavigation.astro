@@ -3,91 +3,101 @@ import type { CollectionEntry } from "astro:content";
 import { getDefaultUiText } from "../i18n/ui";
 
 interface Props {
-    prevPost?: CollectionEntry<"blog"> | null;
-    nextPost?: CollectionEntry<"blog"> | null;
+  prevPost?: CollectionEntry<"blog"> | null;
+  nextPost?: CollectionEntry<"blog"> | null;
 }
 
 const { prevPost, nextPost } = Astro.props;
 
 function getUrl(post: CollectionEntry<"blog">) {
-    return `/posts/${post.id}`;
+  return `/posts/${post.id}`;
 }
 ---
 
-{(prevPost || nextPost) && (
-    <nav class="post-nav" data-i18n-aria-label="post.navAria" aria-label={getDefaultUiText("post.navAria")}>
-        <div class="post-nav-item">
-            {prevPost && (
-                <a href={getUrl(prevPost)} class="post-nav-link">
-                    <span class="post-nav-label" data-i18n="post.prev">{getDefaultUiText("post.prev")}</span>
-                    <span class="post-nav-title">{prevPost.data.title}</span>
-                </a>
-            )}
-        </div>
-        <div class="post-nav-item post-nav-next">
-            {nextPost && (
-                <a href={getUrl(nextPost)} class="post-nav-link">
-                    <span class="post-nav-label" data-i18n="post.next">{getDefaultUiText("post.next")}</span>
-                    <span class="post-nav-title">{nextPost.data.title}</span>
-                </a>
-            )}
-        </div>
+{
+  (prevPost || nextPost) && (
+    <nav
+      class="post-nav"
+      data-i18n-aria-label="post.navAria"
+      aria-label={getDefaultUiText("post.navAria")}
+    >
+      <div class="post-nav-item">
+        {prevPost && (
+          <a href={getUrl(prevPost)} class="post-nav-link">
+            <span class="post-nav-label" data-i18n="post.prev">
+              {getDefaultUiText("post.prev")}
+            </span>
+            <span class="post-nav-title">{prevPost.data.title}</span>
+          </a>
+        )}
+      </div>
+      <div class="post-nav-item post-nav-next">
+        {nextPost && (
+          <a href={getUrl(nextPost)} class="post-nav-link">
+            <span class="post-nav-label" data-i18n="post.next">
+              {getDefaultUiText("post.next")}
+            </span>
+            <span class="post-nav-title">{nextPost.data.title}</span>
+          </a>
+        )}
+      </div>
     </nav>
-)}
+  )
+}
 
 <style>
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 3rem 0 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-nav-item {
+    min-width: 0;
+  }
+
+  .post-nav-next {
+    text-align: right;
+  }
+
+  .post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-nav-label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+
+  .post-nav-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 150ms ease;
+  }
+
+  .post-nav-link:hover .post-nav-title {
+    color: var(--accent);
+  }
+
+  @media (max-width: 480px) {
     .post-nav {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin: 3rem 0 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border);
+      grid-template-columns: 1fr;
     }
-
-    .post-nav-item {
-        min-width: 0;
-    }
-
     .post-nav-next {
-        text-align: right;
+      text-align: left;
     }
-
-    .post-nav-link {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .post-nav-label {
-        font-size: 0.8125rem;
-        color: var(--text-muted);
-    }
-
-    .post-nav-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--text);
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        transition: color 150ms ease;
-    }
-
-    .post-nav-link:hover .post-nav-title {
-        color: var(--accent);
-    }
-
-    @media (max-width: 480px) {
-        .post-nav {
-            grid-template-columns: 1fr;
-        }
-        .post-nav-next {
-            text-align: left;
-        }
-    }
+  }
 </style>

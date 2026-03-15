@@ -1,11 +1,11 @@
 ---
-title: 'cs61A-study-lecture2'
-description: '函数即抽象'
-pubDate: '2026-01-21'
-heroImage: '../../assets/cover.svg'
-category: 'study'
-series: ''
-tags: ['cs', 'python']
+title: "cs61A-study-lecture2"
+description: "函数即抽象"
+pubDate: "2026-01-21"
+heroImage: "../../assets/cover.svg"
+category: "study"
+series: ""
+tags: ["cs", "python"]
 ---
 
 ## 数字表达式
@@ -24,7 +24,7 @@ tags: ['cs', 'python']
 
 在定义函数时通常会包含描述该函数的文档，称为文档字符串（docstring）。它必须与函数体一起缩进。按照惯例，文档字符串通常使用三引号括起来。第一行用一句话描述函数的功能，随后的段落可以详细说明参数并澄清函数的行为：
 
-``` python
+```python
 def pressure(v, t, n):
     """计算理想气体的压力（单位：帕斯卡）
 
@@ -40,7 +40,7 @@ def pressure(v, t, n):
 
 当以定义的函数名为参数调用help函数时，会打印出文档字符串
 
-``` zsh
+```zsh
 >>> help(pressure)
 Help on function pressure in module __main__:
 

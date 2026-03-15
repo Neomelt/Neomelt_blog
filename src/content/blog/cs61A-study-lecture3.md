@@ -1,11 +1,11 @@
 ---
-title: 'cs61A-study-lecture3'
-description: 'Control flow'
-pubDate: '2026-01-22'
-heroImage: '../../assets/cover.svg'
-category: 'study'
-series: ''
-tags: ['python', 'cs']
+title: "cs61A-study-lecture3"
+description: "Control flow"
+pubDate: "2026-01-22"
+heroImage: "../../assets/cover.svg"
+category: "study"
+series: ""
+tags: ["python", "cs"]
 ---
 
 ## 表达式和语句
@@ -19,14 +19,14 @@ tags: ['python', 'cs']
 
 函数中的变量就是局部帧，也就是局部变量，对应的就是全局变量，也就是全局帧
 
-``` python
+```python
 def percent_difference(x, y):
     return 100 * abs(x-y) / x
 ```
 
 这样写的好处是避免了局部帧的使用，没有中间变量，看起来很简洁，但是一旦逻辑链增长，这样写出来的代码没人能看懂2333
 
-``` python
+```python
 def percent_difference(x, y):
     diff = abs(x - y)  # 第一步：算差值
     percent = diff / x # 第二步：算比例
@@ -51,6 +51,6 @@ def percent_difference(x, y):
 
 > python中的优雅测试方法
 
-``` zsh
+```zsh
 python3 -m doctest test.py
 ```

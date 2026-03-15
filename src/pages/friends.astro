@@ -11,1051 +11,1185 @@ const walinePath = normalizeWalinePath("/friends");
 const friendLinks = FRIEND_LINKS;
 const friendCircleDisplayLimit = 6;
 const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
-    perFeedLimit: 4,
-    totalLimit: 18,
-    maxAgeDays: 21,
-    timeoutMs: 8000,
+  perFeedLimit: 4,
+  totalLimit: 18,
+  maxAgeDays: 21,
+  timeoutMs: 8000,
 });
-const initialFriendCirclePosts = friendCirclePosts.slice(0, friendCircleDisplayLimit);
-const serializedFriendCirclePosts = JSON.stringify(friendCirclePosts).replaceAll("<", "\\u003c");
+const initialFriendCirclePosts = friendCirclePosts.slice(
+  0,
+  friendCircleDisplayLimit,
+);
+const serializedFriendCirclePosts = JSON.stringify(
+  friendCirclePosts,
+).replaceAll("<", "\\u003c");
 
 const myFriendLinkInfo = {
-    name: "Neomelt's Blog",
-    desc: "Keep looking, don't settle",
-    link: "https://neomelt.cloud",
-    avatar: "https://www.neomelt.cloud/head.jpg",
-    rss: "https://www.neomelt.cloud/rss.xml",
+  name: "Neomelt's Blog",
+  desc: "Keep looking, don't settle",
+  link: "https://neomelt.cloud",
+  avatar: "https://www.neomelt.cloud/head.jpg",
+  rss: "https://www.neomelt.cloud/rss.xml",
 };
 
 const myFriendLinkItems = [
-    { label: "Name", value: myFriendLinkInfo.name },
-    { label: "Desc", value: myFriendLinkInfo.desc },
-    { label: "Link", value: myFriendLinkInfo.link },
-    { label: "Avatar", value: myFriendLinkInfo.avatar },
-    { label: "RSS", value: myFriendLinkInfo.rss },
+  { label: "Name", value: myFriendLinkInfo.name },
+  { label: "Desc", value: myFriendLinkInfo.desc },
+  { label: "Link", value: myFriendLinkInfo.link },
+  { label: "Avatar", value: myFriendLinkInfo.avatar },
+  { label: "RSS", value: myFriendLinkInfo.rss },
 ];
 
 const myFriendLinkText = myFriendLinkItems
-    .map((item) => `${item.label}: ${item.value}`)
-    .join("\n");
+  .map((item) => `${item.label}: ${item.value}`)
+  .join("\n");
 ---
 
 <BaseLayout
-    title={`${getDefaultUiText("friends.metaTitle")} | ${SITE_TITLE}`}
-    description={getDefaultUiText("friends.metaDescription")}
+  title={`${getDefaultUiText("friends.metaTitle")} | ${SITE_TITLE}`}
+  description={getDefaultUiText("friends.metaDescription")}
 >
-    <main>
-        <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
-                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
-                <span>›</span>
-                <span data-i18n="friends.pageCrumb">{getDefaultUiText("friends.pageCrumb")}</span>
-            </nav>
+  <main>
+    <div class="container">
+      <nav
+        class="breadcrumb"
+        data-i18n-aria-label="post.breadcrumbAria"
+        aria-label={getDefaultUiText("post.breadcrumbAria")}
+      >
+        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        >
+        <span>›</span>
+        <span data-i18n="friends.pageCrumb"
+          >{getDefaultUiText("friends.pageCrumb")}</span
+        >
+      </nav>
 
-            <header class="friends-header">
-                <h1 data-i18n="friends.title">{getDefaultUiText("friends.title")}</h1>
-                <p class="friends-lead" data-i18n="friends.lead">{getDefaultUiText("friends.lead")}</p>
-                <p class="friends-stats">
-                    <span class="waline-pageview-count waline-pageview-update" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
-                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.messages">{getDefaultUiText("common.messages")}</span>
-                </p>
-            </header>
+      <header class="friends-header">
+        <h1 data-i18n="friends.title">{getDefaultUiText("friends.title")}</h1>
+        <p class="friends-lead" data-i18n="friends.lead">
+          {getDefaultUiText("friends.lead")}
+        </p>
+        <p class="friends-stats">
+          <span
+            class="waline-pageview-count waline-pageview-update"
+            data-path={walinePath}>0</span
+          >
+          <span data-i18n="common.views"
+            >{getDefaultUiText("common.views")}</span
+          > /
+          <span class="waline-comment-count" data-path={walinePath}>0</span>
+          <span data-i18n="common.messages"
+            >{getDefaultUiText("common.messages")}</span
+          >
+        </p>
+      </header>
 
-            <section class="friends-section" aria-labelledby="friends-list-title">
-                <h2 id="friends-list-title" data-i18n="friends.listTitle">{getDefaultUiText("friends.listTitle")}</h2>
-                {friendLinks.length > 0 ? (
-                    <ul class="friends-grid">
-                        {friendLinks.map((link) => (
-                            <li class="friend-card">
-                                <a
-                                    href={link.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="friend-link"
-                                >
-                                    {link.avatar ? (
-                                        <img
-                                            src={link.avatar}
-                                            alt={link.name}
-                                            class="friend-avatar"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <span class="friend-avatar friend-avatar-placeholder" aria-hidden="true">
-                                            {link.name.slice(0, 1)}
-                                        </span>
-                                    )}
-                                    <div class="friend-meta">
-                                        <h3>{link.name}</h3>
-                                        <p>{link.description}</p>
-                                        {link.tags && link.tags.length > 0 && (
-                                            <div class="friend-tags">
-                                                {link.tags.map((tag) => (
-                                                    <span class="friend-tag">{tag}</span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <div class="empty-state" data-i18n="friends.empty">{getDefaultUiText("friends.empty")}</div>
-                )}
-            </section>
-
-            <section class="friends-section" aria-labelledby="friends-apply-title">
-                <h2 id="friends-apply-title" data-i18n="friends.applyTitle">{getDefaultUiText("friends.applyTitle")}</h2>
-                <p class="section-desc" data-i18n="friends.applyDesc">{getDefaultUiText("friends.applyDesc")}</p>
-
-                <div class="self-link-card">
-                    <div class="self-link-head">
-                        <h3 data-i18n="friends.selfInfoTitle">{getDefaultUiText("friends.selfInfoTitle")}</h3>
-                        <button
-                            type="button"
-                            class="copy-action copy-all-btn"
-                            data-copy-text={myFriendLinkText}
-                            data-copy-default={getDefaultUiText("friends.copyAll")}
-                            data-copy-success={getDefaultUiText("friends.copied")}
-                        >
-                            <span class="copy-btn-icon" aria-hidden="true">⎘</span>
-                            <span data-copy-label data-i18n="friends.copyAll">{getDefaultUiText("friends.copyAll")}</span>
-                        </button>
-                    </div>
-                    <p class="self-link-desc" data-i18n="friends.selfInfoDesc">{getDefaultUiText("friends.selfInfoDesc")}</p>
-                    <ul class="self-link-list">
-                        {myFriendLinkItems.map((item) => (
-                            <li>
-                                <button
-                                    type="button"
-                                    class="self-link-row copy-action"
-                                    data-copy-text={`${item.label}: ${item.value}`}
-                                    data-copy-default={getDefaultUiText("friends.copy")}
-                                    data-copy-success={getDefaultUiText("friends.copied")}
-                                >
-                                    <span class="self-link-label">{item.label}</span>
-                                    <code class="self-link-value">{item.value}</code>
-                                    <span class="self-link-copy" data-copy-label data-i18n="friends.copy">{getDefaultUiText("friends.copy")}</span>
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                <div class="apply-actions">
-                    <a href="mailto:3212929002@qq.com" class="apply-btn apply-btn-primary">
-                        <span class="apply-btn-icon" aria-hidden="true">✉</span>
-                        <span data-i18n="friends.applyEmail">{getDefaultUiText("friends.applyEmail")}</span>
-                    </a>
-                    <a
-                        href="https://github.com/Neomelt/Neomelt_blog/issues"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="apply-btn apply-btn-secondary"
-                    >
-                        <span class="apply-btn-icon" aria-hidden="true">⌁</span>
-                        <span>GitHub Issue</span>
-                    </a>
-                </div>
-
-                <div class="apply-template">
-                    <h3 data-i18n="friends.infoTitle">{getDefaultUiText("friends.infoTitle")}</h3>
-                    <ul>
-                        <li data-i18n="friends.infoName">{getDefaultUiText("friends.infoName")}</li>
-                        <li data-i18n="friends.infoUrl">{getDefaultUiText("friends.infoUrl")}</li>
-                        <li data-i18n="friends.infoDesc">{getDefaultUiText("friends.infoDesc")}</li>
-                        <li data-i18n="friends.infoAvatar">{getDefaultUiText("friends.infoAvatar")}</li>
-                    </ul>
-                </div>
-            </section>
-
-            <section class="friends-section friends-circle-section" aria-labelledby="friends-circle-title">
-                <div class="friends-section-head">
-                    <div class="friends-section-copy">
-                        <h2 id="friends-circle-title" data-i18n="friends.circleTitle">{getDefaultUiText("friends.circleTitle")}</h2>
-                        <p class="section-desc" data-i18n="friends.circleLead">{getDefaultUiText("friends.circleLead")}</p>
-                    </div>
-                    {friendCirclePosts.length > friendCircleDisplayLimit && (
-                        <button
-                            type="button"
-                            class="circle-refresh-btn"
-                            id="friends-circle-refresh"
-                            data-i18n="friends.circleRefresh"
-                            aria-label={getDefaultUiText("friends.circleRefresh")}
-                        >
-                            <span class="circle-refresh-icon" aria-hidden="true">↻</span>
-                            <span>{getDefaultUiText("friends.circleRefresh")}</span>
-                        </button>
+      <section class="friends-section" aria-labelledby="friends-list-title">
+        <h2 id="friends-list-title" data-i18n="friends.listTitle">
+          {getDefaultUiText("friends.listTitle")}
+        </h2>
+        {
+          friendLinks.length > 0 ? (
+            <ul class="friends-grid">
+              {friendLinks.map((link) => (
+                <li class="friend-card">
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="friend-link"
+                  >
+                    {link.avatar ? (
+                      <img
+                        src={link.avatar}
+                        alt={link.name}
+                        class="friend-avatar"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span
+                        class="friend-avatar friend-avatar-placeholder"
+                        aria-hidden="true"
+                      >
+                        {link.name.slice(0, 1)}
+                      </span>
                     )}
-                </div>
-                {friendCirclePosts.length > 0 ? (
-                    <ul class="circle-list" id="friends-circle-list" data-display-limit={String(friendCircleDisplayLimit)}>
-                        {initialFriendCirclePosts.map((post) => (
-                            <li class="circle-item">
-                                <a href={post.link} target="_blank" rel="noopener noreferrer" class="circle-link">
-                                    {post.friendAvatar ? (
-                                        <img src={post.friendAvatar} alt={post.friendName} class="circle-avatar" loading="lazy" />
-                                    ) : (
-                                        <span class="circle-avatar circle-avatar-placeholder" aria-hidden="true">
-                                            {post.friendName.slice(0, 1)}
-                                        </span>
-                                    )}
-                                    <div class="circle-main">
-                                        <p class="circle-title">{post.title}</p>
-                                        <p class="circle-source">{post.friendName}</p>
-                                    </div>
-                                    {post.publishedDate && (
-                                        <time class="circle-date" datetime={post.publishedISO}>{post.publishedDate}</time>
-                                    )}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <div class="empty-state" data-i18n="friends.circleEmpty">{getDefaultUiText("friends.circleEmpty")}</div>
-                )}
-            </section>
-            <script type="application/json" id="friend-circle-data" set:html={serializedFriendCirclePosts}></script>
+                    <div class="friend-meta">
+                      <h3>{link.name}</h3>
+                      <p>{link.description}</p>
+                      {link.tags && link.tags.length > 0 && (
+                        <div class="friend-tags">
+                          {link.tags.map((tag) => (
+                            <span class="friend-tag">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div class="empty-state" data-i18n="friends.empty">
+              {getDefaultUiText("friends.empty")}
+            </div>
+          )
+        }
+      </section>
 
-            <Comments path={walinePath} />
+      <section class="friends-section" aria-labelledby="friends-apply-title">
+        <h2 id="friends-apply-title" data-i18n="friends.applyTitle">
+          {getDefaultUiText("friends.applyTitle")}
+        </h2>
+        <p class="section-desc" data-i18n="friends.applyDesc">
+          {getDefaultUiText("friends.applyDesc")}
+        </p>
+
+        <div class="self-link-card">
+          <div class="self-link-head">
+            <h3 data-i18n="friends.selfInfoTitle">
+              {getDefaultUiText("friends.selfInfoTitle")}
+            </h3>
+            <button
+              type="button"
+              class="copy-action copy-all-btn"
+              data-copy-text={myFriendLinkText}
+              data-copy-default={getDefaultUiText("friends.copyAll")}
+              data-copy-success={getDefaultUiText("friends.copied")}
+            >
+              <span class="copy-btn-icon" aria-hidden="true">⎘</span>
+              <span data-copy-label data-i18n="friends.copyAll"
+                >{getDefaultUiText("friends.copyAll")}</span
+              >
+            </button>
+          </div>
+          <p class="self-link-desc" data-i18n="friends.selfInfoDesc">
+            {getDefaultUiText("friends.selfInfoDesc")}
+          </p>
+          <ul class="self-link-list">
+            {
+              myFriendLinkItems.map((item) => (
+                <li>
+                  <button
+                    type="button"
+                    class="self-link-row copy-action"
+                    data-copy-text={`${item.label}: ${item.value}`}
+                    data-copy-default={getDefaultUiText("friends.copy")}
+                    data-copy-success={getDefaultUiText("friends.copied")}
+                  >
+                    <span class="self-link-label">{item.label}</span>
+                    <code class="self-link-value">{item.value}</code>
+                    <span
+                      class="self-link-copy"
+                      data-copy-label
+                      data-i18n="friends.copy"
+                    >
+                      {getDefaultUiText("friends.copy")}
+                    </span>
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
         </div>
-    </main>
+
+        <div class="apply-actions">
+          <a
+            href="mailto:3212929002@qq.com"
+            class="apply-btn apply-btn-primary"
+          >
+            <span class="apply-btn-icon" aria-hidden="true">✉</span>
+            <span data-i18n="friends.applyEmail"
+              >{getDefaultUiText("friends.applyEmail")}</span
+            >
+          </a>
+          <a
+            href="https://github.com/Neomelt/Neomelt_blog/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="apply-btn apply-btn-secondary"
+          >
+            <span class="apply-btn-icon" aria-hidden="true">⌁</span>
+            <span>GitHub Issue</span>
+          </a>
+        </div>
+
+        <div class="apply-template">
+          <h3 data-i18n="friends.infoTitle">
+            {getDefaultUiText("friends.infoTitle")}
+          </h3>
+          <ul>
+            <li data-i18n="friends.infoName">
+              {getDefaultUiText("friends.infoName")}
+            </li>
+            <li data-i18n="friends.infoUrl">
+              {getDefaultUiText("friends.infoUrl")}
+            </li>
+            <li data-i18n="friends.infoDesc">
+              {getDefaultUiText("friends.infoDesc")}
+            </li>
+            <li data-i18n="friends.infoAvatar">
+              {getDefaultUiText("friends.infoAvatar")}
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section
+        class="friends-section friends-circle-section"
+        aria-labelledby="friends-circle-title"
+      >
+        <div class="friends-section-head">
+          <div class="friends-section-copy">
+            <h2 id="friends-circle-title" data-i18n="friends.circleTitle">
+              {getDefaultUiText("friends.circleTitle")}
+            </h2>
+            <p class="section-desc" data-i18n="friends.circleLead">
+              {getDefaultUiText("friends.circleLead")}
+            </p>
+          </div>
+          {
+            friendCirclePosts.length > friendCircleDisplayLimit && (
+              <button
+                type="button"
+                class="circle-refresh-btn"
+                id="friends-circle-refresh"
+                data-i18n="friends.circleRefresh"
+                aria-label={getDefaultUiText("friends.circleRefresh")}
+              >
+                <span class="circle-refresh-icon" aria-hidden="true">
+                  ↻
+                </span>
+                <span>{getDefaultUiText("friends.circleRefresh")}</span>
+              </button>
+            )
+          }
+        </div>
+        {
+          friendCirclePosts.length > 0 ? (
+            <ul
+              class="circle-list"
+              id="friends-circle-list"
+              data-display-limit={String(friendCircleDisplayLimit)}
+            >
+              {initialFriendCirclePosts.map((post) => (
+                <li class="circle-item">
+                  <a
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="circle-link"
+                  >
+                    {post.friendAvatar ? (
+                      <img
+                        src={post.friendAvatar}
+                        alt={post.friendName}
+                        class="circle-avatar"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span
+                        class="circle-avatar circle-avatar-placeholder"
+                        aria-hidden="true"
+                      >
+                        {post.friendName.slice(0, 1)}
+                      </span>
+                    )}
+                    <div class="circle-main">
+                      <p class="circle-title">{post.title}</p>
+                      <p class="circle-source">{post.friendName}</p>
+                    </div>
+                    {post.publishedDate && (
+                      <time class="circle-date" datetime={post.publishedISO}>
+                        {post.publishedDate}
+                      </time>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div class="empty-state" data-i18n="friends.circleEmpty">
+              {getDefaultUiText("friends.circleEmpty")}
+            </div>
+          )
+        }
+      </section>
+      <script
+        type="application/json"
+        id="friend-circle-data"
+        set:html={serializedFriendCirclePosts}
+      />
+
+      <Comments path={walinePath} />
+    </div>
+  </main>
 </BaseLayout>
 
 <style>
-    .breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        margin-bottom: 2rem;
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .friends-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .friends-header h1 {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.8rem, 2.6vw, 2.3rem);
+  }
+
+  .friends-lead {
+    margin-bottom: 0.3rem;
+    color: var(--text-muted);
+  }
+
+  .friends-stats {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .friends-section {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-card);
+  }
+
+  .friends-section h2 {
+    margin: 0 0 0.6rem;
+    font-size: 1.2rem;
+  }
+
+  .section-desc {
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+  }
+
+  .friends-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .friends-section-copy h2 {
+    margin-bottom: 0.25rem;
+  }
+
+  .friends-section-copy .section-desc {
+    margin-bottom: 0;
+  }
+
+  .friends-circle-section {
+    border-color: color-mix(in srgb, var(--accent) 18%, var(--border));
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 0%,
+      var(--bg-card) 100%
+    );
+  }
+
+  .circle-refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.58rem 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      color var(--transition),
+      transform var(--transition),
+      background var(--transition);
+  }
+
+  .circle-refresh-btn:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    transform: translateY(-1px);
+  }
+
+  .circle-refresh-btn:active {
+    transform: translateY(0);
+  }
+
+  .circle-refresh-btn[data-spinning="true"] .circle-refresh-icon {
+    animation: circle-refresh-spin 0.6s linear;
+  }
+
+  .circle-refresh-icon {
+    display: inline-grid;
+    place-items: center;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .circle-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.72rem;
+  }
+
+  :global(.circle-item) {
+    transition: transform var(--transition);
+  }
+
+  :global(.circle-item:hover) {
+    transform: translateY(-1px);
+  }
+
+  :global(.circle-link) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.82rem;
+    padding: 0.82rem 0.94rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--bg) 86%, var(--accent) 4%);
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color var(--transition),
+      background var(--transition),
+      transform var(--transition);
+  }
+
+  :global(.circle-link:hover) {
+    color: inherit;
+    border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+    background: color-mix(in srgb, var(--bg) 80%, var(--accent) 7%);
+  }
+
+  :global(.circle-avatar) {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px;
+    min-height: 42px;
+    max-width: 42px;
+    max-height: 42px;
+    flex: 0 0 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    object-fit: cover;
+    overflow: hidden;
+  }
+
+  :global(.circle-avatar-placeholder) {
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    font-weight: 700;
+    background: var(--bg-card);
+  }
+
+  :global(.circle-main) {
+    min-width: 0;
+    flex: 1;
+  }
+
+  :global(.circle-title) {
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  :global(.circle-source) {
+    margin: 0.2rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: var(--text-muted);
+  }
+
+  :global(.circle-date) {
+    justify-self: end;
+    padding: 0.24rem 0.62rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
+    background: color-mix(in srgb, var(--bg-card) 72%, var(--accent) 4%);
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .friends-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .friend-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    transition:
+      border-color var(--transition),
+      transform var(--transition);
+  }
+
+  .friend-card:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  }
+
+  .friend-link {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.9rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .friend-link:hover {
+    color: inherit;
+  }
+
+  .friend-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .friend-avatar-placeholder {
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--bg-code);
+  }
+
+  .friend-meta h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+    line-height: 1.3;
+  }
+
+  .friend-meta p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .friend-tags {
+    margin-top: 0.45rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .friend-tag {
+    font-size: 0.76rem;
+    line-height: 1;
+    padding: 0.3rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--bg-card);
+  }
+
+  .empty-state {
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    background: var(--bg-code);
+  }
+
+  .self-link-card {
+    margin-bottom: 1rem;
+    padding: 0.95rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+    border-radius: 11px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 9%, var(--bg-card)) 0%,
+      var(--bg) 100%
+    );
+  }
+
+  .self-link-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .self-link-head h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .self-link-desc {
+    margin: 0 0 0.72rem;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .self-link-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.42rem;
+  }
+
+  .self-link-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 0.62rem;
+    padding: 0.56rem 0.68rem;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--bg);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      background var(--transition),
+      transform var(--transition);
+  }
+
+  .self-link-row:hover {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    transform: translateY(-1px);
+  }
+
+  .self-link-row:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff);
+    outline-offset: 2px;
+  }
+
+  .self-link-label {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+  }
+
+  .self-link-value {
+    min-width: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .self-link-copy {
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    white-space: nowrap;
+  }
+
+  .copy-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      color var(--transition),
+      background var(--transition);
+  }
+
+  .copy-all-btn:hover {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    color: var(--accent);
+  }
+
+  .copy-btn-icon {
+    font-size: 0.78rem;
+  }
+
+  .copy-action[data-copied="true"] {
+    border-color: color-mix(in srgb, var(--accent) 66%, var(--border));
+  }
+
+  .copy-action[data-copied="true"] [data-copy-label] {
+    color: var(--accent);
+  }
+
+  .apply-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .apply-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+    min-width: 150px;
+    padding: 0.64rem 1.02rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.94rem;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
+    transition:
+      transform var(--transition),
+      background var(--transition),
+      border-color var(--transition),
+      color var(--transition),
+      box-shadow var(--transition);
+  }
+
+  .apply-btn-primary {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 92%, #fff) 0%,
+      color-mix(in srgb, var(--accent-hover) 85%, #111) 100%
+    );
+    border-color: color-mix(in srgb, var(--accent) 75%, var(--border));
+    color: #fff;
+  }
+
+  .apply-btn-primary:hover {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent-hover) 95%, #fff) 0%,
+      color-mix(in srgb, var(--accent-hover) 90%, #111) 100%
+    );
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
+  }
+
+  .apply-btn-secondary {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--bg-card) 80%, #000) 0%,
+      var(--bg) 100%
+    );
+    color: var(--text);
+  }
+
+  .apply-btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
+  }
+
+  .apply-btn:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff);
+    outline-offset: 2px;
+  }
+
+  .apply-btn-icon {
+    font-size: 0.88rem;
+    line-height: 1;
+  }
+
+  .apply-template {
+    border-top: 1px dashed var(--border);
+    padding-top: 0.9rem;
+  }
+
+  .apply-template h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .apply-template ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--text-muted);
+  }
+
+  .apply-template li {
+    margin-bottom: 0.35rem;
+  }
+
+  @keyframes circle-refresh-spin {
+    from {
+      transform: rotate(0deg);
     }
 
-    .breadcrumb a {
-        color: var(--text-muted);
-        text-decoration: none;
-        transition: color var(--transition);
+    to {
+      transform: rotate(360deg);
     }
+  }
 
-    .breadcrumb a:hover {
-        color: var(--accent);
-    }
-
-    .friends-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .friends-header h1 {
-        margin-bottom: 0.5rem;
-        font-size: clamp(1.8rem, 2.6vw, 2.3rem);
-    }
-
-    .friends-lead {
-        margin-bottom: 0.3rem;
-        color: var(--text-muted);
-    }
-
-    .friends-stats {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        font-style: italic;
-        line-height: 1.6;
-    }
-
+  @media (max-width: 640px) {
     .friends-section {
-        margin-top: 1.25rem;
-        padding: 1.25rem;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--bg-card);
-    }
-
-    .friends-section h2 {
-        margin: 0 0 0.6rem;
-        font-size: 1.2rem;
-    }
-
-    .section-desc {
-        margin-bottom: 1rem;
-        color: var(--text-muted);
+      padding: 1rem;
     }
 
     .friends-section-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .friends-section-copy h2 {
-        margin-bottom: 0.25rem;
-    }
-
-    .friends-section-copy .section-desc {
-        margin-bottom: 0;
-    }
-
-    .friends-circle-section {
-        border-color: color-mix(in srgb, var(--accent) 18%, var(--border));
-        background: linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 0%,
-            var(--bg-card) 100%
-        );
-    }
-
-    .circle-refresh-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        padding: 0.58rem 0.9rem;
-        border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
-        color: var(--text);
-        font: inherit;
-        font-size: 0.88rem;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: border-color var(--transition), color var(--transition), transform var(--transition), background var(--transition);
-    }
-
-    .circle-refresh-btn:hover {
-        color: var(--accent);
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-        transform: translateY(-1px);
-    }
-
-    .circle-refresh-btn:active {
-        transform: translateY(0);
-    }
-
-    .circle-refresh-btn[data-spinning="true"] .circle-refresh-icon {
-        animation: circle-refresh-spin 0.6s linear;
-    }
-
-    .circle-refresh-icon {
-        display: inline-grid;
-        place-items: center;
-        font-size: 1rem;
-        line-height: 1;
-    }
-
-    .circle-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        gap: 0.72rem;
-    }
-
-    :global(.circle-item) {
-        transition: transform var(--transition);
-    }
-
-    :global(.circle-item:hover) {
-        transform: translateY(-1px);
-    }
-
-    :global(.circle-link) {
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 0.82rem;
-        padding: 0.82rem 0.94rem;
-        border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
-        border-radius: 18px;
-        background: color-mix(in srgb, var(--bg) 86%, var(--accent) 4%);
-        color: inherit;
-        text-decoration: none;
-        transition: border-color var(--transition), background var(--transition), transform var(--transition);
-    }
-
-    :global(.circle-link:hover) {
-        color: inherit;
-        border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
-        background: color-mix(in srgb, var(--bg) 80%, var(--accent) 7%);
-    }
-
-    :global(.circle-avatar) {
-        width: 42px !important;
-        height: 42px !important;
-        min-width: 42px;
-        min-height: 42px;
-        max-width: 42px;
-        max-height: 42px;
-        flex: 0 0 42px;
-        border-radius: 50%;
-        border: 1px solid var(--border);
-        object-fit: cover;
-        overflow: hidden;
-    }
-
-    :global(.circle-avatar-placeholder) {
-        display: grid;
-        place-items: center;
-        color: var(--accent);
-        font-weight: 700;
-        background: var(--bg-card);
-    }
-
-    :global(.circle-main) {
-        min-width: 0;
-        flex: 1;
-    }
-
-    :global(.circle-title) {
-        margin: 0;
-        font-size: 0.94rem;
-        line-height: 1.35;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    :global(.circle-source) {
-        margin: 0.2rem 0 0;
-        font-size: 0.78rem;
-        line-height: 1.3;
-        color: var(--text-muted);
-    }
-
-    :global(.circle-date) {
-        justify-self: end;
-        padding: 0.24rem 0.62rem;
-        border-radius: 999px;
-        border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
-        background: color-mix(in srgb, var(--bg-card) 72%, var(--accent) 4%);
-        color: var(--text-muted);
-        font-size: 0.76rem;
-        line-height: 1;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-    }
-
-    .friends-grid {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        gap: 0.9rem;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-
-    .friend-card {
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        background: var(--bg);
-        transition: border-color var(--transition), transform var(--transition);
-    }
-
-    .friend-card:hover {
-        transform: translateY(-1px);
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-    }
-
-    .friend-link {
-        display: flex;
-        gap: 0.75rem;
-        padding: 0.9rem;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .friend-link:hover {
-        color: inherit;
-    }
-
-    .friend-avatar {
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-        object-fit: cover;
-        flex-shrink: 0;
-    }
-
-    .friend-avatar-placeholder {
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        color: var(--accent);
-        background: var(--bg-code);
-    }
-
-    .friend-meta h3 {
-        margin: 0 0 0.25rem;
-        font-size: 1.05rem;
-        line-height: 1.3;
-    }
-
-    .friend-meta p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.94rem;
-        line-height: 1.5;
-    }
-
-    .friend-tags {
-        margin-top: 0.45rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-    }
-
-    .friend-tag {
-        font-size: 0.76rem;
-        line-height: 1;
-        padding: 0.3rem 0.5rem;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
-        background: var(--bg-card);
-    }
-
-    .empty-state {
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px dashed var(--border);
-        color: var(--text-muted);
-        background: var(--bg-code);
+      flex-direction: column;
+      align-items: stretch;
     }
 
     .self-link-card {
-        margin-bottom: 1rem;
-        padding: 0.95rem;
-        border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-        border-radius: 11px;
-        background: linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--accent) 9%, var(--bg-card)) 0%,
-            var(--bg) 100%
-        );
+      padding: 0.8rem;
     }
 
     .self-link-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        margin-bottom: 0.35rem;
-    }
-
-    .self-link-head h3 {
-        margin: 0;
-        font-size: 1rem;
-    }
-
-    .self-link-desc {
-        margin: 0 0 0.72rem;
-        color: var(--text-muted);
-        font-size: 0.86rem;
-        line-height: 1.5;
-    }
-
-    .self-link-list {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-        display: grid;
-        gap: 0.42rem;
+      align-items: flex-start;
+      flex-direction: column;
     }
 
     .self-link-row {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 56px 1fr auto;
-        align-items: center;
-        gap: 0.62rem;
-        padding: 0.56rem 0.68rem;
-        border: 1px solid var(--border);
-        border-radius: 9px;
-        background: var(--bg);
-        color: inherit;
-        text-align: left;
-        cursor: pointer;
-        transition: border-color var(--transition), background var(--transition), transform var(--transition);
-    }
-
-    .self-link-row:hover {
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-        transform: translateY(-1px);
-    }
-
-    .self-link-row:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff);
-        outline-offset: 2px;
-    }
-
-    .self-link-label {
-        font-size: 0.84rem;
-        color: var(--text-muted);
-    }
-
-    .self-link-value {
-        min-width: 0;
-        font-size: 0.82rem;
-        line-height: 1.4;
-        color: var(--text);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      grid-template-columns: 52px 1fr;
     }
 
     .self-link-copy {
-        padding: 0.18rem 0.5rem;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        font-size: 0.74rem;
-        color: var(--text-muted);
-        background: var(--bg-card);
-        white-space: nowrap;
+      grid-column: 2;
+      justify-self: start;
+      margin-top: 0.16rem;
     }
 
-    .copy-all-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        padding: 0.3rem 0.7rem;
-        background: var(--bg);
-        color: var(--text);
-        cursor: pointer;
-        transition: border-color var(--transition), color var(--transition), background var(--transition);
+    :global(.circle-link) {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: flex-start;
+      padding: 0.72rem 0.78rem;
     }
 
-    .copy-all-btn:hover {
-        border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-        color: var(--accent);
+    :global(.circle-avatar) {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px;
+      min-height: 34px;
+      max-width: 34px;
+      max-height: 34px;
+      flex-basis: 34px;
     }
 
-    .copy-btn-icon {
-        font-size: 0.78rem;
+    :global(.circle-date) {
+      grid-column: 2;
+      justify-self: start;
+      margin-top: 0.18rem;
     }
 
-    .copy-action[data-copied="true"] {
-        border-color: color-mix(in srgb, var(--accent) 66%, var(--border));
+    .friend-link {
+      padding: 0.8rem;
     }
 
-    .copy-action[data-copied="true"] [data-copy-label] {
-        color: var(--accent);
+    .friend-avatar {
+      width: 46px;
+      height: 46px;
+    }
+
+    .friends-grid {
+      grid-template-columns: 1fr;
+    }
+
+    :global(.circle-title) {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
     }
 
     .apply-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
+      flex-direction: column;
     }
 
     .apply-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.42rem;
-        min-width: 150px;
-        padding: 0.64rem 1.02rem;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        font-weight: 700;
-        font-size: 0.94rem;
-        letter-spacing: 0.01em;
-        text-decoration: none;
-        box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
-        transition:
-            transform var(--transition),
-            background var(--transition),
-            border-color var(--transition),
-            color var(--transition),
-            box-shadow var(--transition);
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .self-link-row {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
     }
 
-    .apply-btn-primary {
-        background: linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--accent) 92%, #fff) 0%,
-            color-mix(in srgb, var(--accent-hover) 85%, #111) 100%
-        );
-        border-color: color-mix(in srgb, var(--accent) 75%, var(--border));
-        color: #fff;
+    .self-link-copy {
+      grid-column: 1;
+      margin-top: 0;
     }
-
-    .apply-btn-primary:hover {
-        background: linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--accent-hover) 95%, #fff) 0%,
-            color-mix(in srgb, var(--accent-hover) 90%, #111) 100%
-        );
-        color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
-    }
-
-    .apply-btn-secondary {
-        background: linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--bg-card) 80%, #000) 0%,
-            var(--bg) 100%
-        );
-        color: var(--text);
-    }
-
-    .apply-btn-secondary:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-        transform: translateY(-1px);
-        box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
-    }
-
-    .apply-btn:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--accent) 70%, #fff);
-        outline-offset: 2px;
-    }
-
-    .apply-btn-icon {
-        font-size: 0.88rem;
-        line-height: 1;
-    }
-
-    .apply-template {
-        border-top: 1px dashed var(--border);
-        padding-top: 0.9rem;
-    }
-
-    .apply-template h3 {
-        margin-bottom: 0.5rem;
-        font-size: 1rem;
-    }
-
-    .apply-template ul {
-        margin: 0;
-        padding-left: 1.25rem;
-        color: var(--text-muted);
-    }
-
-    .apply-template li {
-        margin-bottom: 0.35rem;
-    }
-
-    @keyframes circle-refresh-spin {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    @media (max-width: 640px) {
-        .friends-section {
-            padding: 1rem;
-        }
-
-        .friends-section-head {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .self-link-card {
-            padding: 0.8rem;
-        }
-
-        .self-link-head {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .self-link-row {
-            grid-template-columns: 52px 1fr;
-        }
-
-        .self-link-copy {
-            grid-column: 2;
-            justify-self: start;
-            margin-top: 0.16rem;
-        }
-
-        :global(.circle-link) {
-            grid-template-columns: auto minmax(0, 1fr);
-            align-items: flex-start;
-            padding: 0.72rem 0.78rem;
-        }
-
-        :global(.circle-avatar) {
-            width: 34px !important;
-            height: 34px !important;
-            min-width: 34px;
-            min-height: 34px;
-            max-width: 34px;
-            max-height: 34px;
-            flex-basis: 34px;
-        }
-
-        :global(.circle-date) {
-            grid-column: 2;
-            justify-self: start;
-            margin-top: 0.18rem;
-        }
-
-        .friend-link {
-            padding: 0.8rem;
-        }
-
-        .friend-avatar {
-            width: 46px;
-            height: 46px;
-        }
-
-        .friends-grid {
-            grid-template-columns: 1fr;
-        }
-
-        :global(.circle-title) {
-            white-space: normal;
-            overflow: visible;
-            text-overflow: clip;
-        }
-
-        .apply-actions {
-            flex-direction: column;
-        }
-
-        .apply-btn {
-            width: 100%;
-            min-width: 0;
-        }
-    }
-
-    @media (max-width: 420px) {
-        .self-link-row {
-            grid-template-columns: 1fr;
-            gap: 0.35rem;
-        }
-
-        .self-link-copy {
-            grid-column: 1;
-            margin-top: 0;
-        }
-    }
+  }
 </style>
 
 <script>
-    async function fallbackCopy(text) {
-        const helper = document.createElement("textarea");
-        helper.value = text;
-        helper.setAttribute("readonly", "readonly");
-        helper.style.position = "fixed";
-        helper.style.opacity = "0";
-        document.body.appendChild(helper);
-        helper.select();
-        document.execCommand("copy");
-        document.body.removeChild(helper);
+  async function fallbackCopy(text) {
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "readonly");
+    helper.style.position = "fixed";
+    helper.style.opacity = "0";
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand("copy");
+    document.body.removeChild(helper);
+  }
+
+  async function copyText(text) {
+    if (!text) return false;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        await fallbackCopy(text);
+      }
+      return true;
+    } catch {
+      try {
+        await fallbackCopy(text);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  }
+
+  function parseFriendCirclePosts() {
+    const dataElement = document.getElementById("friend-circle-data");
+    if (!(dataElement instanceof HTMLScriptElement) || !dataElement.textContent)
+      return [];
+
+    try {
+      const parsed = JSON.parse(dataElement.textContent);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function getFriendCircleSelectionKey(posts) {
+    return posts
+      .map((post) => post.link ?? "")
+      .sort()
+      .join("|");
+  }
+
+  function pickRandomFriendCirclePosts(
+    posts,
+    limit,
+    previousSelectionKey = "",
+  ) {
+    const shuffledPosts = [...posts];
+    for (let index = shuffledPosts.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [shuffledPosts[index], shuffledPosts[randomIndex]] = [
+        shuffledPosts[randomIndex],
+        shuffledPosts[index],
+      ];
     }
 
-    async function copyText(text) {
-        if (!text) return false;
-        try {
-            if (navigator?.clipboard?.writeText) {
-                await navigator.clipboard.writeText(text);
-            } else {
-                await fallbackCopy(text);
-            }
-            return true;
-        } catch {
-            try {
-                await fallbackCopy(text);
-                return true;
-            } catch {
-                return false;
-            }
-        }
+    const selectedPosts = shuffledPosts
+      .slice(0, limit)
+      .sort(
+        (left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0),
+      );
+
+    if (posts.length <= limit || !previousSelectionKey) {
+      return selectedPosts;
     }
 
-    function parseFriendCirclePosts() {
-        const dataElement = document.getElementById("friend-circle-data");
-        if (!(dataElement instanceof HTMLScriptElement) || !dataElement.textContent) return [];
-
-        try {
-            const parsed = JSON.parse(dataElement.textContent);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            return [];
-        }
+    let nextPosts = selectedPosts;
+    let attempt = 0;
+    while (
+      attempt < 4 &&
+      getFriendCircleSelectionKey(nextPosts) === previousSelectionKey
+    ) {
+      attempt += 1;
+      shuffledPosts.sort(() => Math.random() - 0.5);
+      nextPosts = shuffledPosts
+        .slice(0, limit)
+        .sort(
+          (left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0),
+        );
     }
 
-    function getFriendCircleSelectionKey(posts) {
-        return posts
-            .map((post) => post.link ?? "")
-            .sort()
-            .join("|");
+    return nextPosts;
+  }
+
+  function createFriendCircleItem(post) {
+    const item = document.createElement("li");
+    item.className = "circle-item";
+
+    const link = document.createElement("a");
+    link.className = "circle-link";
+    link.href = post.link ?? "#";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    if (post.friendAvatar) {
+      const avatar = document.createElement("img");
+      avatar.className = "circle-avatar";
+      avatar.src = post.friendAvatar;
+      avatar.alt = post.friendName ?? "";
+      avatar.loading = "lazy";
+      link.appendChild(avatar);
+    } else {
+      const avatarPlaceholder = document.createElement("span");
+      avatarPlaceholder.className = "circle-avatar circle-avatar-placeholder";
+      avatarPlaceholder.setAttribute("aria-hidden", "true");
+      avatarPlaceholder.textContent = (post.friendName ?? "").slice(0, 1);
+      link.appendChild(avatarPlaceholder);
     }
 
-    function pickRandomFriendCirclePosts(posts, limit, previousSelectionKey = "") {
-        const shuffledPosts = [...posts];
-        for (let index = shuffledPosts.length - 1; index > 0; index -= 1) {
-            const randomIndex = Math.floor(Math.random() * (index + 1));
-            [shuffledPosts[index], shuffledPosts[randomIndex]] = [shuffledPosts[randomIndex], shuffledPosts[index]];
-        }
+    const main = document.createElement("div");
+    main.className = "circle-main";
 
-        const selectedPosts = shuffledPosts
-            .slice(0, limit)
-            .sort((left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0));
+    const title = document.createElement("p");
+    title.className = "circle-title";
+    title.textContent = post.title ?? "";
+    main.appendChild(title);
 
-        if (posts.length <= limit || !previousSelectionKey) {
-            return selectedPosts;
-        }
+    const source = document.createElement("p");
+    source.className = "circle-source";
+    source.textContent = post.friendName ?? "";
+    main.appendChild(source);
+    link.appendChild(main);
 
-        let nextPosts = selectedPosts;
-        let attempt = 0;
-        while (
-            attempt < 4
-            && getFriendCircleSelectionKey(nextPosts) === previousSelectionKey
-        ) {
-            attempt += 1;
-            shuffledPosts.sort(() => Math.random() - 0.5);
-            nextPosts = shuffledPosts
-                .slice(0, limit)
-                .sort((left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0));
-        }
-
-        return nextPosts;
+    if (post.publishedDate && post.publishedISO) {
+      const time = document.createElement("time");
+      time.className = "circle-date";
+      time.dateTime = post.publishedISO;
+      time.textContent = post.publishedDate;
+      link.appendChild(time);
     }
 
-    function createFriendCircleItem(post) {
-        const item = document.createElement("li");
-        item.className = "circle-item";
+    item.appendChild(link);
+    return item;
+  }
 
-        const link = document.createElement("a");
-        link.className = "circle-link";
-        link.href = post.link ?? "#";
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
+  function renderFriendCirclePosts(list, posts) {
+    const fragment = document.createDocumentFragment();
+    posts.forEach((post) => {
+      fragment.appendChild(createFriendCircleItem(post));
+    });
 
-        if (post.friendAvatar) {
-            const avatar = document.createElement("img");
-            avatar.className = "circle-avatar";
-            avatar.src = post.friendAvatar;
-            avatar.alt = post.friendName ?? "";
-            avatar.loading = "lazy";
-            link.appendChild(avatar);
-        } else {
-            const avatarPlaceholder = document.createElement("span");
-            avatarPlaceholder.className = "circle-avatar circle-avatar-placeholder";
-            avatarPlaceholder.setAttribute("aria-hidden", "true");
-            avatarPlaceholder.textContent = (post.friendName ?? "").slice(0, 1);
-            link.appendChild(avatarPlaceholder);
-        }
+    list.replaceChildren(fragment);
+    list.dataset.selectionKey = getFriendCircleSelectionKey(posts);
+  }
 
-        const main = document.createElement("div");
-        main.className = "circle-main";
+  function enhanceFriendCircle() {
+    const list = document.getElementById("friends-circle-list");
+    if (!(list instanceof HTMLElement)) return;
 
-        const title = document.createElement("p");
-        title.className = "circle-title";
-        title.textContent = post.title ?? "";
-        main.appendChild(title);
+    const refreshButton = document.getElementById("friends-circle-refresh");
+    const displayLimit = Number.parseInt(list.dataset.displayLimit ?? "12", 10);
+    if (!Number.isFinite(displayLimit) || displayLimit <= 0) return;
 
-        const source = document.createElement("p");
-        source.className = "circle-source";
-        source.textContent = post.friendName ?? "";
-        main.appendChild(source);
-        link.appendChild(main);
+    const posts = parseFriendCirclePosts();
+    if (!Array.isArray(posts) || posts.length === 0) return;
 
-        if (post.publishedDate && post.publishedISO) {
-            const time = document.createElement("time");
-            time.className = "circle-date";
-            time.dateTime = post.publishedISO;
-            time.textContent = post.publishedDate;
-            link.appendChild(time);
-        }
+    const renderNextBatch = () => {
+      const previousSelectionKey = list.dataset.selectionKey ?? "";
+      const selectedPosts = pickRandomFriendCirclePosts(
+        posts,
+        displayLimit,
+        previousSelectionKey,
+      );
+      renderFriendCirclePosts(list, selectedPosts);
 
-        item.appendChild(link);
-        return item;
+      if (refreshButton instanceof HTMLElement) {
+        refreshButton.setAttribute("data-spinning", "true");
+        window.setTimeout(() => {
+          refreshButton.setAttribute("data-spinning", "false");
+        }, 650);
+      }
+    };
+
+    if (posts.length <= displayLimit) {
+      renderFriendCirclePosts(list, posts);
+      return;
     }
 
-    function renderFriendCirclePosts(list, posts) {
-        const fragment = document.createDocumentFragment();
-        posts.forEach((post) => {
-            fragment.appendChild(createFriendCircleItem(post));
-        });
+    renderNextBatch();
 
-        list.replaceChildren(fragment);
-        list.dataset.selectionKey = getFriendCircleSelectionKey(posts);
+    if (
+      refreshButton instanceof HTMLButtonElement &&
+      refreshButton.dataset.bound !== "1"
+    ) {
+      refreshButton.dataset.bound = "1";
+      refreshButton.addEventListener("click", renderNextBatch);
     }
+  }
 
-    function enhanceFriendCircle() {
-        const list = document.getElementById("friends-circle-list");
-        if (!(list instanceof HTMLElement)) return;
+  function bindCopyActions() {
+    const copyButtons = document.querySelectorAll(".copy-action");
+    copyButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      if (button.dataset.copyBound === "1") return;
+      button.dataset.copyBound = "1";
+      button.addEventListener("click", async () => {
+        const copyValue = button.getAttribute("data-copy-text") ?? "";
+        const defaultLabel = button.getAttribute("data-copy-default") ?? "Copy";
+        const successLabel =
+          button.getAttribute("data-copy-success") ?? "Copied";
+        const label = button.querySelector("[data-copy-label]");
+        const copied = await copyText(copyValue);
+        if (!copied) return;
 
-        const refreshButton = document.getElementById("friends-circle-refresh");
-        const displayLimit = Number.parseInt(list.dataset.displayLimit ?? "12", 10);
-        if (!Number.isFinite(displayLimit) || displayLimit <= 0) return;
+        button.setAttribute("data-copied", "true");
+        if (label) label.textContent = successLabel;
+        window.setTimeout(() => {
+          button.setAttribute("data-copied", "false");
+          if (label) label.textContent = defaultLabel;
+        }, 1200);
+      });
+    });
+  }
 
-        const posts = parseFriendCirclePosts();
-        if (!Array.isArray(posts) || posts.length === 0) return;
-
-        const renderNextBatch = () => {
-            const previousSelectionKey = list.dataset.selectionKey ?? "";
-            const selectedPosts = pickRandomFriendCirclePosts(
-                posts,
-                displayLimit,
-                previousSelectionKey,
-            );
-            renderFriendCirclePosts(list, selectedPosts);
-
-            if (refreshButton instanceof HTMLElement) {
-                refreshButton.setAttribute("data-spinning", "true");
-                window.setTimeout(() => {
-                    refreshButton.setAttribute("data-spinning", "false");
-                }, 650);
-            }
-        };
-
-        if (posts.length <= displayLimit) {
-            renderFriendCirclePosts(list, posts);
-            return;
-        }
-
-        renderNextBatch();
-
-        if (refreshButton instanceof HTMLButtonElement && refreshButton.dataset.bound !== "1") {
-            refreshButton.dataset.bound = "1";
-            refreshButton.addEventListener("click", renderNextBatch);
-        }
-    }
-
-    function bindCopyActions() {
-        const copyButtons = document.querySelectorAll(".copy-action");
-        copyButtons.forEach((button) => {
-            if (!(button instanceof HTMLElement)) return;
-            if (button.dataset.copyBound === "1") return;
-            button.dataset.copyBound = "1";
-            button.addEventListener("click", async () => {
-                const copyValue = button.getAttribute("data-copy-text") ?? "";
-                const defaultLabel = button.getAttribute("data-copy-default") ?? "Copy";
-                const successLabel = button.getAttribute("data-copy-success") ?? "Copied";
-                const label = button.querySelector("[data-copy-label]");
-                const copied = await copyText(copyValue);
-                if (!copied) return;
-
-                button.setAttribute("data-copied", "true");
-                if (label) label.textContent = successLabel;
-                window.setTimeout(() => {
-                    button.setAttribute("data-copied", "false");
-                    if (label) label.textContent = defaultLabel;
-                }, 1200);
-            });
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", bindCopyActions);
-    document.addEventListener("DOMContentLoaded", enhanceFriendCircle);
-    document.addEventListener("astro:page-load", bindCopyActions);
-    document.addEventListener("astro:page-load", enhanceFriendCircle);
+  document.addEventListener("DOMContentLoaded", bindCopyActions);
+  document.addEventListener("DOMContentLoaded", enhanceFriendCircle);
+  document.addEventListener("astro:page-load", bindCopyActions);
+  document.addEventListener("astro:page-load", enhanceFriendCircle);
 </script>

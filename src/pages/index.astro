@@ -11,11 +11,11 @@ const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 
 posts.sort((a, b) => {
-    if (a.data.pinned && !b.data.pinned) return -1;
-    if (!a.data.pinned && b.data.pinned) return 1;
-    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
-    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
-    return bDate.valueOf() - aDate.valueOf();
+  if (a.data.pinned && !b.data.pinned) return -1;
+  if (!a.data.pinned && b.data.pinned) return 1;
+  const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+  const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+  return bDate.valueOf() - aDate.valueOf();
 });
 
 const recentPosts = posts.slice(0, 5);
@@ -23,146 +23,180 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
 ---
 
 <BaseLayout title={SITE_TITLE}>
-    <main>
-        <div class="container">
-            <!-- Site intro -->
-            <section class="hero">
-                <h1 class="hero-title" data-i18n="index.heroTitle">{fallbackText["index.heroTitle"]}</h1>
-                <div class="hero-bio">
-                    <p data-i18n="index.heroIntro1">{fallbackText["index.heroIntro1"]}</p>
-                    <p data-i18n="index.heroIntro2">{fallbackText["index.heroIntro2"]}</p>
-                    <p class="hero-links">
-                        <a href="https://github.com/Neomelt" target="_blank" rel="noopener" class="hero-link">GitHub</a>
-                        <span class="hero-sep">·</span>
-                        <a href="/posts" class="hero-link" data-i18n="index.allPosts">{fallbackText["index.allPosts"]}</a>
-                        <span class="hero-sep">·</span>
-                        <a href="/posts/archive" class="hero-link" data-i18n="header.archive">{fallbackText["header.archive"]}</a>
-                    </p>
-                </div>
-            </section>
-
-            <!-- Recent posts -->
-            <section>
-                <div class="section-header">
-                    <h2 class="section-heading" data-i18n="index.recentPosts">{fallbackText["index.recentPosts"]}</h2>
-                    <a href="/posts" class="view-all" data-i18n="index.viewAll">{fallbackText["index.viewAll"]}</a>
-                </div>
-
-                <div class="post-list">
-                    {recentPosts.map((post) => {
-                        const url = `/posts/${post.id}`;
-                        const walinePath = getWalinePathForPost(post.id);
-                        const resolvedPubDate =
-                            postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
-                        return (
-                            <a href={url} class="post-card">
-                                <div class="post-card-meta">
-                                    <FormattedDate date={resolvedPubDate} />
-                                    {post.data.pinned && <span class="badge-pinned" data-i18n="common.pinned">{fallbackText["common.pinned"]}</span>}
-                                </div>
-                                <div class="post-card-title">{post.data.title}</div>
-                                {post.data.description && (
-                                    <div class="post-card-desc">{post.data.description}</div>
-                                )}
-                                <div class="post-card-stats">
-                                    <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{fallbackText["common.views"]}</span>
-                                    <span class="stats-sep">/</span>
-                                    <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{fallbackText["common.comments"]}</span>
-                                </div>
-                            </a>
-                        );
-                    })}
-                </div>
-            </section>
+  <main>
+    <div class="container">
+      <!-- Site intro -->
+      <section class="hero">
+        <h1 class="hero-title" data-i18n="index.heroTitle">
+          {fallbackText["index.heroTitle"]}
+        </h1>
+        <div class="hero-bio">
+          <p data-i18n="index.heroIntro1">{fallbackText["index.heroIntro1"]}</p>
+          <p data-i18n="index.heroIntro2">{fallbackText["index.heroIntro2"]}</p>
+          <p class="hero-links">
+            <a
+              href="https://github.com/Neomelt"
+              target="_blank"
+              rel="noopener"
+              class="hero-link">GitHub</a
+            >
+            <span class="hero-sep">·</span>
+            <a href="/posts" class="hero-link" data-i18n="index.allPosts"
+              >{fallbackText["index.allPosts"]}</a
+            >
+            <span class="hero-sep">·</span>
+            <a
+              href="/posts/archive"
+              class="hero-link"
+              data-i18n="header.archive">{fallbackText["header.archive"]}</a
+            >
+          </p>
         </div>
-    </main>
+      </section>
+
+      <!-- Recent posts -->
+      <section>
+        <div class="section-header">
+          <h2 class="section-heading" data-i18n="index.recentPosts">
+            {fallbackText["index.recentPosts"]}
+          </h2>
+          <a href="/posts" class="view-all" data-i18n="index.viewAll"
+            >{fallbackText["index.viewAll"]}</a
+          >
+        </div>
+
+        <div class="post-list">
+          {
+            recentPosts.map((post) => {
+              const url = `/posts/${post.id}`;
+              const walinePath = getWalinePathForPost(post.id);
+              const resolvedPubDate =
+                postDatesMap.get(getPostDateKey(post))?.pubDate ??
+                post.data.pubDate;
+              return (
+                <a href={url} class="post-card">
+                  <div class="post-card-meta">
+                    <FormattedDate date={resolvedPubDate} />
+                    {post.data.pinned && (
+                      <span class="badge-pinned" data-i18n="common.pinned">
+                        {fallbackText["common.pinned"]}
+                      </span>
+                    )}
+                  </div>
+                  <div class="post-card-title">{post.data.title}</div>
+                  {post.data.description && (
+                    <div class="post-card-desc">{post.data.description}</div>
+                  )}
+                  <div class="post-card-stats">
+                    <span class="waline-pageview-count" data-path={walinePath}>
+                      0
+                    </span>{" "}
+                    <span data-i18n="common.views">
+                      {fallbackText["common.views"]}
+                    </span>
+                    <span class="stats-sep">/</span>
+                    <span class="waline-comment-count" data-path={walinePath}>
+                      0
+                    </span>{" "}
+                    <span data-i18n="common.comments">
+                      {fallbackText["common.comments"]}
+                    </span>
+                  </div>
+                </a>
+              );
+            })
+          }
+        </div>
+      </section>
+    </div>
+  </main>
 </BaseLayout>
 
 <style>
-    .hero {
-        padding: 3rem 0 2.5rem;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 3rem;
-    }
+  .hero {
+    padding: 3rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
 
-    .hero-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        color: var(--text);
-        line-height: 1.25;
-    }
+  .hero-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text);
+    line-height: 1.25;
+  }
 
-    .hero-bio {
-        max-width: 600px;
-    }
+  .hero-bio {
+    max-width: 600px;
+  }
 
-    .hero-bio p {
-        font-size: 1rem;
-        color: var(--text-muted);
-        line-height: 1.8;
-        margin-bottom: 0.9rem;
-    }
+  .hero-bio p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 0.9rem;
+  }
 
-    .hero-bio strong {
-        color: var(--text);
-        font-weight: 600;
-    }
+  .hero-bio strong {
+    color: var(--text);
+    font-weight: 600;
+  }
 
-    .hero-links {
-        margin-top: 1.5rem;
-        margin-bottom: 0 !important;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
+  .hero-links {
+    margin-top: 1.5rem;
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 
-    .hero-link {
-        color: var(--accent);
-        text-decoration: none;
-        font-size: 0.95rem;
-        font-weight: 500;
-        transition: color var(--transition);
-    }
+  .hero-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color var(--transition);
+  }
 
-    .hero-link:hover {
-        color: var(--accent-hover);
-        text-decoration: underline;
-    }
+  .hero-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+  }
 
-    .hero-sep {
-        color: var(--border);
-        font-size: 0.9rem;
-    }
+  .hero-sep {
+    color: var(--border);
+    font-size: 0.9rem;
+  }
 
-    .section-header {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-    }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
 
-    .view-all {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        transition: color var(--transition);
-    }
+  .view-all {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
 
-    .view-all:hover {
-        color: var(--accent);
-    }
+  .view-all:hover {
+    color: var(--accent);
+  }
 
-    .post-card-stats {
-        margin-top: 0.4rem;
-        color: var(--text-muted);
-        font-size: 0.88rem;
-        font-style: italic;
-    }
+  .post-card-stats {
+    margin-top: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-style: italic;
+  }
 
-    .stats-sep {
-        margin: 0 0.35rem;
-        color: var(--text-muted);
-    }
+  .stats-sep {
+    margin: 0 0.35rem;
+    color: var(--text-muted);
+  }
 </style>

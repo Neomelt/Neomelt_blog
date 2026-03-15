@@ -12,53 +12,154 @@ const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 
 function getResolvedPubDate(post: (typeof posts)[number]) {
-    return postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+  return postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
 }
 
 function formatArchiveDateTime(date: Date): string {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
 }
 
 // 按年份和月份组织文章
 const postsByYear: Record<string, Record<string, typeof posts>> = {};
 
 posts.forEach((post) => {
-    const resolvedDate = getResolvedPubDate(post);
-    const year = resolvedDate.getFullYear().toString();
-    const month = (resolvedDate.getMonth() + 1)
-        .toString()
-        .padStart(2, "0");
+  const resolvedDate = getResolvedPubDate(post);
+  const year = resolvedDate.getFullYear().toString();
+  const month = (resolvedDate.getMonth() + 1).toString().padStart(2, "0");
 
-    if (!postsByYear[year]) {
-        postsByYear[year] = {};
-    }
-    if (!postsByYear[year][month]) {
-        postsByYear[year][month] = [];
-    }
-    postsByYear[year][month].push(post);
+  if (!postsByYear[year]) {
+    postsByYear[year] = {};
+  }
+  if (!postsByYear[year][month]) {
+    postsByYear[year][month] = [];
+  }
+  postsByYear[year][month].push(post);
 });
 
 // 按时间排序
 Object.keys(postsByYear).forEach((year) => {
-    Object.keys(postsByYear[year]).forEach((month) => {
-        postsByYear[year][month].sort(
-            (a, b) => getResolvedPubDate(b).getTime() - getResolvedPubDate(a).getTime(),
-        );
-    });
+  Object.keys(postsByYear[year]).forEach((month) => {
+    postsByYear[year][month].sort(
+      (a, b) =>
+        getResolvedPubDate(b).getTime() - getResolvedPubDate(a).getTime(),
+    );
+  });
 });
 
 // 获取所有年份并排序
 const allYears = Object.keys(postsByYear).sort(
-    (a, b) => parseInt(b) - parseInt(a),
+  (a, b) => parseInt(b) - parseInt(a),
 );
 
 // 月份名称映射
 const monthNames = [
+  "一月",
+  "二月",
+  "三月",
+  "四月",
+  "五月",
+  "六月",
+  "七月",
+  "八月",
+  "九月",
+  "十月",
+  "十一月",
+  "十二月",
+];
+---
+
+<BaseLayout title={`${getDefaultUiText("archive.metaTitle")} | ${SITE_TITLE}`}>
+  <main>
+    <div class="homepage-container">
+      <div class="homepage-layout">
+        <!-- 左侧：个人信息 + 侧边栏 -->
+        <div class="homepage-sidebar">
+          <ProfileCard />
+          <Sidebar />
+        </div>
+
+        <!-- 右侧：归档内容 -->
+        <div class="homepage-content">
+          <h2 class="section-title" data-i18n="legacy.archive.title">
+            {getDefaultUiText("legacy.archive.title")}
+          </h2>
+          <p
+            class="text-lg mb-8 text-gray-700 dark:text-gray-300"
+            data-i18n="legacy.archive.desc"
+          >
+            {getDefaultUiText("legacy.archive.desc")}
+          </p>
+
+          <div class="space-y-16">
+            {
+              allYears.map((year) => (
+                <div>
+                  <h2 class="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100">
+                    {year}
+                    <span data-i18n="legacy.yearSuffix">
+                      {getDefaultUiText("legacy.yearSuffix")}
+                    </span>
+                  </h2>
+
+                  {Object.keys(postsByYear[year])
+                    .sort((a, b) => parseInt(b) - parseInt(a))
+                    .map((month) => (
+                      <div class="mb-8">
+                        <h3
+                          class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 archive-month-name"
+                          data-month-index={parseInt(month) - 1}
+                        >
+                          {monthNames[parseInt(month) - 1]}
+                        </h3>
+                        <ul class="space-y-2">
+                          {postsByYear[year][month].map((post) => (
+                            <li class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-2 border-gray-100 dark:border-gray-800">
+                              <a
+                                href={`/blog/${post.id}`}
+                                class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                              >
+                                {post.data.title}
+                              </a>
+                              <span class="text-sm text-gray-500 dark:text-gray-400">
+                                {formatArchiveDateTime(
+                                  getResolvedPubDate(post),
+                                )}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                </div>
+              ))
+            }
+
+            {
+              allYears.length === 0 && (
+                <div class="text-center py-12">
+                  <p
+                    class="text-gray-500 dark:text-gray-400"
+                    data-i18n="posts.empty"
+                  >
+                    {getDefaultUiText("posts.empty")}
+                  </p>
+                </div>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  const monthNamesZh = [
     "一月",
     "二月",
     "三月",
@@ -71,142 +172,86 @@ const monthNames = [
     "十月",
     "十一月",
     "十二月",
-];
----
+  ];
+  const monthNamesEn = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
-<BaseLayout title={`${getDefaultUiText("archive.metaTitle")} | ${SITE_TITLE}`}>
-	<main>
-		<div class="homepage-container">
-			<div class="homepage-layout">
-				<!-- 左侧：个人信息 + 侧边栏 -->
-				<div class="homepage-sidebar">
-					<ProfileCard />
-					<Sidebar />
-				</div>
+  function updateArchiveMonthNames() {
+    const locale =
+      (window as any).__siteI18n?.getLocale?.() === "en" ? "en" : "zh";
+    document.querySelectorAll(".archive-month-name").forEach((element) => {
+      const idx = Number(element.getAttribute("data-month-index"));
+      if (Number.isNaN(idx) || idx < 0 || idx > 11) return;
+      element.textContent =
+        locale === "en" ? monthNamesEn[idx] : monthNamesZh[idx];
+    });
+  }
 
-				<!-- 右侧：归档内容 -->
-				<div class="homepage-content">
-					<h2 class="section-title" data-i18n="legacy.archive.title">{getDefaultUiText("legacy.archive.title")}</h2>
-					<p class="text-lg mb-8 text-gray-700 dark:text-gray-300" data-i18n="legacy.archive.desc">{getDefaultUiText("legacy.archive.desc")}</p>
-
-					<div class="space-y-16">
-						{
-							allYears.map((year) => (
-								<div>
-									<h2 class="text-2xl font-bold mb-6 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100">
-										{year}<span data-i18n="legacy.yearSuffix">{getDefaultUiText("legacy.yearSuffix")}</span>
-									</h2>
-
-									{Object.keys(postsByYear[year])
-										.sort((a, b) => parseInt(b) - parseInt(a))
-										.map((month) => (
-											<div class="mb-8">
-												<h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 archive-month-name" data-month-index={parseInt(month) - 1}>
-													{monthNames[parseInt(month) - 1]}
-												</h3>
-												<ul class="space-y-2">
-													{postsByYear[year][month].map(
-														(post) => (
-															<li class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-2 border-gray-100 dark:border-gray-800">
-																<a
-																	href={`/blog/${post.id}`}
-																	class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-																>
-																	{post.data.title}
-																</a>
-																<span class="text-sm text-gray-500 dark:text-gray-400">
-																	{formatArchiveDateTime(getResolvedPubDate(post))}
-																</span>
-															</li>
-														),
-													)}
-												</ul>
-											</div>
-										))}
-								</div>
-							))
-						}
-
-						{
-							allYears.length === 0 && (
-								<div class="text-center py-12">
-									<p class="text-gray-500 dark:text-gray-400" data-i18n="posts.empty">{getDefaultUiText("posts.empty")}</p>
-								</div>
-							)
-						}
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>
-</BaseLayout>
-
-<script>
-    const monthNamesZh = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-    const monthNamesEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    function updateArchiveMonthNames() {
-        const locale = (window as any).__siteI18n?.getLocale?.() === "en" ? "en" : "zh";
-        document.querySelectorAll(".archive-month-name").forEach((element) => {
-            const idx = Number(element.getAttribute("data-month-index"));
-            if (Number.isNaN(idx) || idx < 0 || idx > 11) return;
-            element.textContent = locale === "en" ? monthNamesEn[idx] : monthNamesZh[idx];
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", updateArchiveMonthNames);
-    document.addEventListener("astro:page-load", updateArchiveMonthNames);
-    document.addEventListener("site:locale-change", updateArchiveMonthNames);
+  document.addEventListener("DOMContentLoaded", updateArchiveMonthNames);
+  document.addEventListener("astro:page-load", updateArchiveMonthNames);
+  document.addEventListener("site:locale-change", updateArchiveMonthNames);
 </script>
 
 <style>
-	/* 首页容器 */
-	.homepage-container {
-		max-width: 1400px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		padding-top: 6rem;
-	}
+  /* 首页容器 */
+  .homepage-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    padding-top: 6rem;
+  }
 
-	/* 首页布局 */
-	.homepage-layout {
-		display: grid;
-		grid-template-columns: 320px 1fr;
-		gap: 3rem;
-	}
+  /* 首页布局 */
+  .homepage-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+  }
 
-	/* 左侧边栏 */
-	.homepage-sidebar {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-	}
+  /* 左侧边栏 */
+  .homepage-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
 
-	/* 右侧内容区 */
-	.homepage-content {
-		min-width: 0;
-	}
+  /* 右侧内容区 */
+  .homepage-content {
+    min-width: 0;
+  }
 
-	/* 分类标题 */
-	.section-title {
-		font-size: 2rem;
-		font-weight: 700;
-		margin-bottom: 2rem;
-		color: var(--text-primary);
-	}
+  /* 分类标题 */
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+  }
 
-	/* 响应式设计 */
-	@media (max-width: 1024px) {
-		.homepage-layout {
-			grid-template-columns: 1fr;
-		}
+  /* 响应式设计 */
+  @media (max-width: 1024px) {
+    .homepage-layout {
+      grid-template-columns: 1fr;
+    }
 
-		.homepage-sidebar {
-			order: 2;
-		}
+    .homepage-sidebar {
+      order: 2;
+    }
 
-		.homepage-content {
-			order: 1;
-		}
-	}
+    .homepage-content {
+      order: 1;
+    }
+  }
 </style>

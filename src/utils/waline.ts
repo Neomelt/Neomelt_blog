@@ -1,14 +1,12 @@
 export function normalizeWalinePath(path: string): string {
-    if (!path) return "/";
+  if (!path) return "/";
 
-    const withLeadingSlash = path.startsWith("/") ? path : `/${path}`;
-    const trimmedPath = withLeadingSlash.replace(/\/+$/, "");
+  const withLeadingSlash = path.startsWith("/") ? path : `/${path}`;
+  const trimmedPath = withLeadingSlash.replace(/\/+$/, "");
 
-    return trimmedPath || "/";
+  return trimmedPath || "/";
 }
 
-export function getWalinePathForPost(
-    postId: string,
-): string {
-    return normalizeWalinePath(`/posts/${postId}`);
+export function getWalinePathForPost(postId: string): string {
+  return normalizeWalinePath(`/posts/${postId}`);
 }
