@@ -60,7 +60,6 @@ const myFriendLinkText = myFriendLinkItems
             <section class="friends-section" aria-labelledby="friends-circle-title">
                 <h2 id="friends-circle-title" data-i18n="friends.circleTitle">{getDefaultUiText("friends.circleTitle")}</h2>
                 <p class="section-desc" data-i18n="friends.circleLead">{getDefaultUiText("friends.circleLead")}</p>
-                <p class="friends-circle-tip" data-i18n="friends.circleHint">{getDefaultUiText("friends.circleHint")}</p>
                 {friendCirclePosts.length > 0 ? (
                     <ul class="circle-list">
                         {friendCirclePosts.map((post) => (
@@ -267,13 +266,6 @@ const myFriendLinkText = myFriendLinkItems
     .section-desc {
         margin-bottom: 1rem;
         color: var(--text-muted);
-    }
-
-    .friends-circle-tip {
-        margin-top: -0.3rem;
-        margin-bottom: 1rem;
-        color: var(--text-muted);
-        font-size: 0.88rem;
     }
 
     .circle-list {
