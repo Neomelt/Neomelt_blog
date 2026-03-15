@@ -10,69 +10,74 @@ const isActive = href === pathname || href === "/" + (subpath?.[0] || "");
 ---
 
 <a
-	href={href}
-	class:list={["kawaii-nav-link", className, { active: isActive }]}
-	{...props}
+  href={href}
+  class:list={["kawaii-nav-link", className, { active: isActive }]}
+  {...props}
 >
-	<slot />
+  <slot />
 </a>
 <style>
-	.kawaii-nav-link {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.5rem 1rem;
-		text-decoration: none;
-		position: relative;
-		overflow: hidden;
-		color: var(--text-secondary);
-		transition: color 0.3s ease;
-		font-weight: 500;
-	}
+  .kawaii-nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+    font-weight: 500;
+  }
 
-	.kawaii-nav-link:hover {
-		color: var(--text-primary);
-	}
+  .kawaii-nav-link:hover {
+    color: var(--text-primary);
+  }
 
-	.kawaii-nav-link.active {
-		font-weight: 700;
-		color: var(--accent) !important;
-		position: relative;
-	}
+  .kawaii-nav-link.active {
+    font-weight: 700;
+    color: var(--accent) !important;
+    position: relative;
+  }
 
-	.kawaii-nav-link.active::after {
-		content: "";
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		height: 2px;
-		background: linear-gradient(90deg, var(--accent), var(--accent-dark), var(--accent));
-		background-size: 200% 100%;
-		animation: gradientMove 3s infinite linear;
-	}
+  .kawaii-nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--accent),
+      var(--accent-dark),
+      var(--accent)
+    );
+    background-size: 200% 100%;
+    animation: gradientMove 3s infinite linear;
+  }
 
-	@keyframes gradientMove {
-		0% {
-			background-position: 0% 0%;
-		}
-		100% {
-			background-position: 200% 0%;
-		}
-	}
+  @keyframes gradientMove {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 200% 0%;
+    }
+  }
 
-	.kawaii-nav-link::before {
-		content: "";
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		width: 0;
-		height: 1px;
-		background-color: var(--accent);
-		transition: all 0.3s ease;
-	}
+  .kawaii-nav-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background-color: var(--accent);
+    transition: all 0.3s ease;
+  }
 
-	.kawaii-nav-link:hover::before {
-		width: 100%;
-		left: 0;
-	}
+  .kawaii-nav-link:hover::before {
+    width: 100%;
+    left: 0;
+  }
 </style>

@@ -3,610 +3,614 @@
 import { getDefaultUiText } from "../../i18n/ui";
 
 const bgModalText = {
-    title: getDefaultUiText("background.modalTitle"),
-    quote: getDefaultUiText("background.quote"),
-    enableWallpaper: getDefaultUiText("background.enableWallpaper"),
-    styleTitle: getDefaultUiText("background.styleTitle"),
-    styleAltSuffix: getDefaultUiText("background.styleAltSuffix"),
-    opacityTitle: getDefaultUiText("background.opacityTitle"),
-    blurTitle: getDefaultUiText("background.blurTitle"),
+  title: getDefaultUiText("background.modalTitle"),
+  quote: getDefaultUiText("background.quote"),
+  enableWallpaper: getDefaultUiText("background.enableWallpaper"),
+  styleTitle: getDefaultUiText("background.styleTitle"),
+  styleAltSuffix: getDefaultUiText("background.styleAltSuffix"),
+  opacityTitle: getDefaultUiText("background.opacityTitle"),
+  blurTitle: getDefaultUiText("background.blurTitle"),
 };
 ---
 
 <div class="background-modal-overlay" id="background-modal-overlay">
-    <div class="background-modal">
-        <div class="modal-header">
-            <h3 data-i18n="background.modalTitle">{bgModalText.title}</h3>
-            <button class="close-btn" id="close-background-modal">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clip-rule="evenodd"></path>
-                </svg>
-            </button>
-        </div>
-
-        <div class="modal-content">
-            <p class="modal-description" data-i18n="background.quote">{bgModalText.quote}</p>
-
-            <!-- 启用壁纸开关 -->
-            <div class="setting-group">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="enable-wallpaper" checked />
-                    <span class="checkmark"></span>
-                    <span class="label-text" data-i18n="background.enableWallpaper">{bgModalText.enableWallpaper}</span>
-                </label>
-            </div>
-
-            <!-- 背景选择 -->
-            <div class="setting-group">
-                <h4 class="setting-title" data-i18n="background.styleTitle">{bgModalText.styleTitle}</h4>
-                <div class="background-options">
-                    <div class="bg-option" data-bg="t1.svg">
-                        <div class="bg-preview">
-                            <img
-                                src="/images/hero-images/t1.svg"
-                                alt={`T1 ${bgModalText.styleAltSuffix}`}
-                            />
-                        </div>
-                        <div class="bg-info">
-                        </div>
-                    </div>
-
-                    <div class="bg-option" data-bg="t2.svg">
-                        <div class="bg-preview">
-                            <img
-                                src="/images/hero-images/t2.svg"
-                                alt={`T2 ${bgModalText.styleAltSuffix}`}
-                            />
-                        </div>
-                        <div class="bg-info">
-                        </div>
-                    </div>
-
-                    <div class="bg-option" data-bg="t3.svg">
-                        <div class="bg-preview">
-                            <img
-                                src="/images/hero-images/t3.svg"
-                                alt={`T3 ${bgModalText.styleAltSuffix}`}
-                            />
-                        </div>
-                        <div class="bg-info">
-                        </div>
-                    </div>
-
-                    <div class="bg-option" data-bg="t4.svg">
-                        <div class="bg-preview">
-                            <img
-                                src="/images/hero-images/t4.svg"
-                                alt={`T4 ${bgModalText.styleAltSuffix}`}
-                            />
-                        </div>
-                        <div class="bg-info">
-                        </div>
-                    </div>
-
-                    <div class="bg-option" data-bg="t5.svg">
-                        <div class="bg-preview">
-                            <img
-                                src="/images/hero-images/t5.svg"
-                                alt={`T5 ${bgModalText.styleAltSuffix}`}
-                            />
-                        </div>
-                        <div class="bg-info">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 透明度控制 -->
-            <div class="setting-group">
-                <h4 class="setting-title" data-i18n="background.opacityTitle">{bgModalText.opacityTitle}</h4>
-                <div class="slider-container">
-                    <input
-                        type="range"
-                        id="opacity-slider"
-                        min="0"
-                        max="100"
-                        value="40"
-                        class="slider"
-                    />
-                    <span class="slider-value" id="opacity-value">40%</span>
-                </div>
-            </div>
-
-            <!-- 模糊度控制 -->
-            <div class="setting-group">
-                <h4 class="setting-title" data-i18n="background.blurTitle">{bgModalText.blurTitle}</h4>
-                <div class="slider-container">
-                    <input
-                        type="range"
-                        id="blur-slider"
-                        min="0"
-                        max="20"
-                        value="0"
-                        class="slider"
-                    />
-                    <span class="slider-value" id="blur-value">0px</span>
-                </div>
-            </div>
-        </div>
+  <div class="background-modal">
+    <div class="modal-header">
+      <h3 data-i18n="background.modalTitle">{bgModalText.title}</h3>
+      <button class="close-btn" id="close-background-modal">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+            clip-rule="evenodd"></path>
+        </svg>
+      </button>
     </div>
+
+    <div class="modal-content">
+      <p class="modal-description" data-i18n="background.quote">
+        {bgModalText.quote}
+      </p>
+
+      <!-- 启用壁纸开关 -->
+      <div class="setting-group">
+        <label class="checkbox-container">
+          <input type="checkbox" id="enable-wallpaper" checked />
+          <span class="checkmark"></span>
+          <span class="label-text" data-i18n="background.enableWallpaper"
+            >{bgModalText.enableWallpaper}</span
+          >
+        </label>
+      </div>
+
+      <!-- 背景选择 -->
+      <div class="setting-group">
+        <h4 class="setting-title" data-i18n="background.styleTitle">
+          {bgModalText.styleTitle}
+        </h4>
+        <div class="background-options">
+          <div class="bg-option" data-bg="t1.svg">
+            <div class="bg-preview">
+              <img
+                src="/images/hero-images/t1.svg"
+                alt={`T1 ${bgModalText.styleAltSuffix}`}
+              />
+            </div>
+            <div class="bg-info"></div>
+          </div>
+
+          <div class="bg-option" data-bg="t2.svg">
+            <div class="bg-preview">
+              <img
+                src="/images/hero-images/t2.svg"
+                alt={`T2 ${bgModalText.styleAltSuffix}`}
+              />
+            </div>
+            <div class="bg-info"></div>
+          </div>
+
+          <div class="bg-option" data-bg="t3.svg">
+            <div class="bg-preview">
+              <img
+                src="/images/hero-images/t3.svg"
+                alt={`T3 ${bgModalText.styleAltSuffix}`}
+              />
+            </div>
+            <div class="bg-info"></div>
+          </div>
+
+          <div class="bg-option" data-bg="t4.svg">
+            <div class="bg-preview">
+              <img
+                src="/images/hero-images/t4.svg"
+                alt={`T4 ${bgModalText.styleAltSuffix}`}
+              />
+            </div>
+            <div class="bg-info"></div>
+          </div>
+
+          <div class="bg-option" data-bg="t5.svg">
+            <div class="bg-preview">
+              <img
+                src="/images/hero-images/t5.svg"
+                alt={`T5 ${bgModalText.styleAltSuffix}`}
+              />
+            </div>
+            <div class="bg-info"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 透明度控制 -->
+      <div class="setting-group">
+        <h4 class="setting-title" data-i18n="background.opacityTitle">
+          {bgModalText.opacityTitle}
+        </h4>
+        <div class="slider-container">
+          <input
+            type="range"
+            id="opacity-slider"
+            min="0"
+            max="100"
+            value="40"
+            class="slider"
+          />
+          <span class="slider-value" id="opacity-value">40%</span>
+        </div>
+      </div>
+
+      <!-- 模糊度控制 -->
+      <div class="setting-group">
+        <h4 class="setting-title" data-i18n="background.blurTitle">
+          {bgModalText.blurTitle}
+        </h4>
+        <div class="slider-container">
+          <input
+            type="range"
+            id="blur-slider"
+            min="0"
+            max="20"
+            value="0"
+            class="slider"
+          />
+          <span class="slider-value" id="blur-value">0px</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-    function initBackgroundModal() {
-        const modal = document.getElementById("background-modal-overlay");
-        const closeBtn = document.getElementById("close-background-modal");
-        const bgOptions = document.querySelectorAll(".bg-option");
-        const enableWallpaper = document.getElementById(
-            "enable-wallpaper",
-        ) as HTMLInputElement;
-        const opacitySlider = document.getElementById(
-            "opacity-slider",
-        ) as HTMLInputElement;
-        const blurSlider = document.getElementById(
-            "blur-slider",
-        ) as HTMLInputElement;
-        const opacityValue = document.getElementById("opacity-value");
-        const blurValue = document.getElementById("blur-value");
+  function initBackgroundModal() {
+    const modal = document.getElementById("background-modal-overlay");
+    const closeBtn = document.getElementById("close-background-modal");
+    const bgOptions = document.querySelectorAll(".bg-option");
+    const enableWallpaper = document.getElementById(
+      "enable-wallpaper",
+    ) as HTMLInputElement;
+    const opacitySlider = document.getElementById(
+      "opacity-slider",
+    ) as HTMLInputElement;
+    const blurSlider = document.getElementById(
+      "blur-slider",
+    ) as HTMLInputElement;
+    const opacityValue = document.getElementById("opacity-value");
+    const blurValue = document.getElementById("blur-value");
 
-        if (!modal || !closeBtn || !opacityValue || !blurValue) return;
+    if (!modal || !closeBtn || !opacityValue || !blurValue) return;
 
-        // 初始化设置值
-        const savedSettings = {
-            enabled: localStorage.getItem("wallpaperEnabled") !== "false",
-            opacity: localStorage.getItem("wallpaperOpacity") || "40",
-            blur: localStorage.getItem("wallpaperBlur") || "0",
-        };
+    // 初始化设置值
+    const savedSettings = {
+      enabled: localStorage.getItem("wallpaperEnabled") !== "false",
+      opacity: localStorage.getItem("wallpaperOpacity") || "40",
+      blur: localStorage.getItem("wallpaperBlur") || "0",
+    };
 
-        enableWallpaper.checked = savedSettings.enabled;
-        opacitySlider.value = savedSettings.opacity;
-        blurSlider.value = savedSettings.blur;
-        opacityValue.textContent = savedSettings.opacity + "%";
-        blurValue.textContent = savedSettings.blur + "px";
+    enableWallpaper.checked = savedSettings.enabled;
+    opacitySlider.value = savedSettings.opacity;
+    blurSlider.value = savedSettings.blur;
+    opacityValue.textContent = savedSettings.opacity + "%";
+    blurValue.textContent = savedSettings.blur + "px";
 
-        // 监听打开模态框事件
-        window.addEventListener("openBackgroundModal", () => {
-            modal.classList.add("active");
-            document.body.style.overflow = "hidden";
-            updateActiveOption();
-        });
+    // 监听打开模态框事件
+    window.addEventListener("openBackgroundModal", () => {
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+      updateActiveOption();
+    });
 
-        // 关闭模态框
-        const closeModal = () => {
-            modal.classList.remove("active");
-            document.body.style.overflow = "";
-        };
+    // 关闭模态框
+    const closeModal = () => {
+      modal.classList.remove("active");
+      document.body.style.overflow = "";
+    };
 
-        closeBtn.addEventListener("click", closeModal);
+    closeBtn.addEventListener("click", closeModal);
 
-        // 点击背景关闭
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
+    // 点击背景关闭
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
 
-        // ESC键关闭
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && modal.classList.contains("active")) {
-                closeModal();
-            }
-        });
+    // ESC键关闭
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.classList.contains("active")) {
+        closeModal();
+      }
+    });
 
-        // 启用/禁用壁纸
-        enableWallpaper.addEventListener("change", () => {
-            const isEnabled = enableWallpaper.checked;
-            localStorage.setItem("wallpaperEnabled", isEnabled.toString());
+    // 启用/禁用壁纸
+    enableWallpaper.addEventListener("change", () => {
+      const isEnabled = enableWallpaper.checked;
+      localStorage.setItem("wallpaperEnabled", isEnabled.toString());
 
-            window.dispatchEvent(
-                new CustomEvent("wallpaperSettingsChange", {
-                    detail: {
-                        enabled: isEnabled,
-                        opacity: parseFloat(opacitySlider.value),
-                        blur: parseFloat(blurSlider.value),
-                    },
-                }),
-            );
-        });
+      window.dispatchEvent(
+        new CustomEvent("wallpaperSettingsChange", {
+          detail: {
+            enabled: isEnabled,
+            opacity: parseFloat(opacitySlider.value),
+            blur: parseFloat(blurSlider.value),
+          },
+        }),
+      );
+    });
 
-        // 透明度滑块
-        opacitySlider.addEventListener("input", () => {
-            const value = opacitySlider.value;
-            opacityValue.textContent = value + "%";
-            localStorage.setItem("wallpaperOpacity", value);
+    // 透明度滑块
+    opacitySlider.addEventListener("input", () => {
+      const value = opacitySlider.value;
+      opacityValue.textContent = value + "%";
+      localStorage.setItem("wallpaperOpacity", value);
 
-            if (enableWallpaper.checked) {
-                window.dispatchEvent(
-                    new CustomEvent("wallpaperSettingsChange", {
-                        detail: {
-                            enabled: true,
-                            opacity: parseFloat(value),
-                            blur: parseFloat(blurSlider.value),
-                        },
-                    }),
-                );
-            }
-        });
+      if (enableWallpaper.checked) {
+        window.dispatchEvent(
+          new CustomEvent("wallpaperSettingsChange", {
+            detail: {
+              enabled: true,
+              opacity: parseFloat(value),
+              blur: parseFloat(blurSlider.value),
+            },
+          }),
+        );
+      }
+    });
 
-        // 模糊度滑块
-        blurSlider.addEventListener("input", () => {
-            const value = blurSlider.value;
-            blurValue.textContent = value + "px";
-            localStorage.setItem("wallpaperBlur", value);
+    // 模糊度滑块
+    blurSlider.addEventListener("input", () => {
+      const value = blurSlider.value;
+      blurValue.textContent = value + "px";
+      localStorage.setItem("wallpaperBlur", value);
 
-            if (enableWallpaper.checked) {
-                window.dispatchEvent(
-                    new CustomEvent("wallpaperSettingsChange", {
-                        detail: {
-                            enabled: true,
-                            opacity: parseFloat(opacitySlider.value),
-                            blur: parseFloat(value),
-                        },
-                    }),
-                );
-            }
-        });
+      if (enableWallpaper.checked) {
+        window.dispatchEvent(
+          new CustomEvent("wallpaperSettingsChange", {
+            detail: {
+              enabled: true,
+              opacity: parseFloat(opacitySlider.value),
+              blur: parseFloat(value),
+            },
+          }),
+        );
+      }
+    });
 
-        // 背景选择
-        bgOptions.forEach((option) => {
-            option.addEventListener("click", () => {
-                const bgName = option.getAttribute("data-bg");
-                if (bgName && enableWallpaper.checked) {
-                    window.dispatchEvent(
-                        new CustomEvent("globalBackgroundChange", {
-                            detail: { background: bgName },
-                        }),
-                    );
-                    updateActiveOption();
-                }
-            });
-        });
-
-        function updateActiveOption() {
-            const currentBg =
-                localStorage.getItem("animeBackground") || "t1.svg";
-            bgOptions.forEach((option) => {
-                const bgName = option.getAttribute("data-bg");
-                if (bgName === currentBg) {
-                    option.classList.add("selected");
-                } else {
-                    option.classList.remove("selected");
-                }
-            });
+    // 背景选择
+    bgOptions.forEach((option) => {
+      option.addEventListener("click", () => {
+        const bgName = option.getAttribute("data-bg");
+        if (bgName && enableWallpaper.checked) {
+          window.dispatchEvent(
+            new CustomEvent("globalBackgroundChange", {
+              detail: { background: bgName },
+            }),
+          );
+          updateActiveOption();
         }
-    }
+      });
+    });
 
-    // 初始化
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initBackgroundModal);
-    } else {
-        initBackgroundModal();
+    function updateActiveOption() {
+      const currentBg = localStorage.getItem("animeBackground") || "t1.svg";
+      bgOptions.forEach((option) => {
+        const bgName = option.getAttribute("data-bg");
+        if (bgName === currentBg) {
+          option.classList.add("selected");
+        } else {
+          option.classList.remove("selected");
+        }
+      });
     }
+  }
+
+  // 初始化
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initBackgroundModal);
+  } else {
+    initBackgroundModal();
+  }
 </script>
 
 <style>
-    .background-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(8px);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+  .background-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-    .background-modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
+  .background-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
 
+  .background-modal {
+    background: var(--bg-primary);
+    border-radius: 16px;
+    padding: 0;
+    max-width: 700px;
+    width: 95vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .background-modal-overlay.active .background-modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(var(--gray-light), 0.3);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .close-btn:hover {
+    color: var(--text-primary);
+    background: rgba(var(--gray-light), 0.3);
+  }
+
+  .modal-content {
+    padding: 24px;
+  }
+
+  .modal-description {
+    color: var(--text-secondary);
+    margin: 0 0 24px 0;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* 设置组 */
+  .setting-group {
+    margin-bottom: 24px;
+  }
+
+  .setting-title {
+    color: var(--text-primary);
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* 复选框样式 */
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 1rem;
+  }
+
+  .checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    height: 20px;
+    width: 20px;
+    background-color: rgba(var(--gray-light), 0.3);
+    border-radius: 4px;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(var(--accent-rgb), 0.3);
+  }
+
+  .checkbox-container:hover .checkmark {
+    background-color: rgba(var(--accent-rgb), 0.1);
+    border-color: var(--accent);
+  }
+
+  .checkbox-container input:checked ~ .checkmark {
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  .label-text {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* 横向背景选择 */
+  .background-options {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .bg-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+    text-align: center;
+  }
+
+  .bg-option:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.2);
+  }
+
+  .bg-option.selected {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+    box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.3);
+  }
+
+  .bg-preview {
+    width: 50px;
+    height: 35px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .bg-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bg-info {
+    width: 100%;
+  }
+
+  .bg-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+  /* 滑块样式 */
+  .slider-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(var(--gray-light), 0.3);
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.4);
+  }
+
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.3);
+  }
+
+  .slider-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  /* 暗色模式 */
+  :global(.dark) .modal-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .checkmark {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* 移动端优化 */
+  @media (max-width: 768px) {
     .background-modal {
-        background: var(--bg-primary);
-        border-radius: 16px;
-        padding: 0;
-        max-width: 700px;
-        width: 95vw;
-        max-height: 85vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        transform: scale(0.9) translateY(20px);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .background-modal-overlay.active .background-modal {
-        transform: scale(1) translateY(0);
+      width: 95vw;
+      margin: 10px;
     }
 
     .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px 24px;
-        border-bottom: 1px solid rgba(var(--gray-light), 0.3);
-    }
-
-    .modal-header h3 {
-        margin: 0;
-        color: var(--text-primary);
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-
-    .close-btn {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-    }
-
-    .close-btn:hover {
-        color: var(--text-primary);
-        background: rgba(var(--gray-light), 0.3);
+      padding: 16px 20px;
     }
 
     .modal-content {
-        padding: 24px;
+      padding: 20px;
     }
 
-    .modal-description {
-        color: var(--text-secondary);
-        margin: 0 0 24px 0;
-        font-size: 0.9rem;
-        text-align: center;
-    }
-
-    /* 设置组 */
-    .setting-group {
-        margin-bottom: 24px;
-    }
-
-    .setting-title {
-        color: var(--text-primary);
-        margin: 0 0 12px 0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    /* 复选框样式 */
-    .checkbox-container {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        user-select: none;
-        font-size: 1rem;
-    }
-
-    .checkbox-container input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-        height: 0;
-        width: 0;
-    }
-
-    .checkmark {
-        height: 20px;
-        width: 20px;
-        background-color: rgba(var(--gray-light), 0.3);
-        border-radius: 4px;
-        margin-right: 12px;
-        position: relative;
-        transition: all 0.3s ease;
-        border: 2px solid rgba(var(--accent-rgb), 0.3);
-    }
-
-    .checkbox-container:hover .checkmark {
-        background-color: rgba(var(--accent-rgb), 0.1);
-        border-color: var(--accent);
-    }
-
-    .checkbox-container input:checked ~ .checkmark {
-        background-color: var(--accent);
-        border-color: var(--accent);
-    }
-
-    .checkmark:after {
-        content: "";
-        position: absolute;
-        display: none;
-        left: 6px;
-        top: 2px;
-        width: 5px;
-        height: 10px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-
-    .checkbox-container input:checked ~ .checkmark:after {
-        display: block;
-    }
-
-    .label-text {
-        color: var(--text-primary);
-        font-weight: 500;
-    }
-
-    /* 横向背景选择 */
     .background-options {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 12px;
-    }
-
-    .bg-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 12px 8px;
-        border: 2px solid transparent;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: var(--bg-secondary);
-        text-align: center;
-    }
-
-    .bg-option:hover {
-        border-color: var(--accent);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(var(--accent-rgb), 0.2);
-    }
-
-    .bg-option.selected {
-        border-color: var(--accent);
-        background: rgba(var(--accent-rgb), 0.1);
-        box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.3);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
 
     .bg-preview {
-        width: 50px;
-        height: 35px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .bg-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .bg-info {
-        width: 100%;
+      width: 45px;
+      height: 30px;
     }
 
     .bg-name {
-        color: var(--text-primary);
-        font-weight: 500;
-        font-size: 0.8rem;
-        line-height: 1.2;
+      font-size: 0.75rem;
     }
 
-    /* 滑块样式 */
     .slider-container {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .slider {
-        flex: 1;
-        height: 6px;
-        border-radius: 3px;
-        background: rgba(var(--gray-light), 0.3);
-        outline: none;
-        appearance: none;
-        cursor: pointer;
-    }
-
-    .slider::-webkit-slider-thumb {
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--accent);
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .slider::-webkit-slider-thumb:hover {
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.4);
-    }
-
-    .slider::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: var(--accent);
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.3);
+      gap: 12px;
     }
 
     .slider-value {
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: 0.9rem;
-        min-width: 50px;
-        text-align: right;
+      min-width: 45px;
+      font-size: 0.85rem;
     }
+  }
 
-    /* 暗色模式 */
-    :global(.dark) .modal-header {
-        border-bottom-color: rgba(255, 255, 255, 0.1);
+  @media (max-width: 480px) {
+    .background-options {
+      grid-template-columns: repeat(2, 1fr);
     }
-
-    :global(.dark) .checkmark {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-        .background-modal {
-            width: 95vw;
-            margin: 10px;
-        }
-
-        .modal-header {
-            padding: 16px 20px;
-        }
-
-        .modal-content {
-            padding: 20px;
-        }
-
-        .background-options {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .bg-preview {
-            width: 45px;
-            height: 30px;
-        }
-
-        .bg-name {
-            font-size: 0.75rem;
-        }
-
-        .slider-container {
-            gap: 12px;
-        }
-
-        .slider-value {
-            min-width: 45px;
-            font-size: 0.85rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .background-options {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
+  }
 </style>

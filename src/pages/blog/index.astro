@@ -13,11 +13,11 @@ import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 posts.sort((a, b) => {
-	if (a.data.pinned && !b.data.pinned) return -1;
-	if (!a.data.pinned && b.data.pinned) return 1;
-	const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
-	const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
-	return bDate.valueOf() - aDate.valueOf();
+  if (a.data.pinned && !b.data.pinned) return -1;
+  if (!a.data.pinned && b.data.pinned) return 1;
+  const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+  const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+  return bDate.valueOf() - aDate.valueOf();
 });
 
 const { items: paginatedPosts, pagination } = paginate(posts, 1, 5);
@@ -25,370 +25,425 @@ const uncategorizedLabel = getDefaultUiText("legacy.uncategorized");
 
 // 简单的阅读时间估算（基于字数）
 function estimateReadingTime(content: string): number {
-	const wordsPerMinute = 200;
-	const wordCount = content.length;
-	return Math.ceil(wordCount / wordsPerMinute);
+  const wordsPerMinute = 200;
+  const wordCount = content.length;
+  return Math.ceil(wordCount / wordsPerMinute);
 }
 
 // 获取所有分类
 const allCategories = [
-	...new Set(posts.map((post) => post.data.category || uncategorizedLabel)),
+  ...new Set(posts.map((post) => post.data.category || uncategorizedLabel)),
 ];
 ---
 
 <BaseLayout title={getDefaultUiText("legacy.blog.postsTitle")}>
-	<main>
-		<div class="homepage-container">
-			<div class="homepage-layout">
-			<!-- 左侧：个人信息 + 侧边栏 -->
-			<div class="homepage-sidebar">
-				<ProfileCard />
-				<Sidebar />
-			</div>
+  <main>
+    <div class="homepage-container">
+      <div class="homepage-layout">
+        <!-- 左侧：个人信息 + 侧边栏 -->
+        <div class="homepage-sidebar">
+          <ProfileCard />
+          <Sidebar />
+        </div>
 
-				<!-- 右侧：博客列表 -->
-				<div class="homepage-content">
-				<h2 class="section-title" data-i18n="legacy.blog.postsTitle">{getDefaultUiText("legacy.blog.postsTitle")}</h2>
-				<!-- 分类筛选 -->
-				<div
-					class="category-filter mb-8 flex flex-wrap justify-center gap-4"
-				>
-					<a
-						href="/blog"
-						class="category-link active"
-						data-category="all"
-						data-i18n="legacy.all">{getDefaultUiText("legacy.all")}</a
-					>
-					{
-						allCategories.map((category) => (
-							<a
-								href="#"
-								class="category-link"
-								data-category={category}
-							>
-								{category}
-							</a>
-						))
-					}
-				</div>
+        <!-- 右侧：博客列表 -->
+        <div class="homepage-content">
+          <h2 class="section-title" data-i18n="legacy.blog.postsTitle">
+            {getDefaultUiText("legacy.blog.postsTitle")}
+          </h2>
+          <!-- 分类筛选 -->
+          <div class="category-filter mb-8 flex flex-wrap justify-center gap-4">
+            <a
+              href="/blog"
+              class="category-link active"
+              data-category="all"
+              data-i18n="legacy.all">{getDefaultUiText("legacy.all")}</a
+            >
+            {
+              allCategories.map((category) => (
+                <a href="#" class="category-link" data-category={category}>
+                  {category}
+                </a>
+              ))
+            }
+          </div>
 
-				<!-- 文章列表 -->
-				<div class="post-list">
-					{paginatedPosts.map((post) => {
-						const readingTime = estimateReadingTime(post.body || "");
-						const wordCount = (post.body || "").length;
-						const walinePath = getWalinePathForPost(post.id);
-						const resolvedPubDate =
-							postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
-						
-						return (
-							<article class="post-card-item" data-category={post.data.category || uncategorizedLabel}>
-								<a href={`/blog/${post.id}/`} class="post-card-link">
-									{post.data.heroImage && (
-										<div class="post-thumbnail">
-											<img 
-												src={typeof post.data.heroImage === 'string' 
-													? post.data.heroImage 
-													: post.data.heroImage.src
-												} 
-												alt={post.data.title}
-											/>
-										</div>
-									)}
-									<div class="post-content">
-										<div class="post-header">
-											<div class="post-date">
-												<FormattedDate date={resolvedPubDate} />
-											</div>
-											{post.data.category && (
-												<span class="post-category">{post.data.category}</span>
-											)}
-											{post.data.pinned && (
-												<span class="post-pinned">
-													<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z"/></svg>
-													<span data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
-												</span>
-											)}
-										</div>
-										<h3 class="post-title">{post.data.title}</h3>
-										<p class="post-description">{post.data.description}</p>
-										<div class="post-meta">
-											<span>{wordCount} <span data-i18n="common.words">{getDefaultUiText("common.words")}</span></span>
-											<span>|</span>
-											<span>{readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span></span>
-											<span>|</span>
-											<span><span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span></span>
-											<span>|</span>
-											<span><span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span></span>
-											{post.data.tags && post.data.tags.length > 0 && (
-												<>
-													<span>|</span>
-													<div class="post-tags">
-														{post.data.tags.slice(0, 3).map(tag => (
-															<span class="post-tag">#{tag}</span>
-														))}
-													</div>
-												</>
-											)}
-										</div>
-									</div>
-								</a>
-							</article>
-						);
-					})}
-				</div>
+          <!-- 文章列表 -->
+          <div class="post-list">
+            {
+              paginatedPosts.map((post) => {
+                const readingTime = estimateReadingTime(post.body || "");
+                const wordCount = (post.body || "").length;
+                const walinePath = getWalinePathForPost(post.id);
+                const resolvedPubDate =
+                  postDatesMap.get(getPostDateKey(post))?.pubDate ??
+                  post.data.pubDate;
 
-				<!-- 如果没有文章 -->
-				{
-					paginatedPosts.length === 0 && (
-						<div class="text-center py-12">
-							<div class="text-6xl mb-4">📝</div>
-							<h3 class="text-xl font-semibold mb-2" data-i18n="posts.empty">{getDefaultUiText("posts.empty")}</h3>
-							<p class="text-gray-600 dark:text-gray-400" data-i18n="legacy.blog.noPostsDesc">{getDefaultUiText("legacy.blog.noPostsDesc")}</p>
-						</div>
-					)
-				}
+                return (
+                  <article
+                    class="post-card-item"
+                    data-category={post.data.category || uncategorizedLabel}
+                  >
+                    <a href={`/blog/${post.id}/`} class="post-card-link">
+                      {post.data.heroImage && (
+                        <div class="post-thumbnail">
+                          <img
+                            src={
+                              typeof post.data.heroImage === "string"
+                                ? post.data.heroImage
+                                : post.data.heroImage.src
+                            }
+                            alt={post.data.title}
+                          />
+                        </div>
+                      )}
+                      <div class="post-content">
+                        <div class="post-header">
+                          <div class="post-date">
+                            <FormattedDate date={resolvedPubDate} />
+                          </div>
+                          {post.data.category && (
+                            <span class="post-category">
+                              {post.data.category}
+                            </span>
+                          )}
+                          {post.data.pinned && (
+                            <span class="post-pinned">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="inline-block mr-1"
+                              >
+                                <path d="M12 17v5" />
+                                <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9c-.39.2-.1.75.33.75h11.12c.43 0 .72-.55.33-.75l-1.78-.9a2 2 0 0 1-1.11-1.79V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2Z" />
+                              </svg>
+                              <span data-i18n="common.pinned">
+                                {getDefaultUiText("common.pinned")}
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                        <h3 class="post-title">{post.data.title}</h3>
+                        <p class="post-description">{post.data.description}</p>
+                        <div class="post-meta">
+                          <span>
+                            {wordCount}{" "}
+                            <span data-i18n="common.words">
+                              {getDefaultUiText("common.words")}
+                            </span>
+                          </span>
+                          <span>|</span>
+                          <span>
+                            {readingTime}{" "}
+                            <span data-i18n="common.minutes">
+                              {getDefaultUiText("common.minutes")}
+                            </span>
+                          </span>
+                          <span>|</span>
+                          <span>
+                            <span
+                              class="waline-pageview-count"
+                              data-path={walinePath}
+                            >
+                              0
+                            </span>{" "}
+                            <span data-i18n="common.views">
+                              {getDefaultUiText("common.views")}
+                            </span>
+                          </span>
+                          <span>|</span>
+                          <span>
+                            <span
+                              class="waline-comment-count"
+                              data-path={walinePath}
+                            >
+                              0
+                            </span>{" "}
+                            <span data-i18n="common.comments">
+                              {getDefaultUiText("common.comments")}
+                            </span>
+                          </span>
+                          {post.data.tags && post.data.tags.length > 0 && (
+                            <>
+                              <span>|</span>
+                              <div class="post-tags">
+                                {post.data.tags.slice(0, 3).map((tag) => (
+                                  <span class="post-tag">#{tag}</span>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </a>
+                  </article>
+                );
+              })
+            }
+          </div>
 
-				<!-- 分页组件 -->
-				{
-					pagination.totalPages > 1 && (
-						<Pagination pagination={pagination} basePath="/blog" />
-					)
-				}
-			</div>
-		</div>
-	</div>
-	</main>
+          <!-- 如果没有文章 -->
+          {
+            paginatedPosts.length === 0 && (
+              <div class="text-center py-12">
+                <div class="text-6xl mb-4">📝</div>
+                <h3 class="text-xl font-semibold mb-2" data-i18n="posts.empty">
+                  {getDefaultUiText("posts.empty")}
+                </h3>
+                <p
+                  class="text-gray-600 dark:text-gray-400"
+                  data-i18n="legacy.blog.noPostsDesc"
+                >
+                  {getDefaultUiText("legacy.blog.noPostsDesc")}
+                </p>
+              </div>
+            )
+          }
+
+          <!-- 分页组件 -->
+          {
+            pagination.totalPages > 1 && (
+              <Pagination pagination={pagination} basePath="/blog" />
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </main>
 </BaseLayout>
 
 <style>
-		/* 首页容器 */
-		.homepage-container {
-			max-width: 1400px;
-			margin: 0 auto;
-			padding: 2rem 1rem;
-			padding-top: 6rem;
-		}
+  /* 首页容器 */
+  .homepage-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    padding-top: 6rem;
+  }
 
-		/* 首页布局 */
-		.homepage-layout {
-			display: grid;
-			grid-template-columns: 320px 1fr;
-			gap: 3rem;
-		}
+  /* 首页布局 */
+  .homepage-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+  }
 
-		/* 左侧边栏 */
-		.homepage-sidebar {
-			display: flex;
-			flex-direction: column;
-			gap: 2rem;
-		}
+  /* 左侧边栏 */
+  .homepage-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
 
-		/* 右侧内容区 */
-		.homepage-content {
-			min-width: 0;
-		}
+  /* 右侧内容区 */
+  .homepage-content {
+    min-width: 0;
+  }
 
-		/* 分类标题 */
-		.section-title {
-			font-size: 2rem;
-			font-weight: 700;
-			margin-bottom: 2rem;
-			color: var(--text-primary);
-		}
+  /* 分类标题 */
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+  }
 
-		/* 文章列表 */
-		.post-list {
-			display: flex;
-			flex-direction: column;
-			gap: 1.5rem;
-		}
+  /* 文章列表 */
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-		/* 文章卡片 */
-		.post-card-item {
-			background: var(--bg-secondary);
-			border: 1px solid var(--border-color);
-			border-radius: 12px;
-			overflow: hidden;
-			transition: all 0.3s ease;
-		}
+  /* 文章卡片 */
+  .post-card-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
 
-		.post-card-item:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-			border-color: rgb(59, 130, 246);
-		}
+  .post-card-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: rgb(59, 130, 246);
+  }
 
-		.post-card-link {
-			display: block;
-			text-decoration: none;
-			color: inherit;
-		}
+  .post-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
 
-		.post-thumbnail {
-			width: 100%;
-			height: 240px;
-			overflow: hidden;
-			background: var(--bg-tertiary);
-		}
+  .post-thumbnail {
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+  }
 
-		.post-thumbnail img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-			transition: transform 0.3s ease;
-		}
+  .post-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
 
-		.post-card-item:hover .post-thumbnail img {
-			transform: scale(1.05);
-		}
+  .post-card-item:hover .post-thumbnail img {
+    transform: scale(1.05);
+  }
 
-		.post-content {
-			padding: 1.5rem;
-		}
+  .post-content {
+    padding: 1.5rem;
+  }
 
-		.post-header {
-			display: flex;
-			align-items: center;
-			gap: 1rem;
-			margin-bottom: 0.75rem;
-			font-size: 0.875rem;
-			color: var(--text-secondary);
-		}
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
 
-		.post-date {
-			color: var(--text-secondary);
-		}
+  .post-date {
+    color: var(--text-secondary);
+  }
 
-		.post-category {
-			background: rgba(59, 130, 246, 0.1);
-			color: rgb(59, 130, 246);
-			padding: 0.25rem 0.75rem;
-			border-radius: 9999px;
-			font-size: 0.813rem;
-		}
+  .post-category {
+    background: rgba(59, 130, 246, 0.1);
+    color: rgb(59, 130, 246);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.813rem;
+  }
 
-		.post-pinned {
-			background: rgba(234, 179, 8, 0.1);
-			color: rgb(202, 138, 4);
-			padding: 0.25rem 0.75rem;
-			border-radius: 9999px;
-			font-size: 0.813rem;
-			display: flex;
-			align-items: center;
-		}
+  .post-pinned {
+    background: rgba(234, 179, 8, 0.1);
+    color: rgb(202, 138, 4);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.813rem;
+    display: flex;
+    align-items: center;
+  }
 
-		.post-title {
-			font-size: 1.5rem;
-			font-weight: 600;
-			margin-bottom: 0.75rem;
-			color: var(--text-primary);
-			line-height: 1.4;
-		}
+  .post-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
 
-		.post-card-link:hover .post-title {
-			color: rgb(59, 130, 246);
-		}
+  .post-card-link:hover .post-title {
+    color: rgb(59, 130, 246);
+  }
 
-		.post-description {
-			color: var(--text-secondary);
-			line-height: 1.6;
-			margin-bottom: 1rem;
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-		}
+  .post-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-		.post-meta {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-			font-size: 0.875rem;
-			color: var(--text-secondary);
-			flex-wrap: wrap;
-		}
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+  }
 
-		.post-tags {
-			display: flex;
-			gap: 0.5rem;
-			flex-wrap: wrap;
-		}
+  .post-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 
-		.post-tag {
-			color: rgb(59, 130, 246);
-		}
+  .post-tag {
+    color: rgb(59, 130, 246);
+  }
 
-		/* 分类筛选 */
-		.category-link {
-			padding: 0.5rem 1.5rem;
-			border-radius: 2rem;
-			background-color: var(--bg-secondary);
-			color: var(--text-primary);
-			text-decoration: none;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-			transition: all 0.2s ease;
-		}
+  /* 分类筛选 */
+  .category-link {
+    padding: 0.5rem 1.5rem;
+    border-radius: 2rem;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    text-decoration: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+  }
 
-		.category-link:hover,
-		.category-link.active {
-			background-color: var(--accent);
-			color: white;
-		}
+  .category-link:hover,
+  .category-link.active {
+    background-color: var(--accent);
+    color: white;
+  }
 
-		.blog-hero {
-			background: linear-gradient(
-				to bottom,
-				rgba(var(--gray-light), 0.3),
-				var(--bg-primary)
-			);
-			padding: 4rem 0;
-		}
+  .blog-hero {
+    background: linear-gradient(
+      to bottom,
+      rgba(var(--gray-light), 0.3),
+      var(--bg-primary)
+    );
+    padding: 4rem 0;
+  }
 
-		@media (max-width: 1024px) {
-			.homepage-layout {
-				grid-template-columns: 1fr;
-				gap: 2rem;
-			}
+  @media (max-width: 1024px) {
+    .homepage-layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
 
-			.homepage-sidebar {
-				max-width: 600px;
-				margin: 0 auto;
-			}
-		}
-	</style>
+    .homepage-sidebar {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+</style>
 
-	<script>
-		// 分类筛选功能
-		document.addEventListener("DOMContentLoaded", () => {
-			const categoryLinks = document.querySelectorAll(".category-link");
-			const postCards = document.querySelectorAll(".post-card-item");
+<script>
+  // 分类筛选功能
+  document.addEventListener("DOMContentLoaded", () => {
+    const categoryLinks = document.querySelectorAll(".category-link");
+    const postCards = document.querySelectorAll(".post-card-item");
 
-			categoryLinks.forEach((link: Element) => {
-				link.addEventListener("click", (e: Event) => {
-					e.preventDefault();
+    categoryLinks.forEach((link: Element) => {
+      link.addEventListener("click", (e: Event) => {
+        e.preventDefault();
 
-					// 移除所有激活状态
-					categoryLinks.forEach((l: Element) =>
-						l.classList.remove("active"),
-					);
-					// 添加当前激活状态
-					link.classList.add("active");
+        // 移除所有激活状态
+        categoryLinks.forEach((l: Element) => l.classList.remove("active"));
+        // 添加当前激活状态
+        link.classList.add("active");
 
-					const selectedCategory = link.getAttribute("data-category");
+        const selectedCategory = link.getAttribute("data-category");
 
-					postCards.forEach((card: Element) => {
-						if (
-							selectedCategory === "all" ||
-							card.getAttribute("data-category") ===
-								selectedCategory
-						) {
-							(card as HTMLElement).style.display = "block";
-						} else {
-							(card as HTMLElement).style.display = "none";
-						}
-					});
-				});
-			});
-		});
-	</script>
+        postCards.forEach((card: Element) => {
+          if (
+            selectedCategory === "all" ||
+            card.getAttribute("data-category") === selectedCategory
+          ) {
+            (card as HTMLElement).style.display = "block";
+          } else {
+            (card as HTMLElement).style.display = "none";
+          }
+        });
+      });
+    });
+  });
+</script>

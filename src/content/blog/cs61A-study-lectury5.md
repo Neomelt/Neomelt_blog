@@ -1,11 +1,11 @@
 ---
-title: 'cs61A-study-lecture5'
-description: 'Tree'
-pubDate: '2026-01-23'
-heroImage: '../../assets/cover.svg'
-category: 'study'
-series: ''
-tags: ['python','cs']
+title: "cs61A-study-lecture5"
+description: "Tree"
+pubDate: "2026-01-23"
+heroImage: "../../assets/cover.svg"
+category: "study"
+series: ""
+tags: ["python", "cs"]
 ---
 
 ## Tree
@@ -22,11 +22,11 @@ tags: ['python','cs']
 
 - 深度优先 (DFS)：
 
-    前序 (Pre-order)：根 -> 左 -> 右。（用于：复制树、表达式前缀化）。
+  前序 (Pre-order)：根 -> 左 -> 右。（用于：复制树、表达式前缀化）。
 
-    中序 (In-order)：左 -> 根 -> 右。（核心性质：对 BST 中序遍历得到的是升序序列）。
+  中序 (In-order)：左 -> 根 -> 右。（核心性质：对 BST 中序遍历得到的是升序序列）。
 
-    后序 (Post-order)：左 -> 右 -> 根。（用于：计算文件夹大小、销毁树节点、求逆波兰表达式）。
+  后序 (Post-order)：左 -> 右 -> 根。（用于：计算文件夹大小、销毁树节点、求逆波兰表达式）。
 
 - 广度优先 (BFS)：一层一层扫过去。（用于：寻找无权图的最短路径）。
 
@@ -52,9 +52,9 @@ tags: ['python','cs']
 
 3. 红黑树 (Red-Black Tree)：
 
-    地位：工业级标准。C++ std::map/set、Linux 内核 CFS 调度、Java HashMap 的底层。
+   地位：工业级标准。C++ std::map/set、Linux 内核 CFS 调度、Java HashMap 的底层。
 
-    特性：通过红黑染色和弱平衡规则，在查找效率和增删开销之间取得了完美平衡。
+   特性：通过红黑染色和弱平衡规则，在查找效率和增删开销之间取得了完美平衡。
 
 4. 伸展树 (Splay Tree)：刚访问过的节点会通过旋转移动到根部。利用了局部性原理（刚用过的数据大概率还会用）。
 
@@ -74,33 +74,33 @@ tags: ['python','cs']
 
 进化：数据全在叶子节点，且叶子节点用双向链表连接。极大地优化了范围查询。
 
-3. B 树*：在 B+ 树的基础上，非叶子节点也增加了指向兄弟的指针，进一步提高空间利用率。
+3. B 树\*：在 B+ 树的基础上，非叶子节点也增加了指向兄弟的指针，进一步提高空间利用率。
 
 ### 4. 空间与几何类：机器人算法的“主战场”
 
 这是你作为 RoboMaster 算法组长最需要精通的部分。
 
-1. KD-Tree (K-Dimensional Tree)：
-KD 树（K 维树）：
+1.  KD-Tree (K-Dimensional Tree)：
+    KD 树（K 维树）：
 
-    应用：激光雷达点云的最近邻搜索 (NN)、FLANN 匹配。
+        应用：激光雷达点云的最近邻搜索 (NN)、FLANN 匹配。
 
-    原理：在 K 维空间中交替切分。
+        原理：在 K 维空间中交替切分。
 
-2. 四叉树 (Quadtree) / 八叉树 (Octree)：
+2.  四叉树 (Quadtree) / 八叉树 (Octree)：
 
     应用：SLAM 里的占据栅格地图 (Occupancy Map)、渲染引擎的空间剔除。
 
     威力：将空间进行递归划分，极大节省了存储空白区域的内存。
 
-3. R 树 (R-Tree)：处理“矩形”和“多边形”的范围搜索。导航软件找“附近的人”常用。
+3.  R 树 (R-Tree)：处理“矩形”和“多边形”的范围搜索。导航软件找“附近的人”常用。
 
-4. BVH (Bounding Volume Hierarchy)：
-BVH（包围体层级）：
+4.  BVH (Bounding Volume Hierarchy)：
+    BVH（包围体层级）：
 
-    应用：碰撞检测、光线追踪。把复杂的物理模型包在层层嵌套的包围盒中。
+        应用：碰撞检测、光线追踪。把复杂的物理模型包在层层嵌套的包围盒中。
 
-5. BSP 树 (Binary Space Partitioning)：通过平面切割空间。FPS 游戏早期处理遮挡剔除的核心。
+5.  BSP 树 (Binary Space Partitioning)：通过平面切割空间。FPS 游戏早期处理遮挡剔除的核心。
 
 ### 5. 字符串与序列类：高效匹配与路由
 
@@ -117,31 +117,35 @@ BVH（包围体层级）：
 4. AC 自动机 (Aho-Corasick)：虽然它是自动机，但逻辑基础是 Trie。
 
 ### 6. 堆与优先队列类：任务调度利器
+
 逻辑上是树，物理上通常是数组。
 
-1. 二叉堆 (Binary Heap)：最大堆/最小堆。用于 A* 算法维护待探索点集。
+1. 二叉堆 (Binary Heap)：最大堆/最小堆。用于 A\* 算法维护待探索点集。
 
 2. 斐波那契堆 (Fibonacci Heap)：理论上合并和降低键值的速度极快，常用于优化 Dijkstra。
 
 3. 索引堆 (Indexed Heap)：允许高效地修改堆中指定索引的元素，工程中非常实用。
 
 ### 7. 逻辑决策与控制类：机器人的“大脑”
+
 1. 行为树 (Behavior Tree)：
 
-    地位：机器人和游戏 AI 的标配。相比 FSM（有限状态机），更易于模块化和嵌套。
+   地位：机器人和游戏 AI 的标配。相比 FSM（有限状态机），更易于模块化和嵌套。
 
 2. 决策树 (Decision Tree)：机器学习算法的基础，通过特征分裂进行分类或回归。
 
 3. 博弈树 (Game Tree)：Minimax 算法的基础。用于五子棋、象棋等 AI 的博弈计算。
 
 ### 8. 数据完整性与安全类
+
 1. 默克尔树 (Merkle Tree)：
 
-    应用：区块链、Git 版本控制。叶子是数据的 Hash，父节点是子节点的 Hash 组合。
+   应用：区块链、Git 版本控制。叶子是数据的 Hash，父节点是子节点的 Hash 组合。
 
-    价值：极速验证海量数据的篡改情况。
+   价值：极速验证海量数据的篡改情况。
 
 ### 9. 高阶统计与范围查询类
+
 竞赛算法和高性能系统常用。
 
 1. 线段树 (Segment Tree)：处理区间更新、区间查询（求和、最大值）。

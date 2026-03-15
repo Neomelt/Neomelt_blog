@@ -1,11 +1,11 @@
 ---
-title: 'cs61A-study-lecture4'
-description: 'Higher-older functions'
-pubDate: '2026-01-23'
-heroImage: '../../assets/cover.svg'
-category: 'study'
-series: ''
-tags: ['python', 'cs']
+title: "cs61A-study-lecture4"
+description: "Higher-older functions"
+pubDate: "2026-01-23"
+heroImage: "../../assets/cover.svg"
+category: "study"
+series: ""
+tags: ["python", "cs"]
 ---
 
 ## 高阶函数
@@ -16,7 +16,7 @@ tags: ['python', 'cs']
 
 比如求解立方根和平方根，两个函数唯一不同的可能只有函数名和计算式，所以python有一种写法就是：
 
-``` python
+```python
 def summation(n, term):
     """一个通用的求和‘模板’。
     n: 上界
@@ -44,7 +44,7 @@ print(result1, result2)  # 输出 3025 385
 
 柯里化是一种将多变量输入函数通过嵌套函数的方式简化为通过系数的思维的单输入的函数
 
-``` python
+```python
 # 普通函数
 def add(x, y):
     return x + y
@@ -78,24 +78,23 @@ $$\text{lambda} \quad \text{arguments} : \text{expression}$$
 
 > Lambda很酷，但还是尽量少用，简短不是代码的目标，可读性高才是
 
-
 **常见的应用场景**
 
-1. 作为高阶函数的参数
-这是 Lambda 最辉煌的舞台。当你调用类似 sorted()、map() 或 filter() 这种需要传入逻辑的函数时，Lambda 非常方便。
+1.  作为高阶函数的参数
+    这是 Lambda 最辉煌的舞台。当你调用类似 sorted()、map() 或 filter() 这种需要传入逻辑的函数时，Lambda 非常方便。
 
-    ``` python
-    # 按照元素的绝对值大小进行排序
-    nums = [1, -5, 3, -2, 4]
-    sorted_nums = sorted(nums, key=lambda x: abs(x))
-    # 结果：[1, -2, 3, 4, -5]
-    ```
+        ``` python
+        # 按照元素的绝对值大小进行排序
+        nums = [1, -5, 3, -2, 4]
+        sorted_nums = sorted(nums, key=lambda x: abs(x))
+        # 结果：[1, -2, 3, 4, -5]
+        ```
 
-2. 配合柯里化（Currying）
+2.  配合柯里化（Currying）
 
     如我们之前讨论的，Lambda 是实现“系数思维”的利器：
 
-    ``` python
+    ```python
     # 一个产生乘法器的工厂
     make_multiplier = lambda n: lambda x: x * n
 
@@ -109,11 +108,11 @@ $$\text{lambda} \quad \text{arguments} : \text{expression}$$
 
 **常见 Python 内置装饰器**：
 
-| 装饰器                | 作用说明                                                         |
-|----------------------|------------------------------------------------------------------|
-| `@property`          | 把一个方法变成“属性”来调用（不用加括号）                         |
-| `@staticmethod`      | 声明一个静态方法。                                               |
-| `@classmethod`       | 声明一个类方法。                                                 |
+| 装饰器                 | 作用说明                                                           |
+| ---------------------- | ------------------------------------------------------------------ |
+| `@property`            | 把一个方法变成“属性”来调用（不用加括号）                           |
+| `@staticmethod`        | 声明一个静态方法。                                                 |
+| `@classmethod`         | 声明一个类方法。                                                   |
 | `@functools.lru_cache` | 非常强大！自动为函数增加缓存功能（备忘录模式），递归速度提升显著。 |
 
 其他装饰器一般会由第三方库提供或者自己手写
@@ -122,7 +121,7 @@ $$\text{lambda} \quad \text{arguments} : \text{expression}$$
 
 计算斐伯拉契数列
 
-``` python
+```python
 from functools import lru_cache
 
 @lru_cache(maxsize=None)  # 系统内置：自动缓存计算结果

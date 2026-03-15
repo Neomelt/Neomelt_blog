@@ -3,197 +3,194 @@
 ---
 
 <div class="global-background-container">
-    <div class="background-layer" id="global-background-layer"></div>
+  <div class="background-layer" id="global-background-layer"></div>
 </div>
 
 <script>
-    // 全局背景管理器
-    class GlobalBackgroundManager {
-        private backgroundLayer: HTMLElement;
-        private currentBackground: string = "";
+  // 全局背景管理器
+  class GlobalBackgroundManager {
+    private backgroundLayer: HTMLElement;
+    private currentBackground: string = "";
 
-        constructor() {
-            this.backgroundLayer = document.getElementById(
-                "global-background-layer",
-            )!;
-            this.init();
-        }
-
-        init() {
-            // 从localStorage读取用户设置
-            const savedBackground =
-                localStorage.getItem("animeBackground") || "t1.svg";
-            this.setBackground(savedBackground, false);
-
-            // 应用保存的设置
-            this.applySettings();
-
-            // 监听背景切换事件
-            window.addEventListener("globalBackgroundChange", (e: Event) => {
-                const customEvent = e as CustomEvent;
-                this.setBackground(customEvent.detail.background, true);
-            });
-
-            // 监听设置变更事件
-            window.addEventListener("wallpaperSettingsChange", (e: Event) => {
-                const customEvent = e as CustomEvent;
-                this.updateSettings(customEvent.detail);
-            });
-        }
-
-        applySettings() {
-            const enabled =
-                localStorage.getItem("wallpaperEnabled") !== "false";
-            const opacity = localStorage.getItem("wallpaperOpacity") || "40";
-            const blur = localStorage.getItem("wallpaperBlur") || "0";
-
-            this.updateSettings({
-                enabled,
-                opacity: parseFloat(opacity),
-                blur: parseFloat(blur),
-            });
-        }
-
-        updateSettings(settings: {
-            enabled: boolean;
-            opacity: number;
-            blur: number;
-        }) {
-            if (settings.enabled) {
-                this.backgroundLayer.style.display = "block";
-                this.backgroundLayer.style.opacity = (
-                    settings.opacity / 100
-                ).toString();
-                this.backgroundLayer.style.filter = `blur(${settings.blur}px)`;
-            } else {
-                this.backgroundLayer.style.display = "none";
-            }
-        }
-
-        setBackground(imageName: string, animate: boolean = true) {
-            // 确保文件名包含扩展名
-            if (!imageName.includes(".")) {
-                imageName = imageName + ".svg";
-            }
-
-            if (this.currentBackground === imageName) return;
-
-            const newSrc = `/images/hero-images/${imageName}`;
-            console.log("[Background] Switching global background to:", imageName);
-
-            if (animate) {
-                // 流畅的渐变动画
-                this.backgroundLayer.style.transition =
-                    "opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
-                this.backgroundLayer.style.opacity = "0";
-
-                setTimeout(() => {
-                    this.backgroundLayer.style.backgroundImage = `url('${newSrc}')`;
-
-                    // 应用当前设置
-                    const opacity =
-                        localStorage.getItem("wallpaperOpacity") || "40";
-                    const blur = localStorage.getItem("wallpaperBlur") || "0";
-                    this.backgroundLayer.style.opacity = (
-                        parseFloat(opacity) / 100
-                    ).toString();
-                    this.backgroundLayer.style.filter = `blur(${blur}px)`;
-
-                    // 保存用户选择
-                    localStorage.setItem("animeBackground", imageName);
-                    this.currentBackground = imageName;
-                }, 300);
-            } else {
-                // 直接设置，无动画
-                this.backgroundLayer.style.transition = "none";
-                this.backgroundLayer.style.backgroundImage = `url('${newSrc}')`;
-
-                // 应用当前设置
-                const opacity =
-                    localStorage.getItem("wallpaperOpacity") || "40";
-                const blur = localStorage.getItem("wallpaperBlur") || "0";
-                this.backgroundLayer.style.opacity = (
-                    parseFloat(opacity) / 100
-                ).toString();
-                this.backgroundLayer.style.filter = `blur(${blur}px)`;
-
-                this.currentBackground = imageName;
-
-                // 恢复动画
-                setTimeout(() => {
-                    this.backgroundLayer.style.transition =
-                        "opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
-                }, 100);
-            }
-        }
-
-        getCurrentBackground() {
-            return this.currentBackground;
-        }
+    constructor() {
+      this.backgroundLayer = document.getElementById(
+        "global-background-layer",
+      )!;
+      this.init();
     }
 
-    // 初始化全局背景管理器
-    let globalBgManager: GlobalBackgroundManager;
+    init() {
+      // 从localStorage读取用户设置
+      const savedBackground =
+        localStorage.getItem("animeBackground") || "t1.svg";
+      this.setBackground(savedBackground, false);
 
-    function initGlobalBackground() {
-        if (!globalBgManager) {
-            globalBgManager = new GlobalBackgroundManager();
-            // 将管理器挂载到window上，供其他组件使用
-            (window as any).globalBgManager = globalBgManager;
-        }
+      // 应用保存的设置
+      this.applySettings();
+
+      // 监听背景切换事件
+      window.addEventListener("globalBackgroundChange", (e: Event) => {
+        const customEvent = e as CustomEvent;
+        this.setBackground(customEvent.detail.background, true);
+      });
+
+      // 监听设置变更事件
+      window.addEventListener("wallpaperSettingsChange", (e: Event) => {
+        const customEvent = e as CustomEvent;
+        this.updateSettings(customEvent.detail);
+      });
     }
 
-    // 页面加载时初始化
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initGlobalBackground);
-    } else {
-        initGlobalBackground();
+    applySettings() {
+      const enabled = localStorage.getItem("wallpaperEnabled") !== "false";
+      const opacity = localStorage.getItem("wallpaperOpacity") || "40";
+      const blur = localStorage.getItem("wallpaperBlur") || "0";
+
+      this.updateSettings({
+        enabled,
+        opacity: parseFloat(opacity),
+        blur: parseFloat(blur),
+      });
     }
+
+    updateSettings(settings: {
+      enabled: boolean;
+      opacity: number;
+      blur: number;
+    }) {
+      if (settings.enabled) {
+        this.backgroundLayer.style.display = "block";
+        this.backgroundLayer.style.opacity = (
+          settings.opacity / 100
+        ).toString();
+        this.backgroundLayer.style.filter = `blur(${settings.blur}px)`;
+      } else {
+        this.backgroundLayer.style.display = "none";
+      }
+    }
+
+    setBackground(imageName: string, animate: boolean = true) {
+      // 确保文件名包含扩展名
+      if (!imageName.includes(".")) {
+        imageName = imageName + ".svg";
+      }
+
+      if (this.currentBackground === imageName) return;
+
+      const newSrc = `/images/hero-images/${imageName}`;
+      console.log("[Background] Switching global background to:", imageName);
+
+      if (animate) {
+        // 流畅的渐变动画
+        this.backgroundLayer.style.transition =
+          "opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+        this.backgroundLayer.style.opacity = "0";
+
+        setTimeout(() => {
+          this.backgroundLayer.style.backgroundImage = `url('${newSrc}')`;
+
+          // 应用当前设置
+          const opacity = localStorage.getItem("wallpaperOpacity") || "40";
+          const blur = localStorage.getItem("wallpaperBlur") || "0";
+          this.backgroundLayer.style.opacity = (
+            parseFloat(opacity) / 100
+          ).toString();
+          this.backgroundLayer.style.filter = `blur(${blur}px)`;
+
+          // 保存用户选择
+          localStorage.setItem("animeBackground", imageName);
+          this.currentBackground = imageName;
+        }, 300);
+      } else {
+        // 直接设置，无动画
+        this.backgroundLayer.style.transition = "none";
+        this.backgroundLayer.style.backgroundImage = `url('${newSrc}')`;
+
+        // 应用当前设置
+        const opacity = localStorage.getItem("wallpaperOpacity") || "40";
+        const blur = localStorage.getItem("wallpaperBlur") || "0";
+        this.backgroundLayer.style.opacity = (
+          parseFloat(opacity) / 100
+        ).toString();
+        this.backgroundLayer.style.filter = `blur(${blur}px)`;
+
+        this.currentBackground = imageName;
+
+        // 恢复动画
+        setTimeout(() => {
+          this.backgroundLayer.style.transition =
+            "opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+        }, 100);
+      }
+    }
+
+    getCurrentBackground() {
+      return this.currentBackground;
+    }
+  }
+
+  // 初始化全局背景管理器
+  let globalBgManager: GlobalBackgroundManager;
+
+  function initGlobalBackground() {
+    if (!globalBgManager) {
+      globalBgManager = new GlobalBackgroundManager();
+      // 将管理器挂载到window上，供其他组件使用
+      (window as any).globalBgManager = globalBgManager;
+    }
+  }
+
+  // 页面加载时初始化
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGlobalBackground);
+  } else {
+    initGlobalBackground();
+  }
 </script>
 
 <style>
-    .global-background-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: -1000;
-        pointer-events: none;
-        overflow: hidden;
-    }
+  .global-background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1000;
+    pointer-events: none;
+    overflow: hidden;
+  }
 
+  .background-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    opacity: 0.4;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity;
+  }
+
+  /* 移动端优化 */
+  @media (max-width: 768px) {
     .background-layer {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        opacity: 0.4;
-        transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: opacity;
+      background-attachment: scroll;
     }
+  }
 
-    /* 移动端优化 */
-    @media (max-width: 768px) {
-        .background-layer {
-            background-attachment: scroll;
-        }
-    }
+  /* 暗色模式调整 */
+  :global(.dark) .background-layer {
+    opacity: 0.15;
+    filter: brightness(0.7) contrast(1.1);
+  }
 
-    /* 暗色模式调整 */
-    :global(.dark) .background-layer {
-        opacity: 0.15;
-        filter: brightness(0.7) contrast(1.1);
-    }
-
-    /* 高性能优化 */
-    .background-layer {
-        transform: translateZ(0);
-        backface-visibility: hidden;
-    }
+  /* 高性能优化 */
+  .background-layer {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
 </style>

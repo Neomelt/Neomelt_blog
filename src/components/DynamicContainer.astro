@@ -1,89 +1,89 @@
 ---
 // DynamicContainer.astro - 智能动态容器组件
 export interface Props {
-    size?: "narrow" | "content" | "wide" | "full";
-    class?: string;
+  size?: "narrow" | "content" | "wide" | "full";
+  class?: string;
 }
 
 const { size = "content", class: className = "" } = Astro.props;
 
 // 根据内容类型智能选择最佳宽度
 const sizeClasses = {
-    narrow: "dynamic-narrow-container", // 适合文字密集内容
-    content: "dynamic-content-container", // 适合一般内容
-    wide: "dynamic-wide-container", // 适合媒体和展示内容
-    full: "w-full max-w-full", // 全宽
+  narrow: "dynamic-narrow-container", // 适合文字密集内容
+  content: "dynamic-content-container", // 适合一般内容
+  wide: "dynamic-wide-container", // 适合媒体和展示内容
+  full: "w-full max-w-full", // 全宽
 };
 
 const containerClass = `${sizeClasses[size]} mx-auto ${className}`;
 ---
 
 <div class={containerClass}>
-    <slot />
+  <slot />
 </div>
 
 <style>
-    /* 动态容器样式使用CSS变量 */
-    .dynamic-narrow-container {
-        width: var(--dynamic-narrow-width);
-        max-width: min(80vw, 800px);
-        padding-left: clamp(1rem, 3vw, 2rem);
-        padding-right: clamp(1rem, 3vw, 2rem);
-        transition:
-            width 0.3s ease,
-            padding 0.3s ease;
+  /* 动态容器样式使用CSS变量 */
+  .dynamic-narrow-container {
+    width: var(--dynamic-narrow-width);
+    max-width: min(80vw, 800px);
+    padding-left: clamp(1rem, 3vw, 2rem);
+    padding-right: clamp(1rem, 3vw, 2rem);
+    transition:
+      width 0.3s ease,
+      padding 0.3s ease;
+  }
+
+  .dynamic-content-container {
+    width: var(--dynamic-content-width);
+    max-width: min(85vw, 1200px);
+    padding-left: clamp(1rem, 4vw, 2.5rem);
+    padding-right: clamp(1rem, 4vw, 2.5rem);
+    transition:
+      width 0.3s ease,
+      padding 0.3s ease;
+  }
+
+  .dynamic-wide-container {
+    width: var(--dynamic-wide-width);
+    max-width: min(90vw, 1400px);
+    padding-left: clamp(1.5rem, 5vw, 3rem);
+    padding-right: clamp(1.5rem, 5vw, 3rem);
+    transition:
+      width 0.3s ease,
+      padding 0.3s ease;
+  }
+
+  /* 针对不同屏幕尺寸的优化 */
+  @media (max-width: 480px) {
+    .dynamic-narrow-container,
+    .dynamic-content-container,
+    .dynamic-wide-container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .dynamic-wide-container {
+      max-width: min(75vw, 1600px);
     }
 
     .dynamic-content-container {
-        width: var(--dynamic-content-width);
-        max-width: min(85vw, 1200px);
-        padding-left: clamp(1rem, 4vw, 2.5rem);
-        padding-right: clamp(1rem, 4vw, 2.5rem);
-        transition:
-            width 0.3s ease,
-            padding 0.3s ease;
+      max-width: min(70vw, 1400px);
     }
 
-    .dynamic-wide-container {
-        width: var(--dynamic-wide-width);
-        max-width: min(90vw, 1400px);
-        padding-left: clamp(1.5rem, 5vw, 3rem);
-        padding-right: clamp(1.5rem, 5vw, 3rem);
-        transition:
-            width 0.3s ease,
-            padding 0.3s ease;
+    .dynamic-narrow-container {
+      max-width: min(65vw, 1000px);
     }
+  }
 
-    /* 针对不同屏幕尺寸的优化 */
-    @media (max-width: 480px) {
-        .dynamic-narrow-container,
-        .dynamic-content-container,
-        .dynamic-wide-container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-    }
+  /* 支持容器查询的浏览器的增强样式 */
+  .supports-container-queries .dynamic-content-container {
+    container-type: inline-size;
+  }
 
-    @media (min-width: 1920px) {
-        .dynamic-wide-container {
-            max-width: min(75vw, 1600px);
-        }
-
-        .dynamic-content-container {
-            max-width: min(70vw, 1400px);
-        }
-
-        .dynamic-narrow-container {
-            max-width: min(65vw, 1000px);
-        }
-    }
-
-    /* 支持容器查询的浏览器的增强样式 */
-    .supports-container-queries .dynamic-content-container {
-        container-type: inline-size;
-    }
-
-    .supports-container-queries .dynamic-wide-container {
-        container-type: inline-size;
-    }
+  .supports-container-queries .dynamic-wide-container {
+    container-type: inline-size;
+  }
 </style>

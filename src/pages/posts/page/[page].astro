@@ -10,22 +10,22 @@ import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
 
 export async function getStaticPaths() {
-    const posts = await getCollection("blog", ({ data }) => !data.hidden);
-    const sortedPosts = posts.sort((a, b) => {
-        if (a.data.pinned && !b.data.pinned) return -1;
-        if (!a.data.pinned && b.data.pinned) return 1;
-        return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
-    });
+  const posts = await getCollection("blog", ({ data }) => !data.hidden);
+  const sortedPosts = posts.sort((a, b) => {
+    if (a.data.pinned && !b.data.pinned) return -1;
+    if (!a.data.pinned && b.data.pinned) return 1;
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+  });
 
-    const totalPages = Math.ceil(sortedPosts.length / 10) || 1;
-    return Array.from({ length: totalPages }, (_, i) => ({
-        params: { page: String(i + 2) },
-        props: { posts: sortedPosts },
-    }));
+  const totalPages = Math.ceil(sortedPosts.length / 10) || 1;
+  return Array.from({ length: totalPages }, (_, i) => ({
+    params: { page: String(i + 2) },
+    props: { posts: sortedPosts },
+  }));
 }
 
 interface Props {
-    posts: CollectionEntry<"blog">[];
+  posts: CollectionEntry<"blog">[];
 }
 
 const { page } = Astro.params;
@@ -33,68 +33,98 @@ const { posts } = Astro.props;
 const currentPage = parseInt(page as string);
 const postDatesMap = await resolvePostDatesMap(posts);
 posts.sort((a, b) => {
-    if (a.data.pinned && !b.data.pinned) return -1;
-    if (!a.data.pinned && b.data.pinned) return 1;
-    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
-    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
-    return bDate.valueOf() - aDate.valueOf();
+  if (a.data.pinned && !b.data.pinned) return -1;
+  if (!a.data.pinned && b.data.pinned) return 1;
+  const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+  const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+  return bDate.valueOf() - aDate.valueOf();
 });
 const { items: paginatedPosts, pagination } = paginate(posts, currentPage, 10);
 const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiText("legacy.pagePrefix")}${page}${getDefaultUiText("legacy.pageSuffix")}`;
 
 function estimateReadingTime(content: string): number {
-    return Math.max(1, Math.ceil(content.length / 400));
+  return Math.max(1, Math.ceil(content.length / 400));
 }
 ---
 
 <BaseLayout title={`${pageTitleLabel} | ${SITE_TITLE}`}>
-    <main>
-        <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
-                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
-                <span class="breadcrumb-sep">/</span>
-                <a href="/posts" data-i18n="common.posts">{getDefaultUiText("common.posts")}</a>
-            </nav>
+  <main>
+    <div class="container">
+      <nav
+        class="breadcrumb"
+        data-i18n-aria-label="post.breadcrumbAria"
+        aria-label={getDefaultUiText("post.breadcrumbAria")}
+      >
+        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        >
+        <span class="breadcrumb-sep">/</span>
+        <a href="/posts" data-i18n="common.posts"
+          >{getDefaultUiText("common.posts")}</a
+        >
+      </nav>
 
-            <h1 class="section-heading" data-i18n="posts.title">{getDefaultUiText("posts.title")}</h1>
+      <h1 class="section-heading" data-i18n="posts.title">
+        {getDefaultUiText("posts.title")}
+      </h1>
 
-            <div class="post-list">
-                {paginatedPosts.map((post) => {
-                    const url = `/posts/${post.id}`;
-                    const walinePath = getWalinePathForPost(post.id);
-                    const readingTime = estimateReadingTime(post.body || "");
-                    const resolvedPubDate =
-                        postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
-                    return (
-                        <a href={url} class="post-card">
-                            <div class="post-card-meta">
-                                <FormattedDate date={resolvedPubDate} />
-                                {post.data.pinned && (
-                                    <span class="badge-pinned" data-i18n="common.pinned">{getDefaultUiText("common.pinned")}</span>
-                                )}
-                                <span>{readingTime} <span data-i18n="common.minutes">{getDefaultUiText("common.minutes")}</span></span>
-                            </div>
-                            <div class="post-card-title">{post.data.title}</div>
-                            {post.data.description && (
-                                <div class="post-card-desc">{post.data.description}</div>
-                            )}
-                            <div class="post-card-stats text-muted text-sm">
-                                <span class="waline-pageview-count" data-path={walinePath}>0</span> <span data-i18n="common.views">{getDefaultUiText("common.views")}</span> /
-                                <span class="waline-comment-count" data-path={walinePath}>0</span> <span data-i18n="common.comments">{getDefaultUiText("common.comments")}</span>
-                            </div>
-                            {post.data.tags && post.data.tags.length > 0 && (
-                                <div class="post-card-tags">
-                                    {post.data.tags.slice(0, 4).map((tag: string) => (
-                                        <span class="tag">#{tag}</span>
-                                    ))}
-                                </div>
-                            )}
-                        </a>
-                    );
-                })}
-            </div>
+      <div class="post-list">
+        {
+          paginatedPosts.map((post) => {
+            const url = `/posts/${post.id}`;
+            const walinePath = getWalinePathForPost(post.id);
+            const readingTime = estimateReadingTime(post.body || "");
+            const resolvedPubDate =
+              postDatesMap.get(getPostDateKey(post))?.pubDate ??
+              post.data.pubDate;
+            return (
+              <a href={url} class="post-card">
+                <div class="post-card-meta">
+                  <FormattedDate date={resolvedPubDate} />
+                  {post.data.pinned && (
+                    <span class="badge-pinned" data-i18n="common.pinned">
+                      {getDefaultUiText("common.pinned")}
+                    </span>
+                  )}
+                  <span>
+                    {readingTime}{" "}
+                    <span data-i18n="common.minutes">
+                      {getDefaultUiText("common.minutes")}
+                    </span>
+                  </span>
+                </div>
+                <div class="post-card-title">{post.data.title}</div>
+                {post.data.description && (
+                  <div class="post-card-desc">{post.data.description}</div>
+                )}
+                <div class="post-card-stats text-muted text-sm">
+                  <span class="waline-pageview-count" data-path={walinePath}>
+                    0
+                  </span>{" "}
+                  <span data-i18n="common.views">
+                    {getDefaultUiText("common.views")}
+                  </span>{" "}
+                  /
+                  <span class="waline-comment-count" data-path={walinePath}>
+                    0
+                  </span>{" "}
+                  <span data-i18n="common.comments">
+                    {getDefaultUiText("common.comments")}
+                  </span>
+                </div>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="post-card-tags">
+                    {post.data.tags.slice(0, 4).map((tag: string) => (
+                      <span class="tag">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </a>
+            );
+          })
+        }
+      </div>
 
-            <Pagination pagination={pagination} basePath="/posts" />
-        </div>
-    </main>
+      <Pagination pagination={pagination} basePath="/posts" />
+    </div>
+  </main>
 </BaseLayout>

@@ -1,10 +1,10 @@
 ---
-title: 'Rust入门指南'
-description: '从所有权到错误处理，系统梳理 Rust 核心概念'
-pubDate: '2025-08-16'
-heroImage: '../../assets/cover.svg'
-category: 'coding'
-tags: ['Rust', 'study']
+title: "Rust入门指南"
+description: "从所有权到错误处理，系统梳理 Rust 核心概念"
+pubDate: "2025-08-16"
+heroImage: "../../assets/cover.svg"
+category: "coding"
+tags: ["Rust", "study"]
 ---
 
 用了一段时间 Rust 之后，想把核心概念整理一遍。这篇文章不是语法手册，而是帮你建立对 Rust 的直觉——尤其是所有权这套东西，理解了它，Rust 就通了一大半。

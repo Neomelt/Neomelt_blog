@@ -8,116 +8,139 @@ import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
 posts.sort((a, b) => {
-    const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
-    const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
-    return bDate.valueOf() - aDate.valueOf();
+  const aDate = postDatesMap.get(getPostDateKey(a))?.pubDate ?? a.data.pubDate;
+  const bDate = postDatesMap.get(getPostDateKey(b))?.pubDate ?? b.data.pubDate;
+  return bDate.valueOf() - aDate.valueOf();
 });
 
 function formatArchiveDate(date: Date): string {
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    return `${mm}-${dd} ${hh}:${min}`;
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+  return `${mm}-${dd} ${hh}:${min}`;
 }
 
 // Group by year
 const byYear: Record<string, typeof posts> = {};
 for (const post of posts) {
-    const resolvedPubDate = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
-    const year = resolvedPubDate.getFullYear().toString();
-    if (!byYear[year]) byYear[year] = [];
-    byYear[year].push(post);
+  const resolvedPubDate =
+    postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+  const year = resolvedPubDate.getFullYear().toString();
+  if (!byYear[year]) byYear[year] = [];
+  byYear[year].push(post);
 }
 const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
 ---
 
 <BaseLayout title={`${getDefaultUiText("archive.metaTitle")} | ${SITE_TITLE}`}>
-    <main>
-        <div class="container">
-            <nav class="breadcrumb" data-i18n-aria-label="post.breadcrumbAria" aria-label={getDefaultUiText("post.breadcrumbAria")}>
-                <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a>
-                <span class="breadcrumb-sep">/</span>
-                <a href="/posts" data-i18n="common.posts">{getDefaultUiText("common.posts")}</a>
-                <span class="breadcrumb-sep">/</span>
-                <span data-i18n="archive.title">{getDefaultUiText("archive.title")}</span>
-            </nav>
+  <main>
+    <div class="container">
+      <nav
+        class="breadcrumb"
+        data-i18n-aria-label="post.breadcrumbAria"
+        aria-label={getDefaultUiText("post.breadcrumbAria")}
+      >
+        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        >
+        <span class="breadcrumb-sep">/</span>
+        <a href="/posts" data-i18n="common.posts"
+          >{getDefaultUiText("common.posts")}</a
+        >
+        <span class="breadcrumb-sep">/</span>
+        <span data-i18n="archive.title"
+          >{getDefaultUiText("archive.title")}</span
+        >
+      </nav>
 
-            <h1 class="section-heading">
-                <span data-i18n="archive.title">{getDefaultUiText("archive.title")}</span>
-                <span class="text-muted text-sm">({posts.length} <span data-i18n="archive.countUnit">{getDefaultUiText("archive.countUnit")}</span>)</span>
-            </h1>
+      <h1 class="section-heading">
+        <span data-i18n="archive.title"
+          >{getDefaultUiText("archive.title")}</span
+        >
+        <span class="text-muted text-sm"
+          >({posts.length}
+          <span data-i18n="archive.countUnit"
+            >{getDefaultUiText("archive.countUnit")}</span
+          >)</span
+        >
+      </h1>
 
-            {years.map((year) => (
-                <section class="year-section">
-                    <h2 class="year-title">{year}</h2>
-                    <ul class="archive-list">
-                        {byYear[year].map((post) => {
-                            const url = `/posts/${post.id}`;
-                            const date = postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
-                            return (
-                                <li class="archive-item">
-                                    <span class="archive-date">{formatArchiveDate(date)}</span>
-                                    <a href={url} class="archive-title">{post.data.title}</a>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </section>
-            ))}
-        </div>
-    </main>
+      {
+        years.map((year) => (
+          <section class="year-section">
+            <h2 class="year-title">{year}</h2>
+            <ul class="archive-list">
+              {byYear[year].map((post) => {
+                const url = `/posts/${post.id}`;
+                const date =
+                  postDatesMap.get(getPostDateKey(post))?.pubDate ??
+                  post.data.pubDate;
+                return (
+                  <li class="archive-item">
+                    <span class="archive-date">{formatArchiveDate(date)}</span>
+                    <a href={url} class="archive-title">
+                      {post.data.title}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </main>
 </BaseLayout>
 
 <style>
-    .year-section {
-        margin-bottom: 2rem;
-    }
+  .year-section {
+    margin-bottom: 2rem;
+  }
 
-    .year-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.4rem;
-        border-bottom: 1px solid var(--border);
-    }
+  .year-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
 
-    .archive-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+  .archive-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-    .archive-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.45rem 0;
-        border-bottom: 1px solid var(--border);
-        font-size: 0.9rem;
-    }
+  .archive-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
 
-    .archive-item:last-child {
-        border-bottom: none;
-    }
+  .archive-item:last-child {
+    border-bottom: none;
+  }
 
-    .archive-date {
-        color: var(--text-muted);
-        font-size: 0.8125rem;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
+  .archive-date {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 
-    .archive-title {
-        color: var(--text);
-        text-decoration: none;
-        flex: 1;
-        transition: color 150ms ease;
-    }
+  .archive-title {
+    color: var(--text);
+    text-decoration: none;
+    flex: 1;
+    transition: color 150ms ease;
+  }
 
-    .archive-title:hover {
-        color: var(--accent);
-    }
+  .archive-title:hover {
+    color: var(--accent);
+  }
 </style>

@@ -1,19 +1,19 @@
 ---
-title: '用rust写CRC库'
-description: 'CRC算法的rust实现'
-pubDate: '2025-2-1'
+title: "用rust写CRC库"
+description: "CRC算法的rust实现"
+pubDate: "2025-2-1"
 pinned: false
-heroImage: '../../assets/cover.svg'
-category: 'coding'
-series: ''
-tags: ['crc', "rust"]
+heroImage: "../../assets/cover.svg"
+category: "coding"
+series: ""
+tags: ["crc", "rust"]
 ---
 
 ## CRC8
 
 crc算法涉及到很多位运算的知识，前几天正好大致学了csapp，学了一堆位运算，联想起来接触了好久的CRC算法。以往都是写来直接用现在正好写来玩玩。
 
-``` rust
+```rust
 
 // crc8 实现
 // 多项式：x^8 + x^5 + x^4 + 1 (0x31) 0x31 = 1 0011 0001,1可以省略，因为最高位总是1
@@ -43,10 +43,9 @@ pub fn crc8(input: &[u8]) -> u8 {
 
 ```
 
-
 ## CRC16
 
-``` rust
+```rust
 
 //
 // CRC16 实现
@@ -78,10 +77,9 @@ pub fn crc16(input: &[u8]) -> u16 {
 
 ```
 
-
 在main.rs里面调用（如果说是要在外部调用crate的话还要在cargo.toml里写明crate_name）：
 
-``` rust
+```rust
 
 use crc_rs::{crc8, crc16};
 
