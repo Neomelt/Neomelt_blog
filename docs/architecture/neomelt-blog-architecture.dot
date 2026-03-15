@@ -1,0 +1,140 @@
+digraph NeomeltBlogArchitecture {
+  graph [
+    rankdir=TB
+    bgcolor="#ffffff"
+    pad="0.4"
+    nodesep="0.45"
+    ranksep="0.8"
+    splines=true
+    fontname="Arial"
+    fontsize="24"
+    label="Neomelt Blog Architecture"
+    labelloc="t"
+    fontcolor="#111827"
+  ];
+
+  node [
+    shape=box
+    style="rounded,filled"
+    fillcolor="#ffffff"
+    color="#cbd5e1"
+    penwidth="1.2"
+    fontname="Arial"
+    fontsize="16"
+    margin="0.18,0.14"
+  ];
+
+  edge [
+    color="#64748b"
+    penwidth="1.4"
+    arrowsize="0.8"
+  ];
+
+  subgraph cluster_source {
+    label="1. Source Layer";
+    color="#bfdbfe";
+    style="rounded,filled";
+    fillcolor="#eff6ff";
+
+    source_content [
+      label="Blog Content\nsrc/content/blog/*.md, *.mdx\nfrontmatter schema via src/content.config.ts"
+    ];
+
+    source_app [
+      label="Site Config + Shared UI\nastro.config.mjs\nlayouts / components / i18n / friends data\nglobal.css + public assets"
+    ];
+
+    source_scripts [
+      label="Authoring Scripts\nscripts/new-post.mjs\nscripts/auto-frontmatter.mjs"
+    ];
+  }
+
+  subgraph cluster_build {
+    label="2. Build / SSG Layer";
+    color="#bbf7d0";
+    style="rounded,filled";
+    fillcolor="#f0fdf4";
+
+    content_pipeline [
+      label="Astro Content Pipeline\nastro:content + getCollection('blog')\nMDX / Markdown transforms\nmath + video embed processing"
+    ];
+
+    friend_circle_build [
+      label="Friend Circle Feed Import\ngetFriendCirclePosts()\nfetch external RSS / Atom\ncache fallback in .cache/friend-circle.json"
+    ];
+
+    page_build [
+      label="Page Assembly\nBaseLayout + BaseHead + Header + Footer\nHome / Posts / Archive / Tags\nAbout / Friends / Projects / Terms\npost detail + pagination + SEO"
+    ];
+
+    derived_outputs [
+      label="Derived Files\n/api/search.json search index\n/rss.xml + rss.xsl\nsitemap"
+    ];
+  }
+
+  subgraph cluster_output {
+    label="3. Static Output";
+    color="#fde68a";
+    style="rounded,filled";
+    fillcolor="#fffbeb";
+
+    static_output [
+      label="dist/\nstatic HTML pages\nbundled JS / CSS\noptimized images\nsearch + feed artifacts"
+    ];
+  }
+
+  subgraph cluster_runtime {
+    label="4. Browser Runtime";
+    color="#e9d5ff";
+    style="rounded,filled";
+    fillcolor="#faf5ff";
+
+    browser [
+      label="Visitor Browser"
+      shape=oval
+    ];
+
+    runtime_shell [
+      label="Client UI Runtime\nheader theme / locale / mobile nav\ncode copy + click particles\nfriend-circle shuffle button"
+    ];
+
+    search_runtime [
+      label="Search Runtime\nSearchModal fetches /api/search.json\nclient-side filter + highlight"
+    ];
+
+    comments_runtime [
+      label="Comments Runtime\nComments.astro + WalineCounter\nvendor Waline script first\nCDN fallback if needed"
+    ];
+  }
+
+  waline_server [
+    label="Waline Server\nPUBLIC_WALINE_SERVER_URL"
+    shape=cylinder
+    fillcolor="#fef2f2"
+    color="#fecaca"
+  ];
+
+  friend_feeds [
+    label="External Friend RSS / Atom Feeds"
+    shape=folder
+    fillcolor="#f5f3ff"
+    color="#ddd6fe"
+  ];
+
+  source_scripts -> source_content;
+  source_content -> content_pipeline;
+  source_app -> page_build;
+  content_pipeline -> page_build;
+  friend_feeds -> friend_circle_build;
+  friend_circle_build -> page_build;
+  page_build -> derived_outputs;
+  page_build -> static_output;
+  derived_outputs -> static_output;
+
+  static_output -> browser;
+  browser -> runtime_shell;
+  runtime_shell -> search_runtime;
+  runtime_shell -> comments_runtime;
+  search_runtime -> static_output;
+  comments_runtime -> waline_server;
+}
