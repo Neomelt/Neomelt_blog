@@ -6,59 +6,57 @@ import type { ImageMetadata } from "astro";
 import FallbackImage from "../assets/cover.svg";
 import { SITE_ORIGIN, SITE_TITLE } from "../consts";
 import {
-	getPrimaryCanonicalPath,
-	isLegacyBlogAliasPath,
-	normalizePathname,
+  getPrimaryCanonicalPath,
+  isLegacyBlogAliasPath,
+  normalizePathname,
 } from "../utils/canonical";
 
 interface Props {
-	title: string;
-	description: string;
-	image?: ImageMetadata;
-	canonicalPath?: string;
-	noindex?: boolean;
+  title: string;
+  description: string;
+  image?: ImageMetadata;
+  canonicalPath?: string;
+  noindex?: boolean;
 }
 
 const {
-	title,
-	description,
-	image = FallbackImage,
-	canonicalPath,
-	noindex = false,
+  title,
+  description,
+  image = FallbackImage,
+  canonicalPath,
+  noindex = false,
 } = Astro.props;
 const pathname = normalizePathname(Astro.url.pathname);
 const basePathname = normalizePathname(import.meta.env.BASE_URL);
 const stripBasePrefix = (value: string): string => {
-	if (basePathname === "/") return value;
-	if (value === basePathname) return "/";
-	if (value.startsWith(`${basePathname}/`)) {
-		return value.slice(basePathname.length) || "/";
-	}
+  if (basePathname === "/") return value;
+  if (value === basePathname) return "/";
+  if (value.startsWith(`${basePathname}/`)) {
+    return value.slice(basePathname.length) || "/";
+  }
 
-	const baseWithoutLeadingSlash = basePathname.startsWith("/")
-		? basePathname.slice(1)
-		: basePathname;
-	if (value.startsWith(`${baseWithoutLeadingSlash}/`)) {
-		return `/${value.slice(baseWithoutLeadingSlash.length)}`;
-	}
+  const baseWithoutLeadingSlash = basePathname.startsWith("/")
+    ? basePathname.slice(1)
+    : basePathname;
+  if (value.startsWith(`${baseWithoutLeadingSlash}/`)) {
+    return `/${value.slice(baseWithoutLeadingSlash.length)}`;
+  }
 
-	return value;
+  return value;
 };
 const canonicalSourcePath = normalizePathname(stripBasePrefix(pathname));
 const resolvedCanonicalPath = canonicalPath
-	? normalizePathname(canonicalPath)
-	: getPrimaryCanonicalPath(canonicalSourcePath);
+  ? normalizePathname(canonicalPath)
+  : getPrimaryCanonicalPath(canonicalSourcePath);
 const siteOrigin = new URL(SITE_ORIGIN);
 const resolvedImagePath = stripBasePrefix(image.src);
 const canonicalURL = new URL(resolvedCanonicalPath, siteOrigin);
 const rssURL = new URL("rss.xml", siteOrigin);
 const metaImageURL = new URL(resolvedImagePath, siteOrigin);
 const isFallbackDeployment =
-	import.meta.env.PUBLIC_IS_FALLBACK_DEPLOYMENT === "true";
+  import.meta.env.PUBLIC_IS_FALLBACK_DEPLOYMENT === "true";
 const shouldNoindex =
-	noindex ||
-	isLegacyBlogAliasPath(canonicalSourcePath) ||
-	isFallbackDeployment;
+  noindex || isLegacyBlogAliasPath(canonicalSourcePath) || isFallbackDeployment;
 const primaryHostname = canonicalURL.hostname;
 ---
 
@@ -68,51 +66,107 @@ const primaryHostname = canonicalURL.hostname;
 <link rel="icon" type="image/jpeg" href="/head.jpg" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link
-	rel="alternate"
-	type="application/rss+xml"
-	title={SITE_TITLE}
-	href={rssURL}
+  rel="alternate"
+  type="application/rss+xml"
+  title={SITE_TITLE}
+  href={rssURL}
 />
 <meta name="generator" content={Astro.generator} />
+<meta name="color-scheme" content="dark light" />
 
 <!-- 主题初始化脚本 -->
 <script is:inline>
-	// 在页面渲染之前应用主题以避免闪烁
-	const getInitialTheme = () => {
-		const savedTheme = localStorage.getItem("theme");
-		if (savedTheme === "dark" || savedTheme === "light") {
-			return savedTheme;
-		}
-		// 检查系统偏好
-		return window.matchMedia("(prefers-color-scheme: dark)").matches
-			? "dark"
-			: "light";
-	};
+  (() => {
+    const STORAGE_KEY = "theme";
+    const DEFAULT_THEME = "dark";
+    const THEME_COLORS = {
+      dark: "#16181d",
+      light: "#fafafa",
+    };
 
-	const theme = getInitialTheme();
+    const readStoredTheme = () => {
+      try {
+        const savedTheme = localStorage.getItem(STORAGE_KEY);
+        return savedTheme === "dark" || savedTheme === "light"
+          ? savedTheme
+          : null;
+      } catch {
+        return null;
+      }
+    };
 
-	if (theme === "dark") {
-		document.documentElement.classList.add("dark");
-	} else {
-		document.documentElement.classList.remove("dark");
-	}
+    const writeStoredTheme = (theme) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, theme);
+      } catch {
+        // Ignore storage errors and keep theme in memory/DOM only.
+      }
+    };
+
+    const syncThemeColor = (theme) => {
+      let themeColorMeta = document.head.querySelector(
+        'meta[name="theme-color"]',
+      );
+      if (!themeColorMeta) {
+        themeColorMeta = document.createElement("meta");
+        themeColorMeta.setAttribute("name", "theme-color");
+        document.head.appendChild(themeColorMeta);
+      }
+      themeColorMeta.setAttribute("content", THEME_COLORS[theme]);
+    };
+
+    const getAppliedTheme = () => {
+      const current = document.documentElement.dataset.theme;
+      if (current === "dark" || current === "light") return current;
+      return document.documentElement.classList.contains("dark")
+        ? "dark"
+        : null;
+    };
+
+    const getTheme = () =>
+      readStoredTheme() ?? getAppliedTheme() ?? DEFAULT_THEME;
+
+    const applyTheme = (theme, { persist = true } = {}) => {
+      const normalizedTheme = theme === "light" ? "light" : "dark";
+      document.documentElement.classList.toggle(
+        "dark",
+        normalizedTheme === "dark",
+      );
+      document.documentElement.dataset.theme = normalizedTheme;
+      document.documentElement.style.colorScheme = normalizedTheme;
+      syncThemeColor(normalizedTheme);
+      if (persist) writeStoredTheme(normalizedTheme);
+      return normalizedTheme;
+    };
+
+    window.__siteTheme = {
+      storageKey: STORAGE_KEY,
+      defaultTheme: DEFAULT_THEME,
+      getTheme,
+      applyTheme,
+      toggleTheme: () => applyTheme(getTheme() === "dark" ? "light" : "dark"),
+    };
+
+    // In the absence of a saved preference, default to dark mode before paint.
+    applyTheme(getTheme(), { persist: false });
+  })();
 </script>
 
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
 
 <script is:inline define:vars={{ primaryHostname, shouldNoindex }}>
-	if (!shouldNoindex && window.location.hostname !== primaryHostname) {
-		const existingRobots = document.head.querySelector('meta[name="robots"]');
-		if (existingRobots) {
-			existingRobots.setAttribute("content", "noindex,follow");
-		} else {
-			const robots = document.createElement("meta");
-			robots.name = "robots";
-			robots.content = "noindex,follow";
-			document.head.appendChild(robots);
-		}
-	}
+  if (!shouldNoindex && window.location.hostname !== primaryHostname) {
+    const existingRobots = document.head.querySelector('meta[name="robots"]');
+    if (existingRobots) {
+      existingRobots.setAttribute("content", "noindex,follow");
+    } else {
+      const robots = document.createElement("meta");
+      robots.name = "robots";
+      robots.content = "noindex,follow";
+      document.head.appendChild(robots);
+    }
+  }
 </script>
 
 <!-- Primary Meta Tags -->

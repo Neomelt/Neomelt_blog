@@ -1,0 +1,6 @@
+dist
+node_modules
+.astro
+.cache
+package-lock.json
+public/vendor

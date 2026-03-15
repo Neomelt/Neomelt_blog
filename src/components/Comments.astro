@@ -3,176 +3,190 @@ import { normalizeWalinePath } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
 
 interface Props {
-	path?: string;
+  path?: string;
 }
 
 const { path = Astro.url.pathname } = Astro.props;
 const walinePath = normalizeWalinePath(path);
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
 const walineScriptUrls = [
-	"/vendor/waline.umd.js",
-	"https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
-	"https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
+  "/vendor/waline.umd.js",
+  "https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
+  "https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
 ];
 const walineEmojiUrls = [
-	"https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bmoji",
-	"https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bilibili",
+  "https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bmoji",
+  "https://cdn.jsdelivr.net/npm/@waline/emojis@1.4.0/bilibili",
 ];
 const commentsFallbacks = {
-	loadFailedPrefix: getDefaultUiText("comments.loadFailedPrefix"),
-	noServerPrefix: getDefaultUiText("comments.noServerPrefix"),
+  loadFailedPrefix: getDefaultUiText("comments.loadFailedPrefix"),
+  noServerPrefix: getDefaultUiText("comments.noServerPrefix"),
 };
+const commentsScript = serverURL
+  ? `(() => {
+	const serverURL = ${JSON.stringify(serverURL)};
+	const walinePath = ${JSON.stringify(walinePath)};
+	const walineScriptUrls = ${JSON.stringify(walineScriptUrls)};
+	const walineEmojiUrls = ${JSON.stringify(walineEmojiUrls)};
+
+	const showFallback = () => {
+		const fallback = document.getElementById("waline-fallback");
+		if (fallback) fallback.style.display = "block";
+	};
+
+	const loadWalineClient = () => {
+		if (window.Waline && typeof window.Waline.init === "function") {
+			return Promise.resolve(window.Waline);
+		}
+		if (window.__walineClientPromise) return window.__walineClientPromise;
+
+		const sources = Array.isArray(walineScriptUrls) ? walineScriptUrls : [];
+		const tryLoad = (index) =>
+			new Promise((resolve, reject) => {
+				const src = sources[index];
+				if (!src) {
+					reject(new Error("No Waline client CDN source available"));
+					return;
+				}
+
+				const existing = document.querySelector(
+					'script[data-waline-client-src="' + src + '"]',
+				);
+				if (existing) {
+					if (window.Waline && typeof window.Waline.init === "function") {
+						resolve(window.Waline);
+						return;
+					}
+					existing.addEventListener("load", () => resolve(window.Waline), {
+						once: true,
+					});
+					existing.addEventListener(
+						"error",
+						() => reject(new Error("Failed loading " + src)),
+						{ once: true },
+					);
+					return;
+				}
+
+				const script = document.createElement("script");
+				script.src = src;
+				script.async = true;
+				script.dataset.walineClientSrc = src;
+				script.onload = () => {
+					if (window.Waline && typeof window.Waline.init === "function") {
+						resolve(window.Waline);
+					} else {
+						reject(new Error("Waline global not found after loading " + src));
+					}
+				};
+				script.onerror = () => reject(new Error("Failed loading " + src));
+				document.head.appendChild(script);
+			}).catch((error) => {
+				if (index >= sources.length - 1) throw error;
+				return tryLoad(index + 1);
+			});
+
+		window.__walineClientPromise = tryLoad(0);
+		return window.__walineClientPromise;
+	};
+
+	loadWalineClient()
+		.then((waline) => {
+			if (!document.querySelector("#waline")) return;
+
+			waline.init({
+				el: "#waline",
+				serverURL,
+				path: walinePath,
+				lang: localStorage.getItem("site-locale") === "en" ? "en-US" : "zh-CN",
+				dark: "html.dark",
+				emoji: walineEmojiUrls,
+				pageview: true,
+				comment: true,
+				meta: ["nick", "mail", "link"],
+				requiredMeta: ["nick", "mail"],
+			});
+		})
+		.catch((error) => {
+			console.error("[Waline] Failed to initialize comment widget:", error);
+			showFallback();
+		});
+})();`
+  : "";
 ---
 
 <link rel="stylesheet" href="/vendor/waline.css" />
 
 <div class="comments-wrapper">
-	{serverURL ? (
-		<>
-			<div id="waline"></div>
-			<div id="waline-fallback" class="comments-config-tip" style="display: none;">
-				{commentsFallbacks.loadFailedPrefix} <a href={"https://www.neomelt.cloud" + walinePath}>www.neomelt.cloud</a>。
-			</div>
-		</>
-	) : (
-		<div class="comments-config-tip">
-			{commentsFallbacks.noServerPrefix} <code>PUBLIC_WALINE_SERVER_URL</code>。
-		</div>
-	)}
+  {
+    serverURL ? (
+      <>
+        <div id="waline" />
+        <div
+          id="waline-fallback"
+          class="comments-config-tip"
+          style="display: none;"
+        >
+          {commentsFallbacks.loadFailedPrefix}{" "}
+          <a href={"https://www.neomelt.cloud" + walinePath}>
+            www.neomelt.cloud
+          </a>
+          。
+        </div>
+      </>
+    ) : (
+      <div class="comments-config-tip">
+        {commentsFallbacks.noServerPrefix} <code>PUBLIC_WALINE_SERVER_URL</code>
+        。
+      </div>
+    )
+  }
 </div>
 
-{
-	serverURL && (
-		<script define:vars={{ serverURL, walinePath, walineScriptUrls, walineEmojiUrls }}>
-			(() => {
-				const showFallback = () => {
-					const fallback = document.getElementById("waline-fallback");
-					if (fallback) fallback.style.display = "block";
-				};
-
-				const loadWalineClient = () => {
-					if (window.Waline && typeof window.Waline.init === "function") {
-						return Promise.resolve(window.Waline);
-					}
-					if (window.__walineClientPromise) return window.__walineClientPromise;
-
-					const sources = Array.isArray(walineScriptUrls) ? walineScriptUrls : [];
-					const tryLoad = (index) =>
-						new Promise((resolve, reject) => {
-							const src = sources[index];
-							if (!src) {
-								reject(new Error("No Waline client CDN source available"));
-								return;
-							}
-
-							const existing = document.querySelector(
-								`script[data-waline-client-src="${src}"]`,
-							);
-							if (existing) {
-								if (window.Waline && typeof window.Waline.init === "function") {
-									resolve(window.Waline);
-									return;
-								}
-								existing.addEventListener("load", () => resolve(window.Waline), {
-									once: true,
-								});
-								existing.addEventListener(
-									"error",
-									() => reject(new Error(`Failed loading ${src}`)),
-									{ once: true },
-								);
-								return;
-							}
-
-							const script = document.createElement("script");
-							script.src = src;
-							script.async = true;
-							script.dataset.walineClientSrc = src;
-							script.onload = () => {
-								if (window.Waline && typeof window.Waline.init === "function") {
-									resolve(window.Waline);
-								}
-								else reject(new Error(`Waline global not found after loading ${src}`));
-							};
-							script.onerror = () => reject(new Error(`Failed loading ${src}`));
-							document.head.appendChild(script);
-						}).catch((error) => {
-							if (index >= sources.length - 1) throw error;
-							return tryLoad(index + 1);
-						});
-
-					window.__walineClientPromise = tryLoad(0);
-					return window.__walineClientPromise;
-				};
-
-				loadWalineClient()
-					.then((waline) => {
-						if (!document.querySelector("#waline")) return;
-
-						waline.init({
-							el: "#waline",
-							serverURL,
-							path: walinePath,
-							lang: localStorage.getItem("site-locale") === "en" ? "en-US" : "zh-CN",
-							dark: "html.dark",
-							emoji: walineEmojiUrls,
-							pageview: true,
-							comment: true,
-							meta: ["nick", "mail", "link"],
-							requiredMeta: ["nick", "mail"],
-						});
-					})
-					.catch((error) => {
-						console.error("[Waline] Failed to initialize comment widget:", error);
-						showFallback();
-					});
-			})();
-		</script>
-	)
-}
+{serverURL && <script is:inline set:html={commentsScript} />}
 
 <style>
-	.comments-wrapper {
-		width: 100%;
-		max-width: 1000px;
-		margin: 4rem auto 0;
-		padding: 2rem clamp(0.85rem, 3vw, 2em) 0;
-		border-top: 1px solid var(--border);
-		box-sizing: border-box;
-	}
+  .comments-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 4rem auto 0;
+    padding: 2rem clamp(0.85rem, 3vw, 2em) 0;
+    border-top: 1px solid var(--border);
+    box-sizing: border-box;
+  }
 
-	.comments-config-tip {
-		padding: 0.9rem 1rem;
-		border: 1px dashed var(--border);
-		border-radius: 8px;
-		background: var(--bg-code);
-		color: var(--text-muted);
-		font-size: 0.9rem;
-	}
+  .comments-config-tip {
+    padding: 0.9rem 1rem;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: var(--bg-code);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
 
-	.comments-config-tip code {
-		color: var(--text);
-		font-family: var(--font-mono);
-	}
+  .comments-config-tip code {
+    color: var(--text);
+    font-family: var(--font-mono);
+  }
 
-	:global(.wl-editor),
-	:global(.wl-panel),
-	:global(.wl-card),
-	:global(.wl-empty) {
-		background: var(--bg-card);
-		border-color: var(--border);
-	}
+  :global(.wl-editor),
+  :global(.wl-panel),
+  :global(.wl-card),
+  :global(.wl-empty) {
+    background: var(--bg-card);
+    border-color: var(--border);
+  }
 
-	:global(.wl-textarea),
-	:global(.wl-input),
-	:global(.wl-count) {
-		color: var(--text);
-	}
+  :global(.wl-textarea),
+  :global(.wl-input),
+  :global(.wl-count) {
+    color: var(--text);
+  }
 
-	@media (max-width: 640px) {
-		.comments-wrapper {
-			margin-top: 3rem;
-			padding-top: 1.5rem;
-		}
-	}
+  @media (max-width: 640px) {
+    .comments-wrapper {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+    }
+  }
 </style>
