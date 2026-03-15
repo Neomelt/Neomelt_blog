@@ -276,7 +276,6 @@ export const UI_TRANSLATIONS = {
         "friends.copied": "已复制",
         "friends.circleTitle": "朋友圈",
         "friends.circleLead": "最新动态，看看友链朋友都在写什么。",
-        "friends.circleHint": "如果友链没有显示动态，通常是对方暂未提供 RSS 或 RSS 暂时不可用。",
         "friends.circleEmpty": "暂时还没有抓取到友链动态。",
 
         "post.breadcrumbAria": "面包屑",
@@ -560,7 +559,6 @@ export const UI_TRANSLATIONS = {
         "friends.copied": "Copied",
         "friends.circleTitle": "Friends Circle",
         "friends.circleLead": "Latest updates from linked blogs.",
-        "friends.circleHint": "If no updates appear, the friend site may not expose a working RSS feed yet.",
         "friends.circleEmpty": "No recent updates were fetched from friend feeds.",
 
         "post.breadcrumbAria": "Breadcrumb",
