@@ -25,6 +25,7 @@ export interface FriendCirclePost {
 interface FriendCircleOptions {
     perFeedLimit?: number;
     totalLimit?: number;
+    maxAgeDays?: number;
     timeoutMs?: number;
 }
 
@@ -227,6 +228,16 @@ function dedupeAndLimitPosts(
     return dedupedPosts;
 }
 
+function filterPostsByAge(
+    posts: FriendCirclePost[],
+    maxAgeDays: number,
+): FriendCirclePost[] {
+    if (!Number.isFinite(maxAgeDays) || maxAgeDays <= 0) return posts;
+
+    const cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;
+    return posts.filter((post) => post.publishedAt >= cutoff);
+}
+
 function isValidCachedPost(value: unknown): value is FriendCirclePost {
     if (!value || typeof value !== "object") return false;
     const candidate = value as Record<string, unknown>;
@@ -277,6 +288,7 @@ export async function getFriendCirclePosts(
     const resolvedOptions: Required<FriendCircleOptions> = {
         perFeedLimit: options.perFeedLimit ?? 8,
         totalLimit: options.totalLimit ?? 24,
+        maxAgeDays: options.maxAgeDays ?? 45,
         timeoutMs: options.timeoutMs ?? 8000,
     };
 
@@ -289,8 +301,13 @@ export async function getFriendCirclePosts(
         .flatMap((result) => result.posts)
         .sort((a, b) => b.publishedAt - a.publishedAt);
 
-    const dedupedPosts = dedupeAndLimitPosts(
+    const recentPosts = filterPostsByAge(
         mergedPosts,
+        resolvedOptions.maxAgeDays,
+    );
+
+    const dedupedPosts = dedupeAndLimitPosts(
+        recentPosts,
         resolvedOptions.totalLimit,
     );
 
@@ -300,6 +317,9 @@ export async function getFriendCirclePosts(
     }
 
     // 外站抓取失败或暂无结果时，回退到上次成功缓存，保障构建稳定性
-    const cachedPosts = await readCachedPosts(resolvedOptions.totalLimit);
-    return cachedPosts;
+    const cachedPosts = filterPostsByAge(
+        await readCachedPosts(resolvedOptions.totalLimit),
+        resolvedOptions.maxAgeDays,
+    );
+    return dedupeAndLimitPosts(cachedPosts, resolvedOptions.totalLimit);
 }
