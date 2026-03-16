@@ -72,7 +72,7 @@ export const UI_TRANSLATIONS = {
 
     "index.heroTitle": "👋 欢迎来到 Neomelt 的博客",
     "index.heroIntro1":
-      "你好，我是 Neomelt。一个喜欢创造的工科生，对计算机视觉、机器人和系统编程等领域感兴趣。",
+      "你好，我是 Neomelt，一名喜欢创造的工科生，主要对机器人应用开发和软件工程实践等方向感兴趣。",
     "index.heroIntro2":
       "这里是我记录技术笔记、代码复盘和日常思考的地方。内容可能涉及编程语言、技术领域，以及一些不那么技术的东西。",
     "index.allPosts": "全部文章",
@@ -394,7 +394,7 @@ export const UI_TRANSLATIONS = {
 
     "index.heroTitle": "👋 Welcome to Neomelt's Blog",
     "index.heroIntro1":
-      "Hi, I'm Neomelt, an engineering student who loves tinkering and is interested in computer vision, robotics, and systems programming.",
+      "Hi, I'm Neomelt, an engineering student who loves creating and is mainly interested in robotics application development and software engineering practice.",
     "index.heroIntro2":
       "This is where I document study notes, technical reflections, and daily writing. Topics may include ROS2, Rust, C++, deep learning, and a few non-technical things.",
     "index.allPosts": "All posts",
