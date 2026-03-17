@@ -111,4 +111,10 @@ export const FRIEND_LINKS: FriendLink[] = [
     description: "不喜欢佳代子的都是坏人😭",
     avatar: "https://mtftau-5.github.io/images/logo/favicon.jpg",
   },
+  {
+    name: "LonelyStar",
+    url: "https://firefly-7a0.pages.dev",
+    description: "Blog",
+    avatar: "https://firefly-7a0.pages.dev/avatar.jpg",
+  },
 ];
