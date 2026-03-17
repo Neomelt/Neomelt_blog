@@ -1,15 +1,14 @@
 ---
-title: 'Gazebo 仿真中的 z-fighting 问题记录'
-description: '记录一次 Gazebo 仿真中灯条闪烁问题的排查过程，原因是 SDF 模型中共面几何引起的 z-fighting。'
-pubDate: '2026-03-16T16:49:00+08:00'
+title: "Gazebo 仿真中的 z-fighting 问题记录"
+description: "记录一次 Gazebo 仿真中灯条闪烁问题的排查过程，原因是 SDF 模型中共面几何引起的 z-fighting。"
+pubDate: "2026-03-16T16:49:00+08:00"
 pinned: false
 hidden: false
-heroImage: '../../assets/cover.svg'
-category: '开发记录'
-series: ''
-tags: ['Gazebo', '仿真', 'SDF', 'z-fighting', '渲染']
+heroImage: "../../assets/cover.svg"
+category: "开发记录"
+series: ""
+tags: ["Gazebo", "仿真", "SDF", "z-fighting", "渲染"]
 ---
-
 
 今天在 Gazebo 里调一个仿真模型时，遇到了一个显示问题：车体上的灯条只有在差不多正对着看的时候才显示得比较完整，一旦视角稍微偏一点，边缘就像缺了一块，转动镜头的时候还会忽隐忽现，大概像这样：
 
