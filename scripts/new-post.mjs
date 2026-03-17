@@ -49,8 +49,8 @@ function sanitizeSlug(value) {
     .replaceAll(/^-|-$/g, "");
 }
 
-function escapeYamlString(value) {
-  return String(value).replaceAll("'", "''");
+function formatYamlString(value) {
+  return JSON.stringify(String(value));
 }
 
 function normalizeTags(inputValue) {
@@ -80,20 +80,24 @@ function buildFrontmatter({
   series,
   tags,
 }) {
-  const tagText = `[${tags.map((tag) => `'${escapeYamlString(tag)}'`).join(", ")}]`;
-  return `---
-title: '${escapeYamlString(title)}'
-description: '${escapeYamlString(description)}'
-pubDate: '${pubDate}'
-pinned: ${pinned}
-hidden: ${hidden}
-heroImage: '${escapeYamlString(heroImage)}'
-category: '${escapeYamlString(category)}'
-series: '${escapeYamlString(series)}'
-tags: ${tagText}
----
-
-`;
+  const tagText =
+    tags.length > 0
+      ? `[${tags.map((tag) => formatYamlString(tag)).join(", ")}]`
+      : "[]";
+  return [
+    "---",
+    `title: ${formatYamlString(title)}`,
+    `description: ${formatYamlString(description)}`,
+    `pubDate: ${formatYamlString(pubDate)}`,
+    `pinned: ${pinned}`,
+    `hidden: ${hidden}`,
+    `heroImage: ${formatYamlString(heroImage)}`,
+    `category: ${formatYamlString(category)}`,
+    `series: ${formatYamlString(series)}`,
+    `tags: ${tagText}`,
+    "---",
+    "",
+  ].join("\n");
 }
 
 function printHelp() {

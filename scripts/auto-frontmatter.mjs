@@ -23,8 +23,8 @@ function formatLocalIsoWithOffset(date) {
   return `${year}-${month}-${day}T${hour}:${minute}:00${sign}${tzHour}:${tzMinute}`;
 }
 
-function escapeYamlString(value) {
-  return String(value).replaceAll("'", "''");
+function formatYamlString(value) {
+  return JSON.stringify(String(value));
 }
 
 function normalizeTitleFromFilename(filePath) {
@@ -33,19 +33,20 @@ function normalizeTitleFromFilename(filePath) {
 }
 
 function buildFrontmatter(title) {
-  return `---
-title: '${escapeYamlString(title)}'
-description: ''
-pubDate: '${formatLocalIsoWithOffset(new Date())}'
-pinned: false
-hidden: false
-heroImage: '../../assets/cover.svg'
-category: ''
-series: ''
-tags: []
----
-
-`;
+  return [
+    "---",
+    `title: ${formatYamlString(title)}`,
+    `description: ${formatYamlString("")}`,
+    `pubDate: ${formatYamlString(formatLocalIsoWithOffset(new Date()))}`,
+    "pinned: false",
+    "hidden: false",
+    `heroImage: ${formatYamlString("../../assets/cover.svg")}`,
+    `category: ${formatYamlString("")}`,
+    `series: ${formatYamlString("")}`,
+    "tags: []",
+    "---",
+    "",
+  ].join("\n");
 }
 
 async function isMarkdownFile(filePath) {
@@ -65,7 +66,7 @@ async function injectFrontmatterIfMissing(filePath) {
   const content = await readFile(filePath, "utf-8");
   if (content.trim().length === 0) {
     const title = normalizeTitleFromFilename(filePath);
-    await writeFile(filePath, `${buildFrontmatter(title)}\n`, "utf-8");
+    await writeFile(filePath, buildFrontmatter(title), "utf-8");
     console.log(
       `[auto-frontmatter] injected: ${path.relative(process.cwd(), filePath)}`,
     );
@@ -79,7 +80,12 @@ async function injectFrontmatterIfMissing(filePath) {
   const headingMatch = content.match(/^\s*#\s+(.+)$/m);
   const title =
     headingMatch?.[1]?.trim() || normalizeTitleFromFilename(filePath);
-  await writeFile(filePath, `${buildFrontmatter(title)}${content}`, "utf-8");
+  const normalizedContent = content.replace(/^(?:\r?\n)+/, "");
+  await writeFile(
+    filePath,
+    `${buildFrontmatter(title)}\n${normalizedContent}`,
+    "utf-8",
+  );
   console.log(
     `[auto-frontmatter] injected: ${path.relative(process.cwd(), filePath)}`,
   );
