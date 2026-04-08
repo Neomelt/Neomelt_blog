@@ -117,4 +117,10 @@ export const FRIEND_LINKS: FriendLink[] = [
     description: "Blog",
     avatar: "https://firefly-7a0.pages.dev/avatar.jpg",
   },
+  {
+    name: "evil0knight's Blog",
+    url: "https://evil0knight.github.io/quartz",
+    description: "嵌入式 · 计算机基础 · 硬件模块 · 持续更新中",
+    avatar: "https://avatars.githubusercontent.com/evil0knight",
+  },
 ];
