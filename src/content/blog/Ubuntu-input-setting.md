@@ -149,3 +149,5 @@ EOF
 4. Emoji：
 
 直接输拼音：haha -> 😂，xixi -> 🦏。
+
+> **注意**：雾凇输入发在ubuntu22.04会出现因依赖库版本过低无法兼容的情况，表现为切换到中文输入法的时候无法呼出选词框，[解决办法](https://my.feishu.cn/wiki/S2fAwMir0ijrD0kfiRocm3snn6f?from=from_copylink)
