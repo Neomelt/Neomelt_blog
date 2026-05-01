@@ -2,7 +2,7 @@
 title: "git命令速查"
 description: "速查"
 pubDate: "2025-1-31"
-pinned: true
+pinned: false
 heroImage: "../../assets/cover.svg"
 category: "知识"
 series: ""
