@@ -87,7 +87,12 @@ async function fetchBilibiliMetadata(bvid) {
       const payload = await response.json();
       const aid = Number(payload?.data?.aid || "");
       const cid = Number(payload?.data?.cid || payload?.data?.pages?.[0]?.cid);
-      if (!Number.isFinite(aid) || aid <= 0 || !Number.isFinite(cid) || cid <= 0) {
+      if (
+        !Number.isFinite(aid) ||
+        aid <= 0 ||
+        !Number.isFinite(cid) ||
+        cid <= 0
+      ) {
         return null;
       }
 
