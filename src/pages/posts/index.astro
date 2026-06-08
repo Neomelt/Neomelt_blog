@@ -8,6 +8,7 @@ import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
 import { getWalinePathForPost } from "../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
+import { estimateReadingTime } from "../../utils/reading-time";
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
@@ -21,10 +22,6 @@ posts.sort((a, b) => {
 });
 
 const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
-
-function estimateReadingTime(content: string): number {
-  return Math.max(1, Math.ceil(content.length / 400));
-}
 ---
 
 <BaseLayout title={`${getDefaultUiText("posts.metaTitle")} | ${SITE_TITLE}`}>
