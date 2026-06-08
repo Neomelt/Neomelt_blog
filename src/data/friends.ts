@@ -88,7 +88,6 @@ export const FRIEND_LINKS: FriendLink[] = [
     name: "ysymyth",
     url: "https://ysymyth.github.io/",
     description: "researcher at OpenAI",
-    rss: "https://yuanchaofa.com/rss.xml",
     avatar: "https://avatars.githubusercontent.com/u/4877252?v=4",
   },
   {
