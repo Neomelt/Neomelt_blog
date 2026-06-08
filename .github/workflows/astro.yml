@@ -37,6 +37,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history so post-dates.ts can read each post's first/last
+          # commit time via `git log` (shallow clone would collapse them).
+          fetch-depth: 0
       - name: Detect package manager
         id: detect-package-manager
         run: |
