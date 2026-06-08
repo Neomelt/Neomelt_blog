@@ -8,6 +8,7 @@ import BaseLayout from "./BaseLayout.astro";
 import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
+import { estimateReadingTime } from "../utils/reading-time";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -25,11 +26,13 @@ const shouldShowUpdated =
   resolvedUpdatedDate.valueOf() > resolvedPubDate.valueOf();
 
 const wordCount = (post.body || "").length;
-const readingTime = Math.max(1, Math.ceil(wordCount / 400));
+const readingTime = estimateReadingTime(post.body || "");
+// Only post pages with math need the KaTeX stylesheet ($ is a safe over-approx).
+const hasMath = /\$/.test(post.body || "");
 const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} katex={hasMath}>
   <div class="post-page">
     <!-- TOC sidebar (desktop) -->
     {

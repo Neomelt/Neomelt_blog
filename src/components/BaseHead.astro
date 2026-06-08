@@ -5,11 +5,7 @@ import "../styles/global.css";
 import type { ImageMetadata } from "astro";
 import FallbackImage from "../assets/cover.svg";
 import { SITE_ORIGIN, SITE_TITLE } from "../consts";
-import {
-  getPrimaryCanonicalPath,
-  isLegacyBlogAliasPath,
-  normalizePathname,
-} from "../utils/canonical";
+import { normalizePathname } from "../utils/canonical";
 
 interface Props {
   title: string;
@@ -47,7 +43,7 @@ const stripBasePrefix = (value: string): string => {
 const canonicalSourcePath = normalizePathname(stripBasePrefix(pathname));
 const resolvedCanonicalPath = canonicalPath
   ? normalizePathname(canonicalPath)
-  : getPrimaryCanonicalPath(canonicalSourcePath);
+  : canonicalSourcePath;
 const siteOrigin = new URL(SITE_ORIGIN);
 const resolvedImagePath = stripBasePrefix(image.src);
 const canonicalURL = new URL(resolvedCanonicalPath, siteOrigin);
@@ -55,8 +51,7 @@ const rssURL = new URL("rss.xml", siteOrigin);
 const metaImageURL = new URL(resolvedImagePath, siteOrigin);
 const isFallbackDeployment =
   import.meta.env.PUBLIC_IS_FALLBACK_DEPLOYMENT === "true";
-const shouldNoindex =
-  noindex || isLegacyBlogAliasPath(canonicalSourcePath) || isFallbackDeployment;
+const shouldNoindex = noindex || isFallbackDeployment;
 const primaryHostname = canonicalURL.hostname;
 ---
 
@@ -64,6 +59,23 @@ const primaryHostname = canonicalURL.hostname;
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/jpeg" href="/head.jpg" />
+
+<!-- Fonts: preconnect + async (non-render-blocking) load of LXGW WenKai.
+     Until it arrives, the CSS font stack falls back to system fonts so the
+     page paints immediately, then swaps in the web font. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
+  media="print"
+  onload="this.media='all'"
+/>
+<noscript>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
+  />
+</noscript>
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link
   rel="alternate"
