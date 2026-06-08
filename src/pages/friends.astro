@@ -4,25 +4,14 @@ import { FRIEND_LINKS } from "../data/friends";
 import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
-import { getFriendCirclePosts } from "../utils/friend-circle";
+import { avatarSrc } from "../utils/avatar";
 import { normalizeWalinePath } from "../utils/waline";
 
 const walinePath = normalizeWalinePath("/friends");
 const friendLinks = FRIEND_LINKS;
 const friendCircleDisplayLimit = 6;
-const friendCirclePosts = await getFriendCirclePosts(friendLinks, {
-  perFeedLimit: 4,
-  totalLimit: 18,
-  maxAgeDays: 21,
-  timeoutMs: 8000,
-});
-const initialFriendCirclePosts = friendCirclePosts.slice(
-  0,
-  friendCircleDisplayLimit,
-);
-const serializedFriendCirclePosts = JSON.stringify(
-  friendCirclePosts,
-).replaceAll("<", "\\u003c");
+// The friend-circle is fetched client-side from /friend-circle.json so the page
+// never blocks on external RSS at render time (see friend-circle.json.ts).
 
 const myFriendLinkInfo = {
   name: "Neomelt's Blog",
@@ -101,10 +90,13 @@ const myFriendLinkText = myFriendLinkItems
                   >
                     {link.avatar ? (
                       <img
-                        src={link.avatar}
+                        src={avatarSrc(link.avatar)}
                         alt={link.name}
                         class="friend-avatar"
+                        width="52"
+                        height="52"
                         loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <span
@@ -248,78 +240,26 @@ const myFriendLinkText = myFriendLinkItems
               {getDefaultUiText("friends.circleLead")}
             </p>
           </div>
-          {
-            friendCirclePosts.length > friendCircleDisplayLimit && (
-              <button
-                type="button"
-                class="circle-refresh-btn"
-                id="friends-circle-refresh"
-                data-i18n="friends.circleRefresh"
-                aria-label={getDefaultUiText("friends.circleRefresh")}
-              >
-                <span class="circle-refresh-icon" aria-hidden="true">
-                  ↻
-                </span>
-                <span>{getDefaultUiText("friends.circleRefresh")}</span>
-              </button>
-            )
-          }
+          <button
+            type="button"
+            class="circle-refresh-btn"
+            id="friends-circle-refresh"
+            data-i18n="friends.circleRefresh"
+            aria-label={getDefaultUiText("friends.circleRefresh")}
+            hidden
+          >
+            <span class="circle-refresh-icon" aria-hidden="true">↻</span>
+            <span>{getDefaultUiText("friends.circleRefresh")}</span>
+          </button>
         </div>
-        {
-          friendCirclePosts.length > 0 ? (
-            <ul
-              class="circle-list"
-              id="friends-circle-list"
-              data-display-limit={String(friendCircleDisplayLimit)}
-            >
-              {initialFriendCirclePosts.map((post) => (
-                <li class="circle-item">
-                  <a
-                    href={post.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="circle-link"
-                  >
-                    {post.friendAvatar ? (
-                      <img
-                        src={post.friendAvatar}
-                        alt={post.friendName}
-                        class="circle-avatar"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span
-                        class="circle-avatar circle-avatar-placeholder"
-                        aria-hidden="true"
-                      >
-                        {post.friendName.slice(0, 1)}
-                      </span>
-                    )}
-                    <div class="circle-main">
-                      <p class="circle-title">{post.title}</p>
-                      <p class="circle-source">{post.friendName}</p>
-                    </div>
-                    {post.publishedDate && (
-                      <time class="circle-date" datetime={post.publishedISO}>
-                        {post.publishedDate}
-                      </time>
-                    )}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div class="empty-state" data-i18n="friends.circleEmpty">
-              {getDefaultUiText("friends.circleEmpty")}
-            </div>
-          )
-        }
+        <ul
+          class="circle-list"
+          id="friends-circle-list"
+          data-display-limit={String(friendCircleDisplayLimit)}
+          aria-busy="true"
+        >
+        </ul>
       </section>
-      <script
-        type="application/json"
-        id="friend-circle-data"
-        set:html={serializedFriendCirclePosts}
-      />
 
       <Comments path={walinePath} />
     </div>
@@ -996,13 +936,13 @@ const myFriendLinkText = myFriendLinkItems
     }
   }
 
-  function parseFriendCirclePosts() {
-    const dataElement = document.getElementById("friend-circle-data");
-    if (!(dataElement instanceof HTMLScriptElement) || !dataElement.textContent)
-      return [];
-
+  async function fetchFriendCirclePosts() {
     try {
-      const parsed = JSON.parse(dataElement.textContent);
+      const response = await fetch("/friend-circle.json", {
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) return [];
+      const parsed = await response.json();
       return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
@@ -1068,19 +1008,31 @@ const myFriendLinkText = myFriendLinkItems
     link.target = "_blank";
     link.rel = "noopener noreferrer";
 
+    const makeAvatarPlaceholder = () => {
+      const placeholder = document.createElement("span");
+      placeholder.className = "circle-avatar circle-avatar-placeholder";
+      placeholder.setAttribute("aria-hidden", "true");
+      placeholder.textContent = (post.friendName ?? "").slice(0, 1);
+      return placeholder;
+    };
+
     if (post.friendAvatar) {
       const avatar = document.createElement("img");
       avatar.className = "circle-avatar";
       avatar.src = post.friendAvatar;
       avatar.alt = post.friendName ?? "";
       avatar.loading = "lazy";
+      avatar.decoding = "async";
+      avatar.width = 42;
+      avatar.height = 42;
+      avatar.addEventListener(
+        "error",
+        () => avatar.replaceWith(makeAvatarPlaceholder()),
+        { once: true },
+      );
       link.appendChild(avatar);
     } else {
-      const avatarPlaceholder = document.createElement("span");
-      avatarPlaceholder.className = "circle-avatar circle-avatar-placeholder";
-      avatarPlaceholder.setAttribute("aria-hidden", "true");
-      avatarPlaceholder.textContent = (post.friendName ?? "").slice(0, 1);
-      link.appendChild(avatarPlaceholder);
+      link.appendChild(makeAvatarPlaceholder());
     }
 
     const main = document.createElement("div");
@@ -1119,16 +1071,28 @@ const myFriendLinkText = myFriendLinkItems
     list.dataset.selectionKey = getFriendCircleSelectionKey(posts);
   }
 
-  function enhanceFriendCircle() {
+  async function enhanceFriendCircle() {
     const list = document.getElementById("friends-circle-list");
     if (!(list instanceof HTMLElement)) return;
+    if (list.dataset.loaded === "1") return;
+    list.dataset.loaded = "1";
 
     const refreshButton = document.getElementById("friends-circle-refresh");
-    const displayLimit = Number.parseInt(list.dataset.displayLimit ?? "12", 10);
+    const displayLimit = Number.parseInt(list.dataset.displayLimit ?? "6", 10);
     if (!Number.isFinite(displayLimit) || displayLimit <= 0) return;
 
-    const posts = parseFriendCirclePosts();
-    if (!Array.isArray(posts) || posts.length === 0) return;
+    const posts = await fetchFriendCirclePosts();
+    list.removeAttribute("aria-busy");
+
+    if (!Array.isArray(posts) || posts.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "empty-state";
+      empty.setAttribute("data-i18n", "friends.circleEmpty");
+      empty.textContent =
+        window.__siteI18n?.t?.("friends.circleEmpty", "") ?? "";
+      list.replaceChildren(empty);
+      return;
+    }
 
     const renderNextBatch = () => {
       const previousSelectionKey = list.dataset.selectionKey ?? "";
@@ -1154,12 +1118,15 @@ const myFriendLinkText = myFriendLinkItems
 
     renderNextBatch();
 
-    if (
-      refreshButton instanceof HTMLButtonElement &&
-      refreshButton.dataset.bound !== "1"
-    ) {
-      refreshButton.dataset.bound = "1";
-      refreshButton.addEventListener("click", renderNextBatch);
+    if (refreshButton instanceof HTMLElement) {
+      refreshButton.hidden = false;
+      if (
+        refreshButton instanceof HTMLButtonElement &&
+        refreshButton.dataset.bound !== "1"
+      ) {
+        refreshButton.dataset.bound = "1";
+        refreshButton.addEventListener("click", renderNextBatch);
+      }
     }
   }
 
@@ -1188,8 +1155,16 @@ const myFriendLinkText = myFriendLinkItems
     });
   }
 
+  const scheduleFriendCircle = () => {
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => enhanceFriendCircle(), { timeout: 2000 });
+    } else {
+      window.setTimeout(() => enhanceFriendCircle(), 200);
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", bindCopyActions);
-  document.addEventListener("DOMContentLoaded", enhanceFriendCircle);
+  document.addEventListener("DOMContentLoaded", scheduleFriendCircle);
   document.addEventListener("astro:page-load", bindCopyActions);
-  document.addEventListener("astro:page-load", enhanceFriendCircle);
+  document.addEventListener("astro:page-load", scheduleFriendCircle);
 </script>
