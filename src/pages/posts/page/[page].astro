@@ -8,6 +8,7 @@ import { SITE_TITLE } from "../../../consts";
 import { getDefaultUiText } from "../../../i18n/ui";
 import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
+import { estimateReadingTime } from "../../../utils/reading-time";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.hidden);
@@ -18,7 +19,9 @@ export async function getStaticPaths() {
   });
 
   const totalPages = Math.ceil(sortedPosts.length / 10) || 1;
-  return Array.from({ length: totalPages }, (_, i) => ({
+  // Page 1 lives at /posts; only generate /posts/page/2..N here
+  // (length = totalPages - 1, so no empty trailing page is emitted).
+  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => ({
     params: { page: String(i + 2) },
     props: { posts: sortedPosts },
   }));
@@ -41,10 +44,6 @@ posts.sort((a, b) => {
 });
 const { items: paginatedPosts, pagination } = paginate(posts, currentPage, 10);
 const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiText("legacy.pagePrefix")}${page}${getDefaultUiText("legacy.pageSuffix")}`;
-
-function estimateReadingTime(content: string): number {
-  return Math.max(1, Math.ceil(content.length / 400));
-}
 ---
 
 <BaseLayout title={`${pageTitleLabel} | ${SITE_TITLE}`}>
