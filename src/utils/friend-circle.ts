@@ -293,16 +293,35 @@ async function writeCachedPosts(posts: FriendCirclePost[]): Promise<void> {
   }
 }
 
+// In-memory memo. A dev server re-runs page frontmatter on every request, so
+// without this each /friends visit would refetch all feeds (2-6s each). Also
+// avoids duplicate work if the circle is requested more than once per build.
+let memoizedPosts: FriendCirclePost[] | null = null;
+
 export async function getFriendCirclePosts(
   friends: FriendLink[],
   options: FriendCircleOptions = {},
 ): Promise<FriendCirclePost[]> {
+  if (memoizedPosts) return memoizedPosts;
+
   const resolvedOptions: Required<FriendCircleOptions> = {
     perFeedLimit: options.perFeedLimit ?? 8,
     totalLimit: options.totalLimit ?? 24,
     maxAgeDays: options.maxAgeDays ?? 45,
     timeoutMs: options.timeoutMs ?? 8000,
   };
+
+  // In dev, skip the slow live fetch (10 feeds x up to timeoutMs, re-run on
+  // every request) and serve the last build's cache so /friends loads fast.
+  // Fresh aggregation still runs at build time (import.meta.env.DEV === false).
+  if (import.meta.env.DEV) {
+    const cached = filterPostsByAge(
+      await readCachedPosts(resolvedOptions.totalLimit),
+      resolvedOptions.maxAgeDays,
+    );
+    memoizedPosts = dedupeAndLimitPosts(cached, resolvedOptions.totalLimit);
+    return memoizedPosts;
+  }
 
   const feedFriends = friends.filter((friend) => Boolean(friend.rss));
   const fetchResults = await Promise.all(
@@ -322,6 +341,7 @@ export async function getFriendCirclePosts(
 
   if (dedupedPosts.length > 0) {
     await writeCachedPosts(dedupedPosts);
+    memoizedPosts = dedupedPosts;
     return dedupedPosts;
   }
 
@@ -330,5 +350,6 @@ export async function getFriendCirclePosts(
     await readCachedPosts(resolvedOptions.totalLimit),
     resolvedOptions.maxAgeDays,
   );
-  return dedupeAndLimitPosts(cachedPosts, resolvedOptions.totalLimit);
+  memoizedPosts = dedupeAndLimitPosts(cachedPosts, resolvedOptions.totalLimit);
+  return memoizedPosts;
 }
