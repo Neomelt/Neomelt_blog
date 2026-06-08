@@ -31,14 +31,6 @@ export const UI_TRANSLATIONS = {
     "footer.sitePolicy": "网站政策",
     "footer.themePowered": "Astro 主题驱动",
 
-    "background.modalTitle": "🎨 背景设置",
-    "background.quote": "世界并不美丽，但却因此而美丽。",
-    "background.enableWallpaper": "启用壁纸",
-    "background.styleTitle": "🎨 背景样式",
-    "background.styleAltSuffix": "样式",
-    "background.opacityTitle": "🔍 透明度",
-    "background.blurTitle": "💫 模糊度",
-
     "search.dialogAria": "搜索",
     "search.title": "搜索内容",
     "search.closeAria": "关闭搜索",
@@ -227,68 +219,9 @@ export const UI_TRANSLATIONS = {
     "comments.loadFailedPrefix": "评论组件加载失败。请刷新重试，或访问",
     "comments.noServerPrefix": "未配置 Waline 服务地址。请在环境变量中设置",
 
-    "legacy.all": "全部",
     "legacy.pagePrefix": "第",
     "legacy.pageSuffix": "页",
-    "legacy.yearSuffix": "年",
-    "legacy.articlesSuffix": "篇文章",
-
-    "legacy.blog.postsTitle": "博客文章",
-    "legacy.blog.noPostsDesc": "还没有发布任何博客文章",
-
-    "legacy.archive.title": "博客归档",
-    "legacy.archive.desc": "按时间浏览所有文章。",
-
-    "legacy.categories.title": "博客分类",
-    "legacy.categories.desc": "浏览不同主题的文章。",
-    "legacy.categories.emptyTitle": "暂无分类",
-    "legacy.categories.emptyDesc": "还没有创建任何文章分类。",
-    "legacy.categories.back": "返回分类",
-
-    "legacy.tags.title": "标签云",
-    "legacy.tags.desc": "所有文章的标签集合，点击标签可以查看相关文章。",
-    "legacy.tags.allPosts": "所有文章",
-
-    "legacy.series.title": "博客系列",
-    "legacy.series.desc": "按系列浏览相关文章。",
-    "legacy.series.emptyTitle": "暂无系列文章",
-    "legacy.series.emptyDesc": "还没有创建任何文章系列。",
     "legacy.uncategorized": "未分类",
-
-    "legacy.zueg.title": "随笔文章",
-    "legacy.zueg.programming": "编程",
-    "legacy.zueg.thinking": "思考",
-    "legacy.zueg.empty": "还没有随笔文章。",
-    "legacy.zueg.lastUpdated": "最后更新于",
-
-    "legacy.projects.title": "项目展示",
-    "legacy.projects.repo": "GitHub 仓库",
-    "legacy.projects.preview": "在线预览",
-    "legacy.projects.docs": "API 文档",
-    "legacy.projects.imageAlt": "项目截图",
-    "legacy.projects.imagePlaceholderText": "项目图片",
-    "legacy.projects.p1.title": "个人博客网站",
-    "legacy.projects.p1.desc":
-      "基于 Astro 构建的个人博客网站，使用 TailwindCSS 进行样式设计，支持 Markdown 和 MDX 内容创作。",
-    "legacy.projects.p1.tag": "响应式设计",
-    "legacy.projects.p2.title": "任务管理应用",
-    "legacy.projects.p2.desc":
-      "一个基于 React 和 TypeScript 开发的任务管理应用，支持任务创建、编辑、删除和状态管理等功能。",
-    "legacy.projects.p3.title": "数据可视化面板",
-    "legacy.projects.p3.desc":
-      "使用 Vue.js 和 ECharts 实现的数据可视化面板，支持多种图表类型和数据筛选功能。",
-    "legacy.projects.p3.tag": "数据可视化",
-    "legacy.projects.p4.title": "API 服务",
-    "legacy.projects.p4.desc":
-      "使用 Node.js 和 Express 开发的 RESTful API 服务，提供数据存储、查询和身份验证等功能。",
-    "legacy.projects.openSourceTitle": "开源贡献",
-    "legacy.projects.openSourceDesc": "我还参与了以下开源项目的贡献：",
-    "legacy.projects.openSourceItem1Name": "开源项目名称",
-    "legacy.projects.openSourceItem1Desc": "- 添加了新功能和修复了一些 bug。",
-    "legacy.projects.openSourceItem2Name": "另一个开源项目",
-    "legacy.projects.openSourceItem2Desc": "- 改进了文档和单元测试。",
-    "legacy.projects.openSourceFooter":
-      "如果你对我的项目有任何建议或想要合作，请随时联系我！",
 
     "friends.metaTitle": "友链",
     "friends.metaDescription": "友情链接与互链申请",
@@ -352,14 +285,6 @@ export const UI_TRANSLATIONS = {
     "footer.second": "s",
     "footer.sitePolicy": "Site policy",
     "footer.themePowered": "Astro theme powered",
-
-    "background.modalTitle": "🎨 Background Settings",
-    "background.quote": "The world is not beautiful, therefore it is.",
-    "background.enableWallpaper": "Enable wallpaper",
-    "background.styleTitle": "🎨 Background Style",
-    "background.styleAltSuffix": "style",
-    "background.opacityTitle": "🔍 Opacity",
-    "background.blurTitle": "💫 Blur",
 
     "search.dialogAria": "Search",
     "search.title": "Search",
@@ -573,72 +498,9 @@ export const UI_TRANSLATIONS = {
     "comments.noServerPrefix":
       "Waline server URL is not configured. Please set",
 
-    "legacy.all": "All",
     "legacy.pagePrefix": "Page",
     "legacy.pageSuffix": "",
-    "legacy.yearSuffix": "",
-    "legacy.articlesSuffix": "posts",
-
-    "legacy.blog.postsTitle": "Blog Posts",
-    "legacy.blog.noPostsDesc": "No blog posts have been published yet.",
-
-    "legacy.archive.title": "Blog Archive",
-    "legacy.archive.desc": "Browse all posts by time.",
-
-    "legacy.categories.title": "Blog Categories",
-    "legacy.categories.desc": "Browse posts by topic.",
-    "legacy.categories.emptyTitle": "No categories yet",
-    "legacy.categories.emptyDesc": "No blog categories have been created yet.",
-    "legacy.categories.back": "Back to categories",
-
-    "legacy.tags.title": "Tag Cloud",
-    "legacy.tags.desc":
-      "A collection of all post tags. Click a tag to filter related posts.",
-    "legacy.tags.allPosts": "All posts",
-
-    "legacy.series.title": "Series",
-    "legacy.series.desc": "Browse related posts by series.",
-    "legacy.series.emptyTitle": "No series yet",
-    "legacy.series.emptyDesc": "No article series has been created yet.",
     "legacy.uncategorized": "Uncategorized",
-
-    "legacy.zueg.title": "Essays",
-    "legacy.zueg.programming": "Programming",
-    "legacy.zueg.thinking": "Reflection",
-    "legacy.zueg.empty": "No essays yet.",
-    "legacy.zueg.lastUpdated": "Last updated on",
-
-    "legacy.projects.title": "Projects",
-    "legacy.projects.repo": "GitHub Repo",
-    "legacy.projects.preview": "Live Preview",
-    "legacy.projects.docs": "API Docs",
-    "legacy.projects.imageAlt": "Project screenshot",
-    "legacy.projects.imagePlaceholderText": "Project image",
-    "legacy.projects.p1.title": "Personal Blog Website",
-    "legacy.projects.p1.desc":
-      "A personal blog built with Astro and styled using TailwindCSS, supporting Markdown and MDX content.",
-    "legacy.projects.p1.tag": "Responsive Design",
-    "legacy.projects.p2.title": "Task Management App",
-    "legacy.projects.p2.desc":
-      "A task management app built with React and TypeScript, supporting creation, editing, deletion, and status management.",
-    "legacy.projects.p3.title": "Data Visualization Dashboard",
-    "legacy.projects.p3.desc":
-      "A dashboard built with Vue.js and ECharts, supporting multiple chart types and data filtering.",
-    "legacy.projects.p3.tag": "Data Visualization",
-    "legacy.projects.p4.title": "API Service",
-    "legacy.projects.p4.desc":
-      "A RESTful API service built with Node.js and Express, providing storage, query, and authentication features.",
-    "legacy.projects.openSourceTitle": "Open Source Contributions",
-    "legacy.projects.openSourceDesc":
-      "I also contributed to the following open source projects:",
-    "legacy.projects.openSourceItem1Name": "Open Source Project Name",
-    "legacy.projects.openSourceItem1Desc":
-      "- Added new features and fixed bugs.",
-    "legacy.projects.openSourceItem2Name": "Another Open Source Project",
-    "legacy.projects.openSourceItem2Desc":
-      "- Improved documentation and unit tests.",
-    "legacy.projects.openSourceFooter":
-      "If you have suggestions or want to collaborate, feel free to contact me.",
 
     "friends.metaTitle": "Friends",
     "friends.metaDescription": "Friend links and exchange requests",
