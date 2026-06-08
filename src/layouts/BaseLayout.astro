@@ -14,21 +14,27 @@ import {
 export interface Props {
   title: string;
   description?: string;
+  /** Load the KaTeX stylesheet — only needed on post pages that contain math. */
+  katex?: boolean;
 }
 
-const { title, description = "" } = Astro.props;
+const { title, description = "", katex = false } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="zh-CN">
   <head>
     <BaseHead title={title} description={description} />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
-      integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
-      crossorigin="anonymous"
-    />
+    {
+      katex && (
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+          integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+          crossorigin="anonymous"
+        />
+      )
+    }
   </head>
   <body>
     <script

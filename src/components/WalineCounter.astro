@@ -1,82 +1,14 @@
 ---
+import {
+  walineLoaderScript,
+  WALINE_CLIENT_SCRIPT_URLS,
+} from "../utils/waline-loader";
+
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
-const walineScriptUrls = [
-  "/vendor/waline.umd.js",
-  "https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
-  "https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
-];
 const walineCounterScript = serverURL
   ? `(() => {
 	const serverURL = ${JSON.stringify(serverURL)};
-	const walineScriptUrls = ${JSON.stringify(walineScriptUrls)};
-
-	const loadWalineClient = () => {
-		if (
-			window.Waline &&
-			typeof window.Waline.pageviewCount === "function" &&
-			typeof window.Waline.commentCount === "function"
-		) {
-			return Promise.resolve(window.Waline);
-		}
-		if (window.__walineClientPromise) return window.__walineClientPromise;
-
-		const sources = Array.isArray(walineScriptUrls) ? walineScriptUrls : [];
-		const tryLoad = (index) =>
-			new Promise((resolve, reject) => {
-				const src = sources[index];
-				if (!src) {
-					reject(new Error("No Waline client CDN source available"));
-					return;
-				}
-
-				const existing = document.querySelector(
-					'script[data-waline-client-src="' + src + '"]',
-				);
-				if (existing) {
-					if (
-						window.Waline &&
-						typeof window.Waline.pageviewCount === "function" &&
-						typeof window.Waline.commentCount === "function"
-					) {
-						resolve(window.Waline);
-						return;
-					}
-					existing.addEventListener("load", () => resolve(window.Waline), {
-						once: true,
-					});
-					existing.addEventListener(
-						"error",
-						() => reject(new Error("Failed loading " + src)),
-						{ once: true },
-					);
-					return;
-				}
-
-				const script = document.createElement("script");
-				script.src = src;
-				script.async = true;
-				script.dataset.walineClientSrc = src;
-				script.onload = () => {
-					if (
-						window.Waline &&
-						typeof window.Waline.pageviewCount === "function" &&
-						typeof window.Waline.commentCount === "function"
-					) {
-						resolve(window.Waline);
-					} else {
-						reject(new Error("Waline global not found after loading " + src));
-					}
-				};
-				script.onerror = () => reject(new Error("Failed loading " + src));
-				document.head.appendChild(script);
-			}).catch((error) => {
-				if (index >= sources.length - 1) throw error;
-				return tryLoad(index + 1);
-			});
-
-		window.__walineClientPromise = tryLoad(0);
-		return window.__walineClientPromise;
-	};
+	${walineLoaderScript(WALINE_CLIENT_SCRIPT_URLS)}
 
 	const initWalineCounter = async () => {
 		const hasPageviewCounter = Boolean(
@@ -92,7 +24,7 @@ const walineCounterScript = serverURL
 		const updateTarget = document.querySelector(
 			".waline-pageview-update[data-path]",
 		);
-		const waline = await loadWalineClient();
+		const waline = await window.__walineLoadClient();
 		const tasks = [];
 
 		if (hasPageviewCounter) {
@@ -128,9 +60,17 @@ const walineCounterScript = serverURL
 		await Promise.all(tasks);
 	};
 
-	initWalineCounter().catch((error) => {
-		console.error("[WalineCounter] Failed to load counters:", error);
-	});
+	// Defer the 343KB client to idle time so counters never block first paint.
+	const start = () =>
+		initWalineCounter().catch((error) => {
+			console.error("[WalineCounter] Failed to load counters:", error);
+		});
+
+	if ("requestIdleCallback" in window) {
+		requestIdleCallback(start, { timeout: 3000 });
+	} else {
+		setTimeout(start, 1200);
+	}
 })();`
   : "";
 ---

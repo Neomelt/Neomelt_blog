@@ -3,7 +3,9 @@
    ============================================================ */
 
 /* ---------- Web Fonts ---------- */
-@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css");
+/* LXGW WenKai is loaded asynchronously from BaseHead.astro (preconnect +
+   non-render-blocking stylesheet) so it never blocks first paint. The font
+   stack below falls back to system fonts until the web font arrives. */
 
 /* ---------- Design Tokens (Light Mode) ---------- */
 :root {
