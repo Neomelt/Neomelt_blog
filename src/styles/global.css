@@ -19,6 +19,7 @@
   --accent: #41697b;
   --accent-hover: #335663;
   --accent-rgb: 65, 105, 123;
+  --ink-rgb: 47, 77, 89;
   --tag-bg: #eaeff1;
   --tag-text: #355460;
 
@@ -65,6 +66,7 @@
   --accent: #8cadbb;
   --accent-hover: #a8c4d0;
   --accent-rgb: 140, 173, 187;
+  --ink-rgb: 226, 232, 237;
   --tag-bg: #25333b;
   --tag-text: #aac6d2;
   --bg-primary: var(--bg);
