@@ -1,0 +1,289 @@
+---
+/**
+ * Click effect — a single swappable, parameterized ink-themed interaction.
+ *
+ * Switch the whole site's click feedback by changing one prop:
+ *   <ClickEffect effect="ink-ripple"  />  // 水墨涟漪 (default) — calm rings
+ *   <ClickEffect effect="ink-splatter"/>  // 墨点飞溅 — scattered ink dots
+ *   <ClickEffect effect="ink-glyph"   />  // 笔画上浮 — a faded hanzi floats up
+ *   <ClickEffect effect="ink-flick"   />  // 飞白笔触 — a quick calligraphy streak
+ *
+ * All effects share the same guard logic (reduced-motion, debounce, skip form
+ * fields, view-transition rebind) and draw in the site's slate accent via
+ * rgba(var(--accent-rgb), …), so they track light/dark automatically.
+ */
+export interface Props {
+  effect?: "ink-ripple" | "ink-splatter" | "ink-glyph" | "ink-flick";
+}
+
+const { effect = "ink-ripple" } = Astro.props;
+---
+
+<div id="click-effect-root" data-effect={effect} hidden></div>
+
+<script is:inline>
+  (() => {
+    const root = document.getElementById("click-effect-root");
+    const EFFECT = (root && root.dataset.effect) || "ink-ripple";
+    const BOUND_FLAG = "__clickEffectBound";
+    const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const SMALL_SCREEN = window.matchMedia("(max-width: 640px)");
+    const SKIP_SELECTOR =
+      "input, textarea, select, [contenteditable='true'], .wl-editor";
+    const GLYPHS = [
+      "永",
+      "墨",
+      "云",
+      "风",
+      "山",
+      "水",
+      "林",
+      "月",
+      "砚",
+      "素",
+      "岚",
+      "谷",
+    ];
+
+    const rand = (min, max) => min + Math.random() * (max - min);
+
+    // 水墨涟漪 — one or two thin rings expand from the point and fade.
+    const spawnInkRipple = (x, y) => {
+      const blooms = SMALL_SCREEN.matches ? 1 : 2;
+      for (let i = 0; i < blooms; i++) {
+        const ink = document.createElement("div");
+        ink.className = "ce-ripple";
+        ink.style.left = `${x}px`;
+        ink.style.top = `${y}px`;
+        ink.style.animationDelay = `${i * 70}ms`;
+        ink.style.setProperty("--max", `${56 + i * 18}px`);
+        document.body.appendChild(ink);
+        window.setTimeout(() => ink.remove(), 800 + i * 70);
+      }
+    };
+
+    // 墨点飞溅 — a handful of slate ink dots scatter outward.
+    const spawnInkSplatter = (x, y) => {
+      const small = SMALL_SCREEN.matches;
+      const count = small ? 6 : 9;
+      const base = small ? 14 : 18;
+      for (let i = 0; i < count; i++) {
+        const dot = document.createElement("div");
+        dot.className = "ce-dot";
+        const angle = ((Math.PI * 2) / count) * i + rand(-0.3, 0.3);
+        const dist = base + rand(0, 14);
+        const size = rand(3, 9);
+        dot.style.left = `${x}px`;
+        dot.style.top = `${y}px`;
+        dot.style.width = `${size}px`;
+        dot.style.height = `${size}px`;
+        dot.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+        dot.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+        dot.style.setProperty("--o", `${rand(0.4, 0.8).toFixed(2)}`);
+        document.body.appendChild(dot);
+        window.setTimeout(() => dot.remove(), 720);
+      }
+    };
+
+    // 笔画上浮 — a faded hanzi in the site font drifts up and fades.
+    const spawnInkGlyph = (x, y) => {
+      const glyph = document.createElement("span");
+      glyph.className = "ce-glyph";
+      glyph.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      glyph.style.left = `${x}px`;
+      glyph.style.top = `${y}px`;
+      glyph.style.setProperty("--drift", `${rand(-9, 9).toFixed(1)}px`);
+      document.body.appendChild(glyph);
+      window.setTimeout(() => glyph.remove(), 960);
+    };
+
+    // 飞白笔触 — a short tapered brush streak flicks out in a random direction.
+    const spawnInkFlick = (x, y) => {
+      const streak = document.createElement("div");
+      streak.className = "ce-flick";
+      const angle = rand(0, Math.PI * 2);
+      const len = (SMALL_SCREEN.matches ? 20 : 28) + rand(0, 10);
+      streak.style.left = `${x}px`;
+      streak.style.top = `${y}px`;
+      streak.style.width = `${len}px`;
+      streak.style.setProperty("--rot", `${(angle * 180) / Math.PI}deg`);
+      streak.style.setProperty("--dx", `${Math.cos(angle) * 6}px`);
+      streak.style.setProperty("--dy", `${Math.sin(angle) * 6}px`);
+      document.body.appendChild(streak);
+      window.setTimeout(() => streak.remove(), 520);
+    };
+
+    const SPAWNERS = {
+      "ink-ripple": spawnInkRipple,
+      "ink-splatter": spawnInkSplatter,
+      "ink-glyph": spawnInkGlyph,
+      "ink-flick": spawnInkFlick,
+    };
+    const spawn = SPAWNERS[EFFECT] || spawnInkRipple;
+
+    let lastClickTime = 0;
+
+    const handleClick = (event) => {
+      if (REDUCED_MOTION.matches) return;
+      if (event.defaultPrevented || event.button !== 0) return;
+
+      const target = event.target;
+      if (target instanceof Element && target.closest(SKIP_SELECTOR)) return;
+
+      const x = event.clientX;
+      const y = event.clientY;
+      if (!Number.isFinite(x) || !Number.isFinite(y) || (x === 0 && y === 0))
+        return;
+
+      const now = Date.now();
+      const debounce = SMALL_SCREEN.matches ? 150 : 110;
+      if (now - lastClickTime < debounce) return;
+      lastClickTime = now;
+
+      spawn(x, y);
+    };
+
+    const init = () => {
+      if (window[BOUND_FLAG]) return;
+      window[BOUND_FLAG] = true;
+      document.addEventListener("click", handleClick, { passive: true });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init, { once: true });
+    } else {
+      init();
+    }
+    document.addEventListener("astro:page-load", init);
+  })();
+</script>
+
+<style is:global>
+  .ce-ripple,
+  .ce-dot,
+  .ce-glyph,
+  .ce-flick {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+  /* 水墨涟漪 — a soft ink bloom diffuses outward (not a hard water ring) */
+  .ce-ripple {
+    width: 10px;
+    height: 10px;
+    border-radius: 47% 53% 52% 48% / 50% 47% 53% 50%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(var(--ink-rgb), 0.45) 0%,
+      rgba(var(--ink-rgb), 0.22) 40%,
+      rgba(var(--ink-rgb), 0) 72%
+    );
+    filter: blur(2.2px);
+    animation: ce-ripple 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) forwards;
+  }
+
+  @keyframes ce-ripple {
+    0% {
+      width: 8px;
+      height: 8px;
+      opacity: 0;
+    }
+    14% {
+      opacity: 0.9;
+    }
+    55% {
+      width: var(--max, 60px);
+      height: var(--max, 60px);
+      opacity: 0.34;
+    }
+    100% {
+      width: var(--max, 60px);
+      height: var(--max, 60px);
+      opacity: 0;
+    }
+  }
+
+  /* 墨点飞溅 */
+  .ce-dot {
+    border-radius: 50%;
+    background: rgba(var(--ink-rgb), 0.78);
+    animation: ce-dot 0.7s ease-out forwards;
+  }
+
+  @keyframes ce-dot {
+    0% {
+      opacity: var(--o, 0.7);
+      transform: translate(-50%, -50%) translate(0, 0) scale(0.6);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(1);
+    }
+  }
+
+  /* 笔画上浮 */
+  .ce-glyph {
+    font-family: var(--font-sans);
+    font-size: 1.15rem;
+    line-height: 1;
+    color: rgba(var(--ink-rgb), 0.72);
+    user-select: none;
+    animation: ce-glyph 0.95s ease-out forwards;
+  }
+
+  @keyframes ce-glyph {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate(0, 4px) scale(0.8);
+    }
+    25% {
+      opacity: 0.82;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate(var(--drift), -26px) scale(1.05);
+    }
+  }
+
+  /* 飞白笔触 */
+  .ce-flick {
+    height: 3px;
+    border-radius: 2px;
+    transform-origin: center;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(var(--ink-rgb), 0.6) 40%,
+      rgba(var(--ink-rgb), 0.6) 60%,
+      transparent
+    );
+    animation: ce-flick 0.5s ease-out forwards;
+  }
+
+  @keyframes ce-flick {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--rot)) translate(0, 0)
+        scaleX(0.3);
+    }
+    30% {
+      opacity: 0.85;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--rot))
+        translate(var(--dx), var(--dy)) scaleX(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ce-ripple,
+    .ce-dot,
+    .ce-glyph,
+    .ce-flick {
+      display: none;
+    }
+  }
+</style>
