@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neomelt Blog Architecture</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'JetBrains Mono', monospace; background: #020617; min-height: 100vh; padding: 2rem; color: white; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot { width: 12px; height: 12px; background: #22d3ee; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-left: 1.75rem; }
+    .diagram-container { background: rgba(15, 23, 42, 0.5); border-radius: 1rem; border: 1px solid #1e293b; padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .card { background: rgba(15, 23, 42, 0.5); border-radius: 0.75rem; border: 1px solid #1e293b; padding: 1.25rem; }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.75rem; }
+    .card li { margin-bottom: 0.375rem; }
+    .footer { text-align: center; margin-top: 1.5rem; color: #475569; font-size: 0.75rem; }
+    .toolbar { display: flex; gap: 0.5rem; margin-left: auto; flex-shrink: 0; align-items: center; }
+    .toolbar-toggle { background: transparent; border: none; color: #475569; cursor: pointer; font-size: 1.25rem; line-height: 1; padding: 0.25rem 0.5rem; border-radius: 0.375rem; transition: color 0.2s, background 0.2s; }
+    .toolbar-toggle:hover { color: #94a3b8; background: rgba(30, 41, 59, 0.5); }
+    .toolbar-actions { display: none; gap: 0.5rem; }
+    .toolbar.expanded .toolbar-actions { display: flex; }
+    .toolbar-actions button { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; color: #94a3b8; padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-family: inherit; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .toolbar-actions button:hover { background: rgba(51, 65, 85, 0.8); color: white; border-color: #475569; }
+    @media print { body { background: #020617; padding: 1rem; } .toolbar { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="container" id="report-container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>Neomelt Blog Architecture</h1>
+        <div class="toolbar">
+          <div class="toolbar-actions">
+            <button onclick="copyAsImage(this)">📋 Copy</button>
+            <button onclick="downloadPNG(this)">🖼️ PNG</button>
+            <button onclick="downloadPDF(this)">📄 PDF</button>
+          </div>
+          <button class="toolbar-toggle" onclick="this.parentElement.classList.toggle('expanded')" title="Export options" aria-label="Export options">⋯</button>
+        </div>
+      </div>
+      <p class="subtitle">Astro static blog · build-time SSG · client runtime · slate theme</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1120 525">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- ===== Group boundaries ===== -->
+        <rect x="18" y="78" width="246" height="320" rx="12" fill="rgba(30,41,59,0.18)" stroke="#94a3b8" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="34" y="100" fill="#cbd5e1" font-size="11" font-weight="700">1 · SOURCE</text>
+
+        <rect x="294" y="78" width="378" height="320" rx="12" fill="rgba(6,78,59,0.12)" stroke="#34d399" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="310" y="100" fill="#6ee7b7" font-size="11" font-weight="700">2 · BUILD / SSG · Astro</text>
+
+        <rect x="884" y="78" width="220" height="320" rx="12" fill="rgba(8,51,68,0.16)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="900" y="100" fill="#67e8f9" font-size="11" font-weight="700">4 · BROWSER RUNTIME</text>
+
+        <text x="700" y="200" fill="#c4b5fd" font-size="11" font-weight="700">3 · STATIC OUTPUT</text>
+
+        <!-- ===== Source components (slate) ===== -->
+        <rect x="40" y="116" width="200" height="52" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="140" y="138" fill="white" font-size="12" font-weight="600" text-anchor="middle">Authoring Scripts</text>
+        <text x="140" y="155" fill="#94a3b8" font-size="9" text-anchor="middle">new-post · auto-frontmatter</text>
+
+        <rect x="40" y="184" width="200" height="66" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="140" y="206" fill="white" font-size="12" font-weight="600" text-anchor="middle">Blog Content</text>
+        <text x="140" y="223" fill="#94a3b8" font-size="9" text-anchor="middle">src/content/blog · md/mdx</text>
+        <text x="140" y="238" fill="#94a3b8" font-size="8" text-anchor="middle">frontmatter → content.config.ts</text>
+
+        <rect x="40" y="266" width="200" height="66" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="140" y="288" fill="white" font-size="12" font-weight="600" text-anchor="middle">Site Config + UI</text>
+        <text x="140" y="305" fill="#94a3b8" font-size="9" text-anchor="middle">astro.config · layouts · i18n</text>
+        <text x="140" y="320" fill="#94a3b8" font-size="8" text-anchor="middle">friends data · global.css</text>
+
+        <!-- Friend feeds (external, slate dashed) — under Build, feeds Friend Circle -->
+        <rect x="308" y="420" width="158" height="52" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="387" y="442" fill="white" font-size="12" font-weight="600" text-anchor="middle">Friend Blogs</text>
+        <text x="387" y="459" fill="#94a3b8" font-size="9" text-anchor="middle">external RSS / Atom</text>
+
+        <!-- ===== Build components (emerald) ===== -->
+        <rect x="308" y="116" width="158" height="62" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="387" y="138" fill="white" font-size="12" font-weight="600" text-anchor="middle">Astro Pipeline</text>
+        <text x="387" y="154" fill="#94a3b8" font-size="9" text-anchor="middle">getCollection('blog')</text>
+        <text x="387" y="168" fill="#94a3b8" font-size="8" text-anchor="middle">MDX · math · video embed</text>
+
+        <rect x="308" y="194" width="158" height="78" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="387" y="216" fill="white" font-size="12" font-weight="600" text-anchor="middle">Friend Circle Build</text>
+        <text x="387" y="232" fill="#94a3b8" font-size="9" text-anchor="middle">fetch RSS / Atom</text>
+        <text x="387" y="246" fill="#94a3b8" font-size="8" text-anchor="middle">localize avatars → public</text>
+        <text x="387" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">static friend-circle.json</text>
+
+        <rect x="498" y="132" width="160" height="74" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="578" y="154" fill="white" font-size="12" font-weight="600" text-anchor="middle">Page Assembly</text>
+        <text x="578" y="170" fill="#94a3b8" font-size="9" text-anchor="middle">Layout · Header · Footer</text>
+        <text x="578" y="184" fill="#94a3b8" font-size="8" text-anchor="middle">pages · pagination</text>
+        <text x="578" y="198" fill="#94a3b8" font-size="8" text-anchor="middle">SEO · routing</text>
+
+        <rect x="498" y="250" width="160" height="66" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="578" y="272" fill="white" font-size="12" font-weight="600" text-anchor="middle">Derived Files</text>
+        <text x="578" y="289" fill="#94a3b8" font-size="9" text-anchor="middle">search.json · rss</text>
+        <text x="578" y="303" fill="#94a3b8" font-size="8" text-anchor="middle">sitemap · friend-circle</text>
+
+        <!-- ===== Static output (violet hero) ===== -->
+        <rect x="700" y="210" width="152" height="112" rx="8" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="776" y="238" fill="white" font-size="14" font-weight="700" text-anchor="middle">dist/</text>
+        <text x="776" y="258" fill="#94a3b8" font-size="9" text-anchor="middle">static HTML</text>
+        <text x="776" y="272" fill="#94a3b8" font-size="9" text-anchor="middle">JS · CSS · images</text>
+        <text x="776" y="286" fill="#94a3b8" font-size="9" text-anchor="middle">search + feed artifacts</text>
+        <text x="776" y="307" fill="#c4b5fd" font-size="8" text-anchor="middle">deployed static site</text>
+
+        <!-- ===== Runtime components (cyan) ===== -->
+        <rect x="900" y="116" width="188" height="44" rx="22" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="994" y="143" fill="white" font-size="12" font-weight="600" text-anchor="middle">Visitor Browser</text>
+
+        <rect x="900" y="176" width="188" height="66" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="994" y="198" fill="white" font-size="12" font-weight="600" text-anchor="middle">Client UI Runtime</text>
+        <text x="994" y="214" fill="#94a3b8" font-size="9" text-anchor="middle">theme · i18n · mobile nav</text>
+        <text x="994" y="229" fill="#94a3b8" font-size="8" text-anchor="middle">code copy · ink click effect</text>
+
+        <rect x="900" y="258" width="90" height="68" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="945" y="280" fill="white" font-size="11" font-weight="600" text-anchor="middle">Search</text>
+        <text x="945" y="296" fill="#94a3b8" font-size="8" text-anchor="middle">SearchModal</text>
+        <text x="945" y="308" fill="#94a3b8" font-size="8" text-anchor="middle">→ search.json</text>
+
+        <rect x="998" y="258" width="90" height="68" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="1043" y="280" fill="white" font-size="11" font-weight="600" text-anchor="middle">Comments</text>
+        <text x="1043" y="296" fill="#94a3b8" font-size="8" text-anchor="middle">WalineCounter</text>
+        <text x="1043" y="308" fill="#94a3b8" font-size="8" text-anchor="middle">vendor + CDN</text>
+
+        <!-- Waline (external, violet dashed) -->
+        <rect x="900" y="420" width="188" height="52" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="994" y="442" fill="white" font-size="12" font-weight="600" text-anchor="middle">Waline Server</text>
+        <text x="994" y="459" fill="#94a3b8" font-size="8" text-anchor="middle">PUBLIC_WALINE_SERVER_URL</text>
+
+        <!-- ===== Arrows ===== -->
+        <!-- Authoring -> Blog -->
+        <line x1="140" y1="168" x2="140" y2="184" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Blog -> Astro Pipeline -->
+        <line x1="240" y1="214" x2="308" y2="147" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Site Config -> Astro Pipeline -->
+        <line x1="240" y1="299" x2="308" y2="166" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Friend Blogs -> Friend Circle (vertical) -->
+        <line x1="387" y1="420" x2="387" y2="274" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <text x="393" y="356" fill="#64748b" font-size="8">RSS / Atom</text>
+        <!-- Pipeline -> Assembly -->
+        <line x1="466" y1="147" x2="498" y2="158" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Circle -> Assembly -->
+        <line x1="466" y1="225" x2="498" y2="188" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Assembly -> Derived -->
+        <line x1="578" y1="206" x2="578" y2="250" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Assembly -> dist -->
+        <line x1="658" y1="170" x2="700" y2="240" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Derived -> dist -->
+        <line x1="658" y1="280" x2="700" y2="276" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- dist -> Visitor Browser (elbow up) -->
+        <path d="M852,245 L876,245 L876,138 L900,138" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Browser -> Client UI -->
+        <line x1="994" y1="160" x2="994" y2="176" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Client UI -> Search -->
+        <line x1="970" y1="242" x2="950" y2="258" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Client UI -> Comments -->
+        <line x1="1018" y1="242" x2="1038" y2="258" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Search -> dist (fetch index, short back-edge) -->
+        <line x1="900" y1="300" x2="854" y2="300" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrowhead)"/>
+        <text x="812" y="314" fill="#64748b" font-size="8">fetch index</text>
+        <!-- Comments -> Waline -->
+        <line x1="1043" y1="326" x2="1043" y2="420" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrowhead)"/>
+        <text x="1048" y="380" fill="#64748b" font-size="8">comments API</text>
+
+        <!-- ===== Legend ===== -->
+        <rect x="320" y="492" width="16" height="10" rx="2" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1"/>
+        <text x="342" y="500" fill="#94a3b8" font-size="8">Source</text>
+        <rect x="410" y="492" width="16" height="10" rx="2" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="432" y="500" fill="#94a3b8" font-size="8">Build / SSG</text>
+        <rect x="528" y="492" width="16" height="10" rx="2" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="550" y="500" fill="#94a3b8" font-size="8">Static output</text>
+        <rect x="652" y="492" width="16" height="10" rx="2" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="674" y="500" fill="#94a3b8" font-size="8">Browser runtime</text>
+        <rect x="800" y="492" width="16" height="10" rx="2" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="822" y="500" fill="#94a3b8" font-size="8">External service</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header"><div class="card-dot cyan"></div><h3>Source &amp; Authoring</h3></div>
+        <ul>
+          <li>• Blog content in Markdown / MDX</li>
+          <li>• new-post &amp; auto-frontmatter scripts</li>
+          <li>• frontmatter schema → content.config.ts</li>
+          <li>• site config · i18n · friends data</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot emerald"></div><h3>Build / SSG · Astro</h3></div>
+        <ul>
+          <li>• getCollection('blog') + MDX transforms</li>
+          <li>• math + video embed processing</li>
+          <li>• friend-circle RSS aggregation</li>
+          <li>• derived: search.json · RSS · sitemap</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot violet"></div><h3>Output &amp; Runtime</h3></div>
+        <ul>
+          <li>• static dist/ (HTML · JS · CSS · images)</li>
+          <li>• client UI: theme · i18n · ink click</li>
+          <li>• search via /api/search.json</li>
+          <li>• comments via Waline server</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer">Neomelt Blog · Astro SSG · slate theme</p>
+  </div>
+
+  <script>
+    async function copyAsImage(btn) {
+      const orig = btn.textContent;
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        btn.textContent = '✓ Copied!';
+      } catch (e) { btn.textContent = '✗ Failed'; }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+    async function downloadPNG(btn) {
+      const orig = btn.textContent; btn.textContent = '⏳ ...';
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const link = document.createElement('a'); link.download = 'diagram.png'; link.href = canvas.toDataURL('image/png'); link.click();
+        btn.textContent = '✓ Done!';
+      } catch (e) { btn.textContent = '✗ Failed'; }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+    async function downloadPDF(btn) {
+      const orig = btn.textContent; btn.textContent = '⏳ ...';
+      try {
+        const el = document.getElementById('report-container');
+        const r = el.getBoundingClientRect();
+        const pad = 32;
+        const canvas = await html2canvas(document.body, { backgroundColor: '#020617', scale: 2, useCORS: true, ignoreElements: (e) => e.classList && e.classList.contains('toolbar'), x: r.left + window.scrollX - pad, y: r.top + window.scrollY - pad, width: r.width + pad * 2, height: r.height + pad * 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const orientation = canvas.width > canvas.height ? 'landscape' : 'portrait';
+        const pdf = new jsPDF({ orientation, unit: 'px', format: [canvas.width, canvas.height], hotfixes: ['px_scaling'] });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height); pdf.save('diagram.pdf');
+        btn.textContent = '✓ Done!';
+      } catch (e) { btn.textContent = '✗ Failed'; }
+      setTimeout(() => btn.textContent = orig, 2000);
+    }
+  </script>
+</body>
+</html>
