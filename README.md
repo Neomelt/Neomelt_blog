@@ -113,3 +113,7 @@ npm run watch:frontmatter
 @[youtube](M7lc1UVf-VE)
 @[bilibili](https://www.bilibili.com/video/BV1xx411c7mD)
 ```
+
+## 致谢
+
+本项目的架构图采用 [Cocoon AI](https://github.com/Cocoon-AI) 开源的 [Architecture Diagram Skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 绘制——其深色主题设计系统与内联 SVG 模板（MIT License，Copyright © 2025 Cocoon AI）为本图的样式与排版提供了基础。在此向原作者表示诚挚的谢意。
