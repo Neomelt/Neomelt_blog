@@ -4,9 +4,9 @@
 
 ## 架构图
 
-![Neomelt Blog 架构图](docs/architecture/neomelt-blog-architecture.png)
+![Neomelt Blog 架构图](docs/architecture/diagram.png)
 
-图源是 `docs/architecture/neomelt-blog-architecture.html`——一个自包含的深色架构图（内联 SVG、手工排版、坐标固定），按 [Cocoon 架构图 skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 的风格绘制。改完图后重新生成 `.png`：用浏览器打开该 HTML，点右上角 `⋯` → `🖼️ PNG` 导出即可，无需额外工具。
+图源是 `docs/architecture/diagram.html`——一个自包含的深色架构图（内联 SVG、手工排版、坐标固定），按 [Cocoon 架构图 skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 的风格绘制。改完图后重新生成 `.png`：用浏览器打开该 HTML，点右上角 `⋯` → `🖼️ PNG` 导出即可，无需额外工具。
 
 ## 目录结构
 
