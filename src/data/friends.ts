@@ -122,4 +122,12 @@ export const FRIEND_LINKS: FriendLink[] = [
     description: "嵌入式 · 计算机基础 · 硬件模块 · 持续更新中",
     avatar: "https://avatars.githubusercontent.com/evil0knight",
   },
+  {
+    name: "洪畅的博客",
+    url: "https://blog.hcbu.cn",
+    description: "想，全是问题；做，才有答案。",
+    avatar:
+      "https://gitee.com/hcbug/picture1/raw/master/20260607223324364.webp",
+    rss: "https://blog.hcbu.cn/atom.xml",
+  },
 ];
