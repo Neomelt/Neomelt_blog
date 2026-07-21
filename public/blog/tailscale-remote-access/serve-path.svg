@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" font-family="'Noto Sans CJK SC','PingFang SC',sans-serif">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ecc"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="430" rx="14" fill="#ffffff"/>
+  <text x="480" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2430">tailscale serve：一次请求的完整路径</text>
+
+  <!-- laptop -->
+  <rect x="30" y="90" width="240" height="130" rx="12" fill="#eefaf0" stroke="#2f9e57" stroke-width="2"/>
+  <text x="150" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#1f2430">家里笔记本 · 浏览器</text>
+  <rect x="46" y="136" width="208" height="66" rx="8" fill="#ffffff" stroke="#2f9e57" stroke-width="1.2"/>
+  <text x="150" y="160" text-anchor="middle" font-size="11" font-family="monospace" fill="#14713d">https://neomelt-b760m-h-ddr4</text>
+  <text x="150" y="176" text-anchor="middle" font-size="11" font-family="monospace" fill="#14713d">.tail8bd030.ts.net/</text>
+  <text x="150" y="194" text-anchor="middle" font-size="10.5" fill="#5a6270">HTTPS 证书自动签发</text>
+
+  <!-- tunnel arrow -->
+  <path d="M 272 155 L 348 155" fill="none" stroke="#3b6ecc" stroke-width="3" marker-end="url(#a2)"/>
+  <text x="310" y="140" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1a4fa0">WireGuard</text>
+  <text x="310" y="176" text-anchor="middle" font-size="11" fill="#5a6270">tailnet 内部</text>
+
+  <!-- desktop big box -->
+  <rect x="352" y="66" width="578" height="290" rx="12" fill="#eef4ff" stroke="#3b6ecc" stroke-width="2"/>
+  <text x="641" y="94" text-anchor="middle" font-size="15" font-weight="700" fill="#1f2430">远端主机 100.94.159.89</text>
+
+  <rect x="376" y="110" width="220" height="96" rx="10" fill="#ffffff" stroke="#3b6ecc" stroke-width="1.4"/>
+  <text x="486" y="136" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1f2430">tailscaled（serve）</text>
+  <text x="486" y="158" text-anchor="middle" font-size="11.5" fill="#5a6270">TLS 终结 · 身份即 tailnet 成员</text>
+  <text x="486" y="178" text-anchor="middle" font-size="11.5" font-weight="600" fill="#c2452f">tailnet only：公网/局域网 ✗</text>
+
+  <!-- routes -->
+  <path d="M 598 138 L 660 138" fill="none" stroke="#3b6ecc" stroke-width="2.2" marker-end="url(#a2)"/>
+  <rect x="664" y="112" width="112" height="46" rx="8" fill="#fff7e8" stroke="#d9962e" stroke-width="1.3"/>
+  <text x="720" y="131" text-anchor="middle" font-size="12" font-family="monospace" fill="#8a5a10">路由 /</text>
+  <text x="720" y="149" text-anchor="middle" font-size="10.5" fill="#8a5a10">proxy 反代</text>
+  <path d="M 778 138 L 806 138" fill="none" stroke="#3b6ecc" stroke-width="2.2" marker-end="url(#a2)"/>
+  <rect x="810" y="104" width="104" height="72" rx="8" fill="#ffffff" stroke="#3b6ecc" stroke-width="1.4"/>
+  <text x="862" y="130" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1f2430">ComfyUI</text>
+  <text x="862" y="148" text-anchor="middle" font-size="10.5" font-family="monospace" fill="#5a6270">127.0.0.1:8188</text>
+  <text x="862" y="166" text-anchor="middle" font-size="10" fill="#c2452f">仍只听回环</text>
+
+  <path d="M 598 186 C 630 186 636 246 662 246" fill="none" stroke="#3b6ecc" stroke-width="2.2" marker-end="url(#a2)"/>
+  <rect x="664" y="222" width="112" height="46" rx="8" fill="#fff7e8" stroke="#d9962e" stroke-width="1.3"/>
+  <text x="720" y="241" text-anchor="middle" font-size="12" font-family="monospace" fill="#8a5a10">路由 /outputs/</text>
+  <text x="720" y="259" text-anchor="middle" font-size="10.5" fill="#8a5a10">path 静态映射</text>
+  <path d="M 778 246 L 806 246" fill="none" stroke="#3b6ecc" stroke-width="2.2" marker-end="url(#a2)"/>
+  <rect x="810" y="214" width="104" height="66" rx="8" fill="#ffffff" stroke="#3b6ecc" stroke-width="1.4"/>
+  <text x="862" y="238" text-anchor="middle" font-size="12" font-weight="600" fill="#1f2430">出图目录</text>
+  <text x="862" y="256" text-anchor="middle" font-size="9.5" font-family="monospace" fill="#5a6270">~/ComfyUI/output</text>
+  <text x="862" y="272" text-anchor="middle" font-size="10" fill="#5a6270">文件列表可翻</text>
+
+  <!-- config commands -->
+  <rect x="376" y="292" width="538" height="46" rx="8" fill="#f4f6f9" stroke="#aab4c2" stroke-width="1.1"/>
+  <text x="645" y="311" text-anchor="middle" font-size="11.5" font-family="monospace" fill="#1f2430">tailscale serve --bg 8188</text>
+  <text x="645" y="329" text-anchor="middle" font-size="11.5" font-family="monospace" fill="#1f2430">tailscale serve --bg --set-path /outputs ~/ComfyUI/output</text>
+
+  <text x="480" y="398" text-anchor="middle" font-size="13" fill="#5a6270">配置持久化（重启自动恢复）· 但被反代的服务要自己保证在跑，否则 502</text>
+</svg>
