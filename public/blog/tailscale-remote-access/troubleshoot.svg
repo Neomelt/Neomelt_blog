@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="320" viewBox="0 0 960 320" font-family="'Noto Sans CJK SC','PingFang SC',sans-serif">
+  <defs>
+    <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5a6270"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="320" rx="14" fill="#ffffff"/>
+  <text x="480" y="38" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2430">打不开 ts.net 页面？按链路顺序三步排查</text>
+
+  <!-- step 1 -->
+  <rect x="34" y="70" width="272" height="150" rx="12" fill="#eefaf0" stroke="#2f9e57" stroke-width="2"/>
+  <circle cx="66" cy="100" r="15" fill="#2f9e57"/>
+  <text x="66" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">1</text>
+  <text x="94" y="106" font-size="14.5" font-weight="700" fill="#1f2430">本机客户端连着吗？</text>
+  <text x="52" y="134" font-size="12" fill="#5a6270">看托盘图标 / 命令行：</text>
+  <text x="52" y="154" font-size="12" font-family="monospace" fill="#14713d">tailscale status</text>
+  <text x="52" y="182" font-size="12" fill="#c2452f">没连 → 打开开关 / 重新登录</text>
+  <text x="52" y="202" font-size="12" fill="#c2452f">代理插件劫持 → ts.net 设直连</text>
+
+  <!-- step 2 -->
+  <rect x="344" y="70" width="272" height="150" rx="12" fill="#eef4ff" stroke="#3b6ecc" stroke-width="2"/>
+  <circle cx="376" cy="100" r="15" fill="#3b6ecc"/>
+  <text x="376" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">2</text>
+  <text x="404" y="106" font-size="14.5" font-weight="700" fill="#1f2430">目标机在线吗？</text>
+  <text x="362" y="134" font-size="12" fill="#5a6270">客户端设备列表里看远端主机状态</text>
+  <text x="362" y="154" font-size="12" font-family="monospace" fill="#1a4fa0">ping 100.94.159.89</text>
+  <text x="362" y="182" font-size="12" fill="#c2452f">离线 → 机器关了/断网了</text>
+  <text x="362" y="202" font-size="12" fill="#c2452f">→ RustDesk 救急或到场处理</text>
+
+  <!-- step 3 -->
+  <rect x="654" y="70" width="272" height="150" rx="12" fill="#fff7e8" stroke="#d9962e" stroke-width="2"/>
+  <circle cx="686" cy="100" r="15" fill="#d9962e"/>
+  <text x="686" y="106" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">3</text>
+  <text x="714" y="106" font-size="14.5" font-weight="700" fill="#1f2430">目标服务在跑吗？</text>
+  <text x="672" y="134" font-size="12" fill="#5a6270">页面 502 = 组网通、服务没起</text>
+  <text x="672" y="154" font-size="12" font-family="monospace" fill="#8a5a10">ssh 上去: ss -tln | grep 8188</text>
+  <text x="672" y="182" font-size="12" fill="#c2452f">没起 → nohup 启动脚本拉起，</text>
+  <text x="672" y="202" font-size="12" fill="#c2452f">再刷新页面</text>
+
+  <path d="M 308 145 L 340 145" fill="none" stroke="#5a6270" stroke-width="2.4" marker-end="url(#a3)"/>
+  <path d="M 618 145 L 650 145" fill="none" stroke="#5a6270" stroke-width="2.4" marker-end="url(#a3)"/>
+
+  <rect x="34" y="248" width="892" height="44" rx="10" fill="#f4f6f9" stroke="#aab4c2" stroke-width="1.2"/>
+  <text x="480" y="276" text-anchor="middle" font-size="13.5" fill="#1f2430">口诀：<tspan font-weight="700">先查自己，再查对面，最后查服务</tspan> —— 三层都绿了页面必通 ✓</text>
+</svg>

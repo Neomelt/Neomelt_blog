@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560" font-family="'Noto Sans CJK SC','PingFang SC',sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b6ecc"/>
+    </marker>
+    <marker id="arrowp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8a63c9"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="560" rx="14" fill="#ffffff"/>
+  <text x="480" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2430">Tailscale 组网架构：一个账号，一张虚拟内网</text>
+
+  <!-- overlay band -->
+  <rect x="30" y="58" width="900" height="44" rx="10" fill="#fff7e8" stroke="#d9962e" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="480" y="86" text-anchor="middle" font-size="14" fill="#8a5a10">tailnet 虚拟内网 · 网段 100.64.0.0/10 · 全链路 WireGuard 加密 · 边界 = 你的账号登录态</text>
+
+  <!-- company zone -->
+  <rect x="30" y="130" width="360" height="330" rx="12" fill="#f4f6f9" stroke="#aab4c2" stroke-width="1.5"/>
+  <text x="210" y="158" text-anchor="middle" font-size="14" font-weight="600" fill="#5a6270">远端局域网（办公室 / 实验室 / 宿舍均可）</text>
+
+  <rect x="60" y="176" width="300" height="240" rx="12" fill="#eef4ff" stroke="#3b6ecc" stroke-width="2"/>
+  <text x="210" y="204" text-anchor="middle" font-size="16" font-weight="700" fill="#1f2430">远端主机（GPU 出图机）</text>
+  <text x="210" y="228" text-anchor="middle" font-size="12.5" fill="#5a6270">Ubuntu 24.04 · RTX 5060 Ti 16GB</text>
+  <text x="210" y="250" text-anchor="middle" font-size="12.5" font-family="monospace" fill="#5a6270">物理 IP 10.0.10.95（示例）</text>
+  <text x="210" y="272" text-anchor="middle" font-size="12.5" font-family="monospace" fill="#1a4fa0">Tailscale IP 100.94.159.89</text>
+  <rect x="82" y="290" width="256" height="50" rx="8" fill="#ffffff" stroke="#3b6ecc" stroke-width="1.2"/>
+  <text x="210" y="311" text-anchor="middle" font-size="12.5" fill="#1f2430">ComfyUI 服务 :8188</text>
+  <text x="210" y="329" text-anchor="middle" font-size="11.5" fill="#c2452f">仅监听 127.0.0.1（不暴露给局域网）</text>
+  <rect x="82" y="352" width="256" height="46" rx="8" fill="#ffffff" stroke="#3b6ecc" stroke-width="1.2"/>
+  <text x="210" y="371" text-anchor="middle" font-size="12.5" fill="#1f2430">tailscaled + tailscale serve 反代</text>
+  <text x="210" y="389" text-anchor="middle" font-size="11.5" fill="#5a6270">把回环服务安全带进 tailnet</text>
+
+  <!-- home zone -->
+  <rect x="570" y="130" width="360" height="330" rx="12" fill="#f4f9f5" stroke="#a9c4b0" stroke-width="1.5"/>
+  <text x="750" y="158" text-anchor="middle" font-size="14" font-weight="600" fill="#5a6270">家庭网络（或任何地方：4G/5G 也行）</text>
+
+  <rect x="600" y="176" width="300" height="120" rx="12" fill="#eefaf0" stroke="#2f9e57" stroke-width="2"/>
+  <text x="750" y="204" text-anchor="middle" font-size="16" font-weight="700" fill="#1f2430">轻薄本</text>
+  <text x="750" y="228" text-anchor="middle" font-size="12.5" fill="#5a6270">Fedora · Tailscale 客户端</text>
+  <text x="750" y="252" text-anchor="middle" font-size="12.5" font-family="monospace" fill="#14713d">Tailscale IP 100.84.35.92</text>
+  <text x="750" y="276" text-anchor="middle" font-size="12" fill="#5a6270">浏览器 / SSH 原生访问</text>
+
+  <rect x="600" y="316" width="300" height="100" rx="12" fill="#eefaf0" stroke="#2f9e57" stroke-width="2"/>
+  <text x="750" y="346" text-anchor="middle" font-size="16" font-weight="700" fill="#1f2430">手机</text>
+  <text x="750" y="370" text-anchor="middle" font-size="12.5" fill="#5a6270">iOS / Android 客户端</text>
+  <text x="750" y="392" text-anchor="middle" font-size="12" fill="#5a6270">同账号登录即入网</text>
+
+  <!-- DERP cloud -->
+  <rect x="415" y="200" width="130" height="86" rx="16" fill="#f5f0fa" stroke="#8a63c9" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="480" y="232" text-anchor="middle" font-size="13.5" font-weight="600" fill="#5b3f8f">DERP 中继</text>
+  <text x="480" y="252" text-anchor="middle" font-size="11" fill="#7a6699">打洞失败才走</text>
+  <text x="480" y="268" text-anchor="middle" font-size="11" fill="#7a6699">只转发密文</text>
+
+  <!-- links -->
+  <path d="M 360 380 C 450 380 510 260 598 244" fill="none" stroke="#3b6ecc" stroke-width="2.5" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+  <text x="479" y="352" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1a4fa0">优先：P2P 直连（自动 NAT 打洞）</text>
+
+  <path d="M 362 300 C 390 276 400 252 413 246" fill="none" stroke="#8a63c9" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arrowp)"/>
+  <path d="M 547 240 C 566 238 580 234 596 230" fill="none" stroke="#8a63c9" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arrowp)"/>
+
+  <!-- MagicDNS note -->
+  <rect x="30" y="482" width="900" height="52" rx="10" fill="#f4f6f9" stroke="#aab4c2" stroke-width="1.2"/>
+  <text x="480" y="504" text-anchor="middle" font-size="13" fill="#1f2430">MagicDNS 自动域名：<tspan font-family="monospace" fill="#1a4fa0">neomelt-b760m-h-ddr4.tail8bd030.ts.net</tspan> → 100.94.159.89</text>
+  <text x="480" y="524" text-anchor="middle" font-size="12" fill="#5a6270">免记 IP · 免公网 IP · 免自建服务器 · 免路由器配置</text>
+</svg>
