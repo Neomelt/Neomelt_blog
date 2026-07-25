@@ -179,8 +179,10 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     </div>
   </div>
 
-  <!-- Mobile nav drawer -->
-  <div id="mobile-nav" class="mobile-nav" aria-hidden="true">
+  <!-- Mobile nav drawer: closed state is display:none (already outside the
+       a11y tree), so no aria-hidden here — a static one would keep the open
+       drawer invisible to screen readers. -->
+  <div id="mobile-nav" class="mobile-nav">
     <a href="/posts" class="mobile-nav-link" data-i18n="header.posts"
       >{getDefaultUiText("header.posts")}</a
     >
