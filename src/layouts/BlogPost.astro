@@ -158,11 +158,15 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
     padding-top: 0;
   }
 
-  /* Main content column */
+  /* Main content column. margin: 0 overrides the global .container's
+     `margin: 0 auto` — inside this flex row the auto margins would eat all
+     free space, defeating justify-content: center and pinning the TOC to
+     the viewport edge with a dead gap before the content. */
   main.container {
     flex: 1;
     min-width: 0;
     max-width: var(--content-width);
+    margin: 0;
   }
 
   /* Post header */
