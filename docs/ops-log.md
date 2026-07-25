@@ -27,5 +27,6 @@
 
 **遗留待办**：
 
-1. `SECURE_DOMAINS` 疑似未生效：任意来源的 GET 请求评论 API 均返回 200（POST 未测）。建议在 comments-db 项目设 `SECURE_DOMAINS=neomelt.cloud,www.neomelt.cloud,comments.neomelt.cloud` 并 redeploy。
+1. `SECURE_DOMAINS` 疑似未生效：任意来源的 GET 请求评论 API 均返回 200（POST 未测）。建议在 comments-db 项目设 `SECURE_DOMAINS=neomelt.cloud,www.neomelt.cloud,comments.neomelt.cloud,neomelt.github.io` 并 redeploy。
+   ⚠️ 2026-07-25 修正：此前记录的值漏了 `neomelt.github.io`——GitHub Pages 镜像页用的是同一个评论后端（已验证其内联 serverURL 相同），按旧值配置会把镜像站评论区打成 403。配置后需在 `neomelt.github.io/Neomelt_blog/` 上实测评论加载。
 2. 现状与《从 GitHub Pages 到 Vercel 镜像》一文不符：裸域 `neomelt.cloud` 实际是 Vercel 的 308 跳转到 `www`，GitHub Pages 未绑自定义域名（仅 `neomelt.github.io` 可达），"双平台镜像"目前只有单入口。是否恢复原设计待定。
