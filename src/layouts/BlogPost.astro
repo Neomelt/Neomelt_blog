@@ -9,6 +9,7 @@ import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
 import { estimateReadingTime } from "../utils/reading-time";
+import { withBase } from "../utils/url";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -55,10 +56,11 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
-        <a href="/posts" data-i18n="common.posts"
+        <a href={withBase("/posts")} data-i18n="common.posts"
           >{getDefaultUiText("common.posts")}</a
         >
         <span class="breadcrumb-sep">/</span>
@@ -114,7 +116,7 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
             tags && tags.length > 0 && (
               <div class="post-tags-row">
                 {tags.map((tag: string) => (
-                  <a href={`/tags#${tag}`} class="tag">
+                  <a href={withBase(`/tags#${tag}`)} class="tag">
                     #{tag}
                   </a>
                 ))}

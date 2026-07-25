@@ -6,6 +6,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
 import { avatarSrc } from "../utils/avatar";
 import { normalizeWalinePath } from "../utils/waline";
+import { withBase } from "../utils/url";
 
 const walinePath = normalizeWalinePath("/friends");
 const friendLinks = FRIEND_LINKS;
@@ -45,7 +46,8 @@ const myFriendLinkText = myFriendLinkItems
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span>›</span>
         <span data-i18n="friends.pageCrumb"
@@ -905,6 +907,7 @@ const myFriendLinkText = myFriendLinkItems
 </style>
 
 <script>
+  import { withBase } from "../utils/url";
   async function fallbackCopy(text) {
     const helper = document.createElement("textarea");
     helper.value = text;
@@ -938,7 +941,7 @@ const myFriendLinkText = myFriendLinkItems
 
   async function fetchFriendCirclePosts() {
     try {
-      const response = await fetch("/friend-circle.json", {
+      const response = await fetch(withBase("/friend-circle.json"), {
         headers: { Accept: "application/json" },
       });
       if (!response.ok) return [];

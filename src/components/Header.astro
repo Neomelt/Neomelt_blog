@@ -1,6 +1,7 @@
 ---
 import { SITE_TITLE } from "../consts";
 import { getDefaultUiText, UI_TRANSLATIONS } from "../i18n/ui";
+import { withBase } from "../utils/url";
 import SearchModal from "./SearchModal.astro";
 
 const defaultLocaleLabelZh = getDefaultUiText("locale.label");
@@ -11,7 +12,7 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
   <div class="header-inner">
     <!-- Site title -->
     <a
-      href="/"
+      href={withBase("/")}
       class="site-title"
       data-i18n-aria-label="header.homeAria"
       aria-label={getDefaultUiText("header.homeAria")}
@@ -26,19 +27,19 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       data-i18n-aria-label="header.mainNavAria"
       aria-label={getDefaultUiText("header.mainNavAria")}
     >
-      <a href="/posts" class="nav-link" data-i18n="header.posts"
+      <a href={withBase("/posts")} class="nav-link" data-i18n="header.posts"
         >{getDefaultUiText("header.posts")}</a
       >
-      <a href="/posts/archive" class="nav-link" data-i18n="header.archive"
+      <a href={withBase("/posts/archive")} class="nav-link" data-i18n="header.archive"
         >{getDefaultUiText("header.archive")}</a
       >
-      <a href="/tags" class="nav-link" data-i18n="header.tags"
+      <a href={withBase("/tags")} class="nav-link" data-i18n="header.tags"
         >{getDefaultUiText("header.tags")}</a
       >
-      <a href="/friends" class="nav-link" data-i18n="header.friends"
+      <a href={withBase("/friends")} class="nav-link" data-i18n="header.friends"
         >{getDefaultUiText("header.friends")}</a
       >
-      <a href="/about" class="nav-link" data-i18n="header.about"
+      <a href={withBase("/about")} class="nav-link" data-i18n="header.about"
         >{getDefaultUiText("header.about")}</a
       >
     </nav>
@@ -183,19 +184,19 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
        a11y tree), so no aria-hidden here — a static one would keep the open
        drawer invisible to screen readers. -->
   <div id="mobile-nav" class="mobile-nav">
-    <a href="/posts" class="mobile-nav-link" data-i18n="header.posts"
+    <a href={withBase("/posts")} class="mobile-nav-link" data-i18n="header.posts"
       >{getDefaultUiText("header.posts")}</a
     >
-    <a href="/posts/archive" class="mobile-nav-link" data-i18n="header.archive"
+    <a href={withBase("/posts/archive")} class="mobile-nav-link" data-i18n="header.archive"
       >{getDefaultUiText("header.archive")}</a
     >
-    <a href="/tags" class="mobile-nav-link" data-i18n="header.tags"
+    <a href={withBase("/tags")} class="mobile-nav-link" data-i18n="header.tags"
       >{getDefaultUiText("header.tags")}</a
     >
-    <a href="/friends" class="mobile-nav-link" data-i18n="header.friends"
+    <a href={withBase("/friends")} class="mobile-nav-link" data-i18n="header.friends"
       >{getDefaultUiText("header.friends")}</a
     >
-    <a href="/about" class="mobile-nav-link" data-i18n="header.about"
+    <a href={withBase("/about")} class="mobile-nav-link" data-i18n="header.about"
       >{getDefaultUiText("header.about")}</a
     >
   </div>

@@ -4,6 +4,7 @@ import { SITE_TITLE } from "../consts";
 import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
+import { withBase } from "../utils/url";
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
@@ -39,7 +40,8 @@ function formatDateTime(date: Date): string {
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
         <span data-i18n="sidebar.categories"
@@ -90,7 +92,7 @@ function formatDateTime(date: Date): string {
                     <span class="archive-date">
                       {formatDateTime(resolvedPubDate(post))}
                     </span>
-                    <a href={`/posts/${post.id}`} class="archive-title">
+                    <a href={withBase(`/posts/${post.id}`)} class="archive-title">
                       {post.data.title}
                     </a>
                   </li>

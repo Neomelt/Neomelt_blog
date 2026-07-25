@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 import { getDefaultUiText } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
 
 function normalizeText(value: string | undefined): string {
   return (value || "").replace(/\s+/g, " ").trim();
@@ -41,7 +42,7 @@ export const GET: APIRoute = async () => {
           title: post.data.title,
           description,
           excerpt,
-          url: `/posts/${post.id}`,
+          url: withBase(`/posts/${post.id}`),
           type: blogTypeLabel,
           date: post.data.pubDate.toISOString().split("T")[0],
           tags,

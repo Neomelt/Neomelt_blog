@@ -2,25 +2,26 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
 
 const policyEntries = [
   {
-    href: "/terms/privacy-policy",
+    href: withBase("/terms/privacy-policy"),
     titleKey: "terms.privacyTitle",
     descKey: "terms.privacyDesc",
   },
   {
-    href: "/terms/terms-and-conditions",
+    href: withBase("/terms/terms-and-conditions"),
     titleKey: "terms.conditionsTitle",
     descKey: "terms.conditionsDesc",
   },
   {
-    href: "/terms/copyright",
+    href: withBase("/terms/copyright"),
     titleKey: "terms.copyrightTitle",
     descKey: "terms.copyrightDesc",
   },
   {
-    href: "/terms/disclaimer",
+    href: withBase("/terms/disclaimer"),
     titleKey: "terms.disclaimerTitle",
     descKey: "terms.disclaimerDesc",
   },
@@ -35,7 +36,8 @@ const policyEntries = [
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
         <span data-i18n="terms.listTitle"

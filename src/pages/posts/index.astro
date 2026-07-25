@@ -9,6 +9,7 @@ import { getDefaultUiText } from "../../i18n/ui";
 import { getWalinePathForPost } from "../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
 import { estimateReadingTime } from "../../utils/reading-time";
+import { withBase } from "../../utils/url";
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
@@ -32,7 +33,8 @@ const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
         <span data-i18n="common.posts">{getDefaultUiText("common.posts")}</span>
@@ -45,7 +47,7 @@ const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
       <div class="post-list">
         {
           paginatedPosts.map((post) => {
-            const url = `/posts/${post.id}`;
+            const url = withBase(`/posts/${post.id}`);
             const walinePath = getWalinePathForPost(post.id);
             const readingTime = estimateReadingTime(post.body || "");
             const resolvedPubDate =

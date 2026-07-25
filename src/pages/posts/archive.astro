@@ -4,6 +4,7 @@ import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
+import { withBase } from "../../utils/url";
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
@@ -41,10 +42,11 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
-        <a href="/posts" data-i18n="common.posts"
+        <a href={withBase("/posts")} data-i18n="common.posts"
           >{getDefaultUiText("common.posts")}</a
         >
         <span class="breadcrumb-sep">/</span>
@@ -71,7 +73,7 @@ const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
             <h2 class="year-title">{year}</h2>
             <ul class="archive-list">
               {byYear[year].map((post) => {
-                const url = `/posts/${post.id}`;
+                const url = withBase(`/posts/${post.id}`);
                 const date =
                   postDatesMap.get(getPostDateKey(post))?.pubDate ??
                   post.data.pubDate;

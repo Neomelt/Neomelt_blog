@@ -4,6 +4,7 @@ import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../components/Comments.astro";
 import { normalizeWalinePath } from "../utils/waline";
+import { withBase } from "../utils/url";
 
 const walinePath = normalizeWalinePath("/about");
 
@@ -33,7 +34,8 @@ const deploymentNodes = [
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span>›</span>
         <span data-i18n="about.pageCrumb"
