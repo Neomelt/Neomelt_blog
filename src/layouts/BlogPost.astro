@@ -27,8 +27,13 @@ const shouldShowUpdated =
 
 const wordCount = (post.body || "").length;
 const readingTime = estimateReadingTime(post.body || "");
-// Only post pages with math need the KaTeX stylesheet ($ is a safe over-approx).
-const hasMath = /\$/.test(post.body || "");
+// Only post pages with math need the KaTeX stylesheet. Rendered HTML is the
+// ground truth: a bare $ false-positives on shell prompts / ${{ }} in code
+// blocks and ships a render-blocking CSS for nothing.
+const renderedHtml = post.rendered?.html;
+const hasMath = renderedHtml
+  ? renderedHtml.includes('class="katex')
+  : /\$/.test(post.body || "");
 const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
 ---
 
