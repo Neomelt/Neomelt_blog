@@ -3,7 +3,9 @@
 // all pages through the use of the <BaseHead /> component.
 import "../styles/global.css";
 import type { ImageMetadata } from "astro";
-import FallbackImage from "../assets/cover.svg";
+// og/twitter 分享图必须是位图：X/Facebook/Telegram 的抓取器不渲染 SVG。
+// cover-og.png 由 cover.svg 渲染裁剪而来（1200x630 标准卡片尺寸）。
+import FallbackImage from "../assets/cover-og.png";
 import { SITE_ORIGIN, SITE_TITLE } from "../consts";
 import { normalizePathname } from "../utils/canonical";
 
