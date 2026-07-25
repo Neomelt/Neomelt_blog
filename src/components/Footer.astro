@@ -1,5 +1,6 @@
 ---
 import { getDefaultUiText, UI_TRANSLATIONS } from "../i18n/ui";
+import { withBase } from "../utils/url";
 const startDate = new Date("2025-08-13");
 
 const runtimeFallbacks = {
@@ -24,7 +25,10 @@ const runtimeFallbacks = {
     <div class="footer-left">
       <span class="footer-copy">© {new Date().getFullYear()} Neomelt</span>
       <span class="footer-sep">·</span>
-      <a href="/terms/list" class="footer-link" data-i18n="footer.sitePolicy"
+      <a
+        href={withBase("/terms/list")}
+        class="footer-link"
+        data-i18n="footer.sitePolicy"
         >{runtimeFallbacks["footer.sitePolicy"]}</a
       >
       <span class="footer-sep">·</span>
@@ -104,7 +108,7 @@ const runtimeFallbacks = {
         </svg>
       </a>
       <!-- RSS -->
-      <a href="/rss.xml" aria-label="RSS" class="footer-icon">
+      <a href={withBase("/rss.xml")} aria-label="RSS" class="footer-icon">
         <svg
           viewBox="0 0 24 24"
           width="18"

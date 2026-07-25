@@ -8,6 +8,7 @@ import type { ImageMetadata } from "astro";
 import FallbackImage from "../assets/cover-og.png";
 import { SITE_ORIGIN, SITE_TITLE } from "../consts";
 import { normalizePathname } from "../utils/canonical";
+import { withBase } from "../utils/url";
 
 interface Props {
   title: string;
@@ -60,7 +61,7 @@ const primaryHostname = canonicalURL.hostname;
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="icon" type="image/jpeg" href="/head.jpg" />
+<link rel="icon" type="image/jpeg" href={withBase("/head.jpg")} />
 
 <!-- Fonts: preconnect + async (non-render-blocking) load of LXGW WenKai.
      Until it arrives, the CSS font stack falls back to system fonts so the
@@ -78,7 +79,7 @@ const primaryHostname = canonicalURL.hostname;
     href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
   />
 </noscript>
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="sitemap" href={withBase("/sitemap-index.xml")} />
 <link
   rel="alternate"
   type="application/rss+xml"

@@ -2,6 +2,7 @@ import { getCollection } from "astro:content";
 import rss from "@astrojs/rss";
 import { SITE_TITLE } from "../consts";
 import { resolvePostDates } from "../utils/post-dates";
+import { withBase } from "../utils/url";
 
 const FEED_AUTHOR = "Neomelt";
 const FEED_DESCRIPTION = "Latest posts from Neomelt Blog.";
@@ -126,7 +127,7 @@ export async function GET(context) {
     title: SITE_TITLE,
     description: FEED_DESCRIPTION,
     site,
-    stylesheet: "/rss.xsl",
+    stylesheet: withBase("/rss.xsl"),
     trailingSlash: false,
     xmlns: {
       atom: "http://www.w3.org/2005/Atom",

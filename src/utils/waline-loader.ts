@@ -1,3 +1,5 @@
+import { withBase } from "./url";
+
 /**
  * Returns a self-contained client script (as a string) that defines
  * `window.__walineLoadClient()` — a memoized, multi-CDN loader for the Waline
@@ -63,7 +65,7 @@ export function walineLoaderScript(scriptUrls: string[]): string {
 }
 
 export const WALINE_CLIENT_SCRIPT_URLS = [
-  "/vendor/waline.umd.js",
+  withBase("/vendor/waline.umd.js"),
   "https://unpkg.com/@waline/client@3.12.2/dist/waline.umd.js",
   "https://cdn.jsdelivr.net/npm/@waline/client@3.12.2/dist/waline.umd.js",
 ];

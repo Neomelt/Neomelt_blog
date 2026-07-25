@@ -6,6 +6,7 @@ import { SITE_TITLE } from "../consts";
 import { getWalinePathForPost } from "../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
 import { DEFAULT_LOCALE, UI_TRANSLATIONS } from "../i18n/ui";
+import { withBase } from "../utils/url";
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
@@ -41,12 +42,12 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
               class="hero-link">GitHub</a
             >
             <span class="hero-sep">·</span>
-            <a href="/posts" class="hero-link" data-i18n="index.allPosts"
+            <a href={withBase("/posts")} class="hero-link" data-i18n="index.allPosts"
               >{fallbackText["index.allPosts"]}</a
             >
             <span class="hero-sep">·</span>
             <a
-              href="/posts/archive"
+              href={withBase("/posts/archive")}
               class="hero-link"
               data-i18n="header.archive">{fallbackText["header.archive"]}</a
             >
@@ -60,7 +61,7 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
           <h2 class="section-heading" data-i18n="index.recentPosts">
             {fallbackText["index.recentPosts"]}
           </h2>
-          <a href="/posts" class="view-all" data-i18n="index.viewAll"
+          <a href={withBase("/posts")} class="view-all" data-i18n="index.viewAll"
             >{fallbackText["index.viewAll"]}</a
           >
         </div>
@@ -68,7 +69,7 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
         <div class="post-list">
           {
             recentPosts.map((post) => {
-              const url = `/posts/${post.id}`;
+              const url = withBase(`/posts/${post.id}`);
               const walinePath = getWalinePathForPost(post.id);
               const resolvedPubDate =
                 postDatesMap.get(getPostDateKey(post))?.pubDate ??

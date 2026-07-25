@@ -9,6 +9,7 @@ import { getDefaultUiText } from "../../../i18n/ui";
 import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
 import { estimateReadingTime } from "../../../utils/reading-time";
+import { withBase } from "../../../utils/url";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.hidden);
@@ -54,10 +55,11 @@ const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiTex
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
-        <a href="/posts" data-i18n="common.posts"
+        <a href={withBase("/posts")} data-i18n="common.posts"
           >{getDefaultUiText("common.posts")}</a
         >
       </nav>
@@ -69,7 +71,7 @@ const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiTex
       <div class="post-list">
         {
           paginatedPosts.map((post) => {
-            const url = `/posts/${post.id}`;
+            const url = withBase(`/posts/${post.id}`);
             const walinePath = getWalinePathForPost(post.id);
             const readingTime = estimateReadingTime(post.body || "");
             const resolvedPubDate =

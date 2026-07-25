@@ -1,6 +1,7 @@
 ---
 import { normalizeWalinePath } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
+import { withBase } from "../utils/url";
 import {
   walineLoaderScript,
   WALINE_CLIENT_SCRIPT_URLS,
@@ -69,7 +70,7 @@ const commentsScript = serverURL
   : "";
 ---
 
-<link rel="stylesheet" href="/vendor/waline.css" />
+<link rel="stylesheet" href={withBase("/vendor/waline.css")} />
 
 <div class="comments-wrapper">
   {

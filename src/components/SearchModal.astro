@@ -1,5 +1,9 @@
 ---
 import { getDefaultUiText } from "../i18n/ui";
+import { withBase } from "../utils/url";
+
+// define:vars 的内联脚本拿不到 import.meta.env，base 前缀在构建期算好传入
+const searchApiUrl = withBase("/api/search.json");
 
 const searchFallbacks = {
   "search.dialogAria": getDefaultUiText("search.dialogAria"),
@@ -80,7 +84,7 @@ const searchFallbacks = {
   </div>
 </div>
 
-<script define:vars={{ searchFallbacks }}>
+<script define:vars={{ searchFallbacks, searchApiUrl }}>
   function initSearch() {
     let searchIndex = [];
     let isLoading = false;
@@ -130,7 +134,7 @@ const searchFallbacks = {
       if (searchIndex.length > 0 || isLoading) return;
       isLoading = true;
       try {
-        const response = await fetch("/api/search.json");
+        const response = await fetch(searchApiUrl);
         if (response.ok) {
           const payload = await response.json();
           searchIndex = Array.isArray(payload) ? payload : [];

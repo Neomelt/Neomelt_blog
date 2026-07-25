@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
 ---
 
 <BaseLayout
@@ -14,10 +15,11 @@ import { getDefaultUiText } from "../../i18n/ui";
         data-i18n-aria-label="post.breadcrumbAria"
         aria-label={getDefaultUiText("post.breadcrumbAria")}
       >
-        <a href="/" data-i18n="common.home">{getDefaultUiText("common.home")}</a
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
         >
         <span class="breadcrumb-sep">/</span>
-        <a href="/terms/list" data-i18n="terms.listTitle"
+        <a href={withBase("/terms/list")} data-i18n="terms.listTitle"
           >{getDefaultUiText("terms.listTitle")}</a
         >
         <span class="breadcrumb-sep">/</span>
@@ -115,7 +117,7 @@ import { getDefaultUiText } from "../../i18n/ui";
         <p class="policy-contact" data-i18n="terms.contact">
           {getDefaultUiText("terms.contact")}
         </p>
-        <a href="/terms/list" class="policy-back" data-i18n="terms.backToList"
+        <a href={withBase("/terms/list")} class="policy-back" data-i18n="terms.backToList"
           >{getDefaultUiText("terms.backToList")}</a
         >
       </article>
