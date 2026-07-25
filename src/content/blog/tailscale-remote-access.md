@@ -191,9 +191,11 @@ tailscale down / up               # 本机断开 / 恢复入网
 
 ## 最后说说安全
 
-tailnet 的本质是"你账号名下的 WireGuard 公钥集合"，一台设备能不能进来由密钥决定，跟它在哪个网络里没有关系——其实这就是"零信任"这个词最朴素的意思。流量全程加密，就算走 DERP 中继，中继手里拿到的也只是密文。
+tailnet 说到底就是"你账号名下的一堆 WireGuard 公钥"，一台设备能不能进来由密钥决定，跟它在哪个网络里没有关系，其实这就是"零信任"这个词的意思。流量全程加密，就算走 DERP 中继，中继手里拿到的也只是密文。
 
-另外再强调一遍 serve 和 funnel 的区别：serve 只开给 tailnet 内部，funnel 是直接暴露到公网。像 ComfyUI 这种没有任何认证的服务，只能用 serve。
+还有件事我一开始没意识到：你的 `ts.net` 域名并不是秘密。serve 的 HTTPS 证书是 Tailscale 替你从 Let's Encrypt 签的，而公开 CA 签出去的证书都必须写进 Certificate Transparency 日志，这是浏览器强制的要求，本意是让 CA 没法偷偷乱签证书。代价就是证书里的域名也跟着公开了，所以别人在 crt.sh 上搜你的 tailnet 名字，就能把你所有开过 serve 的机器名列出来。
+
+这件事本身不影响 serve 的安全性，公网上那个名字后面根本没有监听端口，拦住外人的是密钥，不是域名难猜。但它有个实际后果——"反正没人知道我的域名"这层心理防线是不存在的。所以再强调一遍 serve 和 funnel 的区别：serve 只开给 tailnet 内部，funnel 是直接暴露到公网。哪天你手滑给这台机器开了 funnel，域名早就在公开日志里躺着了，被扫到只是时间问题，而 ComfyUI 连登录都没有。这种服务只能用 serve。
 
 Tailscale 还有一些这篇没用到的功能：ACL（控制哪台设备能访问哪台的哪个端口）、Tailscale SSH、exit node（把全部流量从某台设备出去）、tailnet sharing（把单台设备分享给别人的账号），有需要可以再研究。
 
