@@ -29,4 +29,4 @@
 
 1. `SECURE_DOMAINS` 疑似未生效：任意来源的 GET 请求评论 API 均返回 200（POST 未测）。建议在 comments-db 项目设 `SECURE_DOMAINS=neomelt.cloud,www.neomelt.cloud,comments.neomelt.cloud,neomelt.github.io` 并 redeploy。
    ⚠️ 2026-07-25 修正：此前记录的值漏了 `neomelt.github.io`——GitHub Pages 镜像页用的是同一个评论后端（已验证其内联 serverURL 相同），按旧值配置会把镜像站评论区打成 403。配置后需在 `neomelt.github.io/Neomelt_blog/` 上实测评论加载。
-2. 现状与《从 GitHub Pages 到 Vercel 镜像》一文不符：裸域 `neomelt.cloud` 实际是 Vercel 的 308 跳转到 `www`，GitHub Pages 未绑自定义域名（仅 `neomelt.github.io` 可达），"双平台镜像"目前只有单入口。是否恢复原设计待定。
+2. ✅ 2026-07-25 已决策：**维持单入口**。apex 308 → www，唯一生产源为 Vercel；GitHub Pages 镜像不绑自定义域名，仅作 `neomelt.github.io/Neomelt_blog/` 冷备（Actions 持续自动部署），Vercel 长时间故障时手动分发该地址。理由：流通链接全是 www，裸域镜像保护不了它们，双入口只增加维护面（GH 构建 base 路径、CNAME、版本时差、SECURE_DOMAINS 多一项）；将来若真要高可用，升级路径是 Vercel 前套 Cloudflare，而非 apex 分流。文章已加更新注记。

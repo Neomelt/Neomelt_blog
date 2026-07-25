@@ -2,7 +2,7 @@
 title: "从 GitHub Pages 到 Vercel 镜像：以及 Giscus -> Waline 评论迁移实录"
 description: "把博客改成双平台发布，并把评论系统从 Giscus 迁到 Waline 的一次实战记录。"
 pubDate: "2026-02-23"
-updatedDate: "2026-02-23"
+updatedDate: "2026-07-25"
 heroImage: "../../assets/cover.svg"
 category: "工程实践"
 series: ""
@@ -38,6 +38,8 @@ GitHub Pages 本身没问题，我原来也是一直这么跑。
 
 - `www.neomelt.cloud` -> Vercel
 - `neomelt.cloud` -> GitHub Pages
+
+> **2026-07-25 更新**：上面的分流姿势最后没有落地，也不打算落了。现状是 `neomelt.cloud` 由 Vercel 做 308 跳转到 `www`，GitHub Pages 没绑自定义域名，镜像只在 `neomelt.github.io/Neomelt_blog/` 可达。维持单入口的理由：全站流通的链接（分享、搜索收录、RSS）全是 `www`，Vercel 真挂的时候裸域上的镜像救不了这些链接，不如把 github.io 地址当冷备手动发出去，还省一条要维护的部署链路。镜像仍跟着 Actions 自动部署。
 
 ## 这次部署层面我改了什么
 
