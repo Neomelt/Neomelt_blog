@@ -53,11 +53,11 @@ tags: ["ai", "vibecoding", "claude"]
 
 找到自己的代理软件的 profiles 界面，找到下面这个方框
 
-![alt text](../../../public/blog/claude-sign-up-guide/1.png)
+![Clash Verge 的 Profiles 页面：右键 Global Extend Config 卡片弹出 Edit File 菜单](../../../public/blog/claude-sign-up-guide/1.png)
 
 然后右键edit进入代码界面,将自己的节点名称写进去（一个字也不能错）
 
-![alt text](../../../public/blog/claude-sign-up-guide/2.png)
+![Global Extend Config 编辑框：用 prepend-rules 把 claude.ai 和 anthropic.com 固定到同一节点](../../../public/blog/claude-sign-up-guide/2.png)
 
 设置完之后save然后重启内核即可生效，但是一定要记得将代理模式切为rule，不然如果走的是global的话一旦切换了节点，你Claude的ip也会跳，会引发很大的封号危机。
 

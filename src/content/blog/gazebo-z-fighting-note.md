@@ -98,9 +98,9 @@ GPU 在渲染的时候，会对每个像素做深度比较。屏幕上的每个�
 
 修好效果
 
-![alt text](../../../public/blog/gazebo-z-fighting-note/3.png)
+![修复后的 Gazebo 视图：底盘装甲板上的红色灯条稳定渲染，不再闪烁](../../../public/blog/gazebo-z-fighting-note/3.png)
 
-![alt text](../../../public/blog/gazebo-z-fighting-note/4.png)
+![低机位特写：装甲板与灯条边缘干净利落，深度冲突消失](../../../public/blog/gazebo-z-fighting-note/4.png)
 
 虽然真实装甲板和灯条的上表面本来就可能非常接近，但在真实世界里，这点差异通常不会像仿真里这样被放大。这大概也是仿真和现实之间一个很典型的小区别。
 
