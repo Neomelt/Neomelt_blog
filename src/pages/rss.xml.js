@@ -20,6 +20,32 @@ function toAbsoluteUrl(path, site) {
   return new URL(path, site).toString();
 }
 
+// 内容层渲染的 HTML 里，正文图片是未回填的占位符：
+//   <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;../../../public/blog/x.png&#x22;,&#x22;alt&#x22;:…}">
+// 直接下发会让订阅者看到无 src 的坏图。public/ 下的文件部署后就在站点
+// 根路径，把占位符重写成带绝对 URL 的真实 <img>；解析失败时保留原样。
+function rewriteImagePlaceholders(html, site) {
+  if (!html) return html;
+  return html.replace(
+    /<img\s+__ASTRO_IMAGE_="([^"]*)"[^>]*>/g,
+    (match, encodedJson) => {
+      try {
+        const meta = JSON.parse(
+          encodedJson.replaceAll("&#x22;", '"').replaceAll("&amp;", "&"),
+        );
+        const src = typeof meta.src === "string" ? meta.src : "";
+        const publicIdx = src.indexOf("/public/");
+        if (publicIdx === -1) return match;
+        const absolute = toAbsoluteUrl(src.slice(publicIdx + 7), site);
+        const alt = typeof meta.alt === "string" ? meta.alt : "";
+        return `<img src="${escapeXml(absolute)}" alt="${escapeXml(alt)}">`;
+      } catch {
+        return match;
+      }
+    },
+  );
+}
+
 function getImageUrl(heroImage, site) {
   if (!heroImage) return undefined;
   if (typeof heroImage === "string") {
@@ -129,7 +155,10 @@ export async function GET(context) {
         description: post.data.description,
         pubDate,
         link,
-        content: post.rendered?.html ?? post.body ?? post.data.description,
+        content:
+          rewriteImagePlaceholders(post.rendered?.html, site) ??
+          post.body ??
+          post.data.description,
         author: FEED_AUTHOR,
         commentsUrl: `${itemUrl}#comments`,
         categories,
