@@ -14,7 +14,9 @@ export const GET: APIRoute = async () => {
     // 获取所有内容并生成搜索索引
     const blogPosts = await getCollection("blog", ({ data }) => !data.hidden);
 
-    // 构建轻量搜索索引（避免下发完整正文）
+    // 构建搜索索引。searchText 收录全文：曾经的 1800 字符截断让最长的
+    // 速查文 97% 内容搜不到；全站全文索引实测约 200KB（gzip 后远小），
+    // 仅在打开搜索时拉取一次，可接受。excerpt 仍只取展示用的前 220 字。
     const searchIndex = [
       // 博客文章
       ...blogPosts.map((post) => {
@@ -26,7 +28,7 @@ export const GET: APIRoute = async () => {
         const searchText = [
           post.data.title,
           description,
-          bodyText.slice(0, 1800),
+          bodyText,
           tags.join(" "),
           category,
           blogTypeLabel,
