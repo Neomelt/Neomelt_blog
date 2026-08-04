@@ -12,7 +12,7 @@ tags: ["思考", "AI", "机器人"]
 
 前两天在X上看到Tairan He的一句评论："Everyone will have their Lee Sedol moment, just at a different time."
 
-![alt text](../../../public/blog/what's-Lee-sedol-moment-of-robotics/1.png)
+![Tairan He 在 X 上谈每个人的 Lee Sedol moment](../../../public/blog/whats-Lee-sedol-moment-of-robotics/1.png)
 
 从我大学拥有自己电脑后第一次接触ai时的gpt 3.5到现如今的 claude mythos5 /fable5 系列，opus5,gpt 5.6，deepseek v4等模型百花齐放的景象，才过去了不到三年的时间，ai已经从曾经那个只是存在于web chat,鲜为人知的东西变成了如今无人不晓的智能助手，在这期间，来了很多人，走了更多的人。
 
