@@ -130,4 +130,13 @@ export const FRIEND_LINKS: FriendLink[] = [
       "https://gitee.com/hcbug/picture1/raw/master/20260607223324364.webp",
     rss: "https://blog.hcbu.cn/atom.xml",
   },
+  {
+    name: "辰萃",
+    url: "https://chenc001.github.io/",
+    description: "记录生活里的小小美好",
+    avatar:
+      "https://raw.githubusercontent.com/chenc001/chenc001.github.io/master/src/assets/images/avatar.webp",
+    rss: "https://chenc001.github.io/rss.xml",
+    tags: ["个人博客"],
+  },
 ];
