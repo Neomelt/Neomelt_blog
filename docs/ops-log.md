@@ -49,3 +49,37 @@
 数据库中不受部署影响。注意这次部署实质是服务端升级到 1.41.3（原版本因源丢失不可
 考，仅知同为 thinkjs 4 世代）；如有异常，Vercel Deployments 里 Promote 上一个部署
 即可回滚。今后升级方式：改仓库里 package.json 的版本号并 push。
+
+## 2026-08-22 评论区垃圾广告 IP 封禁（Vercel WAF）
+
+**问题**：`150.251.158.99`（AS26383 Baxet Group，东京机房 VPS）于 2026-08-13 向评论区
+连发 3 条广告（推广 `520menghuan.pages.dev`）。特征表明是批量扫描 Waline 实例的群发
+脚本，非定向攻击：一条评论内容是工具自身的目标清单文件名 `waline_targets.txt`（填充
+bug 泄露），另一条是同文案的编码错乱版（疑似按 GBK 直发）。现有防线均拦不住：
+SECURE_DOMAINS 只校验 Origin/Referer 字符串（脚本可伪造合法值）；IPQPS 默认 60s，
+三条间隔均 >9min。
+
+**处置**：Vercel WAF 边缘封禁（Dashboard → `comments-db` 项目 → Firewall →
+Configure → IP Blocking），两条规则：
+
+| IP | Host |
+| --- | --- |
+| 150.251.158.99 | comments.neomelt.cloud |
+| 150.251.158.99 | comments-db-one.vercel.app（旧别名仍在线，扫描器清单里存的可能是它） |
+
+选 WAF 而非 Waline 自带黑名单的理由：边缘拦截不消耗函数调用量、整站生效、免改码
+重部署。备选方案留档：`Neomelt/comments-db` 的 index.cjs 传
+`disallowIPList: ['150.251.158.99']` 亦可（已对照 1.41.3 源码
+`src/controller/comment.js:123-133`：非管理员命中即 403，但只拦发评论接口）。
+
+**验证**（2026-08-22）：规则发布后，两域名带合法 Referer 的评论 API 均仍 200（未误伤
+正常流量）。对目标 IP 的实际拦截**未验证**（本机无法伪装来源 IP），待 Firewall 页
+blocked 计数或该 IP 是否再发评论来确认。
+
+**遗留待办**：
+
+1. 管理后台 `/ui` 清理已落库的 3 条垃圾评论（标垃圾或删除，喂给反垃圾系统优先标垃圾）。
+2. 预期脚本换 IP 再来：届时不再追加单 IP，升级为 `COMMENT_AUDIT=true`（全评论先审
+   后显）或确认 Akismet 生效。
+3. 旧别名 `comments-db-one.vercel.app` 是否直接删除（大陆本就不可达，留着多一个被扫
+   面）——待定。
