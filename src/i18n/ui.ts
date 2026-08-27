@@ -272,6 +272,13 @@ export const UI_TRANSLATIONS = {
 
     "toc.aria": "目录",
     "toc.label": "目录",
+    "series.label": "系列",
+    "series.navAria": "本文所属系列",
+    "series.title": "系列",
+    "series.metaTitle": "系列",
+    "series.lead": "成组的文章，按发表顺序排列。",
+    "series.countUnit": "个系列",
+    "series.empty": "还没有系列文章。",
   },
   en: {
     "locale.label": "EN",
@@ -566,6 +573,13 @@ export const UI_TRANSLATIONS = {
 
     "toc.aria": "Table of contents",
     "toc.label": "Contents",
+    "series.label": "Series",
+    "series.navAria": "Series this post belongs to",
+    "series.title": "Series",
+    "series.metaTitle": "Series",
+    "series.lead": "Posts that run together, in publication order.",
+    "series.countUnit": "series",
+    "series.empty": "No series yet.",
   },
 } as const satisfies Record<SiteLocale, Record<string, string>>;
 

@@ -4,6 +4,7 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Comments from "../blocks/view/Comments.astro";
 import TableOfContents from "../blocks/widget/TableOfContents.astro";
 import PostNavigation from "../blocks/view/PostNavigation.astro";
+import SeriesNav from "../blocks/view/SeriesNav.astro";
 import BaseLayout from "./BaseLayout.astro";
 import Region from "../components/Region.astro";
 import { siteLayout } from "../site.config";
@@ -154,6 +155,9 @@ const hasAside = hasToc || siteLayout.regions.aside.length > 0;
         </div>
 
         <!-- Post navigation -->
+        <!-- Renders nothing unless the post declares a series. -->
+        <SeriesNav post={post} />
+
         <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 
         <!-- Comments -->

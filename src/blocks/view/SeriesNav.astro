@@ -1,0 +1,153 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import { getDefaultUiText } from "../../i18n/ui";
+import { getSeriesPosition } from "../../utils/series";
+import { withBase } from "../../utils/url";
+
+/**
+ * Where this post sits in its series, with the whole run listed.
+ *
+ * Renders nothing when the post has no series, so a layout can place it
+ * unconditionally - which is why it takes the post rather than a position:
+ * the caller should not have to ask first.
+ */
+export interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const position = await getSeriesPosition(post);
+---
+
+{
+  position && (
+    <nav class="series" aria-label={getDefaultUiText("series.navAria")}>
+      <div class="series-head">
+        <span class="series-label" data-i18n="series.label">
+          {getDefaultUiText("series.label")}
+        </span>
+        <a href={withBase(`/series#${position.series.name}`)} class="series-name">
+          {position.series.name}
+        </a>
+        <span class="series-count">
+          {position.index} / {position.series.entries.length}
+        </span>
+      </div>
+
+      <ol class="series-list">
+        {position.series.entries.map((entry, i) => {
+          const current = entry.post.id === post.id;
+          return (
+            <li class:list={["series-item", { current }]}>
+              <span class="series-index">{i + 1}</span>
+              {current ? (
+                <span class="series-title" aria-current="true">
+                  {entry.post.data.title}
+                </span>
+              ) : (
+                <a
+                  href={withBase(`/posts/${entry.post.id}`)}
+                  class="series-title"
+                >
+                  {entry.post.data.title}
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .series {
+    margin: 2rem 0;
+    padding: 1rem 1.15rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-card);
+    background-color: var(--bg-card);
+    background-image: var(--surface-sheen);
+  }
+
+  .series-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.7rem;
+  }
+
+  .series-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .series-name {
+    font-weight: 650;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .series-name:hover {
+    color: var(--accent);
+  }
+
+  .series-count {
+    margin-inline-start: auto;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+  }
+
+  .series-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .series-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.3rem 0;
+    font-size: 0.92rem;
+  }
+
+  .series-index {
+    flex-shrink: 0;
+    width: 1.4rem;
+    text-align: end;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+  }
+
+  .series-title {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  a.series-title:hover {
+    color: var(--accent);
+  }
+
+  /* The current entry is not a link, so it needs its own weight to read as
+     the position marker rather than a disabled row. */
+  .current .series-title {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .current .series-index {
+    color: var(--accent);
+    font-weight: 700;
+  }
+</style>
