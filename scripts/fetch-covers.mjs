@@ -6,6 +6,7 @@
  *   node scripts/fetch-covers.mjs --inbox 126327443 ...   # review first
  *   node scripts/fetch-covers.mjs --from covers.txt
  *   node scripts/fetch-covers.mjs --search 初音ミク --take 8 --inbox
+ *   node scripts/fetch-covers.mjs --banner 126327443            # 1920x640
  *
  * pixiv's own ajax endpoint returns metadata without a login but leaves every
  * entry in `urls` null, so the image itself needs a session cookie. The
@@ -25,11 +26,17 @@ import sharp from "sharp";
 // at. pixiv only flags outright R18, so anything merely suggestive arrives
 // unmarked and no filter catches it - the decision has to be a human one.
 const INBOX = process.argv.includes("--inbox");
+// Banner art lives apart from card art: the masthead showing the same
+// illustration as a card below it reads as an accident.
+const BANNER = process.argv.includes("--banner");
 const OUT_DIR = INBOX
   ? join(process.cwd(), ".cover-inbox")
-  : join(process.cwd(), "src", "assets", "covers");
-const WIDTH = 1200;
-const HEIGHT = 630;
+  : join(process.cwd(), "src", "assets", BANNER ? "banner" : "covers");
+const WIDTH = BANNER ? 1920 : 1200;
+// Banners are not cropped. The element is 100vw by a vh height with
+// object-fit: cover, so the viewport decides the visible slice - cropping
+// here as well would throw away most of a 4:3 illustration for nothing.
+const HEIGHT = BANNER ? null : 630;
 const QUALITY = 82;
 const PROXY = (id) => `https://pixiv.cat/${id}.jpg`;
 const META = (id) => `https://www.pixiv.net/ajax/illust/${id}`;
@@ -135,11 +142,17 @@ async function fetchOne(id) {
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
   const original = Buffer.from(await res.arrayBuffer());
-  // Crop to the card's aspect rather than letterboxing: these are decorative
-  // panels, and attention:centre keeps the subject in frame more often than a
-  // plain centre crop does.
+  // Card covers crop to the share-card aspect rather than letterboxing, with
+  // sharp's attention strategy keeping the subject in frame more often than a
+  // plain centre crop. Banners only get scaled - see HEIGHT above.
   const buf = await sharp(original)
-    .resize(WIDTH, HEIGHT, { fit: "cover", position: sharp.strategy.attention })
+    .resize(
+      WIDTH,
+      HEIGHT,
+      HEIGHT === null
+        ? { withoutEnlargement: true }
+        : { fit: "cover", position: sharp.strategy.attention },
+    )
     .webp({ quality: QUALITY })
     .toBuffer();
   await writeFile(out, buf);
@@ -160,7 +173,7 @@ if (ids.length === 0) {
 }
 await mkdir(OUT_DIR, { recursive: true });
 
-console.log(`fetching ${ids.length} cover(s) into ${INBOX ? ".cover-inbox" : "src/assets/covers"}/\n`);
+console.log(`fetching ${ids.length} image(s) into ${INBOX ? ".cover-inbox" : `src/assets/${BANNER ? "banner" : "covers"}`}/\n`);
 const credits = [];
 let failed = 0;
 
