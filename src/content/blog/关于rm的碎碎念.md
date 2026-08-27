@@ -4,7 +4,7 @@ description: "前段时间太忙了没来得及写，周末闲暇来写一下吧
 pubDate: "2026-06-07T14:10:00+08:00"
 pinned: false
 hidden: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/148698382.webp"
 category: ""
 series: ""
 tags: []

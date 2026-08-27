@@ -3,7 +3,7 @@ title: "一次把 OpenClaw 从连环报错拉回可用：sub2api + Telegram 实�
 description: "从 No API key、403 blocked 到 Telegram pairing 的完整修复过程，含可复用配置与排障思路。"
 pubDate: "2026-02-26"
 updatedDate: "2026-02-26"
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/147814765.webp"
 category: "工程实践"
 series: ""
 tags: ["OpenClaw", "sub2api", "Telegram Bot", "排障", "工程复盘"]

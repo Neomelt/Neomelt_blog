@@ -4,7 +4,7 @@ description: "当 AI 逐渐强大到可以替代掉一些 work 的时候，我�
 pubDate: "2026-08-05T02:00:00+08:00"
 pinned: false
 hidden: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/139388781.webp"
 category: "随便写写"
 series: ""
 tags: ["思考", "AI", "机器人"]

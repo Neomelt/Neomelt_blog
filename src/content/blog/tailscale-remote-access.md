@@ -4,7 +4,7 @@ description: "没有公网 IP、不动路由器，在家用浏览器直接打开
 pubDate: "2026-07-22T00:17:00+08:00"
 pinned: false
 hidden: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/148672178.webp"
 category: "工程实践"
 series: ""
 tags: ["Tailscale", "WireGuard", "NAT", "内网穿透", "ComfyUI"]

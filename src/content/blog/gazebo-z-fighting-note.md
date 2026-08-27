@@ -4,7 +4,7 @@ description: "记录一次 Gazebo 仿真中灯条闪烁问题的排查过程，�
 pubDate: "2026-03-16T16:49:00+08:00"
 pinned: false
 hidden: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/147767301.webp"
 category: "开发记录"
 series: ""
 tags: ["Gazebo", "仿真", "SDF", "z-fighting", "渲染"]

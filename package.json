@@ -16,6 +16,7 @@
     "new:post": "node scripts/new-post.mjs",
     "new": "node scripts/new-post.mjs",
     "covers": "node scripts/fetch-covers.mjs",
+    "covers:lock": "node scripts/lock-covers.mjs",
     "watch:frontmatter": "node scripts/auto-frontmatter.mjs"
   },
   "dependencies": {
