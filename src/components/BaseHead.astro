@@ -93,6 +93,19 @@ const primaryHostname = canonicalURL.hostname;
 <meta name="generator" content={Astro.generator} />
 <meta name="color-scheme" content="dark light" />
 
+<!-- Placements restricted with `skins:` in site.config.ts are all rendered,
+     then hidden by skin here. One rule per skin, generated from SKINS, so a
+     new skin never needs a CSS edit. Runtime-generated because skin is a
+     visitor choice in localStorage that the server cannot know. -->
+<style
+  is:inline
+  set:html={`.skin-scope{display:contents}` +
+    SKINS.map(
+      (name) =>
+        `[data-skin="${name}"] .skin-scope[data-skin-only]:not([data-skin-only~="${name}"]){display:none}`,
+    ).join("")}
+/>
+
 <!-- 主题初始化脚本 -->
 <script
   is:inline

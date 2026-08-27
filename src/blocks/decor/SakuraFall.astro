@@ -1,0 +1,107 @@
+---
+/**
+ * Petals drifting down the viewport.
+ *
+ * Deliberately not tied to any skin - drop it in a region under the
+ * minimal skin too if you want it. Petal colour comes from --accent, so
+ * it re-tints with whatever skin is active rather than being locked to
+ * pink.
+ *
+ * CSS animation rather than a canvas: no JS to ship, no rAF loop
+ * competing with scrolling, and prefers-reduced-motion is one media
+ * query instead of a code path.
+ */
+export interface Props {
+  /** How many petals. Past ~40 the effect reads as noise, not weather. */
+  count?: number;
+  /** Seconds for one petal to cross the viewport. Higher is calmer. */
+  duration?: number;
+  /** Petal width in px at the smallest size. */
+  size?: number;
+  /** Peak opacity, 0-1. */
+  opacity?: number;
+  /** Stacking order. Above content by default, like Mizuki's sakura. */
+  zIndex?: number;
+}
+
+const {
+  count = 18,
+  duration = 14,
+  size = 9,
+  opacity = 0.55,
+  zIndex = 60,
+} = Astro.props;
+
+// Deterministic pseudo-random: Math.random() would make every build differ,
+// which breaks reproducible output for no visual gain. Coprime multipliers
+// keep the columns from lining up into visible stripes.
+const petals = Array.from({ length: count }, (_, i) => ({
+  left: (i * 37) % 100,
+  delay: -((i * 17) % (duration * 10)) / 10,
+  duration: duration * (0.72 + ((i * 13) % 55) / 100),
+  size: size + ((i * 7) % 7),
+  drift: 24 + ((i * 11) % 46),
+  spin: 180 + ((i * 23) % 360),
+  fade: opacity * (0.55 + ((i * 19) % 45) / 100),
+}));
+---
+
+<div class="sakura" style={`--sakura-z: ${zIndex}`} aria-hidden="true">
+  {
+    petals.map((p) => (
+      <span
+        class="petal"
+        style={`
+          left: ${p.left}%;
+          width: ${p.size}px;
+          height: ${p.size}px;
+          opacity: ${p.fade};
+          animation-duration: ${p.duration}s;
+          animation-delay: ${p.delay}s;
+          --drift: ${p.drift}px;
+          --spin: ${p.spin}deg;
+        `}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .sakura {
+    position: fixed;
+    inset: 0;
+    z-index: var(--sakura-z);
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .petal {
+    position: absolute;
+    top: -6vh;
+    display: block;
+    background: var(--accent);
+    /* An asymmetric radius reads as a petal; a circle reads as snow. */
+    border-radius: 50% 0 50% 50%;
+    animation-name: petal-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+  }
+
+  @keyframes petal-fall {
+    from {
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    to {
+      transform: translate3d(var(--drift), 106vh, 0) rotate(var(--spin));
+    }
+  }
+
+  /* Falling petals are exactly the kind of persistent motion this setting
+     exists for, so hide rather than merely slow them. */
+  @media (prefers-reduced-motion: reduce) {
+    .sakura {
+      display: none;
+    }
+  }
+</style>

@@ -1,22 +1,51 @@
 import type { SiteLayout } from "./types/layout";
 
 /**
- * The assembly file: what the site is made of, and which skin paints it.
+ * The assembly file. What the site is made of, and which skin paints it.
  *
- * To add something to a region, write the block, register it in
- * src/blocks/registry.ts, then add its name below. Layouts do not change.
+ * Blocks hold function only - none of them knows which skin is active.
+ * Everything below is either a name from src/blocks/registry.ts or a
+ * parameter, which is the whole switching mechanism: to change how the
+ * site looks or what is on it, edit this file, not a component.
  *
- * `aside` is wired but empty - the region exists so sidebar widgets can be
- * dropped in later without touching BaseLayout.
+ * Regions paint back to front: backdrop, page, floating.
+ * Adding a block: write it, register it, name it here.
  */
 export const siteLayout = {
   skin: "minimal",
 
   regions: {
+    backdrop: [
+      // Rendered under every skin, shown only under anime. See `skins` in
+      // src/types/layout.ts for why this is not a build-time exclusion.
+      {
+        use: "decor/Backdrop",
+        props: { overlay: 0.45, drift: true },
+        skins: ["anime"],
+      },
+    ],
+
+    // Wired but empty. Sidebar widgets dropped in here appear on post pages
+    // without any layout edit - BlogPost grows the column on its own.
     aside: [],
+
     floating: [
+      {
+        use: "decor/SakuraFall",
+        props: { count: 20, duration: 16 },
+        skins: ["anime"],
+      },
       { use: "decor/ClickEffect", props: { effect: "ink-glyph" } },
       "behavior/ImageLightbox",
     ],
   },
 } satisfies SiteLayout;
+
+/*
+ * The two placements above carry `skins: ["anime"]`, so the palette button
+ * in the header swaps the backdrop and the petals in and out along with the
+ * colours - no reload, no rebuild. Drop the `skins` key to run either one
+ * under the minimal skin too; neither block knows which skin is active.
+ *
+ * With an illustration in public/, give Backdrop: src: "/wallpaper.webp".
+ */

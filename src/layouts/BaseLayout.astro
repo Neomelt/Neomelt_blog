@@ -163,7 +163,7 @@ const {
         document.addEventListener("astro:page-load", syncLocale);
       })();
     </script>
-    <slot name="backdrop" />
+    <Region name="backdrop" override={regions.backdrop} />
     <slot name="header"><Header /></slot>
     <slot />
     <WalineCounter />
