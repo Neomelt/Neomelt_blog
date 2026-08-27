@@ -6,7 +6,7 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import { getDefaultUiText } from "../../i18n/ui";
 import { estimateReadingTime } from "../../utils/reading-time";
 import { getWalinePathForPost } from "../../utils/waline";
-import { coverPool } from "../../site.config";
+import { coverForPost } from "../../utils/cover";
 import { withBase } from "../../utils/url";
 
 export interface Props {
@@ -46,7 +46,6 @@ const hero =
     : null;
 
 const title = post.data.title;
-const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
 
 // No generated stand-in when there is no artwork. A gradient panel in place
 // of an image looks like filler, and filler is worse than the honest thing:
@@ -55,11 +54,7 @@ const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
 // heroImage is ignored when it is the shared default - every post points at
 // the same cover.svg, so honouring it would give identical thumbnails.
 const cover: ImageMetadata | null =
-  hero && !hero.src.includes("cover.svg")
-    ? hero
-    : coverPool.length > 0
-      ? coverPool[hash % coverPool.length]!
-      : null;
+  hero && !hero.src.includes("cover.svg") ? hero : await coverForPost(post.id);
 ---
 
 <a href={url} class="post-card">
