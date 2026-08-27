@@ -4,6 +4,7 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import { getDefaultUiText } from "../../i18n/ui";
 import { estimateReadingTime } from "../../utils/reading-time";
 import { getWalinePathForPost } from "../../utils/waline";
+import { coverPool } from "../../site.config";
 import { withBase } from "../../utils/url";
 
 export interface Props {
@@ -30,21 +31,16 @@ const readingTime = showReadingTime
   : null;
 const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
 
-// Cover, in order of preference: the first image in the body, then a
-// per-post heroImage, then a generated panel. data.heroImage is skipped when
-// it is the shared default - every post points at the same cover.svg, so
-// honouring it would give fifteen identical thumbnails. (The reference site
-// does exactly that: ten posts, one kamio1.jpg. It looks good because the
-// image is good, not because the mechanism is.)
-const bodyImage = (post.body ?? "").match(/!\[[^\]]*\]\(([^)\s]+)/)?.[1];
+// Cover art is decorative and deliberately unrelated to the post body.
+// Pulling the first body image was wrong: those are screenshots - a Clash
+// Verge dialog, a Gazebo viewport - which make poor decorative panels.
+//
+// Order: the post's own heroImage, then a deterministic pick from the
+// configured pool, then a generated gradient. heroImage is ignored when it
+// is the shared default, since every post points at the same cover.svg.
 const heroSrc =
   typeof post.data.heroImage === "object" && post.data.heroImage
     ? (post.data.heroImage as { src: string }).src
-    : null;
-const cover = bodyImage?.includes("/public/")
-  ? withBase(bodyImage.replace(/^.*?\/public\//, "/"))
-  : heroSrc && !heroSrc.includes("cover.svg")
-    ? heroSrc
     : null;
 
 // Posts without an image get a generated panel rather than a blank box or a
@@ -54,6 +50,13 @@ const cover = bodyImage?.includes("/public/")
 // band a single gradient gives.
 const title = post.data.title;
 const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+
+const cover =
+  heroSrc && !heroSrc.includes("cover.svg")
+    ? heroSrc
+    : coverPool.length > 0
+      ? withBase(coverPool[hash % coverPool.length]!)
+      : null;
 const pick = (shift: number, mod: number, base = 0) =>
   base + ((hash >> shift) % mod);
 const coverStyle = [

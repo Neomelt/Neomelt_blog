@@ -23,6 +23,11 @@ export interface Props {
    * empty array to render nothing there on this page.
    */
   regions?: Partial<Record<RegionName, BlockPlacement[]>>;
+  /**
+   * Render the aside column beside the content. Off for pages that build
+   * their own columns - BlogPost puts the table of contents in one.
+   */
+  sidebar?: boolean;
 }
 
 const {
@@ -30,7 +35,11 @@ const {
   description = "",
   katex = false,
   regions = {},
+  sidebar = true,
 } = Astro.props;
+
+const asideBlocks = regions.aside ?? siteLayout.regions.aside;
+const withSidebar = sidebar && asideBlocks.length > 0;
 ---
 
 <!doctype html>
@@ -168,7 +177,20 @@ const {
     <div class="masthead">
       <Region name="masthead" override={regions.masthead} />
     </div>
-    <slot />
+    {
+      withSidebar ? (
+        <div class="shell">
+          <div class="shell-main">
+            <slot />
+          </div>
+          <aside class="shell-aside">
+            <Region name="aside" override={regions.aside} />
+          </aside>
+        </div>
+      ) : (
+        <slot />
+      )
+    }
     <WalineCounter />
     <CodeCopyButton />
     <Region name="floating" override={regions.floating} />
@@ -189,5 +211,52 @@ const {
      offset would be counted twice. */
   body:has(.masthead:not(:empty)) main {
     padding-top: 0;
+  }
+
+  /* Two-column shell. The reference blogs run content beside a persistent
+     sidebar rather than a single centred column, which is most of why a
+     one-column page reads as sparse. */
+  .shell {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--shell-gap);
+    max-width: var(--shell-width);
+    margin: 0 auto;
+    padding-inline: 1.25rem;
+  }
+
+  .shell-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* .container centres itself with margin auto, which inside a flex row eats
+     the free space and pins the sidebar to the viewport edge - the same trap
+     BlogPost documents for its ToC column. */
+  .shell-main .container {
+    max-width: none;
+    margin: 0;
+    padding-inline: 0;
+  }
+
+  .shell-aside {
+    width: var(--aside-width);
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: calc(var(--header-height) + 3rem) 3rem;
+  }
+
+  @media (max-width: 1099px) {
+    .shell {
+      display: block;
+    }
+
+    .shell-aside {
+      display: none;
+    }
   }
 </style>

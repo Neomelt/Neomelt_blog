@@ -43,7 +43,12 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
 const hasAside = hasToc || siteLayout.regions.aside.length > 0;
 ---
 
-<BaseLayout title={title} description={description} katex={hasMath}>
+<BaseLayout
+  title={title}
+  description={description}
+  katex={hasMath}
+  sidebar={false}
+>
   <div class="post-page">
     <!-- TOC sidebar (desktop) -->
     {
