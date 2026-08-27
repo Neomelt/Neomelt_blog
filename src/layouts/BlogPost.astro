@@ -1,4 +1,5 @@
 ---
+import type { ImageMetadata } from "astro";
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Comments from "../blocks/view/Comments.astro";
@@ -39,6 +40,13 @@ const hasMath = renderedHtml
   ? renderedHtml.includes('class="katex')
   : /\$/.test(post.body || "");
 const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
+
+// Every post pins its own cover, so shares carry that rather than one shared
+// card for the whole site.
+const shareImage =
+  typeof post.data.heroImage === "object" && post.data.heroImage
+    ? (post.data.heroImage as ImageMetadata)
+    : undefined;
 // The sidebar column exists if the ToC needs it or the aside region is
 // configured, so adding a sidebar widget never means editing this layout.
 const hasAside = hasToc || siteLayout.regions.aside.length > 0;
@@ -48,6 +56,7 @@ const hasAside = hasToc || siteLayout.regions.aside.length > 0;
   title={title}
   description={description}
   katex={hasMath}
+  image={shareImage}
   sidebar={false}
 >
   <div class="post-page">

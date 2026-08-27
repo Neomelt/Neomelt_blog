@@ -8,6 +8,7 @@ import { SKINS, SKIN_THEME_COLORS } from "../skins";
 import { LAYOUTS } from "../types/layout";
 import { siteLayout } from "../site.config";
 import type { ImageMetadata } from "astro";
+import { getImage } from "astro:assets";
 // og/twitter 分享图必须是位图：X/Facebook/Telegram 的抓取器不渲染 SVG。
 // cover-og.png 由 cover.svg 渲染裁剪而来（1200x630 标准卡片尺寸）。
 import FallbackImage from "../assets/cover-og.png";
@@ -30,6 +31,18 @@ const {
   canonicalPath,
   noindex = false,
 } = Astro.props;
+// Crawlers vary in webp support - Twitter and Facebook take it, WeChat is
+// unreliable - so the share image is always re-encoded to jpeg at the
+// standard card size, whatever the source was.
+const ogImage = await getImage({
+  src: image,
+  width: 1200,
+  height: 630,
+  fit: "cover",
+  format: "jpeg",
+  quality: 82,
+});
+
 const pathname = normalizePathname(Astro.url.pathname);
 const basePathname = normalizePathname(import.meta.env.BASE_URL);
 const stripBasePrefix = (value: string): string => {
@@ -53,7 +66,7 @@ const resolvedCanonicalPath = canonicalPath
   ? normalizePathname(canonicalPath)
   : canonicalSourcePath;
 const siteOrigin = new URL(SITE_ORIGIN);
-const resolvedImagePath = stripBasePrefix(image.src);
+const resolvedImagePath = stripBasePrefix(ogImage.src);
 const canonicalURL = new URL(resolvedCanonicalPath, siteOrigin);
 const rssURL = new URL("rss.xml", siteOrigin);
 const metaImageURL = new URL(resolvedImagePath, siteOrigin);
