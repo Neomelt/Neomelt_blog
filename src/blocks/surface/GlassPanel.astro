@@ -1,0 +1,71 @@
+---
+/**
+ * A frosted surface you wrap around anything.
+ *
+ * The point of it being a component rather than a skin CSS rule: a rule can
+ * only reach selectors that already exist, so it could never give a new
+ * piece of content a glass surface. This can:
+ *
+ *   <GlassPanel blur="lg"><Calendar /></GlassPanel>
+ *
+ * Structure lives here, appearance lives in --glass-*. Under the minimal
+ * skin those tokens are zero blur over an opaque background, so this
+ * renders as a plain card; under anime it is real glass. Same component,
+ * no branch.
+ */
+export interface Props {
+  blur?: "sm" | "md" | "lg";
+  /** Element to render as - section/aside/article where that reads better. */
+  as?: "div" | "section" | "aside" | "article";
+  /** Drop the inner padding when the child brings its own. */
+  bare?: boolean;
+  class?: string;
+}
+
+const {
+  blur = "md",
+  as: Tag = "div",
+  bare = false,
+  class: className,
+} = Astro.props;
+---
+
+<Tag class:list={["glass-panel", `blur-${blur}`, { bare }, className]}>
+  <slot />
+</Tag>
+
+<style>
+  .glass-panel {
+    position: relative;
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-card);
+    border: var(--border-width) solid var(--glass-border);
+    background-color: var(--glass-bg);
+    background-image: var(--surface-sheen);
+    box-shadow: var(--shadow-card);
+  }
+
+  .glass-panel.bare {
+    padding: 0;
+  }
+
+  /* backdrop-filter only inside @supports: without it the declared
+     background must stay fully opaque, or unsupported browsers show
+     text over whatever is behind it. */
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .glass-panel.blur-sm {
+      -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur-sm)) saturate(var(--glass-saturate));
+    }
+
+    .glass-panel.blur-md {
+      -webkit-backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur-md)) saturate(var(--glass-saturate));
+    }
+
+    .glass-panel.blur-lg {
+      -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur-lg)) saturate(var(--glass-saturate));
+    }
+  }
+</style>

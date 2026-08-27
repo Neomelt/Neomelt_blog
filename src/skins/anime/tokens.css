@@ -13,7 +13,7 @@
    Later upgrade path: Fuwari drives its whole palette from one
    --hue with oklch(L C var(--hue)), so a slider re-tints the
    site with guaranteed contrast. That needs the eight
-   rgba(var(--ink-rgb), a) calls in blocks/fx/ClickEffect.astro
+   rgba(var(--ink-rgb), a) calls in blocks/decor/ClickEffect.astro
    ported to color-mix() first, so it is deliberately not done
    here.
    ============================================================ */
@@ -35,19 +35,29 @@
   --badge-bg: #d9cffa;
   --badge-text: #4436a0;
   --accent-contrast: #ffffff;
-  --tag-text: #5b4bad;
 
-  /* Legacy token compatibility */
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 221, 215, 242;
-  --gray: 116, 110, 147;
-  --gray-light: 221, 215, 242;
+  /* Glass surface - needs something behind it to read as glass, which is
+     what decor/Backdrop provides. */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.66);
+  --glass-blur-sm: 6px;
+  --glass-blur-md: 14px;
+  --glass-blur-lg: 26px;
+  --glass-saturate: 1.6;
+
+  /* Same parameters, non-zero values. This is the entire difference in
+     behaviour between the two skins. */
+  --card-hover-lift: 2px;
+  --card-hover-tint: 0.05;
+  --tag-border-alpha: 0.22;
+  --tag-hover-lift: 1px;
+  --heading-bar-width: 4px;
+  --surface-sheen: linear-gradient(
+    145deg,
+    rgba(140, 122, 233, 0.07) 0%,
+    rgba(140, 122, 233, 0) 60%
+  );
+  --tag-text: #5b4bad;
 
   /* Shape - the actual difference between the two skins. Rounder, softer,
      with a tinted glow instead of a hairline shadow. */
@@ -59,11 +69,6 @@
   --border-width: 1px;
   --shadow-card: 0 6px 20px rgba(115, 97, 217, 0.12);
   --shadow-float: 0 24px 64px rgba(60, 45, 130, 0.28);
-  --card-backdrop: linear-gradient(
-    145deg,
-    rgba(140, 122, 233, 0.07) 0%,
-    rgba(140, 122, 233, 0) 60%
-  );
 
   /* Typography */
   --font-sans:
@@ -77,9 +82,6 @@
   /* Spacing */
   --content-width: 800px;
   --header-height: 64px;
-  --dynamic-narrow-width: 100%;
-  --dynamic-content-width: 100%;
-  --dynamic-wide-width: 100%;
 
   /* Transitions - slightly slower, so hovers feel springy rather than curt */
   --transition: 220ms cubic-bezier(0.34, 1.26, 0.64, 1);
@@ -101,22 +103,14 @@
   --badge-bg: #3a2d63;
   --badge-text: #c5b6fb;
   --accent-contrast: #15121f;
-  --tag-text: #b6a7f2;
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 42, 34, 67;
-  --gray: 167, 159, 198;
-  --gray-light: 50, 42, 72;
-  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);
-  --shadow-float: 0 24px 64px rgba(0, 0, 0, 0.62);
-  --card-backdrop: linear-gradient(
+  --glass-bg: rgba(32, 27, 47, 0.55);
+  --surface-sheen: linear-gradient(
     145deg,
     rgba(165, 150, 242, 0.1) 0%,
     rgba(165, 150, 242, 0) 60%
   );
+  --glass-border: rgba(165, 150, 242, 0.22);
+  --tag-text: #b6a7f2;
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);
+  --shadow-float: 0 24px 64px rgba(0, 0, 0, 0.62);
 }

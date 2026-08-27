@@ -197,6 +197,7 @@ p {
 }
 
 .prose pre {
+  background-image: var(--surface-sheen);
   background: var(--bg-code);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -338,6 +339,23 @@ p {
   transition: opacity var(--transition);
 }
 
+.tag {
+  border: var(--border-width) solid rgba(var(--accent-rgb), var(--tag-border-alpha));
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+.tag:hover {
+  transform: translateY(calc(-1 * var(--tag-hover-lift)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tag,
+  .tag:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
 .tag:hover {
   opacity: 0.8;
   color: var(--tag-text);
@@ -391,6 +409,7 @@ p {
 
 .pagination a,
 .pagination span {
+  background-image: var(--surface-sheen);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -434,6 +453,26 @@ p {
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+}
+
+/* A leading accent bar, width 0 unless the skin asks for one. One rule in
+   one place: Fuwari copy-pasted this motif into four components and the
+   magic numbers drifted apart. */
+.section-heading {
+  position: relative;
+  padding-left: calc(var(--heading-bar-width) * 3.4);
+}
+
+.section-heading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: var(--heading-bar-width);
+  height: 0.85em;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
 }
 
 /* ---------- Utility ---------- */

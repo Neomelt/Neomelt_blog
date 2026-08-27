@@ -114,6 +114,27 @@ const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
     color: var(--accent);
   }
 
+  /* Both values are 0 under a skin that wants a flat list, which makes
+     this a no-op rather than something a skin has to override. */
+  .post-card {
+    transition:
+      transform var(--transition),
+      background-color var(--transition);
+  }
+
+  .post-card:hover {
+    transform: translateX(var(--card-hover-lift));
+    background-color: rgba(var(--accent-rgb), var(--card-hover-tint));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-card,
+    .post-card:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+
   .post-card-desc {
     font-size: 0.9rem;
     color: var(--text-muted);
