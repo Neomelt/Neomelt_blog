@@ -101,11 +101,11 @@
 
   /* Spacing */
   --content-width: 800px;
-  --shell-width: 1240px;
+  --shell-width: min(90vw, 1560px);
   /* Three columns need room the two-column measure does not have:
      subtracting two sidebars from --shell-width would leave the text
      around 580px. */
-  --shell-width-wide: 1580px;
+  --shell-width-wide: min(94vw, 1900px);
   --shell-gap: 3rem;
   --aside-width: 290px;
   --header-height: 64px;

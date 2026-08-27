@@ -90,16 +90,16 @@ export const siteLayout = {
 
     // Left column. The shell adds a column for each side that has blocks, so
     // moving a widget across is moving one line.
-    asideStart: [
-      "widget/Profile",
-      "widget/BlogStats",
+    asideStart: ["widget/Profile", "widget/BlogStats"],
+
+    // Right column. Splitting the widgets across both sides is what fills a
+    // wide screen - a single column leaves 41% of a 2560px display empty
+    // however wide the shell gets, because the text cannot keep growing.
+    // Moving a widget between columns is moving one line.
+    asideEnd: [
       { use: "widget/TagCloud", props: { limit: 18 } },
       "widget/Calendar",
     ],
-
-    // Right column - empty for now, and the shell stays two-wide because of
-    // it. Add a block here and it becomes three.
-    asideEnd: [],
 
     floating: [
       { use: "decor/ReadingProgress", props: { height: "3px" } },
