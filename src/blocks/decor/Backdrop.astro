@@ -1,5 +1,7 @@
 ---
-import { withBase } from "../../utils/url";
+import { Image } from "astro:assets";
+
+import { bannerPool } from "../../site.config";
 
 /**
  * Full-screen layer behind everything. Two reasons it exists:
@@ -12,8 +14,8 @@ import { withBase } from "../../utils/url";
  * that trade-off should be tunable rather than discovered later.
  */
 export interface Props {
-  /** Root-absolute path to an image in public/. Omit for the gradient. */
-  src?: string;
+  /** Which entry of bannerPool to use. Omit for the gradient alone. */
+  imageIndex?: number;
   /** 0-1. How much flat page colour to lay over the image for contrast. */
   overlay?: number;
   /** Blur radius in px applied to the image, softening detail behind text. */
@@ -22,17 +24,16 @@ export interface Props {
   drift?: boolean;
 }
 
-const { src, overlay = 0.55, blur = 0, drift = false } = Astro.props;
-const imageUrl = src ? withBase(src) : null;
+const { imageIndex, overlay = 0.55, blur = 0, drift = false } = Astro.props;
+const image = imageIndex === undefined ? null : (bannerPool[imageIndex] ?? null);
 ---
 
 <div class:list={["backdrop", { drift }]} aria-hidden="true">
   {
-    imageUrl && (
-      <div
-        class="backdrop-image"
-        style={`background-image: url("${imageUrl}"); filter: blur(${blur}px);`}
-      />
+    image && (
+      <div class="backdrop-image" style={`filter: blur(${blur}px)`}>
+        <Image src={image} alt="" widths={[960, 1600, 2400]} loading="eager" decoding="async" />
+      </div>
     )
   }
   <div class="backdrop-wash" style={`opacity: ${overlay}`}></div>
@@ -66,8 +67,13 @@ const imageUrl = src ? withBase(src) : null;
     position: absolute;
     /* Overscan so the blur does not reveal the edges. */
     inset: -4%;
-    background-size: cover;
-    background-position: center;
+  }
+
+  .backdrop-image :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   .backdrop-wash {

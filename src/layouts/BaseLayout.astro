@@ -254,8 +254,22 @@ const withSidebar = hasStart || hasEnd;
 
   body:has(.masthead:not(:empty)) .shell,
   body:has(.masthead:not(:empty)) main {
-    background: var(--bg);
     padding-top: var(--content-overlap);
+  }
+
+  /* Only inside @supports: without backdrop-filter the surface has to be
+     opaque or the backdrop shows through unblurred behind the text. */
+  .shell,
+  main {
+    background-color: var(--panel-surface);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .shell,
+    main {
+      -webkit-backdrop-filter: blur(var(--panel-blur));
+      backdrop-filter: blur(var(--panel-blur));
+    }
   }
 
   .shell {

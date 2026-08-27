@@ -115,6 +115,11 @@
      stacked; a positive value makes the content read as set into the image
      rather than following it. */
   --content-overlap: 3.5rem;
+  /* The content panel's own surface. Transparent with no blur leaves the
+     page flat; a translucent blurred one floats it over the backdrop, which
+     is how the reference frames its list. */
+  --panel-surface: color-mix(in srgb, var(--bg) 72%, transparent);
+  --panel-blur: 16px;
   --aside-width: 290px;
   --header-height: 64px;
 

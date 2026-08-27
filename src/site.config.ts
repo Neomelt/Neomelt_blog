@@ -83,23 +83,16 @@ export const siteLayout = {
       // No `skins` filter: the backdrop is tinted from --accent, so it reads
       // as restrained under minimal and richer under anime without being
       // owned by either. Add skins: ["anime"] to confine it.
-      { use: "decor/Backdrop", props: { overlay: 0.42 } },
+      { use: "decor/Backdrop", props: { imageIndex: 0, overlay: 0.5, blur: 2 } },
     ],
 
     // Between the header and the content. An oversized masthead is the
     // loudest single move a skin can make, and no token expresses it - the
     // element either exists or it does not - so it lives here.
-    masthead: [
-      // No skins filter: the banner replaces the old text hero on the home
-      // page, so it belongs under both. coverIndex draws from the same pool
-      // the cards use.
-      {
-        use: "chrome/Banner",
-        // No title or subtitle: the site name is in the header and the bio is
-        // in the sidebar profile, so the banner is just the image.
-        props: { bleed: true, full: true },
-      },
-    ],
+    // Empty: the artwork is the backdrop now, and a banner would put the
+    // same picture on screen twice. Put chrome/Banner back here for a
+    // masthead instead.
+    masthead: [],
 
     // Left column. The shell adds a column for each side that has blocks, so
     // moving a widget across is moving one line.
