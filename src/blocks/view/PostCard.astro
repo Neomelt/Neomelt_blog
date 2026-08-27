@@ -80,16 +80,29 @@ const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
 </a>
 
 <style>
+  /* Form comes from the skin, not from here: --list-item-* turns this
+     between a divided list row and a detached card without the component
+     knowing which it is. */
   .post-card {
     display: block;
-    padding: 1.25rem 0;
-    border-bottom: var(--border-width) solid var(--border);
+    padding: var(--list-item-padding);
+    margin-bottom: var(--list-item-gap);
+    border: var(--list-item-border-width) solid var(--border);
+    border-bottom-width: var(--list-item-divider-width);
+    border-radius: var(--list-item-radius);
+    background-color: var(--list-item-surface);
+    background-image: var(--surface-sheen);
+    box-shadow: var(--list-item-shadow);
     text-decoration: none;
     color: inherit;
   }
 
+  /* In a divided list the trailing hairline is redundant; in a card layout
+     the bottom edge is part of the frame. Reusing the border token expresses
+     exactly that, with no skin check. */
   .post-card:last-child {
-    border-bottom: none;
+    border-bottom-width: var(--list-item-border-width);
+    margin-bottom: 0;
   }
 
   .post-card-meta {

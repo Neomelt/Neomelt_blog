@@ -1,5 +1,6 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
+import Banner from "./chrome/Banner.astro";
 import Backdrop from "./decor/Backdrop.astro";
 import ClickEffect from "./decor/ClickEffect.astro";
 import SakuraFall from "./decor/SakuraFall.astro";
@@ -20,6 +21,7 @@ import ImageLightbox from "./behavior/ImageLightbox.astro";
  * and Header/Footer go through named slots, so none of them are listed.
  */
 export const BLOCKS = {
+  "chrome/Banner": Banner,
   "decor/Backdrop": Backdrop,
   "decor/ClickEffect": ClickEffect,
   "decor/SakuraFall": SakuraFall,
