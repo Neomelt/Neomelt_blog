@@ -4,8 +4,8 @@ import Footer from "../blocks/chrome/Footer.astro";
 import Header from "../blocks/chrome/Header.astro";
 import CodeCopyButton from "../components/CodeCopyButton.astro";
 import WalineCounter from "../components/WalineCounter.astro";
-import ClickEffect from "../blocks/fx/ClickEffect.astro";
-import ImageLightbox from "../blocks/fx/ImageLightbox.astro";
+import Region from "../components/Region.astro";
+import type { BlockPlacement, RegionName } from "../types/layout";
 import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
@@ -17,9 +17,19 @@ export interface Props {
   description?: string;
   /** Load the KaTeX stylesheet — only needed on post pages that contain math. */
   katex?: boolean;
+  /**
+   * Per-page region overrides. Omit a region to use site.config.ts; pass an
+   * empty array to render nothing there on this page.
+   */
+  regions?: Partial<Record<RegionName, BlockPlacement[]>>;
 }
 
-const { title, description = "", katex = false } = Astro.props;
+const {
+  title,
+  description = "",
+  katex = false,
+  regions = {},
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -152,12 +162,12 @@ const { title, description = "", katex = false } = Astro.props;
         document.addEventListener("astro:page-load", syncLocale);
       })();
     </script>
-    <Header />
+    <slot name="backdrop" />
+    <slot name="header"><Header /></slot>
     <slot />
     <WalineCounter />
     <CodeCopyButton />
-    <ImageLightbox />
-    <ClickEffect effect="ink-glyph" />
-    <Footer />
+    <Region name="floating" override={regions.floating} />
+    <slot name="footer"><Footer /></slot>
   </body>
 </html>
