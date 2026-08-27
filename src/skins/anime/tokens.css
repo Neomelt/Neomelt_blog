@@ -32,6 +32,9 @@
   --accent-rgb: 115, 97, 217;
   --ink-rgb: 90, 73, 189;
   --tag-bg: #e9e4fb;
+  --badge-bg: #d9cffa;
+  --badge-text: #4436a0;
+  --accent-contrast: #ffffff;
   --tag-text: #5b4bad;
 
   /* Legacy token compatibility */
@@ -95,6 +98,9 @@
   --accent-rgb: 165, 150, 242;
   --ink-rgb: 214, 205, 251;
   --tag-bg: #2a2243;
+  --badge-bg: #3a2d63;
+  --badge-text: #c5b6fb;
+  --accent-contrast: #15121f;
   --tag-text: #b6a7f2;
   --bg-primary: var(--bg);
   --bg-secondary: var(--bg-card);
