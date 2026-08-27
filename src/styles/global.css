@@ -49,6 +49,21 @@ video {
   display: block;
 }
 
+/* Form controls do not inherit typography on their own, and buttons carry a
+   platform background. Previously supplied by Tailwind's preflight, stated
+   here now that Tailwind is gone. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+}
+
 a {
   color: var(--accent);
   text-decoration: none;
