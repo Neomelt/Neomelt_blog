@@ -11,9 +11,10 @@ export type SkinName = "minimal" | "anime";
 
 /**
  * Regions that hold an ordered list of blocks, painted back to front:
- * backdrop sits behind the page, floating above it.
+ * backdrop sits behind the page, floating above it, and masthead runs
+ * between the header and the content.
  */
-export type RegionName = "backdrop" | "aside" | "floating";
+export type RegionName = "backdrop" | "masthead" | "aside" | "floating";
 
 /** A bare name when the block needs no props, an object when it does. */
 export type BlockPlacement =

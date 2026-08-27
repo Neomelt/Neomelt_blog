@@ -52,6 +52,17 @@
   --tag-border-alpha: 0.22;
   --tag-hover-lift: 1px;
   --heading-bar-width: 4px;
+
+  /* List item form. anime detaches every row into its own card: framed,
+     rounded, raised, with air between them. This is the structural half of
+     the difference between the two skins. */
+  --list-item-padding: 1.05rem 1.15rem;
+  --list-item-surface: var(--bg-card);
+  --list-item-border-width: var(--border-width);
+  --list-item-divider-width: var(--border-width);
+  --list-item-radius: var(--radius-card);
+  --list-item-shadow: var(--shadow-card);
+  --list-item-gap: 0.85rem;
   --surface-sheen: linear-gradient(
     145deg,
     rgba(140, 122, 233, 0.07) 0%,

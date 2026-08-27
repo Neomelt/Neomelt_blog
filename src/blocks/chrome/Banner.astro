@@ -1,0 +1,99 @@
+---
+import { SITE_TITLE } from "../../consts";
+import { getDefaultUiText } from "../../i18n/ui";
+
+/**
+ * The oversized masthead that sits between the header and the content.
+ *
+ * This is the single loudest thing a skin can do, and no token can express
+ * it: it is an element that either exists or does not. Which is why it is a
+ * block placed in a region rather than a property of the anime skin - put
+ * it in the masthead region under minimal too if you want one.
+ *
+ * Falls back to a token-built gradient, so it needs no artwork.
+ */
+export interface Props {
+  title?: string;
+  /** i18n key for the line under the title. */
+  subtitleKey?: "index.heroTitle" | "index.heroIntro1" | "friends.lead";
+  /** Any CSS length. Roughly a third of the viewport reads as a banner
+      without pushing the content below the fold. */
+  height?: string;
+  /** Root-absolute path to an image in public/. */
+  src?: string;
+}
+
+const {
+  title = SITE_TITLE,
+  subtitleKey,
+  height = "34vh",
+  src,
+} = Astro.props;
+---
+
+<div
+  class="banner"
+  style={`--banner-height: ${height}${src ? `; --banner-image: url("${src}")` : ""}`}
+>
+  <div class="banner-inner">
+    <h1 class="banner-title">{title}</h1>
+    {
+      subtitleKey && (
+        <p class="banner-subtitle" data-i18n={subtitleKey}>
+          {getDefaultUiText(subtitleKey)}
+        </p>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .banner {
+    position: relative;
+    height: var(--banner-height);
+    min-height: 190px;
+    margin-bottom: 2rem;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    /* Same trick as Backdrop: accent-tinted gradient, so it re-tints with
+       the skin instead of being locked to one palette. */
+    background-color: var(--bg-card);
+    background-image:
+      var(--banner-image, none),
+      radial-gradient(
+        ellipse 70% 90% at 20% 10%,
+        rgba(var(--accent-rgb), 0.34) 0%,
+        rgba(var(--accent-rgb), 0) 62%
+      ),
+      radial-gradient(
+        ellipse 60% 80% at 82% 78%,
+        rgba(var(--ink-rgb), 0.26) 0%,
+        rgba(var(--ink-rgb), 0) 58%
+      );
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-card);
+  }
+
+  .banner-inner {
+    text-align: center;
+    padding: 1rem 1.4rem;
+  }
+
+  .banner-title {
+    margin: 0;
+    font-size: clamp(1.9rem, 6vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+
+  .banner-subtitle {
+    margin: 0.6rem 0 0;
+    color: var(--text-muted);
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+  }
+</style>

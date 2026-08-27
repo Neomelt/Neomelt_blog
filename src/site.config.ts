@@ -25,6 +25,17 @@ export const siteLayout = {
       },
     ],
 
+    // Between the header and the content. An oversized masthead is the
+    // loudest single move a skin can make, and no token expresses it - the
+    // element either exists or it does not - so it lives here.
+    masthead: [
+      {
+        use: "chrome/Banner",
+        props: { subtitleKey: "index.heroIntro1", height: "34vh" },
+        skins: ["anime"],
+      },
+    ],
+
     // Wired but empty. Sidebar widgets dropped in here appear on post pages
     // without any layout edit - BlogPost grows the column on its own.
     aside: [],
