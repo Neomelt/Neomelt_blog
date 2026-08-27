@@ -43,8 +43,13 @@ export const profile = {
   name: "Neomelt",
   /** Root-absolute, under public/. */
   avatar: "/head.jpg",
-  /** i18n key, so the bio follows the language toggle. */
-  bioKey: "index.heroIntro1" as const,
+  /**
+   * i18n key, so the bio follows the language toggle. Its own key rather than
+   * the homepage intro it used to borrow: a card that sits beside every page
+   * wants one line, and a full self-introduction reads as filler by the
+   * second page.
+   */
+  bioKey: "profile.bio" as const,
   links: [
     { label: "GitHub", url: "https://github.com/Neomelt", icon: "github" },
     {

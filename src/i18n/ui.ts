@@ -126,6 +126,8 @@ export const UI_TRANSLATIONS = {
     "index.recentPosts": "最近文章",
     "index.viewAll": "全部文章 →",
 
+    "profile.bio": "我会带你去往星河的彼端",
+
     "about.title": "关于我",
     "about.pageCrumb": "关于",
     "about.metaTitle": "关于",
