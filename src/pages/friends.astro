@@ -315,7 +315,7 @@ const myFriendLinkText = myFriendLinkItems
     margin-top: 1.25rem;
     padding: 1.25rem;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     background: var(--bg-card);
   }
 
@@ -360,7 +360,7 @@ const myFriendLinkText = myFriendLinkItems
     gap: 0.45rem;
     padding: 0.58rem 0.9rem;
     border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
     color: var(--text);
     font: inherit;
@@ -418,7 +418,7 @@ const myFriendLinkText = myFriendLinkItems
     gap: 0.82rem;
     padding: 0.82rem 0.94rem;
     border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
-    border-radius: 18px;
+    border-radius: var(--radius-card);
     background: color-mix(in srgb, var(--bg) 86%, var(--accent) 4%);
     color: inherit;
     text-decoration: none;
@@ -480,7 +480,7 @@ const myFriendLinkText = myFriendLinkItems
   :global(.circle-date) {
     justify-self: end;
     padding: 0.24rem 0.62rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
     background: color-mix(in srgb, var(--bg-card) 72%, var(--accent) 4%);
     color: var(--text-muted);
@@ -501,7 +501,7 @@ const myFriendLinkText = myFriendLinkItems
 
   .friend-card {
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-card);
     background: var(--bg);
     transition:
       border-color var(--transition),
@@ -528,7 +528,7 @@ const myFriendLinkText = myFriendLinkItems
   .friend-avatar {
     width: 52px;
     height: 52px;
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     border: 1px solid var(--border);
     object-fit: cover;
     flex-shrink: 0;
@@ -566,7 +566,7 @@ const myFriendLinkText = myFriendLinkItems
     font-size: 0.76rem;
     line-height: 1;
     padding: 0.3rem 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border);
     color: var(--text-muted);
     background: var(--bg-card);
@@ -574,7 +574,7 @@ const myFriendLinkText = myFriendLinkItems
 
   .empty-state {
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: var(--radius-card);
     border: 1px dashed var(--border);
     color: var(--text-muted);
     background: var(--bg-code);
@@ -584,7 +584,7 @@ const myFriendLinkText = myFriendLinkItems
     margin-bottom: 1rem;
     padding: 0.95rem;
     border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-    border-radius: 11px;
+    border-radius: var(--radius-card);
     background: linear-gradient(
       135deg,
       color-mix(in srgb, var(--accent) 9%, var(--bg-card)) 0%,
@@ -628,7 +628,7 @@ const myFriendLinkText = myFriendLinkItems
     gap: 0.62rem;
     padding: 0.56rem 0.68rem;
     border: 1px solid var(--border);
-    border-radius: 9px;
+    border-radius: var(--radius-md);
     background: var(--bg);
     color: inherit;
     text-align: left;
@@ -667,7 +667,7 @@ const myFriendLinkText = myFriendLinkItems
   .self-link-copy {
     padding: 0.18rem 0.5rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-size: 0.74rem;
     color: var(--text-muted);
     background: var(--bg-card);
@@ -679,7 +679,7 @@ const myFriendLinkText = myFriendLinkItems
     align-items: center;
     gap: 0.35rem;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0.3rem 0.7rem;
     background: var(--bg);
     color: var(--text);
@@ -721,7 +721,7 @@ const myFriendLinkText = myFriendLinkItems
     gap: 0.42rem;
     min-width: 150px;
     padding: 0.64rem 1.02rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border);
     font-weight: 700;
     font-size: 0.94rem;

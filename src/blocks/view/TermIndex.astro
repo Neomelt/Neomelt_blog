@@ -1,0 +1,175 @@
+---
+import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
+
+/**
+ * The shared half of the tag and category pages: a cloud of terms, then one
+ * section per term listing its posts.
+ *
+ * Only the rendering is shared. How a term maps to posts genuinely differs -
+ * a post carries several tags but one category, and an absent category
+ * falls back to a label - so that stays in each page. Folding it in here
+ * would mean a branch on which page is calling, which is worse than the
+ * duplication it removes.
+ *
+ * Takes plain display data rather than CollectionEntry so it has no opinion
+ * about where the posts came from.
+ */
+export interface TermLink {
+  title: string;
+  url: string;
+  /** Already formatted - date formatting is the caller's locale concern. */
+  date: string;
+}
+
+export interface TermGroup {
+  name: string;
+  posts: TermLink[];
+}
+
+export interface Props {
+  /** Heading and breadcrumb label. */
+  titleKey: UiTranslationKey;
+  terms: { name: string; count: number }[];
+  groups: TermGroup[];
+  /** Shown before each term. "#" for tags, empty for categories. */
+  prefix?: string;
+}
+
+const { titleKey, terms, groups, prefix = "" } = Astro.props;
+---
+
+<nav
+  class="breadcrumb"
+  data-i18n-aria-label="post.breadcrumbAria"
+  aria-label={getDefaultUiText("post.breadcrumbAria")}
+>
+  <a href={withBase("/")} data-i18n="common.home"
+    >{getDefaultUiText("common.home")}</a
+  >
+  <span class="breadcrumb-sep">/</span>
+  <span data-i18n={titleKey}>{getDefaultUiText(titleKey)}</span>
+</nav>
+
+<h1 class="section-heading">
+  <span data-i18n={titleKey}>{getDefaultUiText(titleKey)}</span>
+  <span class="text-muted text-sm"
+    >({terms.length}
+    <span data-i18n="tags.countUnit">{getDefaultUiText("tags.countUnit")}</span
+    >)</span
+  >
+</h1>
+
+<div class="term-cloud">
+  {
+    terms.map(({ name, count }) => (
+      <a href={`#${name}`} class="term-item">
+        {prefix}
+        {name}
+        <span class="term-count">{count}</span>
+      </a>
+    ))
+  }
+</div>
+
+{
+  groups.map((group) => (
+    <section id={group.name} class="term-section">
+      <h2 class="term-section-title">
+        {prefix}
+        {group.name}{" "}
+        <span class="text-muted text-sm">({group.posts.length})</span>
+      </h2>
+      <ul class="archive-list">
+        {group.posts.map((post) => (
+          <li class="archive-item">
+            <span class="archive-date">{post.date}</span>
+            <a href={post.url} class="archive-title">
+              {post.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))
+}
+
+<style>
+  .term-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .term-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color var(--transition),
+      color var(--transition);
+  }
+
+  .term-item:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .term-count {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .term-section {
+    margin-bottom: 2rem;
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+  }
+
+  .term-section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .archive-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .archive-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding: 0.35rem 0;
+  }
+
+  .archive-item + .archive-item {
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .archive-date {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .archive-title {
+    color: var(--text);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .archive-title:hover {
+    color: var(--accent);
+  }
+</style>

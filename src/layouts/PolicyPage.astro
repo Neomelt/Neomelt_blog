@@ -1,0 +1,187 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { SITE_TITLE } from "../consts";
+import {
+  getDefaultUiText,
+  UI_TRANSLATIONS,
+  DEFAULT_LOCALE,
+  type UiTranslationKey,
+} from "../i18n/ui";
+import { withBase } from "../utils/url";
+
+/**
+ * The four policy pages were the same 128-line template four times over,
+ * differing only in an i18n prefix - disclaimer and terms-and-conditions
+ * were byte-identical to copyright once the prefix was normalised.
+ *
+ * A policy is anything with a section 1, so the union below is derived
+ * from the dictionary: add terms.refundS1Title and "refund" becomes a
+ * valid value here with no edit.
+ */
+// The generic parameter matters: a conditional type only distributes over a
+// union when its checked type is a naked type parameter. Written directly as
+// `UiTranslationKey extends ...` the whole union is tested at once, which is
+// false, and PolicyName silently becomes never.
+type PolicyOf<K> = K extends `terms.${infer P}S1Title` ? P : never;
+
+export type PolicyName = PolicyOf<UiTranslationKey>;
+
+export interface Props {
+  policy: PolicyName;
+}
+
+const { policy } = Astro.props;
+
+const dict = UI_TRANSLATIONS[DEFAULT_LOCALE] as Record<string, string>;
+const key = (suffix: string) => `terms.${policy}${suffix}` as UiTranslationKey;
+
+// Walk the dictionary rather than hardcoding 4 sections of 3 items: adding
+// a bullet is then a dictionary edit, not a template edit.
+const sections: { titleKey: UiTranslationKey; itemKeys: UiTranslationKey[] }[] =
+  [];
+for (let s = 1; dict[`terms.${policy}S${s}Title`] !== undefined; s += 1) {
+  const itemKeys: UiTranslationKey[] = [];
+  for (let i = 1; dict[`terms.${policy}S${s}Item${i}`] !== undefined; i += 1) {
+    itemKeys.push(key(`S${s}Item${i}`));
+  }
+  sections.push({ titleKey: key(`S${s}Title`), itemKeys });
+}
+
+const titleKey = key("Title");
+const introKey = key("Intro");
+const descKey = key("Desc");
+---
+
+<BaseLayout
+  title={`${getDefaultUiText(titleKey)} | ${SITE_TITLE}`}
+  description={getDefaultUiText(descKey)}
+>
+  <main>
+    <div class="container policy-page">
+      <nav
+        class="breadcrumb"
+        data-i18n-aria-label="post.breadcrumbAria"
+        aria-label={getDefaultUiText("post.breadcrumbAria")}
+      >
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
+        >
+        <span class="breadcrumb-sep">/</span>
+        <a href={withBase("/terms/list")} data-i18n="terms.listTitle"
+          >{getDefaultUiText("terms.listTitle")}</a
+        >
+        <span class="breadcrumb-sep">/</span>
+        <span data-i18n={titleKey}>{getDefaultUiText(titleKey)}</span>
+      </nav>
+
+      <article class="policy-card">
+        <header class="policy-head">
+          <h1 data-i18n={titleKey}>{getDefaultUiText(titleKey)}</h1>
+          <p>
+            <span data-i18n="terms.updatedLabel"
+              >{getDefaultUiText("terms.updatedLabel")}</span
+            >:
+            <span data-i18n="terms.effectiveDate"
+              >{getDefaultUiText("terms.effectiveDate")}</span
+            >
+          </p>
+        </header>
+
+        <p class="policy-intro" data-i18n={introKey}>
+          {getDefaultUiText(introKey)}
+        </p>
+
+        {
+          sections.map(({ titleKey: sectionTitle, itemKeys }) => (
+            <section class="policy-section">
+              <h2 data-i18n={sectionTitle}>{getDefaultUiText(sectionTitle)}</h2>
+              <ul class="policy-list">
+                {itemKeys.map((itemKey) => (
+                  <li data-i18n={itemKey}>{getDefaultUiText(itemKey)}</li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+
+        <p class="policy-contact" data-i18n="terms.contact">
+          {getDefaultUiText("terms.contact")}
+        </p>
+        <a
+          href={withBase("/terms/list")}
+          class="policy-back"
+          data-i18n="terms.backToList">{getDefaultUiText("terms.backToList")}</a
+        >
+      </article>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .policy-page {
+    padding-top: 0.25rem;
+  }
+
+  .policy-card {
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 1.15rem;
+    background-color: var(--bg-card);
+    background-image: var(--surface-sheen);
+  }
+
+  .policy-head {
+    margin-bottom: 0.8rem;
+  }
+
+  .policy-head h1 {
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.4rem, 3vw, 1.75rem);
+  }
+
+  .policy-head p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .policy-card p {
+    margin-bottom: 0.9rem;
+  }
+
+  .policy-section {
+    margin-bottom: 1rem;
+  }
+
+  .policy-section h2 {
+    margin: 0 0 0.45rem;
+    font-size: 1.02rem;
+  }
+
+  .policy-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-muted);
+  }
+
+  .policy-list li {
+    margin-bottom: 0.45rem;
+  }
+
+  .policy-contact {
+    margin-top: 0.2rem;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .policy-back {
+    display: inline-block;
+    margin-top: 0.4rem;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .policy-back:hover {
+    text-decoration: underline;
+  }
+</style>
