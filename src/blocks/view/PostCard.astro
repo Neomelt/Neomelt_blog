@@ -150,6 +150,16 @@ const cover: ImageMetadata | null =
       -webkit-backdrop-filter: blur(var(--list-item-blur));
       backdrop-filter: blur(var(--list-item-blur));
     }
+
+    /* Blur is per-frame GPU work on every card. On a phone, where the
+       backdrop is already faded, it costs scrolling smoothness for an effect
+       nobody can see. */
+    @media (max-width: 768px) {
+      .post-card {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
   }
 
   .post-card:hover {

@@ -14,6 +14,17 @@ function readSkinTokens(skin: string): Set<string> {
   );
 }
 
+/** Tokens declared inside a skin's .dark block, which overrides the base. */
+function readDarkTokens(skin: string): Set<string> {
+  const css = readFileSync(join(SKIN_DIR, skin, "tokens.css"), "utf8");
+  const start = css.indexOf(".dark");
+  if (start === -1) return new Set();
+  const block = css.slice(start, css.indexOf("\n}", start));
+  return new Set(
+    [...block.matchAll(/^\s+(--[a-z0-9-]+):/gm)].map((m) => m[1] as string),
+  );
+}
+
 function walk(dir: string, exts: string[]): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = join(dir, entry.name);
@@ -36,6 +47,20 @@ describe("skin token contract", () => {
     const reference = readSkinTokens(first);
     for (const skin of rest) {
       const tokens = readSkinTokens(skin);
+      const missing = [...reference].filter((t) => !tokens.has(t));
+      const extra = [...tokens].filter((t) => !reference.has(t));
+      expect({ skin, missing, extra }).toEqual({ skin, missing: [], extra: [] });
+    }
+  });
+
+  it("every skin overrides the same tokens in dark mode", () => {
+    // Comparing only the base blocks let a token be added to one skin's dark
+    // block and not another's, which shows up as one mode looking wrong in
+    // one skin - the hardest kind of mismatch to notice.
+    const [first, ...rest] = SKINS;
+    const reference = readDarkTokens(first);
+    for (const skin of rest) {
+      const tokens = readDarkTokens(skin);
       const missing = [...reference].filter((t) => !tokens.has(t));
       const extra = [...tokens].filter((t) => !reference.has(t));
       expect({ skin, missing, extra }).toEqual({ skin, missing: [], extra: [] });

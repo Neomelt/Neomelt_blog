@@ -68,6 +68,11 @@
   --list-item-divider-width: var(--border-width);
   --list-item-radius: var(--radius-card);
   --list-item-shadow: var(--shadow-card);
+  /* A bright illustration behind a dark page reads as a light leak, so it is
+     dimmed and desaturated rather than merely covered by more overlay -
+     overlay alone flattens it to a grey wash. */
+  --backdrop-filter: brightness(0.45) saturate(0.7);
+  --backdrop-overlay: 0.5;
   --list-item-gap: 1.1rem;
   /* The cards are the glass now, so the blur lives on them. */
   --list-item-blur: 12px;
@@ -124,6 +129,9 @@
   --panel-blur: 0px;
   --panel-border: transparent;
   --panel-padding: 0px;
+  /* Light mode wants the illustration close to its own values. */
+  --backdrop-filter: saturate(0.92);
+  --backdrop-overlay: 0.42;
   --aside-width: 290px;
   --header-height: 64px;
 
@@ -153,9 +161,13 @@
   --callout-caution: #fc8181;
   --accent-contrast: #0f172a;
   --glass-bg: rgba(30, 41, 59, 0.58);
-  --surface-sheen: none;
   --glass-border: rgba(148, 163, 184, 0.18);
   --tag-text: #93b8dc;
   --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);
   --shadow-float: 0 24px 64px rgba(0, 0, 0, 0.62);
+  /* A bright illustration behind a dark page reads as a light leak, so it is
+     dimmed and desaturated rather than merely buried under more overlay -
+     overlay alone flattens it to a grey wash. */
+  --backdrop-filter: brightness(0.45) saturate(0.7);
+  --backdrop-overlay: 0.5;
 }
