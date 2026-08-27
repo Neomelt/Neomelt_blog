@@ -102,7 +102,15 @@ export const siteLayout = {
 
     // Left column. The shell adds a column for each side that has blocks, so
     // moving a widget across is moving one line.
-    asideStart: ["widget/Profile", "widget/BlogStats"],
+    // MusicPlayer belongs on this side specifically: BlogPost.astro renders
+    // asideStart into its table-of-contents column and has no asideEnd, so a
+    // player on the other side would disappear - and stop - the moment a
+    // visitor opened a post. It renders nothing while playlist.ts is empty.
+    asideStart: [
+      "widget/Profile",
+      "widget/BlogStats",
+      { use: "widget/MusicPlayer", props: { volume: 0.6 } },
+    ],
 
     // Right column. Splitting the widgets across both sides is what fills a
     // wide screen - a single column leaves 41% of a 2560px display empty

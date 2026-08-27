@@ -1,0 +1,430 @@
+---
+import GlassPanel from "../surface/GlassPanel.astro";
+import { getDefaultUiText } from "../../i18n/ui";
+import { PLAYLIST } from "../../data/playlist";
+import { withBase } from "../../utils/url";
+
+/**
+ * A player that sits in the aside column like any other widget - same panel,
+ * same heading, same width as the calendar above it.
+ *
+ * transition:persist is on the inner body rather than the panel, and it is
+ * what makes the widget worth its complexity. ClientRouter swaps the document
+ * on navigation, which would destroy the <audio> element and cut the music on
+ * every link; a persisted node is moved into the new document instead. The
+ * directive cannot ride on GlassPanel - Astro directives are not forwarded
+ * through a component's props - so the panel is rebuilt each navigation and
+ * only the part that is actually playing survives.
+ *
+ * Belongs in asideStart, not asideEnd. BlogPost.astro renders asideStart into
+ * its table-of-contents column but has no asideEnd, so a player on the end
+ * side would vanish - and stop - the moment a visitor opened a post.
+ *
+ * The playlist is data - see src/data/playlist.ts. With no tracks this renders
+ * nothing at all, panel included.
+ */
+export interface Props {
+  heading?: boolean;
+  /** 0-1. The opening volume, before the visitor touches the slider. */
+  volume?: number;
+}
+
+const { heading = true, volume = 0.6 } = Astro.props;
+
+// Base-prefixed here rather than in the script: import.meta.env.BASE_URL is a
+// build-time value, and the mirror serves everything under /Neomelt_blog/.
+const tracks = PLAYLIST.map((track) => ({
+  ...track,
+  src: withBase(track.src),
+  cover: track.cover ? withBase(track.cover) : undefined,
+}));
+---
+
+{
+  tracks.length > 0 && (
+    <GlassPanel class="music">
+      {heading && (
+        <h2 class="music-title-heading" data-i18n="widget.musicTitle">
+          {getDefaultUiText("widget.musicTitle")}
+        </h2>
+      )}
+
+      <div
+        class="music-body"
+        transition:persist="music-player"
+        data-tracks={JSON.stringify(tracks)}
+        data-volume={volume}
+        aria-label={getDefaultUiText("music.label")}
+        data-i18n-aria-label="music.label"
+        role="group"
+      >
+        {/* preload="none" so a visitor who never presses play never pays for
+            the audio. The first press costs a round trip; that is the right
+            trade for something in the margin of the page. */}
+        <audio class="music-audio" preload="none" />
+
+        {/* aria-live so a screen reader hears the track change that the
+            sighted visitor sees. polite: it is never urgent. */}
+        <p class="music-track" aria-live="polite" />
+
+        <div class="music-row">
+          <input
+            type="range"
+            class="music-seek"
+            min="0"
+            max="100"
+            step="0.1"
+            value="0"
+            aria-label={getDefaultUiText("music.seek")}
+            data-i18n-aria-label="music.seek"
+          />
+          <span class="music-time">0:00</span>
+        </div>
+
+        <div class="music-row music-controls">
+          <button
+            type="button"
+            class="music-button music-prev"
+            aria-label={getDefaultUiText("music.prev")}
+            data-i18n-aria-label="music.prev"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 20 9 12l10-8v16Z" />
+              <path d="M5 19V5" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="music-button music-toggle"
+            aria-label={getDefaultUiText("music.play")}
+            data-i18n-aria-label="music.play"
+          >
+            {/* Which icon shows is a class on the button, not `hidden` on the
+                svg: `hidden` is an HTML content attribute, and the UA rule
+                that acts on it does not apply in the SVG namespace, so both
+                icons would draw. */}
+            <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 4l14 8-14 8V4Z" />
+            </svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 4v16" />
+              <path d="M16 4v16" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="music-button music-next"
+            aria-label={getDefaultUiText("music.next")}
+            data-i18n-aria-label="music.next"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 4l10 8-10 8V4Z" />
+              <path d="M19 5v14" />
+            </svg>
+          </button>
+
+          <svg class="music-volume-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+            <path d="M16 9a4 4 0 0 1 0 6" />
+          </svg>
+          <input
+            type="range"
+            class="music-volume"
+            min="0"
+            max="1"
+            step="0.05"
+            aria-label={getDefaultUiText("music.volume")}
+            data-i18n-aria-label="music.volume"
+          />
+        </div>
+      </div>
+    </GlassPanel>
+  )
+}
+
+<style>
+  /* Matches .cal-title and the other widget headings. */
+  .music-title-heading {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .music-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--text-muted);
+  }
+
+  .music-track {
+    margin: 0;
+    min-width: 0;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .music-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* The volume slider takes what the buttons leave, which in a 240px column
+     is enough to be usable and not enough to compete with them. */
+  .music-controls .music-volume {
+    max-width: 4.5rem;
+  }
+
+  .music-button {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 1.9rem;
+    height: 1.9rem;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--transition);
+  }
+
+  .music-button:hover {
+    color: var(--accent);
+  }
+
+  .music-button svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* The play triangle reads as a shape, not an outline. */
+  .icon-play {
+    fill: currentColor;
+  }
+
+  .music-toggle {
+    color: var(--text);
+  }
+
+  .music-toggle .icon-pause,
+  .music-toggle.is-playing .icon-play {
+    display: none;
+  }
+
+  .music-toggle.is-playing .icon-pause {
+    display: block;
+  }
+
+  .music-time {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .music-volume-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* One rule for both sliders. appearance:none drops the platform widget so
+     the track and thumb can be tokens; without it Chrome keeps its blue. */
+  .music-seek,
+  .music-volume {
+    flex: 1;
+    min-width: 0;
+    height: 3px;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: var(--radius-pill);
+    background: var(--border);
+    cursor: pointer;
+  }
+
+  .music-seek::-webkit-slider-thumb,
+  .music-volume::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 9px;
+    height: 9px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    border: none;
+  }
+
+  .music-seek::-moz-range-thumb,
+  .music-volume::-moz-range-thumb {
+    width: 9px;
+    height: 9px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    border: none;
+  }
+
+  .music-seek:focus-visible,
+  .music-volume:focus-visible,
+  .music-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .music-button {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  interface Track {
+    title: string;
+    artist?: string;
+    src: string;
+    cover?: string;
+  }
+
+  /**
+   * BaseLayout puts this on window; it is not declared on the Window type,
+   * and widening Window globally would be a bigger change than this block
+   * should make. Narrow cast, one place.
+   */
+  type SiteI18n = { t?: (key: string, fallback?: string) => string };
+  const i18n = () =>
+    (window as unknown as { __siteI18n?: SiteI18n }).__siteI18n;
+
+  function formatTime(seconds: number): string {
+    if (!Number.isFinite(seconds)) return "0:00";
+    const total = Math.floor(seconds);
+    const minutes = Math.floor(total / 60);
+    return `${minutes}:${String(total % 60).padStart(2, "0")}`;
+  }
+
+  function setupMusicPlayer() {
+    const root = document.querySelector<HTMLElement>(".music-body");
+    // The persisted node keeps its listeners across navigation, so a second
+    // run would double every handler.
+    if (!root || root.dataset.bound) return;
+
+    const audio = root.querySelector<HTMLAudioElement>(".music-audio");
+    const toggle = root.querySelector<HTMLButtonElement>(".music-toggle");
+    const prev = root.querySelector<HTMLButtonElement>(".music-prev");
+    const next = root.querySelector<HTMLButtonElement>(".music-next");
+    const track = root.querySelector<HTMLParagraphElement>(".music-track");
+    const time = root.querySelector<HTMLSpanElement>(".music-time");
+    const seek = root.querySelector<HTMLInputElement>(".music-seek");
+    const volume = root.querySelector<HTMLInputElement>(".music-volume");
+
+    if (
+      !audio ||
+      !toggle ||
+      !prev ||
+      !next ||
+      !track ||
+      !time ||
+      !seek ||
+      !volume
+    ) {
+      return;
+    }
+
+    let tracks: Track[] = [];
+    try {
+      tracks = JSON.parse(root.dataset.tracks ?? "[]");
+    } catch {
+      return;
+    }
+    if (tracks.length === 0) return;
+
+    root.dataset.bound = "true";
+
+    let index = 0;
+    // Dragging the seek bar moves the thumb and fires timeupdate at the same
+    // time; without this the thumb snaps back to the playhead mid-drag.
+    let scrubbing = false;
+
+    const initialVolume = Number(root.dataset.volume ?? "0.6");
+    audio.volume = Number.isFinite(initialVolume) ? initialVolume : 0.6;
+    volume.value = String(audio.volume);
+
+    // Arrow functions rather than declarations: a hoisted `function` here
+    // loses the narrowing the guard above established, and every element
+    // reads as possibly null inside it.
+    const load = (target: number, play: boolean) => {
+      index = ((target % tracks.length) + tracks.length) % tracks.length;
+      const current = tracks[index]!;
+      audio.src = current.src;
+      track.textContent = current.artist
+        ? `${current.title} — ${current.artist}`
+        : current.title;
+      seek.value = "0";
+      time.textContent = "0:00";
+      if (play) void audio.play();
+    };
+
+    const paintPlayState = (playing: boolean) => {
+      toggle.classList.toggle("is-playing", playing);
+      const key = playing ? "music.pause" : "music.play";
+      const fallback = playing ? "Pause" : "Play";
+      // Both: the attribute is what a screen reader reads right now, and the
+      // data key is what the language toggle re-translates from later.
+      toggle.dataset.i18nAriaLabel = key;
+      toggle.setAttribute("aria-label", i18n()?.t?.(key, fallback) || fallback);
+    };
+
+    toggle.addEventListener("click", () => {
+      if (audio.paused) void audio.play();
+      else audio.pause();
+    });
+
+    prev.addEventListener("click", () => load(index - 1, !audio.paused));
+    next.addEventListener("click", () => load(index + 1, !audio.paused));
+
+    audio.addEventListener("play", () => paintPlayState(true));
+    audio.addEventListener("pause", () => paintPlayState(false));
+    audio.addEventListener("ended", () => load(index + 1, true));
+
+    audio.addEventListener("timeupdate", () => {
+      time.textContent = formatTime(audio.currentTime);
+      if (scrubbing || !Number.isFinite(audio.duration)) return;
+      seek.value = String((audio.currentTime / audio.duration) * 100);
+    });
+
+    seek.addEventListener("pointerdown", () => {
+      scrubbing = true;
+    });
+    seek.addEventListener("change", () => {
+      scrubbing = false;
+      if (Number.isFinite(audio.duration)) {
+        audio.currentTime = (Number(seek.value) / 100) * audio.duration;
+      }
+    });
+
+    volume.addEventListener("input", () => {
+      audio.volume = Number(volume.value);
+    });
+
+    load(0, false);
+  }
+
+  document.addEventListener("DOMContentLoaded", setupMusicPlayer);
+  document.addEventListener("astro:page-load", setupMusicPlayer);
+</script>
