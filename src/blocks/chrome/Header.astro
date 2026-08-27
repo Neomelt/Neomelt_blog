@@ -358,14 +358,34 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 </script>
 
 <style>
+  /* The same glass tokens the sidebar cards use, not a flat --bg. With a
+     backdrop behind the page, an opaque bar was the one element the artwork
+     could not show through - it cut the illustration off at the top and read
+     as a strip pasted over the design rather than part of it.
+
+     This is free under minimal: that skin sets --glass-blur-md to 0 and
+     --glass-bg to the opaque card colour, so the header renders exactly as
+     it did. Only anime, which has a backdrop to show, changes. */
   #site-header {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
+    background-color: var(--glass-bg);
+    border-bottom: var(--border-width) solid var(--glass-border);
     height: var(--header-height);
     overflow: hidden;
+  }
+
+  /* backdrop-filter only inside @supports, matching surface/GlassPanel:
+     without it the declared background has to stay fully opaque, or an
+     unsupported browser shows the header text straight over the artwork. */
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    #site-header {
+      -webkit-backdrop-filter: blur(var(--glass-blur-md))
+        saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur-md))
+        saturate(var(--glass-saturate));
+    }
   }
 
   .header-inner {
@@ -450,11 +470,14 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     background: var(--bg-code);
   }
 
+  /* Wider than the icon buttons because it carries a word, but otherwise the
+     same control. It used to be the only bordered thing in the row, which
+     made four controls read as three shapes. The label stays - a globe alone
+     does not say which language a click would switch to. */
   .locale-btn {
     width: auto;
-    padding: 0 0.55rem;
+    padding: 0 0.5rem;
     gap: 0.35rem;
-    border: 1px solid var(--border);
   }
 
   .locale-label {
