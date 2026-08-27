@@ -18,11 +18,10 @@ export const siteLayout = {
     backdrop: [
       // Rendered under every skin, shown only under anime. See `skins` in
       // src/types/layout.ts for why this is not a build-time exclusion.
-      {
-        use: "decor/Backdrop",
-        props: { overlay: 0.45, drift: true },
-        skins: ["anime"],
-      },
+      // No `skins` filter: the backdrop is tinted from --accent, so it reads
+      // as restrained under minimal and richer under anime without being
+      // owned by either. Add skins: ["anime"] to confine it.
+      { use: "decor/Backdrop", props: { overlay: 0.42 } },
     ],
 
     // Between the header and the content. An oversized masthead is the

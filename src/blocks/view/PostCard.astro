@@ -12,7 +12,6 @@ export interface Props {
   pubDate: Date;
   showReadingTime?: boolean;
   showTags?: boolean;
-  /** How many tags to show before truncating. */
   maxTags?: number;
 }
 
@@ -30,61 +29,115 @@ const readingTime = showReadingTime
   ? estimateReadingTime(post.body || "")
   : null;
 const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
+
+// Cover, in order of preference: the first image in the body, then a
+// per-post heroImage, then a generated panel. data.heroImage is skipped when
+// it is the shared default - every post points at the same cover.svg, so
+// honouring it would give fifteen identical thumbnails. (The reference site
+// does exactly that: ten posts, one kamio1.jpg. It looks good because the
+// image is good, not because the mechanism is.)
+const bodyImage = (post.body ?? "").match(/!\[[^\]]*\]\(([^)\s]+)/)?.[1];
+const heroSrc =
+  typeof post.data.heroImage === "object" && post.data.heroImage
+    ? (post.data.heroImage as { src: string }).src
+    : null;
+const cover = bodyImage?.includes("/public/")
+  ? withBase(bodyImage.replace(/^.*?\/public\//, "/"))
+  : heroSrc && !heroSrc.includes("cover.svg")
+    ? heroSrc
+    : null;
+
+// Posts without an image get a generated panel rather than a blank box or a
+// stock placeholder. Deterministic from the title, so it is stable across
+// builds, and every colour is a token, so it follows the skin. Two offset
+// radial blooms over a linear base read as a soft mesh instead of the flat
+// band a single gradient gives.
+const title = post.data.title;
+const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+const glyph = [...title].find((ch) => /\S/.test(ch)) ?? "·";
+const pick = (shift: number, mod: number, base = 0) =>
+  base + ((hash >> shift) % mod);
+const coverStyle = [
+  `--cover-angle: ${hash % 360}deg`,
+  `--bloom1-x: ${pick(2, 55, 15)}%`,
+  `--bloom1-y: ${pick(5, 45, 10)}%`,
+  `--bloom2-x: ${pick(8, 50, 45)}%`,
+  `--bloom2-y: ${pick(11, 45, 45)}%`,
+  `--cover-a: ${(0.42 + pick(14, 24) / 100).toFixed(2)}`,
+  `--cover-b: ${(0.16 + pick(17, 18) / 100).toFixed(2)}`,
+  `--glyph-rot: ${pick(20, 17) - 8}deg`,
+].join("; ");
 ---
 
 <a href={url} class="post-card">
-  <div class="post-card-meta">
-    <FormattedDate date={pubDate} />
-    {
-      post.data.pinned && (
-        <span class="badge-pinned" data-i18n="common.pinned">
-          {getDefaultUiText("common.pinned")}
-        </span>
-      )
-    }
-    {
-      readingTime !== null && (
-        <span>
-          {readingTime}{" "}
-          <span data-i18n="common.minutes">
-            {getDefaultUiText("common.minutes")}
+  <div class="post-card-body">
+    <div class="post-card-meta">
+      <FormattedDate date={pubDate} />
+      {
+        post.data.pinned && (
+          <span class="badge-pinned" data-i18n="common.pinned">
+            {getDefaultUiText("common.pinned")}
           </span>
-        </span>
+        )
+      }
+      {
+        readingTime !== null && (
+          <span>
+            {readingTime}{" "}
+            <span data-i18n="common.minutes">
+              {getDefaultUiText("common.minutes")}
+            </span>
+          </span>
+        )
+      }
+    </div>
+
+    <div class="post-card-title">{title}</div>
+
+    {post.data.description && <div class="post-card-desc">{post.data.description}</div>}
+
+    <div class="post-card-stats">
+      <span class="waline-pageview-count" data-path={walinePath}>0</span>{" "}
+      <span data-i18n="common.views">{getDefaultUiText("common.views")}</span>
+      <span class="stats-sep">/</span>
+      <span class="waline-comment-count" data-path={walinePath}>0</span>{" "}
+      <span data-i18n="common.comments">
+        {getDefaultUiText("common.comments")}
+      </span>
+    </div>
+
+    {
+      tags.length > 0 && (
+        <div class="post-card-tags">
+          {tags.map((tag: string) => (
+            <span class="tag">#{tag}</span>
+          ))}
+        </div>
       )
     }
   </div>
 
-  <div class="post-card-title">{post.data.title}</div>
-
-  {post.data.description && <div class="post-card-desc">{post.data.description}</div>}
-
-  <div class="post-card-stats">
-    <span class="waline-pageview-count" data-path={walinePath}>0</span>{" "}
-    <span data-i18n="common.views">{getDefaultUiText("common.views")}</span>
-    <span class="stats-sep">/</span>
-    <span class="waline-comment-count" data-path={walinePath}>0</span>{" "}
-    <span data-i18n="common.comments">
-      {getDefaultUiText("common.comments")}
-    </span>
+  <div class="post-cover" style={coverStyle} aria-hidden="true">
+    {
+      cover ? (
+        <img src={cover} alt="" loading="lazy" decoding="async" />
+      ) : (
+        <span class="post-cover-glyph">{glyph}</span>
+      )
+    }
   </div>
-
-  {
-    tags.length > 0 && (
-      <div class="post-card-tags">
-        {tags.map((tag: string) => (
-          <span class="tag">#{tag}</span>
-        ))}
-      </div>
-    )
-  }
 </a>
 
 <style>
-  /* Form comes from the skin, not from here: --list-item-* turns this
-     between a divided list row and a detached card without the component
-     knowing which it is. */
+  /* Both the frame and the thumbnail column come from the skin: minimal is a
+     divided list with a small square thumb, anime is a detached card with a
+     larger one. Setting --card-cover-size to 0 drops the column without any
+     markup change. */
   .post-card {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--card-cover-size);
+    gap: var(--card-cover-gap);
+    align-items: start;
     padding: var(--list-item-padding);
     margin-bottom: var(--list-item-gap);
     border: var(--list-item-border-width) solid var(--border);
@@ -95,14 +148,92 @@ const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
     box-shadow: var(--list-item-shadow);
     text-decoration: none;
     color: inherit;
+    transition:
+      transform var(--transition),
+      background-color var(--transition);
+  }
+
+  .post-card:hover {
+    transform: translateX(var(--card-hover-lift));
+    background-color: rgba(var(--accent-rgb), var(--card-hover-tint));
   }
 
   /* In a divided list the trailing hairline is redundant; in a card layout
-     the bottom edge is part of the frame. Reusing the border token expresses
-     exactly that, with no skin check. */
+     the bottom edge is part of the frame. */
   .post-card:last-child {
     border-bottom-width: var(--list-item-border-width);
     margin-bottom: 0;
+  }
+
+  .post-card-body {
+    min-width: 0;
+  }
+
+  .post-cover {
+    width: var(--card-cover-size);
+    aspect-ratio: var(--card-cover-ratio);
+    border-radius: var(--card-cover-radius);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    position: relative;
+    background-image:
+      radial-gradient(
+        circle at var(--bloom1-x) var(--bloom1-y),
+        rgba(var(--accent-rgb), var(--cover-a)) 0%,
+        rgba(var(--accent-rgb), 0) 58%
+      ),
+      radial-gradient(
+        circle at var(--bloom2-x) var(--bloom2-y),
+        rgba(var(--ink-rgb), var(--cover-b)) 0%,
+        rgba(var(--ink-rgb), 0) 55%
+      ),
+      linear-gradient(
+        var(--cover-angle),
+        rgba(var(--accent-rgb), 0.3),
+        rgba(var(--ink-rgb), 0.14)
+      );
+    background-color: var(--bg-code);
+  }
+
+  /* A fine grid over the blooms, which keeps a large flat panel from looking
+     like an unloaded image. */
+  .post-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        rgba(var(--ink-rgb), 0.07) 0 1px,
+        transparent 1px 8px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(var(--ink-rgb), 0.07) 0 1px,
+        transparent 1px 8px
+      );
+    mix-blend-mode: overlay;
+  }
+
+  .post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .post-cover-glyph {
+    position: relative;
+    z-index: 1;
+    font-size: calc(var(--card-cover-size) * 0.46);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--bg-card);
+    opacity: 0.88;
+    rotate: var(--glyph-rot);
+    text-shadow: 0 1px 2px rgba(var(--ink-rgb), 0.28);
+    user-select: none;
   }
 
   .post-card-meta {
@@ -125,27 +256,6 @@ const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
 
   .post-card:hover .post-card-title {
     color: var(--accent);
-  }
-
-  /* Both values are 0 under a skin that wants a flat list, which makes
-     this a no-op rather than something a skin has to override. */
-  .post-card {
-    transition:
-      transform var(--transition),
-      background-color var(--transition);
-  }
-
-  .post-card:hover {
-    transform: translateX(var(--card-hover-lift));
-    background-color: rgba(var(--accent-rgb), var(--card-hover-tint));
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .post-card,
-    .post-card:hover {
-      transition: none;
-      transform: none;
-    }
   }
 
   .post-card-desc {
@@ -176,5 +286,24 @@ const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
     flex-wrap: wrap;
     gap: 0.4rem;
     margin-top: 0.6rem;
+  }
+
+  /* The thumbnail is the first thing to go when there is no room for it. */
+  @media (max-width: 560px) {
+    .post-card {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .post-cover {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-card,
+    .post-card:hover {
+      transition: none;
+      transform: none;
+    }
   }
 </style>

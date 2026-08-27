@@ -48,15 +48,25 @@ const imageUrl = src ? withBase(src) : null;
     /* The gradient shows through wherever there is no image, and is the
        whole backdrop when src is omitted. Colours are tokens, so it
        re-tints with the skin instead of being locked to one look. */
+    /* Layered rather than one gradient: a top-anchored wash gives the page a
+       horizon, and two offset blooms keep it from banding. axi404.top gets
+       its atmosphere the same way - linear-gradient(#659EB966, transparent)
+       over the page - with no image at all. */
     background:
-      radial-gradient(
-        ellipse 80% 60% at 15% 0%,
-        rgba(var(--accent-rgb), 0.28) 0%,
-        rgba(var(--accent-rgb), 0) 60%
+      linear-gradient(
+        180deg,
+        rgba(var(--accent-rgb), 0.16) 0%,
+        rgba(var(--accent-rgb), 0.04) 22%,
+        rgba(var(--accent-rgb), 0) 46%
       ),
       radial-gradient(
-        ellipse 70% 50% at 85% 20%,
-        rgba(var(--ink-rgb), 0.2) 0%,
+        ellipse 90% 55% at 12% 4%,
+        rgba(var(--accent-rgb), 0.22) 0%,
+        rgba(var(--accent-rgb), 0) 58%
+      ),
+      radial-gradient(
+        ellipse 70% 50% at 88% 26%,
+        rgba(var(--ink-rgb), 0.16) 0%,
         rgba(var(--ink-rgb), 0) 55%
       ),
       var(--bg);
