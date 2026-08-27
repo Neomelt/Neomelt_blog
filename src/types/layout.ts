@@ -7,7 +7,13 @@ export type { BlockName };
  * container and card CSS differ - so switching is a data attribute, not a
  * rebuild.
  */
-export const LAYOUTS = ["grid", "list", "magazine", "timeline"] as const;
+export const LAYOUTS = [
+  "grid",
+  "feature",
+  "list",
+  "magazine",
+  "timeline",
+] as const;
 
 export type LayoutName = (typeof LAYOUTS)[number];
 
