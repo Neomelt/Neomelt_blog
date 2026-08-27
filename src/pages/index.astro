@@ -25,35 +25,6 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
 <BaseLayout title={SITE_TITLE}>
   <main>
     <div class="container">
-      <!-- Site intro -->
-      <section class="hero">
-        <h1 class="hero-title" data-i18n="index.heroTitle">
-          {fallbackText["index.heroTitle"]}
-        </h1>
-        <div class="hero-bio">
-          <p data-i18n="index.heroIntro1">{fallbackText["index.heroIntro1"]}</p>
-          <p data-i18n="index.heroIntro2">{fallbackText["index.heroIntro2"]}</p>
-          <p class="hero-links">
-            <a
-              href="https://github.com/Neomelt"
-              target="_blank"
-              rel="noopener"
-              class="hero-link">GitHub</a
-            >
-            <span class="hero-sep">·</span>
-            <a href={withBase("/posts")} class="hero-link" data-i18n="index.allPosts"
-              >{fallbackText["index.allPosts"]}</a
-            >
-            <span class="hero-sep">·</span>
-            <a
-              href={withBase("/posts/archive")}
-              class="hero-link"
-              data-i18n="header.archive">{fallbackText["header.archive"]}</a
-            >
-          </p>
-        </div>
-      </section>
-
       <!-- Recent posts -->
       <section>
         <div class="section-header">
@@ -83,63 +54,6 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
 </BaseLayout>
 
 <style>
-  .hero {
-    padding: 3rem 0 2.5rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 3rem;
-  }
-
-  .hero-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: var(--text);
-    line-height: 1.25;
-  }
-
-  .hero-bio {
-    max-width: 600px;
-  }
-
-  .hero-bio p {
-    font-size: 1rem;
-    color: var(--text-muted);
-    line-height: 1.8;
-    margin-bottom: 0.9rem;
-  }
-
-  .hero-bio strong {
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .hero-links {
-    margin-top: 1.5rem;
-    margin-bottom: 0 !important;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .hero-link {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: color var(--transition);
-  }
-
-  .hero-link:hover {
-    color: var(--accent-hover);
-    text-decoration: underline;
-  }
-
-  .hero-sep {
-    color: var(--border);
-    font-size: 0.9rem;
-  }
-
   .section-header {
     display: flex;
     align-items: baseline;
