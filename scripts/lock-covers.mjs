@@ -32,6 +32,9 @@ if (covers.length === 0) {
   process.exit(1);
 }
 
+const post_missing = (file, cover) =>
+  `dropped   ${file}  ->  ${cover} is gone, will reassign`;
+
 const files = (await readdir(POSTS_DIR)).filter((f) => /\.mdx?$/.test(f)).sort();
 
 const readHero = (text) =>
@@ -43,8 +46,14 @@ const claimed = new Set();
 for (const file of files) {
   const text = await readFile(join(POSTS_DIR, file), "utf8");
   const hero = readHero(text);
-  const pinned =
+  // A post pointing at a file that no longer exists counts as unpinned, so
+  // deleting a cover you did not like and re-running is all it takes.
+  const candidate =
     !relock && hero && !hero.includes(SHARED_DEFAULT) ? basename(hero) : null;
+  const pinned = candidate && covers.includes(candidate) ? candidate : null;
+  if (candidate && !pinned) {
+    console.log(`  ${post_missing(file, candidate)}`);
+  }
   if (pinned) claimed.add(pinned);
   posts.push({ file, text, hero, pinned });
 }
