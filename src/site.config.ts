@@ -81,7 +81,7 @@ export const siteLayout = {
         use: "chrome/Banner",
         props: {
           subtitleKey: "index.heroIntro1",
-          height: "42vh",
+          height: "30vh",
           coverIndex: 0,
           bleed: true,
         },

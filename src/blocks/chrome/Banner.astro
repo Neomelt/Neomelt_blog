@@ -31,7 +31,7 @@ export interface Props {
 const {
   title = SITE_TITLE,
   subtitleKey,
-  height = "34vh",
+  height = "30vh",
   coverIndex,
   bleed = false,
 } = Astro.props;
@@ -114,12 +114,28 @@ const image =
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Held back so the title stays readable over whatever the art is doing. */
-    opacity: var(--banner-image-opacity, 0.55);
+    /* Held well back: the art is arbitrary and often high-contrast, and the
+       title has to survive whatever it happens to be. */
+    opacity: var(--banner-image-opacity, 0.38);
+  }
+
+  /* A scrim behind the text only, rather than dimming the whole image: the
+     edges keep their detail while the centre stays legible. */
+  .banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 60% 55% at 50% 50%,
+      rgba(var(--ink-rgb), 0.42) 0%,
+      rgba(var(--ink-rgb), 0) 75%
+    );
+    pointer-events: none;
   }
 
   .banner-inner {
     position: relative;
+    z-index: 1;
     text-align: center;
     padding: 1rem 1.4rem;
   }
