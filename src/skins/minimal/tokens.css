@@ -64,6 +64,7 @@
   --list-item-radius: 0px;
   --list-item-shadow: none;
   --list-item-gap: 0px;
+  --list-item-blur: 0px;
   /* Cover thumbnail. Size 0 removes the column entirely, so a skin that
      wants a text-only list needs no markup change. */
   /* Cover panel. Width 0 means no cover at all, so minimal stays a plain
