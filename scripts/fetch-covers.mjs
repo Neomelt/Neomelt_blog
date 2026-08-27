@@ -5,6 +5,7 @@
  *   node scripts/fetch-covers.mjs 126327443 134308706 ...
  *   node scripts/fetch-covers.mjs --inbox 126327443 ...   # review first
  *   node scripts/fetch-covers.mjs --from covers.txt
+ *   node scripts/fetch-covers.mjs --search 初音ミク --take 8 --inbox
  *
  * pixiv's own ajax endpoint returns metadata without a login but leaves every
  * entry in `urls` null, so the image itself needs a session cookie. The
@@ -38,12 +39,60 @@ const UA =
 const args = process.argv.slice(2);
 if (args.length === 0) {
   console.error(
-    "usage: node scripts/fetch-covers.mjs <illust-id...> | --from <file>",
+    "usage: node scripts/fetch-covers.mjs <illust-id...> | --from <file> | --search <tag> [--take N] [--inbox]",
   );
   process.exit(1);
 }
 
+/**
+ * pixiv's tag search works without a login, unlike the illust endpoint that
+ * returns null image urls. mode=safe filters R18 at the source; the rest of
+ * the filtering is about whether an image can serve as a banner or card at
+ * all - portrait art loses half its frame to a 1200x630 crop, and anything
+ * under 1200px wide would be upscaled.
+ */
+async function searchTag(tag, take) {
+  const q = encodeURIComponent(tag);
+  const url =
+    `https://www.pixiv.net/ajax/search/illustrations/${q}` +
+    `?word=${q}&order=popular_d&mode=safe&p=1&s_mode=s_tag&type=illust`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": UA, Referer: "https://www.pixiv.net/" },
+  });
+  const json = await res.json();
+  const found = json?.body?.illust?.data ?? [];
+
+  const picks = found.filter((it) => {
+    const w = Number(it.width) || 0;
+    const h = Number(it.height) || 0;
+    if (Number(it.pageCount ?? 1) !== 1) return false;
+    if (Number(it.xRestrict ?? 0) !== 0) return false;
+    if (w < 1200) return false;
+    return w / h >= 1.15;
+  });
+
+  console.log(
+    `search "${tag}": ${found.length} results, ${picks.length} usable ` +
+      `(landscape, >=1200px, single page)\n`,
+  );
+  for (const it of picks.slice(0, take)) {
+    console.log(
+      `  ${it.id}  ${it.width}x${it.height}  ${String(it.title).slice(0, 24).padEnd(26)} by ${it.userName}`,
+    );
+  }
+  console.log();
+  return picks.slice(0, take).map((it) => String(it.id));
+}
+
 async function resolveIds() {
+  const searchIndex = args.indexOf("--search");
+  if (searchIndex !== -1) {
+    const tag = args[searchIndex + 1];
+    if (!tag) throw new Error("--search needs a tag");
+    const takeIndex = args.indexOf("--take");
+    const take = takeIndex === -1 ? 6 : Number(args[takeIndex + 1]) || 6;
+    return searchTag(tag, take);
+  }
   const fromIndex = args.indexOf("--from");
   if (fromIndex === -1) return args.filter((a) => /^\d+$/.test(a));
   const file = args[fromIndex + 1];
@@ -111,7 +160,7 @@ if (ids.length === 0) {
 }
 await mkdir(OUT_DIR, { recursive: true });
 
-console.log(`fetching ${ids.length} cover(s) into src/assets/covers/\n`);
+console.log(`fetching ${ids.length} cover(s) into ${INBOX ? ".cover-inbox" : "src/assets/covers"}/\n`);
 const credits = [];
 let failed = 0;
 
