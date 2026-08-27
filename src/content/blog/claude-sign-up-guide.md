@@ -3,7 +3,7 @@ title: "2026 最新：国内环境低成本注册 Claude 账号防封教程"
 description: "记录下注册claude账号的过程"
 pubDate: "2026-02-19"
 pinned: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/147747734.webp"
 category: ""
 series: ""
 tags: ["ai", "vibecoding", "claude"]

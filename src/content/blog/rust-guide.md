@@ -2,7 +2,7 @@
 title: "Rust入门指南"
 description: "从所有权到错误处理，系统梳理 Rust 核心概念"
 pubDate: "2025-08-16"
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/148651669.webp"
 category: "coding"
 tags: ["Rust", "study"]
 ---

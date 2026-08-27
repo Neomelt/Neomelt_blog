@@ -3,7 +3,7 @@ title: "从 GitHub Pages 到 Vercel 镜像：以及 Giscus -> Waline 评论迁�
 description: "把博客改成双平台发布，并把评论系统从 Giscus 迁到 Waline 的一次实战记录。"
 pubDate: "2026-02-23"
 updatedDate: "2026-07-25"
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/148676633.webp"
 category: "工程实践"
 series: ""
 tags: ["Astro", "Vercel", "GitHub Pages", "Waline", "部署", "评论系统"]

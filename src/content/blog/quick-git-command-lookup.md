@@ -3,7 +3,7 @@ title: "git命令速查"
 description: "速查"
 pubDate: "2025-1-31"
 pinned: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/147821169.webp"
 category: "知识"
 series: ""
 tags: ["git", "速查"]

@@ -4,7 +4,7 @@ description: ""
 pubDate: "2026-03-29T22:10:00+08:00"
 pinned: false
 hidden: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/148682428.webp"
 category: "小妙招"
 series: ""
 tags: ["记录", "Windows"]
