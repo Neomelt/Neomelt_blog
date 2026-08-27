@@ -78,7 +78,11 @@ export const bannerPool: ImageMetadata[] = Object.keys(bannerModules)
   .map((key) => bannerModules[key]!.default);
 
 export const siteLayout = {
-  skin: "minimal",
+  // The skin a first-time visitor gets. Anyone who has picked one in the
+  // reading panel keeps their choice - it lives in localStorage and wins.
+  // Switching this to anime also brings the backdrop with it: that placement
+  // carries skins: ["anime"], so the illustration is part of the default now.
+  skin: "anime",
   layout: "feature",
 
   regions: {
