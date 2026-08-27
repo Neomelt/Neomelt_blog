@@ -65,10 +65,13 @@
   --list-item-radius: var(--radius-card);
   --list-item-shadow: var(--shadow-card);
   --list-item-gap: 0.85rem;
-  --card-cover-size: 128px;
-  --card-cover-ratio: 4 / 3;
-  --card-cover-radius: var(--radius-md);
-  --card-cover-gap: 1.15rem;
+  /* Illustration fills the right of the card and fades out under the text,
+     the way axi404.top does it - an absolutely positioned image at partial
+     opacity rather than a thumbnail column. */
+  --card-cover-width: 58%;
+  --card-cover-opacity: 0.42;
+  --card-cover-fade: 42%;
+  --card-body-pad-end: 1.5rem;
   --surface-sheen: linear-gradient(
     145deg,
     rgba(58, 103, 166, 0.05) 0%,

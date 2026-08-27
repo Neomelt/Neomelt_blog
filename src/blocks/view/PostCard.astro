@@ -54,7 +54,6 @@ const cover = bodyImage?.includes("/public/")
 // band a single gradient gives.
 const title = post.data.title;
 const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
-const glyph = [...title].find((ch) => /\S/.test(ch)) ?? "·";
 const pick = (shift: number, mod: number, base = 0) =>
   base + ((hash >> shift) % mod);
 const coverStyle = [
@@ -65,11 +64,14 @@ const coverStyle = [
   `--bloom2-y: ${pick(11, 45, 45)}%`,
   `--cover-a: ${(0.42 + pick(14, 24) / 100).toFixed(2)}`,
   `--cover-b: ${(0.16 + pick(17, 18) / 100).toFixed(2)}`,
-  `--glyph-rot: ${pick(20, 17) - 8}deg`,
 ].join("; ");
 ---
 
 <a href={url} class="post-card">
+  <div class="post-cover" style={coverStyle} aria-hidden="true">
+    {cover && <img src={cover} alt="" loading="lazy" decoding="async" />}
+  </div>
+
   <div class="post-card-body">
     <div class="post-card-meta">
       <FormattedDate date={pubDate} />
@@ -117,15 +119,6 @@ const coverStyle = [
     }
   </div>
 
-  <div class="post-cover" style={coverStyle} aria-hidden="true">
-    {
-      cover ? (
-        <img src={cover} alt="" loading="lazy" decoding="async" />
-      ) : (
-        <span class="post-cover-glyph">{glyph}</span>
-      )
-    }
-  </div>
 </a>
 
 <style>
@@ -134,11 +127,14 @@ const coverStyle = [
      larger one. Setting --card-cover-size to 0 drops the column without any
      markup change. */
   .post-card {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--card-cover-size);
-    gap: var(--card-cover-gap);
-    align-items: start;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: block;
     padding: var(--list-item-padding);
+    padding-inline-end: calc(
+      var(--card-body-pad-end) + var(--list-item-padding-end, 0px)
+    );
     margin-bottom: var(--list-item-gap);
     border: var(--list-item-border-width) solid var(--border);
     border-bottom-width: var(--list-item-divider-width);
@@ -165,18 +161,30 @@ const coverStyle = [
     margin-bottom: 0;
   }
 
-  .post-card-body {
-    min-width: 0;
-  }
-
+  /* Sits behind the text at partial opacity and masked away on its left
+     edge, so the copy never lands on busy artwork. Width 0 under a skin
+     that wants no cover removes it entirely. */
   .post-cover {
-    width: var(--card-cover-size);
-    aspect-ratio: var(--card-cover-ratio);
-    border-radius: var(--card-cover-radius);
-    overflow: hidden;
-    display: grid;
-    place-items: center;
-    position: relative;
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: var(--card-cover-width);
+    z-index: -1;
+    opacity: var(--card-cover-opacity);
+    transition: opacity var(--transition);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--card-cover-fade)
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black var(--card-cover-fade)
+    );
+    /* Generated panel for posts with no image: two offset blooms over a
+       linear base plus a fine grid, all derived from a hash of the title so
+       it is stable across builds and distinct per post. */
     background-image:
       radial-gradient(
         circle at var(--bloom1-x) var(--bloom1-y),
@@ -190,30 +198,13 @@ const coverStyle = [
       ),
       linear-gradient(
         var(--cover-angle),
-        rgba(var(--accent-rgb), 0.3),
-        rgba(var(--ink-rgb), 0.14)
+        rgba(var(--accent-rgb), 0.34),
+        rgba(var(--ink-rgb), 0.16)
       );
-    background-color: var(--bg-code);
   }
 
-  /* A fine grid over the blooms, which keeps a large flat panel from looking
-     like an unloaded image. */
-  .post-cover::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        rgba(var(--ink-rgb), 0.07) 0 1px,
-        transparent 1px 8px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(var(--ink-rgb), 0.07) 0 1px,
-        transparent 1px 8px
-      );
-    mix-blend-mode: overlay;
+  .post-card:hover .post-cover {
+    opacity: calc(var(--card-cover-opacity) * 1.45);
   }
 
   .post-cover img {
@@ -221,19 +212,6 @@ const coverStyle = [
     height: 100%;
     object-fit: cover;
     display: block;
-  }
-
-  .post-cover-glyph {
-    position: relative;
-    z-index: 1;
-    font-size: calc(var(--card-cover-size) * 0.46);
-    font-weight: 700;
-    line-height: 1;
-    color: var(--bg-card);
-    opacity: 0.88;
-    rotate: var(--glyph-rot);
-    text-shadow: 0 1px 2px rgba(var(--ink-rgb), 0.28);
-    user-select: none;
   }
 
   .post-card-meta {
@@ -288,14 +266,13 @@ const coverStyle = [
     margin-top: 0.6rem;
   }
 
-  /* The thumbnail is the first thing to go when there is no room for it. */
+  /* On narrow screens the copy needs the full width, so the cover spans the
+     card and fades from the bottom instead of the side. */
   @media (max-width: 560px) {
-    .post-card {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
     .post-cover {
-      display: none;
+      width: 100%;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
     }
   }
 
