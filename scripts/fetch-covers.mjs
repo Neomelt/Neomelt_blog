@@ -207,24 +207,44 @@ if (credits.length > 0) {
   console.log(`\ncredits appended to src/assets/covers/CREDITS.md`);
 }
 
-if (INBOX && credits.length > 0) {
-  // A contact sheet, so picking does not mean opening fifteen files.
+if (INBOX) {
+  // A contact sheet, so picking does not mean opening files one at a time.
+  // Each card carries its dominant colour and how warm it is, because the
+  // decision here is partly "does this sit with the rest of the site" and
+  // that is easier to judge from a swatch than from a thumbnail.
   const files = (await readdir(OUT_DIR)).filter((f) => f.endsWith(".webp")).sort();
+  const cards = [];
+  for (const f of files) {
+    let swatch = "#333";
+    let note = "";
+    try {
+      const stats = await sharp(join(OUT_DIR, f)).stats();
+      const { r, g, b } = stats.dominant;
+      swatch = `rgb(${r},${g},${b})`;
+      // Positive means the red channel leads, negative means blue does.
+      const warmth = (r - b) / 255;
+      const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+      note =
+        `${warmth > 0.08 ? "暖" : warmth < -0.08 ? "冷" : "中"} · ` +
+        `${lum < 0.35 ? "暗" : lum > 0.68 ? "亮" : "中亮"}`;
+    } catch {
+      // A file that will not decode is not worth failing the sheet over.
+    }
+    cards.push(
+      `<figure><img src="./${f}" loading="lazy">` +
+        `<figcaption><span class="sw" style="background:${swatch}"></span>` +
+        `${f.replace(".webp", "")} · ${note}</figcaption></figure>`,
+    );
+  }
   const html =
     `<!doctype html><meta charset="utf-8"><title>cover inbox</title>` +
     `<style>body{background:#111;color:#ccc;font:14px system-ui;margin:0;padding:1rem}` +
-    `.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}` +
+    `.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}` +
     `figure{margin:0}img{width:100%;border-radius:8px;display:block}` +
-    `figcaption{padding:.4rem 0;font-size:12px;opacity:.7}</style>` +
-    `<p>keep what you want, then move it into src/assets/covers/ and run <code>npm run covers:lock</code></p>` +
-    `<div class=g>` +
-    files
-      .map(
-        (f) =>
-          `<figure><img src="./${f}" loading="lazy"><figcaption>${f}</figcaption></figure>`,
-      )
-      .join("") +
-    `</div>`;
+    `figcaption{padding:.4rem 0;font-size:12px;opacity:.75;display:flex;align-items:center;gap:.4rem}` +
+    `.sw{width:14px;height:14px;border-radius:3px;flex:none;border:1px solid #0006}</style>` +
+    `<p>留下想要的，移进 src/assets/banner/ 或 src/assets/covers/，其余删掉</p>` +
+    `<div class=g>${cards.join("")}</div>`;
   await writeFile(join(OUT_DIR, "index.html"), html);
 }
 
