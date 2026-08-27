@@ -1,0 +1,114 @@
+---
+/**
+ * Posts as a bare list of title-plus-date rows.
+ *
+ * Not PostCard: the card's shape follows the visitor's data-layout choice,
+ * so five of them under a timeline or magazine arrangement would take over
+ * whatever page they were meant to supplement. This one looks the same in
+ * all five arrangements, which is the point - it is for places where the
+ * posts are a secondary offer, not the content.
+ *
+ * The page picks and orders the posts and resolves their dates; this only
+ * draws them.
+ */
+import type { CollectionEntry } from "astro:content";
+
+import FormattedDate from "../../components/FormattedDate.astro";
+import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
+
+export interface Props {
+  /** Already filtered, sorted and sliced by the page. */
+  posts: { post: CollectionEntry<"blog">; date: Date }[];
+  /** Heading above the list. Omit to render the list alone. */
+  titleKey?: UiTranslationKey;
+  /** Separate it from what comes before with a rule. */
+  divided?: boolean;
+}
+
+const { posts, titleKey, divided = false } = Astro.props;
+const headingId = titleKey
+  ? `post-link-list-${titleKey.replace(/\W/g, "-")}`
+  : undefined;
+---
+
+{
+  posts.length > 0 && (
+    <section
+      class:list={["post-link-list", { divided }]}
+      aria-labelledby={headingId}
+    >
+      {titleKey && (
+        <h2 id={headingId} data-i18n={titleKey}>
+          {getDefaultUiText(titleKey)}
+        </h2>
+      )}
+      <ul>
+        {posts.map(({ post, date }) => (
+          <li>
+            <a href={withBase(`/posts/${post.id}`)}>{post.data.title}</a>
+            <FormattedDate date={date} showTime={false} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .post-link-list {
+    margin-top: 3rem;
+  }
+
+  .post-link-list.divided {
+    padding-top: 1.6rem;
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .post-link-list h2 {
+    margin: 0 0 0.9rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+
+  .post-link-list ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .post-link-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .post-link-list a {
+    color: var(--text);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .post-link-list a:hover {
+    color: var(--accent);
+  }
+
+  .post-link-list time {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+  }
+
+  /* Title and date stop fitting on one line well before this. */
+  @media (max-width: 520px) {
+    .post-link-list li {
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+  }
+</style>

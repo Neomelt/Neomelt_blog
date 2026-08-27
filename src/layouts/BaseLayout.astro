@@ -1,11 +1,15 @@
 ---
+import { ClientRouter } from "astro:transitions";
+
 import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
-import Header from "../components/Header.astro";
-import CodeCopyButton from "../components/CodeCopyButton.astro";
-import WalineCounter from "../components/WalineCounter.astro";
-import ClickEffect from "../components/ClickEffect.astro";
-import ImageLightbox from "../components/ImageLightbox.astro";
+import Footer from "../blocks/chrome/Footer.astro";
+import Header from "../blocks/chrome/Header.astro";
+import CodeCopyButton from "../blocks/behavior/CodeCopyButton.astro";
+import WalineCounter from "../blocks/behavior/WalineCounter.astro";
+import Region from "../components/Region.astro";
+import { siteLayout } from "../site.config";
+import type { ImageMetadata } from "astro";
+import type { BlockPlacement, RegionName } from "../types/layout";
 import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
@@ -17,15 +21,41 @@ export interface Props {
   description?: string;
   /** Load the KaTeX stylesheet — only needed on post pages that contain math. */
   katex?: boolean;
+  /** Share image. Falls back to the site-wide card when omitted. */
+  image?: ImageMetadata;
+  /**
+   * Per-page region overrides. Omit a region to use site.config.ts; pass an
+   * empty array to render nothing there on this page.
+   */
+  regions?: Partial<Record<RegionName, BlockPlacement[]>>;
+  /**
+   * Render the aside column beside the content. Off for pages that build
+   * their own columns - BlogPost puts the table of contents in one.
+   */
+  sidebar?: boolean;
 }
 
-const { title, description = "", katex = false } = Astro.props;
+const {
+  title,
+  description = "",
+  katex = false,
+  image,
+  regions = {},
+  sidebar = true,
+} = Astro.props;
+
+const startBlocks = regions.asideStart ?? siteLayout.regions.asideStart;
+const endBlocks = regions.asideEnd ?? siteLayout.regions.asideEnd;
+const hasStart = sidebar && startBlocks.length > 0;
+const hasEnd = sidebar && endBlocks.length > 0;
+const withSidebar = hasStart || hasEnd;
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-skin={siteLayout.skin} data-layout={siteLayout.layout}>
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead title={title} description={description} image={image} />
+    <ClientRouter />
     {
       katex && (
         <link
@@ -152,12 +182,154 @@ const { title, description = "", katex = false } = Astro.props;
         document.addEventListener("astro:page-load", syncLocale);
       })();
     </script>
-    <Header />
-    <slot />
+    <Region name="backdrop" override={regions.backdrop} />
+    <slot name="header"><Header /></slot>
+    <div class="masthead">
+      <Region name="masthead" override={regions.masthead} />
+    </div>
+    {
+      withSidebar ? (
+        <div class="shell">
+          {
+            hasStart && (
+              <aside class="shell-aside start">
+                <Region name="asideStart" override={regions.asideStart} />
+              </aside>
+            )
+          }
+          <div class="shell-main">
+            <slot />
+          </div>
+          {
+            hasEnd && (
+              <aside class="shell-aside end">
+                <Region name="asideEnd" override={regions.asideEnd} />
+              </aside>
+            )
+          }
+        </div>
+      ) : (
+        <slot />
+      )
+    }
     <WalineCounter />
     <CodeCopyButton />
-    <ImageLightbox />
-    <ClickEffect effect="ink-glyph" />
-    <Footer />
+    <Region name="floating" override={regions.floating} />
+    <slot name="footer"><Footer /></slot>
   </body>
 </html>
+
+<style is:global>
+  /* Empty under a skin that places nothing here, and :empty then collapses
+     the top margin the header leaves behind. */
+  .masthead:not(:empty) {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    /* No header offset: #site-header is sticky, so it already takes up flow.
+       Reserving its height here as well is what put a dark band between the
+       header and the banner. */
+    padding: 0 1.25rem;
+    /* A full-bleed child escapes this box with a negative margin, which would
+       otherwise be clipped or add a horizontal scrollbar. */
+    overflow: visible;
+  }
+
+  /* main already clears the fixed header; with a masthead above it that
+     offset would be counted twice. */
+  body:has(.masthead:not(:empty)) main {
+    padding-top: 0;
+  }
+
+  /* Two-column shell. The reference blogs run content beside a persistent
+     sidebar rather than a single centred column, which is most of why a
+     one-column page reads as sparse. */
+  /* Pulled up over the banner, and given its own surface so the image does
+     not show through the gaps between cards. z-index keeps it above the
+     banner it overlaps. */
+  .shell,
+  body:has(.masthead:not(:empty)) main {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--content-overlap));
+    border-start-start-radius: var(--radius-card);
+    border-start-end-radius: var(--radius-card);
+  }
+
+  body:has(.masthead:not(:empty)) .shell,
+  body:has(.masthead:not(:empty)) main {
+    padding-top: var(--content-overlap);
+  }
+
+  /* The content column is a card, not a fog over the page: a surface needs an
+     edge and a radius to read as a panel at all. Sidebar widgets bring their
+     own GlassPanel, so only this column is framed here. */
+  .shell-main,
+  body:not(:has(.shell)) main > .container {
+    background-color: var(--panel-surface);
+    border: var(--border-width) solid var(--panel-border);
+    border-radius: var(--radius-card);
+    padding: var(--panel-padding);
+  }
+
+  /* Only inside @supports: without backdrop-filter the surface would have to
+     be opaque, or text ends up sitting directly on the artwork. */
+  @supports (backdrop-filter: blur(1px)) {
+    .shell-main,
+    body:not(:has(.shell)) main > .container {
+      -webkit-backdrop-filter: blur(var(--panel-blur));
+      backdrop-filter: blur(var(--panel-blur));
+    }
+  }
+
+  .shell {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--shell-gap);
+    max-width: var(--shell-width);
+    margin: 0 auto;
+    padding-inline: 1.25rem;
+  }
+
+  /* Widen only when both columns are present. :has keeps this in CSS instead
+     of the layout having to count them. */
+  .shell:has(.shell-aside.start):has(.shell-aside.end) {
+    max-width: var(--shell-width-wide);
+  }
+
+  .shell-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* .container centres itself with margin auto, which inside a flex row eats
+     the free space and pins the sidebar to the viewport edge - the same trap
+     BlogPost documents for its ToC column. */
+  .shell-main .container {
+    max-width: none;
+    margin: 0;
+    padding-inline: 0;
+  }
+
+  /* A column exists only when its region has blocks, so the shell is one,
+     two or three wide without any of them knowing about the others. */
+  .shell-aside {
+    width: var(--aside-width);
+    flex-shrink: 0;
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-block: calc(var(--header-height) + 3rem) 3rem;
+  }
+
+  @media (max-width: 1099px) {
+    .shell {
+      display: block;
+    }
+
+    .shell-aside {
+      display: none;
+    }
+  }
+</style>

@@ -1,11 +1,11 @@
 ---
-import { normalizeWalinePath } from "../utils/waline";
-import { getDefaultUiText } from "../i18n/ui";
-import { withBase } from "../utils/url";
+import { normalizeWalinePath } from "../../utils/waline";
+import { getDefaultUiText } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
 import {
   walineLoaderScript,
   WALINE_CLIENT_SCRIPT_URLS,
-} from "../utils/waline-loader";
+} from "../../utils/waline-loader";
 
 interface Props {
   path?: string;
@@ -113,7 +113,7 @@ const commentsScript = serverURL
   .comments-config-tip {
     padding: 0.9rem 1rem;
     border: 1px dashed var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     background: var(--bg-code);
     color: var(--text-muted);
     font-size: 0.9rem;

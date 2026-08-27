@@ -1,0 +1,210 @@
+---
+import { Image } from "astro:assets";
+
+import { getDefaultUiText } from "../../i18n/ui";
+import { bannerPool } from "../../site.config";
+
+/**
+ * The oversized masthead that sits between the header and the content.
+ *
+ * This is the single loudest thing a skin can do, and no token can express
+ * it: it is an element that either exists or does not. Which is why it is a
+ * block placed in a region rather than a property of the anime skin - put
+ * it in the masthead region under minimal too if you want one.
+ *
+ * Falls back to a token-built gradient, so it needs no artwork.
+ */
+export interface Props {
+  /** Omit for an image-only banner. The site title is already in the header,
+      so repeating it here is redundant by default. */
+  title?: string;
+  /** i18n key for the line under the title. */
+  subtitleKey?: "index.heroTitle" | "index.heroIntro1" | "friends.lead";
+  /** Any CSS length. Roughly a third of the viewport reads as a banner
+      without pushing the content below the fold. */
+  height?: string;
+  /** Which entry of bannerPool to use. Omit for the gradient alone. */
+  imageIndex?: number;
+  /** Span the full viewport width, edge to edge, with no corner radius. */
+  bleed?: boolean;
+  /** Fill the first screen. Overrides `height`. */
+  full?: boolean;
+}
+
+const {
+  title,
+  subtitleKey,
+  height = "30vh",
+  imageIndex = 0,
+  bleed = false,
+  full = false,
+} = Astro.props;
+
+// bannerPool, not coverPool: sharing art with the cards below would put the
+// same illustration twice on one screen. Falls back to the gradient when the
+// directory is empty, so a fresh checkout still works.
+const image = bannerPool[imageIndex] ?? null;
+const hasText = Boolean(title || subtitleKey);
+---
+
+<div class:list={["banner", { bleed, full }]} style={`--banner-height: ${height}`}>
+  {
+    image && (
+      <Image
+        class="banner-image"
+        src={image}
+        alt=""
+        widths={[720, 1280, 1920]}
+        loading="eager"
+        decoding="async"
+      />
+    )
+  }
+  {
+    hasText && (
+      <div class="banner-inner">
+        {title && <h1 class="banner-title">{title}</h1>}
+        {subtitleKey && (
+          <p class="banner-subtitle" data-i18n={subtitleKey}>
+            {getDefaultUiText(subtitleKey)}
+          </p>
+        )}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  /* Full-bleed: the masthead container is centred and padded like the rest of
+     the page, so escaping it takes a viewport-width negative margin rather
+     than just width: 100%. */
+  .banner.bleed {
+    width: 100vw;
+    margin-inline-start: 50%;
+    translate: -50% 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* dvh rather than vh: on mobile the address bar collapses on scroll, and vh
+     is measured against the expanded viewport, which leaves a strip of the
+     next section visible under a banner meant to fill the screen. The header
+     is sticky and occupies flow, so its height comes off the top. */
+  .banner.full {
+    height: calc(100dvh - var(--header-height));
+  }
+
+  .banner {
+    position: relative;
+    height: var(--banner-height);
+    min-height: 190px;
+    margin-bottom: 2rem;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    /* Same trick as Backdrop: accent-tinted gradient, so it re-tints with
+       the skin instead of being locked to one palette. */
+    background-color: var(--bg-card);
+    background-image:
+      radial-gradient(
+        ellipse 70% 90% at 20% 10%,
+        rgba(var(--accent-rgb), 0.34) 0%,
+        rgba(var(--accent-rgb), 0) 62%
+      ),
+      radial-gradient(
+        ellipse 60% 80% at 82% 78%,
+        rgba(var(--ink-rgb), 0.26) 0%,
+        rgba(var(--ink-rgb), 0) 58%
+      );
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* A banner that fills the screen hides the fact that anything follows it,
+     so it says so. */
+  .banner.full::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 1.6rem;
+    margin-inline: auto;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-inline-end: 2px solid var(--bg-card);
+    border-block-end: 2px solid var(--bg-card);
+    rotate: 45deg;
+    opacity: 0.75;
+    z-index: 2;
+    animation: banner-hint 2.4s ease-in-out infinite;
+  }
+
+  @keyframes banner-hint {
+    0%,
+    100% {
+      translate: 0 0;
+      opacity: 0.35;
+    }
+    50% {
+      translate: 0 0.35rem;
+      opacity: 0.85;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner.full::before {
+      animation: none;
+      opacity: 0.7;
+    }
+  }
+
+  .banner-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Held well back: the art is arbitrary and often high-contrast, and the
+       title has to survive whatever it happens to be. */
+    opacity: var(--banner-image-opacity, 0.38);
+  }
+
+  /* A scrim behind the text only, rather than dimming the whole image: the
+     edges keep their detail while the centre stays legible. */
+  .banner:has(.banner-inner)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 60% 55% at 50% 50%,
+      rgba(var(--ink-rgb), 0.42) 0%,
+      rgba(var(--ink-rgb), 0) 75%
+    );
+    pointer-events: none;
+  }
+
+  .banner-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 1rem 1.4rem;
+  }
+
+  .banner-title {
+    margin: 0;
+    /* The art sits behind this, so the text needs its own separation. */
+    text-shadow: 0 1px 12px rgba(var(--ink-rgb), 0.35);
+    font-size: clamp(1.9rem, 6vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+
+  .banner-subtitle {
+    margin: 0.6rem 0 0;
+    color: var(--text-muted);
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+  }
+</style>

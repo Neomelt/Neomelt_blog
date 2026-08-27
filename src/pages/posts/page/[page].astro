@@ -1,14 +1,12 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content";
-import FormattedDate from "../../../components/FormattedDate.astro";
-import Pagination from "../../../components/Pagination.astro";
+import Pagination from "../../../blocks/view/Pagination.astro";
+import PostCard from "../../../blocks/view/PostCard.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { paginate } from "../../../utils/pagination.ts";
 import { SITE_TITLE } from "../../../consts";
 import { getDefaultUiText } from "../../../i18n/ui";
-import { getWalinePathForPost } from "../../../utils/waline";
 import { getPostDateKey, resolvePostDatesMap } from "../../../utils/post-dates";
-import { estimateReadingTime } from "../../../utils/reading-time";
 import { withBase } from "../../../utils/url";
 
 export async function getStaticPaths() {
@@ -70,58 +68,14 @@ const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiTex
 
       <div class="post-list">
         {
-          paginatedPosts.map((post) => {
-            const url = withBase(`/posts/${post.id}`);
-            const walinePath = getWalinePathForPost(post.id);
-            const readingTime = estimateReadingTime(post.body || "");
-            const resolvedPubDate =
-              postDatesMap.get(getPostDateKey(post))?.pubDate ??
-              post.data.pubDate;
-            return (
-              <a href={url} class="post-card">
-                <div class="post-card-meta">
-                  <FormattedDate date={resolvedPubDate} />
-                  {post.data.pinned && (
-                    <span class="badge-pinned" data-i18n="common.pinned">
-                      {getDefaultUiText("common.pinned")}
-                    </span>
-                  )}
-                  <span>
-                    {readingTime}{" "}
-                    <span data-i18n="common.minutes">
-                      {getDefaultUiText("common.minutes")}
-                    </span>
-                  </span>
-                </div>
-                <div class="post-card-title">{post.data.title}</div>
-                {post.data.description && (
-                  <div class="post-card-desc">{post.data.description}</div>
-                )}
-                <div class="post-card-stats text-muted text-sm">
-                  <span class="waline-pageview-count" data-path={walinePath}>
-                    0
-                  </span>{" "}
-                  <span data-i18n="common.views">
-                    {getDefaultUiText("common.views")}
-                  </span>{" "}
-                  /
-                  <span class="waline-comment-count" data-path={walinePath}>
-                    0
-                  </span>{" "}
-                  <span data-i18n="common.comments">
-                    {getDefaultUiText("common.comments")}
-                  </span>
-                </div>
-                {post.data.tags && post.data.tags.length > 0 && (
-                  <div class="post-card-tags">
-                    {post.data.tags.slice(0, 4).map((tag: string) => (
-                      <span class="tag">#{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </a>
-            );
-          })
+          paginatedPosts.map((post) => (
+            <PostCard
+              post={post}
+              pubDate={
+                postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate
+              } showReadingTime showTags
+            />
+          ))
         }
       </div>
 

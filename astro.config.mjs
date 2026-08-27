@@ -2,12 +2,13 @@
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
 import { defineConfig } from "astro/config";
 
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeVideoEmbed from "./src/utils/rehype-video-embed.mjs";
+import rehypeTableScroll from "./src/utils/rehype-table-scroll.mjs";
+import rehypeCallout from "./src/utils/rehype-callout.mjs";
 import { localizeAvatars } from "./src/utils/localize-avatars";
 
 // Download + cache friend avatars to public/avatars/ before pages render, on
@@ -25,10 +26,10 @@ const localizeAvatarsIntegration = {
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.neomelt.cloud/",
-  integrations: [mdx(), sitemap(), tailwind(), localizeAvatarsIntegration],
+  integrations: [mdx(), sitemap(), localizeAvatarsIntegration],
 
   markdown: {
     remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex, rehypeVideoEmbed],
+    rehypePlugins: [rehypeKatex, rehypeVideoEmbed, rehypeTableScroll, rehypeCallout],
   },
 });

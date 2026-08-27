@@ -1,0 +1,63 @@
+---
+/**
+ * Astro emits this as dist/404.html. Both deployments pick it up with no
+ * config: Vercel serves 404.html for an unmatched path on a static build,
+ * and GitHub Pages serves <base>/404.html for the project site - which is
+ * why the exits go through withBase rather than being written root-absolute.
+ *
+ * Assembly only. What a dead end should offer is a decision this file makes;
+ * how any of it looks belongs to the blocks. The aside stays on for the same
+ * reason the exits are here - the tag cloud and calendar are more of them.
+ */
+import { getCollection } from "astro:content";
+
+import ActionLink from "../blocks/view/ActionLink.astro";
+import EmptyState from "../blocks/view/EmptyState.astro";
+import PostLinkList from "../blocks/view/PostLinkList.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../consts";
+import { getDefaultUiText } from "../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
+import { withBase } from "../utils/url";
+
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
+const postDatesMap = await resolvePostDatesMap(posts);
+
+const recentPosts = posts
+  .map((post) => ({
+    post,
+    date: postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate,
+  }))
+  .sort((a, b) => b.date.valueOf() - a.date.valueOf())
+  .slice(0, 5);
+
+/** The routes out, in the order they are worth trying. */
+const exits = [
+  { labelKey: "notFound.home", href: withBase("/"), primary: true },
+  { labelKey: "notFound.posts", href: withBase("/posts") },
+  // No href: SearchModal already lives in the header, so this reopens it
+  // rather than routing anywhere.
+  { labelKey: "notFound.search", opensId: "search-toggle" },
+] as const;
+---
+
+<BaseLayout title={`${getDefaultUiText("notFound.metaTitle")} | ${SITE_TITLE}`}>
+  <main>
+    <div class="container">
+      <EmptyState
+        glyph="404"
+        titleKey="notFound.title"
+        messageKey="notFound.lead"
+        size="lg"
+      >
+        {exits.map((exit) => <ActionLink {...exit} />)}
+      </EmptyState>
+
+      <PostLinkList
+        posts={recentPosts}
+        titleKey="notFound.recentTitle"
+        divided
+      />
+    </div>
+  </main>
+</BaseLayout>

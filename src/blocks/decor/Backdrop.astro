@@ -1,0 +1,125 @@
+---
+import { Image } from "astro:assets";
+
+import { bannerPool } from "../../site.config";
+
+/**
+ * Full-screen layer behind everything. Two reasons it exists:
+ * a skin's biggest visual move is what sits behind the page, and glass
+ * surfaces have nothing to refract without it.
+ *
+ * Defaults to a pure-CSS gradient so it works with no assets at all. Point
+ * `src` at an illustration in public/ when you have one - the overlay and
+ * blur controls are there because a busy image destroys text contrast, and
+ * that trade-off should be tunable rather than discovered later.
+ */
+export interface Props {
+  /** Which entry of bannerPool to use. Omit for the gradient alone. */
+  imageIndex?: number;
+  /** 0-1. How much flat page colour to lay over the image. Defaults to the
+      skin's --backdrop-overlay, which differs per mode. */
+  overlay?: number;
+  /** Blur radius in px applied to the image, softening detail behind text. */
+  blur?: number;
+  /** Slow drift. Off by default; always off under reduced-motion. */
+  drift?: boolean;
+}
+
+const { imageIndex, overlay, blur = 0, drift = false } = Astro.props;
+const image = imageIndex === undefined ? null : (bannerPool[imageIndex] ?? null);
+---
+
+<div
+  class:list={["backdrop", { drift }]}
+  transition:persist="backdrop"
+  aria-hidden="true"
+>
+  {
+    image && (
+      <div class="backdrop-image" style={`filter: blur(${blur}px)`}>
+        <Image src={image} alt="" widths={[960, 1600, 2400]} loading="eager" decoding="async" />
+      </div>
+    )
+  }
+  <div
+    class="backdrop-wash"
+    style={overlay === undefined ? undefined : `--backdrop-overlay: ${overlay}`}
+  >
+  </div>
+</div>
+
+<style>
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-backdrop);
+    pointer-events: none;
+    overflow: hidden;
+    /* The gradient shows through wherever there is no image, and is the
+       whole backdrop when src is omitted. Colours are tokens, so it
+       re-tints with the skin instead of being locked to one look. */
+    /* One restrained wash anchored at the top, nothing more. Stacking
+       blooms and grids to manufacture atmosphere is the look this is
+       specifically avoiding - the reference sites get theirs from artwork
+       and whitespace, and axi404.top's entire backdrop is a single
+       linear-gradient(#659EB966, transparent). */
+    background:
+      linear-gradient(
+        180deg,
+        rgba(var(--accent-rgb), 0.1) 0%,
+        rgba(var(--accent-rgb), 0) 38%
+      ),
+      var(--bg);
+  }
+
+  .backdrop-image {
+    position: absolute;
+    /* Overscan so the blur does not reveal the edges. */
+    inset: -4%;
+  }
+
+  .backdrop-image :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* Per mode: a bright illustration behind a dark page reads as a light
+       leak, and raising the overlay instead just flattens it to grey. */
+    filter: var(--backdrop-filter);
+  }
+
+  /* On a phone a landscape illustration is cropped to a narrow strip that
+     reads as noise rather than art, and it is competing with the content for
+     a much smaller screen. */
+  @media (max-width: 768px) {
+    .backdrop-image {
+      opacity: 0.45;
+    }
+  }
+
+  .backdrop-wash {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    opacity: var(--backdrop-overlay);
+  }
+
+  .drift .backdrop-image {
+    animation: backdrop-drift 48s ease-in-out infinite alternate;
+  }
+
+  @keyframes backdrop-drift {
+    from {
+      transform: scale(1.04) translate3d(-1%, -0.5%, 0);
+    }
+    to {
+      transform: scale(1.08) translate3d(1%, 0.5%, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drift .backdrop-image {
+      animation: none;
+    }
+  }
+</style>

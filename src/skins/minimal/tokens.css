@@ -1,0 +1,163 @@
+/* ============================================================
+   SKIN: minimal
+   ------------------------------------------------------------
+   Values only. Every name defined here is part of the token
+   contract that all blocks consume - a skin may change what a
+   token *is*, never which tokens exist, or blocks would have to
+   change with it. That contract is why --*-rgb tokens stay as
+   bare channel triples: the rgba(var(--ink-rgb), a) calls in
+   blocks/chrome/Banner.astro depend on that form.
+   ============================================================ */
+
+/* ---------- Design Tokens (Light Mode) ---------- */
+[data-skin="minimal"] {
+  /* Colors */
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --bg-code: #f4f4f5;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --text-muted: #71717a;
+  --accent: #41697b;
+  --accent-hover: #335663;
+  --accent-rgb: 65, 105, 123;
+  --ink-rgb: 47, 77, 89;
+  --tag-bg: #eaeff1;
+  --badge-bg: #fef3c7;
+  --badge-text: #92400e;
+  /* Callouts. Semantic rather than brand colour - a warning stays amber
+     under every skin - but still tuned per mode for contrast. */
+  --callout-note: #3b7ea1;
+  --callout-tip: #2f855a;
+  --callout-important: #6b46c1;
+  --callout-warning: #b7791f;
+  --callout-caution: #c53030;
+  /* Foreground for text sitting on --accent. Not always #fff: in dark mode
+     accent is a light tint, where white text falls under 2:1 contrast. */
+  --accent-contrast: #ffffff;
+
+  /* Glass surface. minimal has no glass: zero blur and an opaque
+     background make GlassPanel render as an ordinary card, so the same
+     component is correct in both skins without a branch. */
+  --glass-bg: var(--bg-card);
+  --glass-border: var(--border);
+  --glass-blur-sm: 0px;
+  --glass-blur-md: 0px;
+  --glass-blur-lg: 0px;
+  --glass-saturate: 1;
+
+  /* Effect strengths. Zero here means the component renders its plain
+     form - no skin ever needs to know a component's class names. */
+  --card-hover-lift: 0px;
+  --card-hover-tint: 0;
+  --tag-hover-lift: 0px;
+  --heading-bar-width: 0px;
+
+  /* List item form. minimal is a divided list: no frame, no radius, no
+     surface, only a hairline between rows. Form is a parameter for the same
+     reason colour is - recolouring alone leaves the layout identical, which
+     is why a repainted skin still reads as the same site. */
+  --list-item-padding: 1.6rem 0;
+  --list-item-surface: transparent;
+  --list-item-border-width: 0px;
+  --list-item-divider-width: var(--border-width);
+  --list-item-radius: 0px;
+  --list-item-shadow: none;
+  --list-item-gap: 0px;
+  --list-item-blur: 0px;
+  /* Cover thumbnail. Size 0 removes the column entirely, so a skin that
+     wants a text-only list needs no markup change. */
+  /* Cover panel. Width 0 means no cover at all, so minimal stays a plain
+     text list without any markup change. */
+  --card-cover-width: 0%;
+  --card-cover-opacity: 0;
+  --card-cover-fade: 40%;
+  /* Inset thumbnail, used by the list layout: a real image in the row rather
+     than a faded panel behind the text. */
+  --thumb-width: 116px;
+  --thumb-height: 68px;
+  --card-body-pad-end: 0rem;
+  --surface-sheen: none;
+  --tag-text: #355460;
+
+  /* Shape - what separates minimal from a decorated skin as much as colour
+     does. Blocks reference these instead of literal px so a skin can restyle
+     geometry without touching a component. */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-card: 8px;
+  --radius-pill: 999px;
+  --border-width: 1px;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+  /* Typography */
+  --font-sans:
+    "LXGW WenKai", "Noto Serif SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  --prose-width: 66ch;
+  --prose-line-height: 1.76;
+  --prose-letter-spacing: 0.012em;
+
+  /* Spacing */
+  --content-width: 800px;
+  /* Two-column shell. --aside-width 0 collapses it back to one column. */
+  --shell-width: min(90vw, 1500px);
+  /* Three columns need room the two-column measure does not have:
+     subtracting two sidebars from --shell-width would leave the text
+     around 580px. */
+  --shell-width-wide: min(94vw, 1840px);
+  --shell-gap: 2.5rem;
+  /* How far the content panel rides up over the banner. 0 leaves them
+     stacked; a positive value makes the content read as set into the image
+     rather than following it. */
+  --content-overlap: 0rem;
+  /* The content panel's own surface. Transparent with no blur leaves the
+     page flat; a translucent blurred one floats it over the backdrop, which
+     is how the reference frames its list. */
+  --panel-surface: transparent;
+  --panel-blur: 0px;
+  --panel-border: transparent;
+  --panel-padding: 0px;
+  /* minimal does not use backdrop art; these keep the contract complete. */
+  --backdrop-filter: none;
+  --backdrop-overlay: 0.9;
+  --aside-width: 260px;
+  --header-height: 64px;
+
+  /* Transitions */
+  --transition: 150ms ease;
+}
+
+/* ---------- Dark Mode ---------- */
+[data-skin="minimal"].dark {
+  --bg: #16181d;
+  --bg-card: #1d2128;
+  --bg-code: #171b21;
+  --border: #2b313a;
+  --text: #e8ebf0;
+  --text-muted: #aab1bc;
+  --accent: #8cadbb;
+  --accent-hover: #a8c4d0;
+  --accent-rgb: 140, 173, 187;
+  --ink-rgb: 226, 232, 237;
+  --tag-bg: #25333b;
+  --badge-bg: #3b2a0a;
+  --badge-text: #fcd34d;
+  --callout-note: #7cc0dd;
+  --callout-tip: #68d391;
+  --callout-important: #b794f4;
+  --callout-warning: #f6c667;
+  --callout-caution: #fc8181;
+  --accent-contrast: #16181d;
+  --glass-bg: var(--bg-card);
+  --glass-border: var(--border);
+  --tag-text: #aac6d2;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --backdrop-filter: none;
+  --backdrop-overlay: 0.92;
+  --surface-sheen: none;
+}

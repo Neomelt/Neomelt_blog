@@ -3,7 +3,7 @@ title: "Ubuntu系统雾凇输入法配置"
 description: "记录下Ubuntu配置雾凇输入法的过程"
 pubDate: "2026-02-18"
 pinned: false
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/134308706.webp"
 category: ""
 series: ""
 tags: ["输入法", "Ubuntu"]

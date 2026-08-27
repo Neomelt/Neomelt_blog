@@ -1,0 +1,184 @@
+/* ============================================================
+   SKIN: anime
+   ------------------------------------------------------------
+   Same token names as minimal, different values. Nothing here
+   is referenced by any block directly - blocks only ever read
+   var(--x), so this file alone repaints the whole site.
+
+   Built on Tailwind's slate ramp with a blue accent on slate's own
+   hue, matching the reference the site owner pointed at - that site is
+   almost entirely slate, and its atmosphere comes from typography and
+   thumbnails rather than from saturated colour. Swap the hex values to re-tint; the
+   contract stays intact as long as every name below keeps its
+   format (--*-rgb must remain bare channel triples).
+
+   Later upgrade path: Fuwari drives its whole palette from one
+   --hue with oklch(L C var(--hue)), so a slider re-tints the
+   site with guaranteed contrast. That needs the
+   rgba(var(--ink-rgb), a) calls in blocks/chrome/Banner.astro
+   ported to color-mix() first, so it is deliberately not done
+   here.
+   ============================================================ */
+
+/* ---------- Design Tokens (Light Mode) ---------- */
+[data-skin="anime"] {
+  /* Colors */
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-code: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --accent: #3a67a6;
+  --accent-hover: #2d5183;
+  --accent-rgb: 58, 103, 166;
+  --ink-rgb: 45, 81, 131;
+  --tag-bg: #e8eef6;
+  --badge-bg: #dbe5f2;
+  --badge-text: #2a4a78;
+  --callout-note: #3b7ea1;
+  --callout-tip: #2f855a;
+  --callout-important: #6b46c1;
+  --callout-warning: #b7791f;
+  --callout-caution: #c53030;
+  --accent-contrast: #ffffff;
+
+  /* Glass surface - needs something behind it to read as glass, which is
+     what decor/Backdrop provides. */
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.66);
+  --glass-blur-sm: 6px;
+  --glass-blur-md: 14px;
+  --glass-blur-lg: 26px;
+  --glass-saturate: 1.6;
+
+  /* Same parameters, non-zero values. This is the entire difference in
+     behaviour between the two skins. */
+  --card-hover-lift: 2px;
+  --card-hover-tint: 0.05;
+  --tag-hover-lift: 1px;
+  --heading-bar-width: 4px;
+
+  /* List item form. anime detaches every row into its own card: framed,
+     rounded, raised, with air between them. This is the structural half of
+     the difference between the two skins. */
+  --list-item-padding: 1.35rem 1.4rem;
+  --list-item-surface: color-mix(in srgb, var(--bg-card) 58%, transparent);
+  --list-item-border-width: var(--border-width);
+  --list-item-divider-width: var(--border-width);
+  --list-item-radius: var(--radius-card);
+  --list-item-shadow: var(--shadow-card);
+  /* A bright illustration behind a dark page reads as a light leak, so it is
+     dimmed and desaturated rather than merely covered by more overlay -
+     overlay alone flattens it to a grey wash. */
+  --backdrop-filter: brightness(0.62) saturate(0.8);
+  --backdrop-overlay: 0.4;
+  --list-item-gap: 1.1rem;
+  /* The cards are the glass now, so the blur lives on them. */
+  --list-item-blur: 12px;
+  /* Illustration fills the right of the card and fades out under the text,
+     the way axi404.top does it - an absolutely positioned image at partial
+     opacity rather than a thumbnail column. */
+  --card-cover-width: 58%;
+  --card-cover-opacity: 0.26;
+  --card-cover-fade: 42%;
+  /* Inset thumbnail, used by the list layout: a real image in the row rather
+     than a faded panel behind the text. */
+  --thumb-width: 136px;
+  --thumb-height: 80px;
+  --card-body-pad-end: 1.5rem;
+  --surface-sheen: linear-gradient(
+    135deg,
+    rgba(58, 103, 166, 0.07) 0%,
+    rgba(58, 103, 166, 0) 55%,
+    rgba(29, 118, 183, 0.05) 100%
+  );
+  --tag-text: #33598f;
+
+  /* Shape - the actual difference between the two skins. Rounder, softer,
+     with a tinted glow instead of a hairline shadow. */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-card: 18px;
+  --radius-pill: 999px;
+  --border-width: 1px;
+  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.07);
+  --shadow-float: 0 24px 64px rgba(15, 23, 42, 0.2);
+
+  /* Typography */
+  --font-sans:
+    "LXGW WenKai", "Noto Serif SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  --prose-width: 66ch;
+  --prose-line-height: 1.8;
+  --prose-letter-spacing: 0.014em;
+
+  /* Spacing */
+  --content-width: 800px;
+  --shell-width: min(90vw, 1560px);
+  /* Three columns need room the two-column measure does not have:
+     subtracting two sidebars from --shell-width would leave the text
+     around 580px. */
+  --shell-width-wide: min(94vw, 1900px);
+  --shell-gap: 3rem;
+  /* How far the content panel rides up over the banner. 0 leaves them
+     stacked; a positive value makes the content read as set into the image
+     rather than following it. */
+  --content-overlap: 3.5rem;
+  /* The content panel's own surface. Transparent with no blur leaves the
+     page flat; a translucent blurred one floats it over the backdrop, which
+     is how the reference frames its list. */
+  --panel-surface: transparent;
+  --panel-blur: 0px;
+  --panel-border: transparent;
+  --panel-padding: 0px;
+  /* Light mode wants the illustration close to its own values. */
+  --backdrop-filter: saturate(0.92);
+  --backdrop-overlay: 0.42;
+  --aside-width: 290px;
+  --header-height: 64px;
+
+  /* Transitions - slightly slower, so hovers feel springy rather than curt */
+  --transition: 220ms cubic-bezier(0.34, 1.26, 0.64, 1);
+}
+
+/* ---------- Dark Mode ---------- */
+[data-skin="anime"].dark {
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --bg-code: #172033;
+  --border: #334155;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent: #619fd1;
+  --accent-hover: #8bbbe1;
+  --accent-rgb: 97, 159, 209;
+  --ink-rgb: 176, 205, 230;
+  --tag-bg: #24344a;
+  --badge-bg: #263c58;
+  --badge-text: #a3c6e6;
+  --callout-note: #7cc0dd;
+  --callout-tip: #68d391;
+  --callout-important: #b794f4;
+  --callout-warning: #f6c667;
+  --callout-caution: #fc8181;
+  --accent-contrast: #0f172a;
+  --glass-bg: rgba(30, 41, 59, 0.58);
+  --glass-border: rgba(148, 163, 184, 0.18);
+  --tag-text: #93b8dc;
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);
+  --shadow-float: 0 24px 64px rgba(0, 0, 0, 0.62);
+  /* A bright illustration behind a dark page reads as a light leak, so it is
+     dimmed and desaturated rather than merely buried under more overlay -
+     overlay alone flattens it to a grey wash. */
+  --backdrop-filter: brightness(0.62) saturate(0.8);
+  --backdrop-overlay: 0.4;
+  --surface-sheen: linear-gradient(
+    135deg,
+    rgba(148, 163, 184, 0.1) 0%,
+    rgba(148, 163, 184, 0) 55%,
+    rgba(97, 159, 209, 0.07) 100%
+  );
+}

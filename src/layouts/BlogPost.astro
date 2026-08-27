@@ -1,10 +1,14 @@
 ---
+import type { ImageMetadata } from "astro";
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
-import Comments from "../components/Comments.astro";
-import TableOfContents from "../components/TableOfContents.astro";
-import PostNavigation from "../components/PostNavigation.astro";
+import Comments from "../blocks/view/Comments.astro";
+import TableOfContents from "../blocks/widget/TableOfContents.astro";
+import PostNavigation from "../blocks/view/PostNavigation.astro";
+import SeriesNav from "../blocks/view/SeriesNav.astro";
 import BaseLayout from "./BaseLayout.astro";
+import Region from "../components/Region.astro";
+import { siteLayout } from "../site.config";
 import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
@@ -36,15 +40,32 @@ const hasMath = renderedHtml
   ? renderedHtml.includes('class="katex')
   : /\$/.test(post.body || "");
 const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
+
+// Every post pins its own cover, so shares carry that rather than one shared
+// card for the whole site.
+const shareImage =
+  typeof post.data.heroImage === "object" && post.data.heroImage
+    ? (post.data.heroImage as ImageMetadata)
+    : undefined;
+// The sidebar column exists if the ToC needs it or the aside region is
+// configured, so adding a sidebar widget never means editing this layout.
+const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
 ---
 
-<BaseLayout title={title} description={description} katex={hasMath}>
+<BaseLayout
+  title={title}
+  description={description}
+  katex={hasMath}
+  image={shareImage}
+  sidebar={false}
+>
   <div class="post-page">
     <!-- TOC sidebar (desktop) -->
     {
-      hasToc && (
+      hasAside && (
         <aside class="toc-sidebar">
-          <TableOfContents headings={headings} />
+          {hasToc && <TableOfContents headings={headings} />}
+          <Region name="asideStart" context={{ headings, post }} />
         </aside>
       )
     }
@@ -143,6 +164,9 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
         </div>
 
         <!-- Post navigation -->
+        <!-- Renders nothing unless the post declares a series. -->
+        <SeriesNav post={post} />
+
         <PostNavigation prevPost={prevPost} nextPost={nextPost} />
 
         <!-- Comments -->
@@ -217,7 +241,7 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
   .mobile-toc {
     display: none;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     padding: 0.75rem 1rem;
     margin-bottom: 1.5rem;
     background: var(--bg-card);
@@ -247,7 +271,11 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
   /* Desktop TOC sidebar */
   .toc-sidebar {
     display: none;
-    width: 220px;
+    flex-direction: column;
+    gap: 1rem;
+    /* Wider than the 220px a bare ToC needed: the column now stacks widgets,
+       and a month grid is seven columns wide. */
+    width: 250px;
     flex-shrink: 0;
     position: sticky;
     top: calc(var(--header-height) + 2rem);
@@ -258,7 +286,7 @@ const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
 
   @media (min-width: 1100px) {
     .toc-sidebar {
-      display: block;
+      display: flex;
     }
   }
 

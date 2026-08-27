@@ -1,0 +1,131 @@
+---
+import EmptyState from "../blocks/view/EmptyState.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../consts";
+import { getDefaultUiText } from "../i18n/ui";
+import { formatDateTime } from "../utils/format-date";
+import { getAllSeries } from "../utils/series";
+import { withBase } from "../utils/url";
+
+const series = [...(await getAllSeries()).values()];
+---
+
+<BaseLayout
+  title={`${getDefaultUiText("series.metaTitle")} | ${SITE_TITLE}`}
+  description={getDefaultUiText("series.lead")}
+>
+  <main>
+    <div class="container">
+      <nav
+        class="breadcrumb"
+        data-i18n-aria-label="post.breadcrumbAria"
+        aria-label={getDefaultUiText("post.breadcrumbAria")}
+      >
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
+        >
+        <span class="breadcrumb-sep">/</span>
+        <span data-i18n="series.title">{getDefaultUiText("series.title")}</span>
+      </nav>
+
+      <h1 class="section-heading">
+        <span data-i18n="series.title">{getDefaultUiText("series.title")}</span>
+        <span class="text-muted text-sm"
+          >({series.length}
+          <span data-i18n="series.countUnit"
+            >{getDefaultUiText("series.countUnit")}</span
+          >)</span
+        >
+      </h1>
+
+      <p class="text-muted" data-i18n="series.lead">
+        {getDefaultUiText("series.lead")}
+      </p>
+
+      {series.length === 0 && <EmptyState messageKey="series.empty" />}
+
+      {
+        series.map((group) => (
+          <section id={group.name} class="series-group">
+            <h2 class="series-group-title">
+              {group.name}{" "}
+              <span class="text-muted text-sm">({group.entries.length})</span>
+            </h2>
+            <ol class="archive-list">
+              {group.entries.map((entry, i) => (
+                <li class="archive-item">
+                  <span class="series-ordinal">{i + 1}</span>
+                  <span class="archive-date">{formatDateTime(entry.date)}</span>
+                  <a
+                    href={withBase(`/posts/${entry.post.id}`)}
+                    class="archive-title"
+                  >
+                    {entry.post.data.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .series-group {
+    margin-bottom: 2.2rem;
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+  }
+
+  .series-group-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+  }
+
+  .archive-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .archive-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding: 0.35rem 0;
+  }
+
+  .archive-item + .archive-item {
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .series-ordinal {
+    flex-shrink: 0;
+    width: 1.4rem;
+    text-align: end;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .archive-date {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .archive-title {
+    color: var(--text);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .archive-title:hover {
+    color: var(--accent);
+  }
+</style>

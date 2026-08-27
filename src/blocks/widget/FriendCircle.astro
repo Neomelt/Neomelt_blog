@@ -1,0 +1,475 @@
+---
+import { getDefaultUiText } from "../../i18n/ui";
+
+/**
+ * Recent posts pulled from friends' feeds.
+ *
+ * A widget rather than part of the friends page: it fetches its own data
+ * client-side from /friend-circle.json, so it needs nothing from the page
+ * and can be placed in any region - drop "widget/FriendCircle" into aside
+ * in site.config.ts and it appears in the post sidebar.
+ *
+ * Fetching client-side is deliberate: rendering would otherwise block on
+ * roughly two dozen third-party feeds. See src/pages/friend-circle.json.ts.
+ */
+export interface Props {
+  /** How many posts to show. The endpoint returns more; the rest rotate in
+      on refresh. */
+  limit?: number;
+  /** Hide the heading when the surrounding layout already provides one. */
+  heading?: boolean;
+}
+
+const { limit = 6, heading = true } = Astro.props;
+---
+
+<section
+  class="circle-widget"
+  aria-labelledby={heading ? "friends-circle-title" : undefined}
+>
+  {
+    heading && (
+      <div class="circle-head">
+        <div>
+          <h2 id="friends-circle-title" data-i18n="friends.circleTitle">
+            {getDefaultUiText("friends.circleTitle")}
+          </h2>
+          <p class="circle-lead" data-i18n="friends.circleLead">
+            {getDefaultUiText("friends.circleLead")}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="circle-refresh-btn"
+          id="friends-circle-refresh"
+          data-i18n="friends.circleRefresh"
+          aria-label={getDefaultUiText("friends.circleRefresh")}
+          hidden
+        >
+          <span class="circle-refresh-icon" aria-hidden="true">↻</span>
+          <span>{getDefaultUiText("friends.circleRefresh")}</span>
+        </button>
+      </div>
+    )
+  }
+  <ul
+    class="circle-list"
+    id="friends-circle-list"
+    data-display-limit={String(limit)}
+    aria-busy="true"
+  >
+  </ul>
+</section>
+
+<style>
+  .circle-widget {
+      border-color: color-mix(in srgb, var(--accent) 18%, var(--border));
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 0%,
+        var(--bg-card) 100%
+      );
+    }
+
+  .circle-refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.58rem 0.9rem;
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+      border-radius: var(--radius-pill);
+      background: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      cursor: pointer;
+      transition:
+        border-color var(--transition),
+        color var(--transition),
+        transform var(--transition),
+        background var(--transition);
+    }
+
+  .circle-refresh-btn:hover {
+      color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      transform: translateY(-1px);
+    }
+
+  .circle-refresh-btn:active {
+      transform: translateY(0);
+    }
+
+  .circle-refresh-btn[data-spinning="true"] .circle-refresh-icon {
+      animation: circle-refresh-spin 0.6s linear;
+    }
+
+  .circle-refresh-icon {
+      display: inline-grid;
+      place-items: center;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+  .circle-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.72rem;
+    }
+
+  :global(.circle-item) {
+      transition: transform var(--transition);
+    }
+
+  :global(.circle-item:hover) {
+      transform: translateY(-1px);
+    }
+
+  :global(.circle-link) {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.82rem;
+      padding: 0.82rem 0.94rem;
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
+      border-radius: var(--radius-card);
+      background: color-mix(in srgb, var(--bg) 86%, var(--accent) 4%);
+      color: inherit;
+      text-decoration: none;
+      transition:
+        border-color var(--transition),
+        background var(--transition),
+        transform var(--transition);
+    }
+
+  :global(.circle-link:hover) {
+      color: inherit;
+      border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
+      background: color-mix(in srgb, var(--bg) 80%, var(--accent) 7%);
+    }
+
+  :global(.circle-avatar) {
+      width: 42px !important;
+      height: 42px !important;
+      min-width: 42px;
+      min-height: 42px;
+      max-width: 42px;
+      max-height: 42px;
+      flex: 0 0 42px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      overflow: hidden;
+    }
+
+  :global(.circle-avatar-placeholder) {
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-weight: 700;
+      background: var(--bg-card);
+    }
+
+  :global(.circle-main) {
+      min-width: 0;
+      flex: 1;
+    }
+
+  :global(.circle-title) {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+  :global(.circle-source) {
+      margin: 0.2rem 0 0;
+      font-size: 0.78rem;
+      line-height: 1.3;
+      color: var(--text-muted);
+    }
+
+  :global(.circle-date) {
+      justify-self: end;
+      padding: 0.24rem 0.62rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
+      background: color-mix(in srgb, var(--bg-card) 72%, var(--accent) 4%);
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+  @keyframes circle-refresh-spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+  @media (max-width: 640px) {
+    :global(.circle-link) {
+          grid-template-columns: auto minmax(0, 1fr);
+          align-items: flex-start;
+          padding: 0.72rem 0.78rem;
+        }
+    :global(.circle-avatar) {
+          width: 34px !important;
+          height: 34px !important;
+          min-width: 34px;
+          min-height: 34px;
+          max-width: 34px;
+          max-height: 34px;
+          flex-basis: 34px;
+        }
+    :global(.circle-date) {
+          grid-column: 2;
+          justify-self: start;
+          margin-top: 0.18rem;
+        }
+    :global(.circle-title) {
+          white-space: normal;
+          overflow: visible;
+          text-overflow: clip;
+        }
+  }
+
+  .circle-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .circle-head h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+  }
+
+  .circle-lead {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+</style>
+
+<script>
+  import { withBase } from "../../utils/url";
+  async function fetchFriendCirclePosts() {
+    try {
+      const response = await fetch(withBase("/friend-circle.json"), {
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) return [];
+      const parsed = await response.json();
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function getFriendCircleSelectionKey(posts) {
+    return posts
+      .map((post) => post.link ?? "")
+      .sort()
+      .join("|");
+  }
+
+  function pickRandomFriendCirclePosts(
+    posts,
+    limit,
+    previousSelectionKey = "",
+  ) {
+    const shuffledPosts = [...posts];
+    for (let index = shuffledPosts.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [shuffledPosts[index], shuffledPosts[randomIndex]] = [
+        shuffledPosts[randomIndex],
+        shuffledPosts[index],
+      ];
+    }
+
+    const selectedPosts = shuffledPosts
+      .slice(0, limit)
+      .sort(
+        (left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0),
+      );
+
+    if (posts.length <= limit || !previousSelectionKey) {
+      return selectedPosts;
+    }
+
+    let nextPosts = selectedPosts;
+    let attempt = 0;
+    while (
+      attempt < 4 &&
+      getFriendCircleSelectionKey(nextPosts) === previousSelectionKey
+    ) {
+      attempt += 1;
+      shuffledPosts.sort(() => Math.random() - 0.5);
+      nextPosts = shuffledPosts
+        .slice(0, limit)
+        .sort(
+          (left, right) => (right.publishedAt ?? 0) - (left.publishedAt ?? 0),
+        );
+    }
+
+    return nextPosts;
+  }
+
+  function createFriendCircleItem(post) {
+    const item = document.createElement("li");
+    item.className = "circle-item";
+
+    const link = document.createElement("a");
+    link.className = "circle-link";
+    link.href = post.link ?? "#";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    const makeAvatarPlaceholder = () => {
+      const placeholder = document.createElement("span");
+      placeholder.className = "circle-avatar circle-avatar-placeholder";
+      placeholder.setAttribute("aria-hidden", "true");
+      placeholder.textContent = (post.friendName ?? "").slice(0, 1);
+      return placeholder;
+    };
+
+    if (post.friendAvatar) {
+      const avatar = document.createElement("img");
+      avatar.className = "circle-avatar";
+      avatar.src = post.friendAvatar;
+      avatar.alt = post.friendName ?? "";
+      avatar.loading = "lazy";
+      avatar.decoding = "async";
+      avatar.width = 42;
+      avatar.height = 42;
+      avatar.addEventListener(
+        "error",
+        () => avatar.replaceWith(makeAvatarPlaceholder()),
+        { once: true },
+      );
+      link.appendChild(avatar);
+    } else {
+      link.appendChild(makeAvatarPlaceholder());
+    }
+
+    const main = document.createElement("div");
+    main.className = "circle-main";
+
+    const title = document.createElement("p");
+    title.className = "circle-title";
+    title.textContent = post.title ?? "";
+    main.appendChild(title);
+
+    const source = document.createElement("p");
+    source.className = "circle-source";
+    source.textContent = post.friendName ?? "";
+    main.appendChild(source);
+    link.appendChild(main);
+
+    if (post.publishedDate && post.publishedISO) {
+      const time = document.createElement("time");
+      time.className = "circle-date";
+      time.dateTime = post.publishedISO;
+      time.textContent = post.publishedDate;
+      link.appendChild(time);
+    }
+
+    item.appendChild(link);
+    return item;
+  }
+
+  function renderFriendCirclePosts(list, posts) {
+    const fragment = document.createDocumentFragment();
+    posts.forEach((post) => {
+      fragment.appendChild(createFriendCircleItem(post));
+    });
+
+    list.replaceChildren(fragment);
+    list.dataset.selectionKey = getFriendCircleSelectionKey(posts);
+  }
+
+  async function enhanceFriendCircle() {
+    const list = document.getElementById("friends-circle-list");
+    if (!(list instanceof HTMLElement)) return;
+    if (list.dataset.loaded === "1") return;
+    list.dataset.loaded = "1";
+
+    const refreshButton = document.getElementById("friends-circle-refresh");
+    const displayLimit = Number.parseInt(list.dataset.displayLimit ?? "6", 10);
+    if (!Number.isFinite(displayLimit) || displayLimit <= 0) return;
+
+    const posts = await fetchFriendCirclePosts();
+    list.removeAttribute("aria-busy");
+
+    if (!Array.isArray(posts) || posts.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "empty-state";
+      empty.setAttribute("data-i18n", "friends.circleEmpty");
+      empty.textContent =
+        window.__siteI18n?.t?.("friends.circleEmpty", "") ?? "";
+      list.replaceChildren(empty);
+      return;
+    }
+
+    const renderNextBatch = () => {
+      const previousSelectionKey = list.dataset.selectionKey ?? "";
+      const selectedPosts = pickRandomFriendCirclePosts(
+        posts,
+        displayLimit,
+        previousSelectionKey,
+      );
+      renderFriendCirclePosts(list, selectedPosts);
+
+      if (refreshButton instanceof HTMLElement) {
+        refreshButton.setAttribute("data-spinning", "true");
+        window.setTimeout(() => {
+          refreshButton.setAttribute("data-spinning", "false");
+        }, 650);
+      }
+    };
+
+    if (posts.length <= displayLimit) {
+      renderFriendCirclePosts(list, posts);
+      return;
+    }
+
+    renderNextBatch();
+
+    if (refreshButton instanceof HTMLElement) {
+      refreshButton.hidden = false;
+      if (
+        refreshButton instanceof HTMLButtonElement &&
+        refreshButton.dataset.bound !== "1"
+      ) {
+        refreshButton.dataset.bound = "1";
+        refreshButton.addEventListener("click", renderNextBatch);
+      }
+    }
+  }
+
+  const scheduleFriendCircle = () => {
+    if (!document.getElementById("friends-circle-list")) return;
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => enhanceFriendCircle(), { timeout: 2000 });
+    } else {
+      window.setTimeout(() => enhanceFriendCircle(), 200);
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", scheduleFriendCircle);
+  document.addEventListener("astro:page-load", scheduleFriendCircle);
+</script>
