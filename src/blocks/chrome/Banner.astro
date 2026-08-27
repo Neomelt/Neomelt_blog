@@ -27,6 +27,8 @@ export interface Props {
   imageIndex?: number;
   /** Span the full viewport width, edge to edge, with no corner radius. */
   bleed?: boolean;
+  /** Fill the first screen. Overrides `height`. */
+  full?: boolean;
 }
 
 const {
@@ -35,6 +37,7 @@ const {
   height = "30vh",
   imageIndex = 0,
   bleed = false,
+  full = false,
 } = Astro.props;
 
 // bannerPool, not coverPool: sharing art with the cards below would put the
@@ -44,7 +47,7 @@ const image = bannerPool[imageIndex] ?? null;
 const hasText = Boolean(title || subtitleKey);
 ---
 
-<div class:list={["banner", { bleed }]} style={`--banner-height: ${height}`}>
+<div class:list={["banner", { bleed, full }]} style={`--banner-height: ${height}`}>
   {
     image && (
       <Image
@@ -83,6 +86,14 @@ const hasText = Boolean(title || subtitleKey);
     box-shadow: none;
   }
 
+  /* dvh rather than vh: on mobile the address bar collapses on scroll, and vh
+     is measured against the expanded viewport, which leaves a strip of the
+     next section visible under a banner meant to fill the screen. The header
+     is sticky and occupies flow, so its height comes off the top. */
+  .banner.full {
+    height: calc(100dvh - var(--header-height));
+  }
+
   .banner {
     position: relative;
     height: var(--banner-height);
@@ -109,6 +120,43 @@ const hasText = Boolean(title || subtitleKey);
     background-size: cover;
     background-position: center;
     box-shadow: var(--shadow-card);
+  }
+
+  /* A banner that fills the screen hides the fact that anything follows it,
+     so it says so. */
+  .banner.full::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 1.6rem;
+    margin-inline: auto;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-inline-end: 2px solid var(--bg-card);
+    border-block-end: 2px solid var(--bg-card);
+    rotate: 45deg;
+    opacity: 0.75;
+    z-index: 2;
+    animation: banner-hint 2.4s ease-in-out infinite;
+  }
+
+  @keyframes banner-hint {
+    0%,
+    100% {
+      translate: 0 0;
+      opacity: 0.35;
+    }
+    50% {
+      translate: 0 0.35rem;
+      opacity: 0.85;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner.full::before {
+      animation: none;
+      opacity: 0.7;
+    }
   }
 
   .banner-image {

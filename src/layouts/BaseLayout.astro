@@ -240,6 +240,24 @@ const withSidebar = hasStart || hasEnd;
   /* Two-column shell. The reference blogs run content beside a persistent
      sidebar rather than a single centred column, which is most of why a
      one-column page reads as sparse. */
+  /* Pulled up over the banner, and given its own surface so the image does
+     not show through the gaps between cards. z-index keeps it above the
+     banner it overlaps. */
+  .shell,
+  body:has(.masthead:not(:empty)) main {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--content-overlap));
+    border-start-start-radius: var(--radius-card);
+    border-start-end-radius: var(--radius-card);
+  }
+
+  body:has(.masthead:not(:empty)) .shell,
+  body:has(.masthead:not(:empty)) main {
+    background: var(--bg);
+    padding-top: var(--content-overlap);
+  }
+
   .shell {
     display: flex;
     align-items: flex-start;
