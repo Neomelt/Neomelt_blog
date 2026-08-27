@@ -3,6 +3,7 @@ import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import Backdrop from "./decor/Backdrop.astro";
 import ClickEffect from "./decor/ClickEffect.astro";
 import SakuraFall from "./decor/SakuraFall.astro";
+import FriendCircle from "./widget/FriendCircle.astro";
 import ImageLightbox from "./behavior/ImageLightbox.astro";
 
 /**
@@ -22,6 +23,7 @@ export const BLOCKS = {
   "decor/Backdrop": Backdrop,
   "decor/ClickEffect": ClickEffect,
   "decor/SakuraFall": SakuraFall,
+  "widget/FriendCircle": FriendCircle,
   "behavior/ImageLightbox": ImageLightbox,
 } satisfies Record<string, AstroComponentFactory>;
 
