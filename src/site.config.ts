@@ -56,6 +56,22 @@ export const profile = {
   ],
 } as const;
 
+/**
+ * Banner art, kept separate from coverPool on purpose: the masthead showing
+ * the same illustration as one of the cards below it reads as an accident.
+ * Files go in src/assets/banner/ and are picked up here with no edit.
+ *
+ * Empty directory means the banner falls back to its gradient.
+ */
+const bannerModules = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/banner/*.{webp,jpg,jpeg,png,avif}",
+  { eager: true },
+);
+
+export const bannerPool: ImageMetadata[] = Object.keys(bannerModules)
+  .sort()
+  .map((key) => bannerModules[key]!.default);
+
 export const siteLayout = {
   skin: "minimal",
   layout: "grid",
@@ -81,7 +97,7 @@ export const siteLayout = {
         use: "chrome/Banner",
         // No title or subtitle: the site name is in the header and the bio is
         // in the sidebar profile, so the banner is just the image.
-        props: { height: "30vh", coverIndex: 0, bleed: true },
+        props: { height: "30vh", bleed: true },
       },
     ],
 

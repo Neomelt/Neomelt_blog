@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 
 import { getDefaultUiText } from "../../i18n/ui";
-import { coverPool } from "../../site.config";
+import { bannerPool } from "../../site.config";
 
 /**
  * The oversized masthead that sits between the header and the content.
@@ -23,8 +23,8 @@ export interface Props {
   /** Any CSS length. Roughly a third of the viewport reads as a banner
       without pushing the content below the fold. */
   height?: string;
-  /** Which entry of coverPool to use. Omit for the gradient alone. */
-  coverIndex?: number;
+  /** Which entry of bannerPool to use. Omit for the gradient alone. */
+  imageIndex?: number;
   /** Span the full viewport width, edge to edge, with no corner radius. */
   bleed?: boolean;
 }
@@ -33,15 +33,14 @@ const {
   title,
   subtitleKey,
   height = "30vh",
-  coverIndex,
+  imageIndex = 0,
   bleed = false,
 } = Astro.props;
 
-// Drawn from the same pool the cards use, so adding art in one place feeds
-// both. Falls back to the gradient when the pool is empty or the index is out
-// of range, which keeps a fresh checkout working with no assets.
-const image =
-  coverIndex !== undefined ? (coverPool[coverIndex] ?? null) : null;
+// bannerPool, not coverPool: sharing art with the cards below would put the
+// same illustration twice on one screen. Falls back to the gradient when the
+// directory is empty, so a fresh checkout still works.
+const image = bannerPool[imageIndex] ?? null;
 const hasText = Boolean(title || subtitleKey);
 ---
 
