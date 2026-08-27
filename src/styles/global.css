@@ -313,6 +313,58 @@ p {
   color: var(--accent-hover);
 }
 
+/* ---------- Callouts ---------- */
+/* GitHub alert syntax, converted by rehype-callout. */
+.prose .callout {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  padding: 0.9rem 1rem;
+  border-inline-start: 3px solid var(--callout-accent, var(--callout-note));
+  border-radius: var(--radius-sm);
+  background: color-mix(
+    in srgb,
+    var(--callout-accent, var(--callout-note)) 8%,
+    transparent
+  );
+}
+
+.prose .callout-note {
+  --callout-accent: var(--callout-note);
+}
+.prose .callout-tip {
+  --callout-accent: var(--callout-tip);
+}
+.prose .callout-important {
+  --callout-accent: var(--callout-important);
+}
+.prose .callout-warning {
+  --callout-accent: var(--callout-warning);
+}
+.prose .callout-caution {
+  --callout-accent: var(--callout-caution);
+}
+
+.prose .callout-icon {
+  flex-shrink: 0;
+  /* Aligns with the first line of body text rather than the box. */
+  margin-top: 0.15rem;
+  color: var(--callout-accent, var(--callout-note));
+  line-height: 1;
+}
+
+.prose .callout-body {
+  min-width: 0;
+}
+
+.prose .callout-body > :first-child {
+  margin-top: 0;
+}
+
+.prose .callout-body > :last-child {
+  margin-bottom: 0;
+}
+
 /* ---------- Footnotes ---------- */
 .prose .footnotes {
   margin-top: 3rem;

@@ -36,6 +36,11 @@
   --tag-bg: #e8eef6;
   --badge-bg: #dbe5f2;
   --badge-text: #2a4a78;
+  --callout-note: #3b7ea1;
+  --callout-tip: #2f855a;
+  --callout-important: #6b46c1;
+  --callout-warning: #b7791f;
+  --callout-caution: #c53030;
   --accent-contrast: #ffffff;
 
   /* Glass surface - needs something behind it to read as glass, which is
@@ -120,6 +125,11 @@
   --tag-bg: #24344a;
   --badge-bg: #263c58;
   --badge-text: #a3c6e6;
+  --callout-note: #7cc0dd;
+  --callout-tip: #68d391;
+  --callout-important: #b794f4;
+  --callout-warning: #f6c667;
+  --callout-caution: #fc8181;
   --accent-contrast: #0f172a;
   --glass-bg: rgba(30, 41, 59, 0.58);
   --surface-sheen: none;
