@@ -272,6 +272,7 @@ export const UI_TRANSLATIONS = {
 
     "toc.aria": "目录",
     "toc.label": "目录",
+    "common.backToTop": "回到顶部",
     "series.label": "系列",
     "series.navAria": "本文所属系列",
     "series.title": "系列",
@@ -573,6 +574,7 @@ export const UI_TRANSLATIONS = {
 
     "toc.aria": "Table of contents",
     "toc.label": "Contents",
+    "common.backToTop": "Back to top",
     "series.label": "Series",
     "series.navAria": "Series this post belongs to",
     "series.title": "Series",

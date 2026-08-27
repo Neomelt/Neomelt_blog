@@ -1,0 +1,109 @@
+---
+/**
+ * A bar across the top that fills as the page scrolls.
+ *
+ * Uses a scroll-driven animation where supported, which means the browser
+ * drives it off the scroll position with no script running - no scroll
+ * listener, no layout reads on every frame. The JS fallback only registers
+ * when that is unavailable, and it writes to a custom property so both paths
+ * drive the same CSS.
+ */
+export interface Props {
+  /** Bar thickness. */
+  height?: string;
+  /** Sit at the top or the bottom of the viewport. */
+  position?: "top" | "bottom";
+}
+
+const { height = "3px", position = "top" } = Astro.props;
+---
+
+<div
+  class:list={["reading-progress", `at-${position}`]}
+  style={`--progress-height: ${height}`}
+  aria-hidden="true"
+>
+  <div class="reading-progress-bar"></div>
+</div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    inset-inline: 0;
+    height: var(--progress-height);
+    /* Above the header, which is itself fixed. */
+    z-index: 80;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  .at-top {
+    top: 0;
+  }
+
+  .at-bottom {
+    bottom: 0;
+  }
+
+  .reading-progress-bar {
+    height: 100%;
+    width: 100%;
+    background: var(--accent);
+    transform-origin: 0 50%;
+    /* The fallback path drives this; the scroll-timeline path overrides it. */
+    transform: scaleX(var(--scroll-progress, 0));
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .reading-progress-bar {
+      animation: reading-progress-grow linear;
+      animation-timeline: scroll(root block);
+      transform: scaleX(0);
+    }
+
+    @keyframes reading-progress-grow {
+      to {
+        transform: scaleX(1);
+      }
+    }
+  }
+
+  /* A bar that tracks scrolling is motion tied to a deliberate action rather
+     than ambient animation, so it stays - but the transition does not. */
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress-bar {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Only runs where scroll-driven animations are missing.
+  if (!CSS.supports("animation-timeline: scroll()")) {
+    const update = () => {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - doc.clientHeight;
+      const ratio = scrollable > 0 ? doc.scrollTop / scrollable : 0;
+      doc.style.setProperty("--scroll-progress", String(Math.min(1, ratio)));
+    };
+
+    let queued = false;
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        update();
+      });
+    };
+
+    const bind = () => {
+      update();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
+    };
+
+    document.addEventListener("DOMContentLoaded", bind);
+    document.addEventListener("astro:page-load", update);
+  }
+</script>
