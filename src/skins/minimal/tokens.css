@@ -25,6 +25,13 @@
   --tag-bg: #eaeff1;
   --badge-bg: #fef3c7;
   --badge-text: #92400e;
+  /* Callouts. Semantic rather than brand colour - a warning stays amber
+     under every skin - but still tuned per mode for contrast. */
+  --callout-note: #3b7ea1;
+  --callout-tip: #2f855a;
+  --callout-important: #6b46c1;
+  --callout-warning: #b7791f;
+  --callout-caution: #c53030;
   /* Foreground for text sitting on --accent. Not always #fff: in dark mode
      accent is a light tint, where white text falls under 2:1 contrast. */
   --accent-contrast: #ffffff;
@@ -116,6 +123,11 @@
   --tag-bg: #25333b;
   --badge-bg: #3b2a0a;
   --badge-text: #fcd34d;
+  --callout-note: #7cc0dd;
+  --callout-tip: #68d391;
+  --callout-important: #b794f4;
+  --callout-warning: #f6c667;
+  --callout-caution: #fc8181;
   --accent-contrast: #16181d;
   --glass-bg: var(--bg-card);
   --glass-border: var(--border);
