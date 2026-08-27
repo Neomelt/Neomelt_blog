@@ -43,7 +43,6 @@
      form - no skin ever needs to know a component's class names. */
   --card-hover-lift: 0px;
   --card-hover-tint: 0;
-  --tag-border-alpha: 0;
   --tag-hover-lift: 0px;
   --heading-bar-width: 0px;
 
@@ -51,7 +50,7 @@
      surface, only a hairline between rows. Form is a parameter for the same
      reason colour is - recolouring alone leaves the layout identical, which
      is why a repainted skin still reads as the same site. */
-  --list-item-padding: 1.25rem 0;
+  --list-item-padding: 1.6rem 0;
   --list-item-surface: transparent;
   --list-item-border-width: 0px;
   --list-item-divider-width: var(--border-width);

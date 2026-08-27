@@ -344,23 +344,32 @@ p {
 
 /* ---------- Tags ---------- */
 .tag {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.15rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  /* Roomier than it was: the references give these py-2 px-4, and cramped
+     chips are a large part of why a listing reads as dense. */
+  padding: 0.3rem 0.8rem;
   border-radius: var(--radius-pill);
   background: var(--tag-bg);
   color: var(--tag-text);
   text-decoration: none;
-  transition: opacity var(--transition);
+  line-height: 1.35;
 }
 
 .tag {
-  border: var(--border-width) solid rgba(var(--accent-rgb), var(--tag-border-alpha));
-  transition: transform var(--transition), border-color var(--transition);
+  border: var(--border-width) solid var(--border);
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    color var(--transition);
 }
 
-.tag:hover {
+a.tag:hover {
   transform: translateY(calc(-1 * var(--tag-hover-lift)));
+  border-color: rgba(var(--accent-rgb), 0.55);
+  color: var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {
