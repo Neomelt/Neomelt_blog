@@ -45,6 +45,8 @@ export type BlockPlacement =
 
 export interface SiteLayout {
   skin: SkinName;
+  /** Which side the aside column sits on. */
+  asidePosition?: "left" | "right";
   /** Default post-list arrangement; visitors can switch it in the header. */
   layout: LayoutName;
   regions: Record<RegionName, BlockPlacement[]>;
