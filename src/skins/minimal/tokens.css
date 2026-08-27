@@ -1,0 +1,101 @@
+/* ============================================================
+   SKIN: minimal
+   ------------------------------------------------------------
+   Values only. Every name defined here is part of the token
+   contract that all blocks consume - a skin may change what a
+   token *is*, never which tokens exist, or blocks would have to
+   change with it. That contract is why --*-rgb tokens stay as
+   bare channel triples: eight rgba(var(--ink-rgb), a) calls in
+   blocks/fx/ClickEffect.astro depend on that form.
+   ============================================================ */
+
+/* ---------- Design Tokens (Light Mode) ---------- */
+[data-skin="minimal"] {
+  /* Colors */
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --bg-code: #f4f4f5;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --text-muted: #71717a;
+  --accent: #41697b;
+  --accent-hover: #335663;
+  --accent-rgb: 65, 105, 123;
+  --ink-rgb: 47, 77, 89;
+  --tag-bg: #eaeff1;
+  --tag-text: #355460;
+
+  /* Legacy token compatibility */
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--bg-card);
+  --bg-tertiary: var(--bg-code);
+  --border-color: var(--border);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-muted);
+  --accent-dark: var(--accent-hover);
+  --accent-light: 214, 224, 228;
+  --gray: 113, 113, 122;
+  --gray-light: 228, 228, 231;
+
+  /* Shape - what separates minimal from a decorated skin as much as colour
+     does. Blocks reference these instead of literal px so a skin can restyle
+     geometry without touching a component. */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-card: 8px;
+  --radius-pill: 999px;
+  --border-width: 1px;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.3);
+  /* Painted behind cards. `none` keeps minimal flat; a skin can put a
+     gradient, texture or blur here without any block knowing. */
+  --card-backdrop: none;
+
+  /* Typography */
+  --font-sans:
+    "LXGW WenKai", "Noto Serif SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  --prose-width: 66ch;
+  --prose-line-height: 1.76;
+  --prose-letter-spacing: 0.012em;
+
+  /* Spacing */
+  --content-width: 800px;
+  --header-height: 64px;
+  --dynamic-narrow-width: 100%;
+  --dynamic-content-width: 100%;
+  --dynamic-wide-width: 100%;
+
+  /* Transitions */
+  --transition: 150ms ease;
+}
+
+/* ---------- Dark Mode ---------- */
+[data-skin="minimal"].dark {
+  --bg: #16181d;
+  --bg-card: #1d2128;
+  --bg-code: #171b21;
+  --border: #2b313a;
+  --text: #e8ebf0;
+  --text-muted: #aab1bc;
+  --accent: #8cadbb;
+  --accent-hover: #a8c4d0;
+  --accent-rgb: 140, 173, 187;
+  --ink-rgb: 226, 232, 237;
+  --tag-bg: #25333b;
+  --tag-text: #aac6d2;
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--bg-card);
+  --bg-tertiary: var(--bg-code);
+  --border-color: var(--border);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-muted);
+  --accent-dark: var(--accent-hover);
+  --accent-light: 37, 51, 59;
+  --gray: 170, 177, 188;
+  --gray-light: 43, 49, 58;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.55);
+}

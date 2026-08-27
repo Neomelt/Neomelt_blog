@@ -34,11 +34,10 @@ export default {
         "dynamic-content": "min(85vw, 1200px)",
         "dynamic-narrow": "min(80vw, 800px)",
       },
-      colors: {
-        primary: "#3b82f6",
-        secondary: "#6b7280",
-        accent: "#2337ff",
-      },
+      // No colour scale here on purpose. Tailwind's theme is resolved at build
+      // time, so a colour defined here could never follow a skin change at
+      // runtime. All colour lives in src/skins/<skin>/tokens.css and reaches
+      // components through var(--x).
       fontFamily: {
         sans: [
           "-apple-system",
@@ -53,14 +52,6 @@ export default {
       lineHeight: {
         relaxed: "1.8",
         loose: "2",
-      },
-      backgroundColor: {
-        "dark-primary": "#1a1f35",
-        "dark-secondary": "#111827",
-      },
-      textColor: {
-        "dark-primary": "#F9FAFB",
-        "dark-secondary": "#D1D5DB",
       },
     },
   },
