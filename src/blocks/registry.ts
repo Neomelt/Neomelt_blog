@@ -10,6 +10,7 @@ import FriendCircle from "./widget/FriendCircle.astro";
 import MusicPlayer from "./widget/MusicPlayer.astro";
 import Profile from "./widget/Profile.astro";
 import TagCloud from "./widget/TagCloud.astro";
+import WritingHeatmap from "./widget/WritingHeatmap.astro";
 import ImageLightbox from "./behavior/ImageLightbox.astro";
 
 /**
@@ -36,6 +37,8 @@ export const BLOCKS = {
   "widget/MusicPlayer": MusicPlayer,
   "widget/Profile": Profile,
   "widget/TagCloud": TagCloud,
+  // Implemented and registered, deliberately not placed in site.config.ts.
+  "widget/WritingHeatmap": WritingHeatmap,
   "behavior/ImageLightbox": ImageLightbox,
 } satisfies Record<string, AstroComponentFactory>;
 

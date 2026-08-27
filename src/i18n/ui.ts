@@ -38,6 +38,9 @@ export const UI_TRANSLATIONS = {
     "widget.calendarWeekdays": "日,一,二,三,四,五,六",
     "widget.tagsTitle": "标签",
     "widget.musicTitle": "正在播放",
+    "widget.heatmapTitle": "写作热力",
+    "widget.heatmapUnit": "篇",
+    "widget.heatmapEmpty": "没写",
 
     "footer.running": "已运行",
     "footer.day": "天",
@@ -333,6 +336,9 @@ export const UI_TRANSLATIONS = {
     "widget.calendarWeekdays": "Su,Mo,Tu,We,Th,Fr,Sa",
     "widget.tagsTitle": "Tags",
     "widget.musicTitle": "Now playing",
+    "widget.heatmapTitle": "Writing activity",
+    "widget.heatmapUnit": "posts",
+    "widget.heatmapEmpty": "nothing",
 
     "footer.running": "Uptime",
     "footer.day": "d",

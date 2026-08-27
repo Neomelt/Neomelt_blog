@@ -1,0 +1,219 @@
+---
+import GlassPanel from "../surface/GlassPanel.astro";
+import { getCollection } from "astro:content";
+import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
+import { withBase } from "../../utils/url";
+
+/**
+ * Posts per day as a GitHub-style grid, for the weeks ending today.
+ *
+ * The grid is built in the browser, not here - same reason Calendar does it:
+ * the window ends on the current date, so rendering it at build time would
+ * pin it to the deploy date and be silently wrong the next day. The server
+ * ships a date-to-count map and nothing else.
+ *
+ * Registered in blocks/registry.ts but deliberately not placed in
+ * site.config.ts. With a low post count most of the grid is empty, which
+ * reads as an abandoned blog rather than a record of one - worth having
+ * ready, worth waiting to show.
+ */
+export interface Props {
+  heading?: boolean;
+  /**
+   * How many weeks back. Not 53: seven rows across a 240px aside column
+   * would put a full year in ~4px cells, which is a texture rather than a
+   * chart. 26 keeps a cell around 9px and still spans half a year.
+   */
+  weeks?: number;
+}
+
+const { heading = true, weeks = 26 } = Astro.props;
+
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
+const dates = await resolvePostDatesMap(posts);
+
+/** "YYYY-MM-DD" -> the posts published that day. */
+const byDay: Record<string, { title: string; url: string }[]> = {};
+for (const post of posts) {
+  const date = dates.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+  const key = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+  (byDay[key] ??= []).push({
+    title: post.data.title,
+    url: withBase(`/posts/${post.id}`),
+  });
+}
+---
+
+<GlassPanel class="heat">
+  {
+    heading && (
+      <h2 class="heat-title" data-i18n="widget.heatmapTitle">
+        {getDefaultUiText("widget.heatmapTitle")}
+      </h2>
+    )
+  }
+  <div
+    class="heat-root"
+    data-posts={JSON.stringify(byDay)}
+    data-weeks={weeks}
+    data-archive={withBase("/posts/archive")}
+    data-unit={getDefaultUiText("widget.heatmapUnit")}
+    data-empty={getDefaultUiText("widget.heatmapEmpty")}
+  >
+  </div>
+</GlassPanel>
+
+<style>
+  /* Matches .cal-title and the other widget headings. */
+  .heat-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  /* Weeks run left to right, weekdays top to bottom - one column per week.
+     1fr columns rather than a fixed cell size so the grid fills whatever
+     width the aside gives it instead of overflowing a narrow one. */
+  .heat-root :global(.heat-grid) {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .heat-root :global(.heat-cell) {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: var(--border);
+  }
+
+  /* Four steps, not a continuous scale: a reader compares a cell to its
+     neighbours, and alpha differences below about 20% do not survive that.
+     Tinted from --accent so it re-colours with the skin. */
+  .heat-root :global(.step-1) {
+    background: rgba(var(--accent-rgb), 0.3);
+  }
+
+  .heat-root :global(.step-2) {
+    background: rgba(var(--accent-rgb), 0.55);
+  }
+
+  .heat-root :global(.step-3) {
+    background: rgba(var(--accent-rgb), 0.78);
+  }
+
+  .heat-root :global(.step-4) {
+    background: rgba(var(--accent-rgb), 1);
+  }
+
+  /* A day with posts is a link; an empty day is a div, so it is not a tab
+     stop and a keyboard user walks only the days that go somewhere. */
+  .heat-root :global(a.heat-cell) {
+    display: block;
+    transition: outline-color var(--transition);
+    outline: 1px solid transparent;
+  }
+
+  .heat-root :global(a.heat-cell:hover),
+  .heat-root :global(a.heat-cell:focus-visible) {
+    outline-color: var(--accent);
+    outline-offset: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heat-root :global(a.heat-cell) {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  interface DayPost {
+    title: string;
+    url: string;
+  }
+
+  function buildHeatmap() {
+    const root = document.querySelector<HTMLElement>(".heat-root");
+    if (!root || root.dataset.built) return;
+
+    let byDay: Record<string, DayPost[]> = {};
+    try {
+      byDay = JSON.parse(root.dataset.posts ?? "{}");
+    } catch {
+      return;
+    }
+
+    const weeks = Number(root.dataset.weeks) || 26;
+    const unit = root.dataset.unit ?? "";
+    const empty = root.dataset.empty ?? "";
+    root.dataset.built = "true";
+
+    const key = (date: Date) =>
+      [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0"),
+      ].join("-");
+
+    // The grid ends on the Saturday of the current week, so today's column is
+    // the last one and partially filled rather than the grid ending mid-week.
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = new Date(today);
+    end.setDate(end.getDate() + (6 - end.getDay()));
+    const start = new Date(end);
+    start.setDate(start.getDate() - (weeks * 7 - 1));
+
+    const grid = document.createElement("div");
+    grid.className = "heat-grid";
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dayKey = key(d);
+      const dayPosts = byDay[dayKey] ?? [];
+      const count = dayPosts.length;
+      // 1 post is already a productive day for a blog; capping at 4 keeps a
+      // rare burst from making every ordinary day look like nothing.
+      const step = Math.min(count, 4);
+
+      // A future day inside the trailing week is drawn but left blank, so the
+      // grid keeps its rectangle instead of ending ragged.
+      const future = d > today;
+      const label = future
+        ? ""
+        : count > 0
+          ? `${dayKey} · ${count} ${unit}\n${dayPosts.map((p) => p.title).join("\n")}`
+          : `${dayKey} · ${empty}`;
+
+      let cell: HTMLElement;
+      if (count > 0) {
+        const link = document.createElement("a");
+        // One post that day goes straight there; several land on the archive,
+        // which is the only page that can show them together.
+        link.href =
+          count === 1
+            ? dayPosts[0]!.url
+            : root.dataset.archive || dayPosts[0]!.url;
+        cell = link;
+      } else {
+        cell = document.createElement("div");
+      }
+
+      cell.className = `heat-cell${step > 0 ? ` step-${step}` : ""}`;
+      if (label) cell.title = label;
+      if (future) cell.style.visibility = "hidden";
+      grid.appendChild(cell);
+    }
+
+    root.replaceChildren(grid);
+  }
+
+  document.addEventListener("DOMContentLoaded", buildHeatmap);
+  document.addEventListener("astro:page-load", buildHeatmap);
+</script>
