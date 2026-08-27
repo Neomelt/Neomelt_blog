@@ -15,6 +15,7 @@
     "format:check": "prettier --check .",
     "new:post": "node scripts/new-post.mjs",
     "new": "node scripts/new-post.mjs",
+    "covers": "node scripts/fetch-covers.mjs",
     "watch:frontmatter": "node scripts/auto-frontmatter.mjs"
   },
   "dependencies": {

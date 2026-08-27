@@ -11,22 +11,28 @@ import type { SiteLayout } from "./types/layout";
  * Regions paint back to front: backdrop, page, floating.
  * Adding a block: write it, register it, name it here.
  */
+import type { ImageMetadata } from "astro";
+
 /**
  * Decorative cover art, unrelated to post content.
  *
- * Reference blogs pair each post with an illustration from a pool, not with
- * a screenshot from the body - a Gazebo debugging capture makes a poor
- * decorative panel. Drop images in public/covers/ and list them here; each
- * post picks one deterministically from its title, so the assignment is
- * stable across builds and spread across the pool.
+ * Files in src/assets/covers/ rather than public/ on purpose: only src/ goes
+ * through Astro's image pipeline, which is what turns a 5MB pixiv original
+ * into the hashed, immutable webp the reference blogs serve. Drop files in
+ * (scripts/fetch-covers.mjs does it for you) and they are picked up here with
+ * no edit - each post maps to one deterministically from its title.
  *
- * Leave it empty and posts fall back to a generated gradient panel.
- * A post can always override with its own heroImage.
+ * Empty directory means no covers, and cards fall back to a text-only layout
+ * rather than a generated stand-in.
  */
-export const coverPool: string[] = [
-  // "/covers/01.webp",
-  // "/covers/02.webp",
-];
+const coverModules = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/covers/*.{webp,jpg,jpeg,png,avif}",
+  { eager: true },
+);
+
+export const coverPool: ImageMetadata[] = Object.keys(coverModules)
+  .sort()
+  .map((key) => coverModules[key]!.default);
 
 export const siteLayout = {
   skin: "minimal",
