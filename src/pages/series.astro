@@ -1,4 +1,5 @@
 ---
+import EmptyState from "../blocks/view/EmptyState.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { SITE_TITLE } from "../consts";
 import { getDefaultUiText } from "../i18n/ui";
@@ -41,13 +42,7 @@ const series = [...(await getAllSeries()).values()];
         {getDefaultUiText("series.lead")}
       </p>
 
-      {
-        series.length === 0 && (
-          <p class="series-empty text-muted" data-i18n="series.empty">
-            {getDefaultUiText("series.empty")}
-          </p>
-        )
-      }
+      {series.length === 0 && <EmptyState messageKey="series.empty" />}
 
       {
         series.map((group) => (
@@ -78,10 +73,6 @@ const series = [...(await getAllSeries()).values()];
 </BaseLayout>
 
 <style>
-  .series-empty {
-    padding: 2rem 0;
-  }
-
   .series-group {
     margin-bottom: 2.2rem;
     scroll-margin-top: calc(var(--header-height) + 1rem);

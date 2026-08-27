@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import EmptyState from "../../blocks/view/EmptyState.astro";
 import Pagination from "../../blocks/view/Pagination.astro";
 import PostCard from "../../blocks/view/PostCard.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -57,13 +58,7 @@ const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
 
       {
         posts.length === 0 && (
-          <p
-            class="text-muted"
-            style="text-align:center;padding:3rem 0"
-            data-i18n="posts.empty"
-          >
-            {getDefaultUiText("posts.empty")}
-          </p>
+          <EmptyState messageKey="posts.empty" align="center" />
         )
       }
 
