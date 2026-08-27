@@ -171,6 +171,31 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
         </svg>
       </button>
 
+      <!-- Layout switch -->
+      <button
+        id="layout-toggle"
+        class="icon-btn layout-btn"
+        data-i18n-aria-label="header.layoutAria"
+        aria-label={getDefaultUiText("header.layoutAria")}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="17"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+        </svg>
+        <span id="layout-toggle-label" class="layout-label"></span>
+      </button>
+
       <!-- Mobile menu toggle -->
       <button
         id="menu-toggle"
@@ -277,6 +302,25 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       themeToggle.dataset.bound = "true";
     }
 
+    const layoutToggle = document.getElementById("layout-toggle");
+    const layoutLabel = document.getElementById("layout-toggle-label");
+    const paintLayoutLabel = () => {
+      const current = getThemeApi()?.getLayout?.();
+      if (layoutLabel && current) {
+        layoutLabel.textContent =
+          window.__siteI18n?.t(`layout.${current}`, current) ?? current;
+      }
+    };
+    paintLayoutLabel();
+    if (layoutToggle && !layoutToggle.dataset.bound) {
+      layoutToggle.addEventListener("click", () => {
+        getThemeApi()?.cycleLayout?.();
+        paintLayoutLabel();
+      });
+      layoutToggle.dataset.bound = "true";
+    }
+    document.addEventListener("site:locale-change", paintLayoutLabel);
+
     const skinToggle = document.getElementById("skin-toggle");
     if (skinToggle && !skinToggle.dataset.bound) {
       skinToggle.addEventListener("click", () => {
@@ -349,6 +393,23 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 </script>
 
 <style>
+  .layout-btn {
+    width: auto;
+    gap: 0.35rem;
+    padding-inline: 0.5rem;
+  }
+
+  .layout-label {
+    font-size: 0.78rem;
+    line-height: 1;
+  }
+
+  @media (max-width: 768px) {
+    .layout-label {
+      display: none;
+    }
+  }
+
   #site-header {
     position: sticky;
     top: 0;

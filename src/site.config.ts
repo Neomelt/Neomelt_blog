@@ -30,6 +30,7 @@ export const coverPool: string[] = [
 
 export const siteLayout = {
   skin: "minimal",
+  layout: "grid",
 
   regions: {
     backdrop: [

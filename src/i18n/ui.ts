@@ -17,6 +17,11 @@ export const UI_TRANSLATIONS = {
     "header.searchAria": "搜索",
     "header.themeAria": "切换深色/浅色模式",
     "header.skinAria": "切换外观风格",
+    "header.layoutAria": "切换文章列表布局",
+    "layout.grid": "网格",
+    "layout.list": "列表",
+    "layout.magazine": "杂志",
+    "layout.timeline": "时间线",
     "header.menuAria": "菜单",
     "header.languageAria": "切换语言",
 
@@ -281,6 +286,11 @@ export const UI_TRANSLATIONS = {
     "header.searchAria": "Search",
     "header.themeAria": "Toggle dark/light mode",
     "header.skinAria": "Switch visual skin",
+    "header.layoutAria": "Switch post list layout",
+    "layout.grid": "Grid",
+    "layout.list": "List",
+    "layout.magazine": "Magazine",
+    "layout.timeline": "Timeline",
     "header.menuAria": "Menu",
     "header.languageAria": "Switch language",
 

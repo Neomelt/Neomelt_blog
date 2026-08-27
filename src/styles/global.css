@@ -342,6 +342,31 @@ p {
   padding: 0.5rem 0;
 }
 
+/* ---------- Post list arrangements ---------- */
+/* One markup, four arrangements. The container rules are here because
+   .post-list is a global class; the card's own rules live in PostCard. */
+
+[data-layout="grid"] .post-list,
+[data-layout="magazine"] .post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.4rem;
+}
+
+/* The first entry gets the hero slot. Only from two columns up - promoting
+   one card in a single-column view just makes it look inconsistent. */
+@media (min-width: 720px) {
+  [data-layout="magazine"] .post-list > :first-child {
+    grid-column: span 2;
+  }
+}
+
+[data-layout="timeline"] .post-list {
+  border-inline-start: 2px solid var(--border);
+  padding-inline-start: 1.6rem;
+  margin-inline-start: 0.3rem;
+}
+
 /* ---------- Tags ---------- */
 .tag {
   display: inline-flex;

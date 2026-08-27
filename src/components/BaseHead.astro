@@ -5,6 +5,7 @@ import "../skins/minimal/tokens.css";
 import "../skins/anime/tokens.css";
 import "../styles/global.css";
 import { SKINS, SKIN_THEME_COLORS } from "../skins";
+import { LAYOUTS } from "../types/layout";
 import { siteLayout } from "../site.config";
 import type { ImageMetadata } from "astro";
 // og/twitter 分享图必须是位图：X/Facebook/Telegram 的抓取器不渲染 SVG。
@@ -109,11 +110,12 @@ const primaryHostname = canonicalURL.hostname;
 <!-- 主题初始化脚本 -->
 <script
   is:inline
-  define:vars={{ defaultSkin: siteLayout.skin, skinThemeColors: SKIN_THEME_COLORS, skinNames: SKINS }}
+  define:vars={{ defaultSkin: siteLayout.skin, skinThemeColors: SKIN_THEME_COLORS, skinNames: SKINS, defaultLayout: siteLayout.layout, layoutNames: LAYOUTS }}
 >
   (() => {
     const MODE_KEY = "theme";
     const SKIN_KEY = "skin";
+    const LAYOUT_KEY = "layout";
     const DEFAULT_MODE = "dark";
 
     const readStored = (key, allowed) => {
@@ -161,6 +163,22 @@ const primaryHostname = canonicalURL.hostname;
         ? document.documentElement.dataset.skin
         : defaultSkin);
 
+    const getLayout = () =>
+      readStored(LAYOUT_KEY, layoutNames) ??
+      (layoutNames.includes(document.documentElement.dataset.layout)
+        ? document.documentElement.dataset.layout
+        : defaultLayout);
+
+    const applyLayout = (layout, { persist = true } = {}) => {
+      const next = layoutNames.includes(layout) ? layout : defaultLayout;
+      document.documentElement.dataset.layout = next;
+      if (persist) writeStored(LAYOUT_KEY, next);
+      document.dispatchEvent(
+        new CustomEvent("site:layout-change", { detail: { layout: next } }),
+      );
+      return next;
+    };
+
     const apply = (skin, mode, { persist = true } = {}) => {
       const nextMode = mode === "light" ? "light" : "dark";
       const nextSkin = skinNames.includes(skin) ? skin : defaultSkin;
@@ -202,6 +220,14 @@ const primaryHostname = canonicalURL.hostname;
         apply(skin, getMode());
         return skin;
       },
+      getLayout,
+      layouts: layoutNames,
+      setLayout: applyLayout,
+      cycleLayout: () => {
+        const next =
+          layoutNames[(layoutNames.indexOf(getLayout()) + 1) % layoutNames.length];
+        return applyLayout(next);
+      },
       cycleSkin: () => {
         const next =
           skinNames[(skinNames.indexOf(getSkin()) + 1) % skinNames.length];
@@ -210,8 +236,9 @@ const primaryHostname = canonicalURL.hostname;
       },
     };
 
-    // Resolve both axes before first paint.
+    // Resolve every axis before first paint.
     apply(getSkin(), getMode(), { persist: false });
+    applyLayout(getLayout(), { persist: false });
   })();
 </script>
 
