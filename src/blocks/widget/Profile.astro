@@ -1,0 +1,144 @@
+---
+import GlassPanel from "../surface/GlassPanel.astro";
+import { profile } from "../../site.config";
+import { getDefaultUiText } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
+
+/**
+ * Avatar, name, one line of bio, social links.
+ *
+ * Reads everything from `profile` in site.config.ts rather than taking props,
+ * which is what lets it be placed by a region with a bare name. The bio is an
+ * i18n key, so it follows the language toggle instead of freezing whichever
+ * language the config was written in.
+ */
+export interface Props {
+  /** Stack avatar above the text instead of beside it. */
+  stacked?: boolean;
+}
+
+const { stacked = true } = Astro.props;
+
+const ICONS: Record<string, string> = {
+  github:
+    "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z",
+  bilibili:
+    "M4.7 1.3a1 1 0 0 1 1.4 0L8 3.2l1.9-1.9a1 1 0 0 1 1.4 1.4l-.5.5H13a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3h2.2l-.5-.5a1 1 0 0 1 0-1.4ZM3 5.2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H3Zm2 2.3a.9.9 0 0 1 .9.9v1.2a.9.9 0 1 1-1.8 0V8.4a.9.9 0 0 1 .9-.9Zm6 0a.9.9 0 0 1 .9.9v1.2a.9.9 0 1 1-1.8 0V8.4a.9.9 0 0 1 .9-.9Z",
+  mail: "M2 3h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm.6 1.6L8 8.4l5.4-3.8H2.6Zm10.8 1.2L8.3 9.5a.5.5 0 0 1-.6 0L2.6 5.8V12h10.8V5.8Z",
+};
+---
+
+<GlassPanel class="profile">
+  <div class:list={["profile-inner", { stacked }]}>
+    <img
+      class="profile-avatar"
+      src={withBase(profile.avatar)}
+      alt={profile.name}
+      width="72"
+      height="72"
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="profile-text">
+      <div class="profile-name">{profile.name}</div>
+      <p class="profile-bio" data-i18n={profile.bioKey}>
+        {getDefaultUiText(profile.bioKey)}
+      </p>
+    </div>
+  </div>
+
+  <ul class="profile-links">
+    {
+      profile.links.map((link) => (
+        <li>
+          <a
+            href={link.url}
+            class="profile-link"
+            aria-label={link.label}
+            title={link.label}
+            {...(link.url.startsWith("http")
+              ? { target: "_blank", rel: "noopener" }
+              : {})}
+          >
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d={ICONS[link.icon] ?? ICONS.mail} />
+            </svg>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</GlassPanel>
+
+<style>
+  .profile-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .profile-inner.stacked {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.6rem;
+  }
+
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+    border: var(--border-width) solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .profile-text {
+    min-width: 0;
+  }
+
+  .profile-name {
+    font-weight: 650;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+
+  .profile-bio {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    /* Two lines: enough for a sentence, short enough that the card stays a
+       card rather than becoming an about page. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .profile-links {
+    list-style: none;
+    margin: 0.85rem 0 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .profile-link {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    transition:
+      color var(--transition),
+      background-color var(--transition);
+  }
+
+  .profile-link:hover {
+    color: var(--accent);
+    background-color: rgba(var(--accent-rgb), 0.1);
+  }
+</style>

@@ -353,7 +353,7 @@ const searchFallbacks = {
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 200;
+    z-index: var(--z-overlay);
     background: rgba(0, 0, 0, 0.5);
     align-items: flex-start;
     justify-content: center;
@@ -368,12 +368,12 @@ const searchFallbacks = {
   .search-box {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     width: 100%;
     max-width: 600px;
     margin: 0 1rem;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-float);
   }
 
   /* 头部 */
@@ -398,7 +398,7 @@ const searchFallbacks = {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     border: none;
     background: transparent;
     color: var(--text-muted);
@@ -437,7 +437,7 @@ const searchFallbacks = {
     width: 100%;
     padding: 0.6rem 0.75rem 0.6rem 2.25rem;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     background: var(--bg);
     color: var(--text);
     font-size: 0.95rem;
@@ -455,8 +455,20 @@ const searchFallbacks = {
     max-height: 400px;
     overflow-y: auto;
   }
+</style>
 
-  .search-empty {
+<!--
+  These rows are built by the script with document.createElement, so they never
+  carry the data-astro-cid attribute a scoped rule compiles down to - every rule
+  below matched nothing while it lived in the scoped block, and the results
+  rendered as bare browser-default links. Same trap as the JS-created
+  .empty-state in widget/FriendCircle.astro.
+
+  is:global with a #search-modal prefix rather than :global() per line: the
+  prefix is the fence, and it is one place to check rather than a dozen.
+-->
+<style is:global>
+  #search-modal .search-empty {
     padding: 1.5rem;
     text-align: center;
     color: var(--text-muted);
@@ -464,32 +476,32 @@ const searchFallbacks = {
   }
 
   /* 单条结果 */
-  .result-item {
+  #search-modal .result-item {
     display: block;
     padding: 0.75rem 0.5rem;
     border-bottom: 1px solid var(--border);
     text-decoration: none;
     color: var(--text);
     transition: background var(--transition);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
   }
 
-  .result-item:last-child {
+  #search-modal .result-item:last-child {
     border-bottom: none;
   }
 
-  .result-item:hover {
+  #search-modal .result-item:hover {
     background: var(--bg-code);
   }
 
-  .result-title {
+  #search-modal .result-title {
     font-size: 0.95rem;
     font-weight: 500;
     color: var(--text);
     margin-bottom: 0.25rem;
   }
 
-  .result-desc {
+  #search-modal .result-desc {
     font-size: 0.85rem;
     color: var(--text-muted);
     margin-bottom: 0.25rem;
@@ -500,24 +512,24 @@ const searchFallbacks = {
     overflow: hidden;
   }
 
-  .result-tags {
+  #search-modal .result-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
     margin-top: 0.25rem;
   }
 
-  .result-tag {
+  #search-modal .result-tag {
     font-size: 0.75rem;
     color: var(--tag-text);
     background: var(--tag-bg);
     padding: 0.1rem 0.4rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
   }
 
-  mark {
+  #search-modal mark {
     background: rgba(250, 204, 21, 0.3);
     color: inherit;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
   }
 </style>

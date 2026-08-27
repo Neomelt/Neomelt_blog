@@ -1,0 +1,207 @@
+---
+import { getCollection } from "astro:content";
+import GlassPanel from "../surface/GlassPanel.astro";
+import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
+import { withBase } from "../../utils/url";
+
+/**
+ * A month grid with the days that have posts marked.
+ *
+ * The grid is built in the browser, not here. Rendering it at build time
+ * would pin the calendar to whatever month the site was last deployed in -
+ * it would look right on deploy day and be silently wrong from the next
+ * month on. The server only ships the post dates.
+ */
+export interface Props {
+  heading?: boolean;
+}
+
+const { heading = true } = Astro.props;
+
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
+const dates = await resolvePostDatesMap(posts);
+
+const byDay: Record<string, { title: string; url: string }[]> = {};
+for (const post of posts) {
+  const date = dates.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+  const key = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+  (byDay[key] ??= []).push({
+    title: post.data.title,
+    url: withBase(`/posts/${post.id}`),
+  });
+}
+---
+
+<GlassPanel class="cal">
+  {
+    heading && (
+      <h2 class="cal-title" data-i18n="widget.calendarTitle">
+        {getDefaultUiText("widget.calendarTitle")}
+      </h2>
+    )
+  }
+  <div
+    class="cal-root"
+    data-posts={JSON.stringify(byDay)}
+    data-weekdays={getDefaultUiText("widget.calendarWeekdays")}
+  >
+  </div>
+</GlassPanel>
+
+<style>
+  .cal-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .cal-root :global(.cal-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.45rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .cal-root :global(.cal-nav) {
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.1rem 0.35rem;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+    font-size: 0.9rem;
+  }
+
+  .cal-root :global(.cal-nav:hover) {
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+  }
+
+  .cal-root :global(.cal-grid) {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+  }
+
+  .cal-root :global(.cal-weekday) {
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    padding: 0.15rem 0;
+  }
+
+  .cal-root :global(.cal-day) {
+    font-size: 0.74rem;
+    padding: 0.22rem 0;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cal-root :global(.cal-day.is-today) {
+    outline: var(--border-width) solid var(--accent);
+  }
+
+  .cal-root :global(a.cal-day) {
+    color: var(--accent-contrast);
+    background: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .cal-root :global(a.cal-day:hover) {
+    background: var(--accent-hover);
+  }
+</style>
+
+<script>
+  type DayPosts = Record<string, { title: string; url: string }[]>;
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  function render(root: HTMLElement, year: number, month: number) {
+    const posts: DayPosts = JSON.parse(root.dataset.posts || "{}");
+    const weekdays = (root.dataset.weekdays || "S,M,T,W,T,F,S").split(",");
+    const first = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+
+    const head = document.createElement("div");
+    head.className = "cal-head";
+    const prev = document.createElement("button");
+    prev.type = "button";
+    prev.className = "cal-nav";
+    prev.textContent = "‹";
+    prev.setAttribute("aria-label", "Previous month");
+    const label = document.createElement("span");
+    label.textContent = `${year}-${pad(month + 1)}`;
+    const next = document.createElement("button");
+    next.type = "button";
+    next.className = "cal-nav";
+    next.textContent = "›";
+    next.setAttribute("aria-label", "Next month");
+    head.append(prev, label, next);
+
+    const grid = document.createElement("div");
+    grid.className = "cal-grid";
+    for (const w of weekdays) {
+      const cell = document.createElement("div");
+      cell.className = "cal-weekday";
+      cell.textContent = w;
+      grid.append(cell);
+    }
+    for (let i = 0; i < first.getDay(); i += 1) {
+      grid.append(document.createElement("div"));
+    }
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const key = `${year}-${pad(month + 1)}-${pad(day)}`;
+      const entries = posts[key];
+      const isToday =
+        today.getFullYear() === year &&
+        today.getMonth() === month &&
+        today.getDate() === day;
+
+      let cell: HTMLElement;
+      if (entries?.length) {
+        const link = document.createElement("a");
+        link.href = entries[0].url;
+        link.title = entries.map((e) => e.title).join("\n");
+        cell = link;
+      } else {
+        cell = document.createElement("div");
+      }
+      cell.classList.add("cal-day");
+      if (isToday) cell.classList.add("is-today");
+      cell.textContent = String(day);
+      grid.append(cell);
+    }
+
+    root.replaceChildren(head, grid);
+    prev.addEventListener("click", () => render(root, ...shift(year, month, -1)));
+    next.addEventListener("click", () => render(root, ...shift(year, month, 1)));
+  }
+
+  function shift(year: number, month: number, by: number): [number, number] {
+    const d = new Date(year, month + by, 1);
+    return [d.getFullYear(), d.getMonth()];
+  }
+
+  const paint = () => {
+    document.querySelectorAll<HTMLElement>(".cal-root").forEach((root) => {
+      const now = new Date();
+      render(root, now.getFullYear(), now.getMonth());
+    });
+  };
+
+  document.addEventListener("DOMContentLoaded", paint);
+  document.addEventListener("astro:page-load", paint);
+</script>

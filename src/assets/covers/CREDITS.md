@@ -1,0 +1,16 @@
+# Cover art
+- [恭喜发财！！！！](https://www.pixiv.net/artworks/126327443) — BODHI
+- [オタクさとちゃん](https://www.pixiv.net/artworks/134308706) — MaidCode1023
+- [エレガントに新年を祝うパーティー！](https://www.pixiv.net/artworks/139388781) — Salmon88
+- [真夏の夜のドリーム](https://www.pixiv.net/artworks/148682428) — ポ～ン（出水ぽすか）
+- [~](https://www.pixiv.net/artworks/148672178) — 超凶の狄璐卡
+- [⚪|⚫](https://www.pixiv.net/artworks/148696387) — klerbail
+- [不安](https://www.pixiv.net/artworks/148698382) — のう
+- [ラビットホール](https://www.pixiv.net/artworks/148676633) — zero
+- [清宵](https://www.pixiv.net/artworks/148651669) — Rafa
+- [海](https://www.pixiv.net/artworks/148701777) — abmayo
+- [❤コロサン](https://www.pixiv.net/artworks/147814765) — たけのおもち
+- [这么大的事为什么不早说！](https://www.pixiv.net/artworks/147803538) — 喵咕君QAQ(KH3)
+- [無題](https://www.pixiv.net/artworks/147821169) — ひづるめ
+- [無題](https://www.pixiv.net/artworks/147747734) — ひづるめ
+- [(/ω＼)](https://www.pixiv.net/artworks/147767301) — SWKL:D

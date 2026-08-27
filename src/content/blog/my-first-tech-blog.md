@@ -2,7 +2,7 @@
 title: "为什么我重新搭了一个博客"
 description: "关于写博客这件事，以及我在学什么"
 pubDate: "2025-08-14"
-heroImage: "../../assets/cover.svg"
+heroImage: "../../assets/covers/147803538.webp"
 category: "随便写写"
 series: ""
 tags: ["随想"]

@@ -1,0 +1,42 @@
+---
+import { BLOCKS, type BlockName } from "../blocks/registry";
+import { siteLayout } from "../site.config";
+import type { BlockPlacement, RegionName } from "../types/layout";
+
+export interface Props {
+  /** Which region of site.config.ts to render. */
+  name: RegionName;
+  /**
+   * Page-level data handed to every block in the region (headings, post, ...).
+   * Blocks read what they need and ignore the rest; config props win on a
+   * name clash so a placement can always override the page.
+   */
+  context?: Record<string, unknown>;
+  /** Replaces the configured list for this page. Pass [] to render nothing. */
+  override?: BlockPlacement[];
+}
+
+const { name, context = {}, override } = Astro.props;
+
+const placements: BlockPlacement[] = override ?? siteLayout.regions[name] ?? [];
+const entries = placements.map((placement) =>
+  typeof placement === "string"
+    ? { use: placement, props: {} as Record<string, unknown>, skins: undefined }
+    : { props: {} as Record<string, unknown>, skins: undefined, ...placement },
+);
+---
+
+{
+  entries.map(({ use, props, skins }) => {
+    const Block = BLOCKS[use as BlockName];
+    if (!Block) return null;
+    const block = <Block {...context} {...props} />;
+    if (!skins?.length) return block;
+    // display:contents keeps the wrapper out of the parent's layout.
+    return (
+      <div class="skin-scope" data-skin-only={skins.join(" ")}>
+        {block}
+      </div>
+    );
+  })
+}

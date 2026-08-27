@@ -7,78 +7,22 @@
    non-render-blocking stylesheet) so it never blocks first paint. The font
    stack below falls back to system fonts until the web font arrives. */
 
-/* ---------- Design Tokens (Light Mode) ---------- */
+/* ---------- Design Tokens ---------- */
+/* Token values live in src/skins/<skin>/tokens.css, selected by the
+   data-skin attribute rendered on <html>. See src/site.config.ts. */
+
+/* ---------- Stacking order ---------- */
+/* Every layer named in one place. These were seven magic numbers spread
+   across as many components, which is how the progress bar ended up at 80
+   underneath a header at 100 - invisible, since the header is opaque. */
 :root {
-  /* Colors */
-  --bg: #fafafa;
-  --bg-card: #ffffff;
-  --bg-code: #f4f4f5;
-  --border: #e4e4e7;
-  --text: #18181b;
-  --text-muted: #71717a;
-  --accent: #41697b;
-  --accent-hover: #335663;
-  --accent-rgb: 65, 105, 123;
-  --ink-rgb: 47, 77, 89;
-  --tag-bg: #eaeff1;
-  --tag-text: #355460;
-
-  /* Legacy token compatibility */
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 214, 224, 228;
-  --gray: 113, 113, 122;
-  --gray-light: 228, 228, 231;
-
-  /* Typography */
-  --font-sans:
-    "LXGW WenKai", "Noto Serif SC", "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-  --prose-width: 66ch;
-  --prose-line-height: 1.76;
-  --prose-letter-spacing: 0.012em;
-
-  /* Spacing */
-  --content-width: 800px;
-  --header-height: 64px;
-  --dynamic-narrow-width: 100%;
-  --dynamic-content-width: 100%;
-  --dynamic-wide-width: 100%;
-
-  /* Transitions */
-  --transition: 150ms ease;
-}
-
-/* ---------- Dark Mode ---------- */
-.dark {
-  --bg: #16181d;
-  --bg-card: #1d2128;
-  --bg-code: #171b21;
-  --border: #2b313a;
-  --text: #e8ebf0;
-  --text-muted: #aab1bc;
-  --accent: #8cadbb;
-  --accent-hover: #a8c4d0;
-  --accent-rgb: 140, 173, 187;
-  --ink-rgb: 226, 232, 237;
-  --tag-bg: #25333b;
-  --tag-text: #aac6d2;
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 37, 51, 59;
-  --gray: 170, 177, 188;
-  --gray-light: 43, 49, 58;
+  --z-backdrop: -1;
+  --z-sticky: 100;
+  --z-progress: 110;
+  --z-floating: 120;
+  --z-overlay: 200;
+  --z-overlay-control: 210;
+  --z-effect: 300;
 }
 
 /* ---------- Reset & Base ---------- */
@@ -117,6 +61,21 @@ video {
   max-width: 100%;
   height: auto;
   display: block;
+}
+
+/* Form controls do not inherit typography on their own, and buttons carry a
+   platform background. Previously supplied by Tailwind's preflight, stated
+   here now that Tailwind is gone. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
 }
 
 a {
@@ -262,14 +221,17 @@ p {
   font-size: 0.875em;
   background: var(--bg-code);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 0.15em 0.4em;
 }
 
 .prose pre {
-  background: var(--bg-code);
+  /* background-color, not the shorthand: the shorthand resets
+     background-image, which silently dropped the sheen above it. */
+  background-color: var(--bg-code);
+  background-image: var(--surface-sheen);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   overflow-x: auto;
   margin: 1.5rem 0;
@@ -282,6 +244,23 @@ p {
   border: none;
   padding: 0;
   font-size: inherit;
+}
+
+/* Wide tables scroll inside this rather than pushing the page sideways.
+   tabindex makes the scroll region reachable by keyboard. */
+.table-scroll {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.table-scroll table {
+  margin: 0;
 }
 
 .prose table {
@@ -308,7 +287,7 @@ p {
 }
 
 .prose img {
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   margin: 1.5rem auto;
   border: 1px solid var(--border);
 }
@@ -318,7 +297,7 @@ p {
   width: 100%;
   margin: 1.5rem 0;
   padding-top: 56.25%;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--border);
   background: var(--bg-code);
@@ -346,6 +325,58 @@ p {
 
 .prose a:hover {
   color: var(--accent-hover);
+}
+
+/* ---------- Callouts ---------- */
+/* GitHub alert syntax, converted by rehype-callout. */
+.prose .callout {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+  padding: 0.9rem 1rem;
+  border-inline-start: 3px solid var(--callout-accent, var(--callout-note));
+  border-radius: var(--radius-sm);
+  background: color-mix(
+    in srgb,
+    var(--callout-accent, var(--callout-note)) 8%,
+    transparent
+  );
+}
+
+.prose .callout-note {
+  --callout-accent: var(--callout-note);
+}
+.prose .callout-tip {
+  --callout-accent: var(--callout-tip);
+}
+.prose .callout-important {
+  --callout-accent: var(--callout-important);
+}
+.prose .callout-warning {
+  --callout-accent: var(--callout-warning);
+}
+.prose .callout-caution {
+  --callout-accent: var(--callout-caution);
+}
+
+.prose .callout-icon {
+  flex-shrink: 0;
+  /* Aligns with the first line of body text rather than the box. */
+  margin-top: 0.15rem;
+  color: var(--callout-accent, var(--callout-note));
+  line-height: 1;
+}
+
+.prose .callout-body {
+  min-width: 0;
+}
+
+.prose .callout-body > :first-child {
+  margin-top: 0;
+}
+
+.prose .callout-body > :last-child {
+  margin-bottom: 0;
 }
 
 /* ---------- Footnotes ---------- */
@@ -396,70 +427,67 @@ p {
   padding: 0.5rem 0;
 }
 
-/* ---------- Post Card ---------- */
-.post-card {
-  display: block;
-  padding: 1.25rem 0;
-  border-bottom: 1px solid var(--border);
-  text-decoration: none;
-  color: inherit;
-  transition: none;
+/* ---------- Post list arrangements ---------- */
+/* One markup, four arrangements. The container rules are here because
+   .post-list is a global class; the card's own rules live in PostCard. */
+
+[data-layout="grid"] .post-list,
+[data-layout="magazine"] .post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.4rem;
 }
 
-.post-card:last-child {
-  border-bottom: none;
+/* The first entry gets the hero slot. Only from two columns up - promoting
+   one card in a single-column view just makes it look inconsistent. */
+@media (min-width: 720px) {
+  [data-layout="magazine"] .post-list > :first-child {
+    grid-column: span 2;
+  }
 }
 
-.post-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  margin-bottom: 0.4rem;
-}
-
-.post-card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 0.35rem;
-  transition: color var(--transition);
-}
-
-.post-card:hover .post-card-title {
-  color: var(--accent);
-}
-
-.post-card-desc {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.post-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.6rem;
+[data-layout="timeline"] .post-list {
+  border-inline-start: 2px solid var(--border);
+  padding-inline-start: 1.6rem;
+  margin-inline-start: 0.3rem;
 }
 
 /* ---------- Tags ---------- */
 .tag {
-  display: inline-block;
-  font-size: 0.75rem;
-  padding: 0.15rem 0.6rem;
-  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  /* Roomier than it was: the references give these py-2 px-4, and cramped
+     chips are a large part of why a listing reads as dense. */
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-pill);
   background: var(--tag-bg);
   color: var(--tag-text);
   text-decoration: none;
-  transition: opacity var(--transition);
+  line-height: 1.35;
+}
+
+.tag {
+  border: var(--border-width) solid var(--border);
+  transition:
+    transform var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+}
+
+a.tag:hover {
+  transform: translateY(calc(-1 * var(--tag-hover-lift)));
+  border-color: rgba(var(--accent-rgb), 0.55);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tag,
+  .tag:hover {
+    transition: none;
+    transform: none;
+  }
 }
 
 .tag:hover {
@@ -474,14 +502,9 @@ p {
   gap: 0.25rem;
   font-size: 0.75rem;
   padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.dark .badge-pinned {
-  background: #3b2a0a;
-  color: #fcd34d;
+  border-radius: var(--radius-pill);
+  background: var(--badge-bg);
+  color: var(--badge-text);
 }
 
 /* ---------- Breadcrumb ---------- */
@@ -520,13 +543,14 @@ p {
 
 .pagination a,
 .pagination span {
+  background-image: var(--surface-sheen);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 2.25rem;
   height: 2.25rem;
   padding: 0 0.6rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -546,7 +570,7 @@ p {
 .pagination .current {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
   font-weight: 600;
 }
 
@@ -563,6 +587,26 @@ p {
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+}
+
+/* A leading accent bar, width 0 unless the skin asks for one. One rule in
+   one place: Fuwari copy-pasted this motif into four components and the
+   magic numbers drifted apart. */
+.section-heading {
+  position: relative;
+  padding-left: calc(var(--heading-bar-width) * 3.4);
+}
+
+.section-heading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: var(--heading-bar-width);
+  height: 0.85em;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
 }
 
 /* ---------- Utility ---------- */
@@ -622,7 +666,7 @@ p {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -632,14 +676,14 @@ p {
 /* ---------- Selection ---------- */
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
 }
 
 /* ---------- Focus ---------- */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* ---------- Mobile Compatibility ---------- */

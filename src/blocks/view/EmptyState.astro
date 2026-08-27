@@ -1,0 +1,154 @@
+---
+/**
+ * "There is nothing here." Four pages were each drawing their own version of
+ * that - posts/index with an inline style attribute, series with a bare
+ * padded paragraph, friends with a dashed card, 404 with a full-page block -
+ * so the same idea had four appearances and none of them a token away from
+ * changing together.
+ *
+ * A view block, not a widget: the page decides what is empty and hands the
+ * text in, so this never appears in blocks/registry.ts or a region.
+ *
+ * Assembly, not configuration. Everything optional is optional:
+ *
+ *   <EmptyState messageKey="series.empty" />
+ *   <EmptyState messageKey="friends.empty" variant="boxed" />
+ *   <EmptyState glyph="404" titleKey="notFound.title" messageKey="notFound.lead" size="lg">
+ *     <a href="/">Home</a>
+ *   </EmptyState>
+ */
+import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
+
+export interface Props {
+  /** The line of text. i18n key, so it follows the language toggle. */
+  messageKey: UiTranslationKey;
+  /** Heading above the message. Omit when the message stands alone. */
+  titleKey?: UiTranslationKey;
+  /**
+   * Oversized mark above the heading - "404", "∅". Decorative: it is
+   * aria-hidden, so the title and message carry the meaning on their own.
+   */
+  glyph?: string;
+  /**
+   * plain - muted text on the page, for a list that came back empty.
+   * boxed  - dashed card, for a slot inside a filled page that has to keep
+   *          its shape whether or not it has content.
+   */
+  variant?: "plain" | "boxed";
+  /** lg gives a whole page its own vertical rhythm. sm is an inline notice. */
+  size?: "sm" | "lg";
+  align?: "start" | "center";
+  class?: string;
+}
+
+const {
+  messageKey,
+  titleKey,
+  glyph,
+  variant = "plain",
+  size = "sm",
+  align = "start",
+  class: className,
+} = Astro.props;
+
+// A slot with nothing in it still renders the wrapper, which would leave an
+// empty flex row taking up its gap. Ask before drawing the row.
+const hasActions = Astro.slots.has("default");
+---
+
+<div
+  class:list={[
+    "empty-state",
+    `is-${variant}`,
+    `is-${size}`,
+    `align-${align}`,
+    className,
+  ]}
+>
+  {
+    glyph && (
+      <p class="glyph" aria-hidden="true">
+        {glyph}
+      </p>
+    )
+  }
+  {
+    titleKey && (
+      <h1 class="title" data-i18n={titleKey}>
+        {getDefaultUiText(titleKey)}
+      </h1>
+    )
+  }
+  <p class="message" data-i18n={messageKey}>{getDefaultUiText(messageKey)}</p>
+  {
+    hasActions && (
+      <div class="actions">
+        <slot />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    color: var(--text-muted);
+  }
+
+  .align-center {
+    align-items: center;
+    text-align: center;
+  }
+
+  .is-sm {
+    padding: 2rem 0;
+  }
+
+  .is-lg {
+    padding: 2.5rem 0 0.5rem;
+  }
+
+  /* Keeps its shape whether or not it has content, so a dashed edge rather
+     than a solid one - it reads as a placeholder, not as a real card. */
+  .is-boxed {
+    padding: 1rem;
+    border-radius: var(--radius-card);
+    border: 1px dashed var(--border);
+    background: var(--bg-code);
+  }
+
+  /* Large but muted: it labels the situation, it is not the thing to read. */
+  .glyph {
+    margin: 0;
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+
+  .title {
+    margin: 0.6rem 0 0;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .message {
+    margin: 0;
+    max-width: 46ch;
+  }
+
+  .title + .message,
+  .glyph + .message {
+    margin-top: 0.6rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+  }
+</style>
