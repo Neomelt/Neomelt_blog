@@ -14,8 +14,8 @@
 
    Later upgrade path: Fuwari drives its whole palette from one
    --hue with oklch(L C var(--hue)), so a slider re-tints the
-   site with guaranteed contrast. That needs the eight
-   rgba(var(--ink-rgb), a) calls in blocks/decor/ClickEffect.astro
+   site with guaranteed contrast. That needs the
+   rgba(var(--ink-rgb), a) calls in blocks/chrome/Banner.astro
    ported to color-mix() first, so it is deliberately not done
    here.
    ============================================================ */

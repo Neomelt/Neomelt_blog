@@ -3,9 +3,7 @@ import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import Banner from "./chrome/Banner.astro";
 import Backdrop from "./decor/Backdrop.astro";
 import BackToTop from "./decor/BackToTop.astro";
-import ClickEffect from "./decor/ClickEffect.astro";
 import ReadingProgress from "./decor/ReadingProgress.astro";
-import SakuraFall from "./decor/SakuraFall.astro";
 import BlogStats from "./widget/BlogStats.astro";
 import Calendar from "./widget/Calendar.astro";
 import FriendCircle from "./widget/FriendCircle.astro";
@@ -30,9 +28,7 @@ export const BLOCKS = {
   "chrome/Banner": Banner,
   "decor/Backdrop": Backdrop,
   "decor/BackToTop": BackToTop,
-  "decor/ClickEffect": ClickEffect,
   "decor/ReadingProgress": ReadingProgress,
-  "decor/SakuraFall": SakuraFall,
   "widget/BlogStats": BlogStats,
   "widget/Calendar": Calendar,
   "widget/FriendCircle": FriendCircle,

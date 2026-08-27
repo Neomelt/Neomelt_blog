@@ -85,7 +85,11 @@ export const siteLayout = {
       // imageIndex is a position in bannerPool, which is the banner directory
       // sorted by filename - dropping in a file that sorts earlier shifts
       // every index after it.
-      { use: "decor/Backdrop", props: { imageIndex: 1, blur: 2 }, skins: ["anime"] },
+      {
+        use: "decor/Backdrop",
+        props: { imageIndex: 1, blur: 2 },
+        skins: ["anime"],
+      },
     ],
 
     // Between the header and the content. An oversized masthead is the
@@ -112,22 +116,17 @@ export const siteLayout = {
     floating: [
       { use: "decor/ReadingProgress", props: { height: "3px" } },
       { use: "decor/BackToTop" },
-      {
-        use: "decor/SakuraFall",
-        props: { count: 20, duration: 16 },
-        skins: ["anime"],
-      },
-      { use: "decor/ClickEffect", props: { effect: "ink-glyph" } },
       "behavior/ImageLightbox",
     ],
   },
 } satisfies SiteLayout;
 
 /*
- * The two placements above carry `skins: ["anime"]`, so the palette button
- * in the header swaps the backdrop and the petals in and out along with the
- * colours - no reload, no rebuild. Drop the `skins` key to run either one
- * under the minimal skin too; neither block knows which skin is active.
+ * The backdrop placement carries `skins: ["anime"]`, so switching skin swaps
+ * the artwork in and out along with the colours - no reload, no rebuild. Drop
+ * the `skins` key to run it under minimal too; the block does not know which
+ * skin is active either way.
  *
- * With an illustration in public/, give Backdrop: src: "/wallpaper.webp".
+ * Backdrop takes `imageIndex`, a position in bannerPool - drop a file in
+ * src/assets/banner/ and it joins the pool with no edit here.
  */

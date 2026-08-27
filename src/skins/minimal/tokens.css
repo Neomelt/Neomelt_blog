@@ -5,8 +5,8 @@
    contract that all blocks consume - a skin may change what a
    token *is*, never which tokens exist, or blocks would have to
    change with it. That contract is why --*-rgb tokens stay as
-   bare channel triples: eight rgba(var(--ink-rgb), a) calls in
-   blocks/decor/ClickEffect.astro depend on that form.
+   bare channel triples: the rgba(var(--ink-rgb), a) calls in
+   blocks/chrome/Banner.astro depend on that form.
    ============================================================ */
 
 /* ---------- Design Tokens (Light Mode) ---------- */
