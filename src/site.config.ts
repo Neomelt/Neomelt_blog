@@ -15,8 +15,8 @@ export const siteLayout = {
   regions: {
     aside: [],
     floating: [
-      { use: "fx/ClickEffect", props: { effect: "ink-glyph" } },
-      "fx/ImageLightbox",
+      { use: "decor/ClickEffect", props: { effect: "ink-glyph" } },
+      "behavior/ImageLightbox",
     ],
   },
 } satisfies SiteLayout;

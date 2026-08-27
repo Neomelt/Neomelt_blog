@@ -1,7 +1,7 @@
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
-import ClickEffect from "./fx/ClickEffect.astro";
-import ImageLightbox from "./fx/ImageLightbox.astro";
+import ClickEffect from "./decor/ClickEffect.astro";
+import ImageLightbox from "./behavior/ImageLightbox.astro";
 
 /**
  * The one registry. Adding a block is one import plus one line here.
@@ -15,8 +15,8 @@ import ImageLightbox from "./fx/ImageLightbox.astro";
  * and Header/Footer go through named slots, so none of them are listed.
  */
 export const BLOCKS = {
-  "fx/ClickEffect": ClickEffect,
-  "fx/ImageLightbox": ImageLightbox,
+  "decor/ClickEffect": ClickEffect,
+  "behavior/ImageLightbox": ImageLightbox,
 } satisfies Record<string, AstroComponentFactory>;
 
 export type BlockName = keyof typeof BLOCKS;

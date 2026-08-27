@@ -6,7 +6,7 @@
    token *is*, never which tokens exist, or blocks would have to
    change with it. That contract is why --*-rgb tokens stay as
    bare channel triples: eight rgba(var(--ink-rgb), a) calls in
-   blocks/fx/ClickEffect.astro depend on that form.
+   blocks/decor/ClickEffect.astro depend on that form.
    ============================================================ */
 
 /* ---------- Design Tokens (Light Mode) ---------- */
@@ -28,19 +28,26 @@
   /* Foreground for text sitting on --accent. Not always #fff: in dark mode
      accent is a light tint, where white text falls under 2:1 contrast. */
   --accent-contrast: #ffffff;
-  --tag-text: #355460;
 
-  /* Legacy token compatibility */
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 214, 224, 228;
-  --gray: 113, 113, 122;
-  --gray-light: 228, 228, 231;
+  /* Glass surface. minimal has no glass: zero blur and an opaque
+     background make GlassPanel render as an ordinary card, so the same
+     component is correct in both skins without a branch. */
+  --glass-bg: var(--bg-card);
+  --glass-border: var(--border);
+  --glass-blur-sm: 0px;
+  --glass-blur-md: 0px;
+  --glass-blur-lg: 0px;
+  --glass-saturate: 1;
+
+  /* Effect strengths. Zero here means the component renders its plain
+     form - no skin ever needs to know a component's class names. */
+  --card-hover-lift: 0px;
+  --card-hover-tint: 0;
+  --tag-border-alpha: 0;
+  --tag-hover-lift: 0px;
+  --heading-bar-width: 0px;
+  --surface-sheen: none;
+  --tag-text: #355460;
 
   /* Shape - what separates minimal from a decorated skin as much as colour
      does. Blocks reference these instead of literal px so a skin can restyle
@@ -53,9 +60,6 @@
   --border-width: 1px;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.3);
-  /* Painted behind cards. `none` keeps minimal flat; a skin can put a
-     gradient, texture or blur here without any block knowing. */
-  --card-backdrop: none;
 
   /* Typography */
   --font-sans:
@@ -69,9 +73,6 @@
   /* Spacing */
   --content-width: 800px;
   --header-height: 64px;
-  --dynamic-narrow-width: 100%;
-  --dynamic-content-width: 100%;
-  --dynamic-wide-width: 100%;
 
   /* Transitions */
   --transition: 150ms ease;
@@ -93,17 +94,9 @@
   --badge-bg: #3b2a0a;
   --badge-text: #fcd34d;
   --accent-contrast: #16181d;
+  --glass-bg: var(--bg-card);
+  --glass-border: var(--border);
   --tag-text: #aac6d2;
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 37, 51, 59;
-  --gray: 170, 177, 188;
-  --gray-light: 43, 49, 58;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.32);
   --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.55);
 }
