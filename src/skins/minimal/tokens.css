@@ -118,6 +118,8 @@
      is how the reference frames its list. */
   --panel-surface: transparent;
   --panel-blur: 0px;
+  --panel-border: transparent;
+  --panel-padding: 0px;
   --aside-width: 260px;
   --header-height: 64px;
 

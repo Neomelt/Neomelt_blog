@@ -120,6 +120,8 @@
      is how the reference frames its list. */
   --panel-surface: color-mix(in srgb, var(--bg) 72%, transparent);
   --panel-blur: 16px;
+  --panel-border: color-mix(in srgb, var(--border) 70%, transparent);
+  --panel-padding: 1.4rem;
   --aside-width: 290px;
   --header-height: 64px;
 

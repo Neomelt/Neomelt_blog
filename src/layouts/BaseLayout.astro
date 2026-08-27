@@ -257,16 +257,22 @@ const withSidebar = hasStart || hasEnd;
     padding-top: var(--content-overlap);
   }
 
-  /* Only inside @supports: without backdrop-filter the surface has to be
-     opaque or the backdrop shows through unblurred behind the text. */
-  .shell,
-  main {
+  /* The content column is a card, not a fog over the page: a surface needs an
+     edge and a radius to read as a panel at all. Sidebar widgets bring their
+     own GlassPanel, so only this column is framed here. */
+  .shell-main,
+  body:not(:has(.shell)) main > .container {
     background-color: var(--panel-surface);
+    border: var(--border-width) solid var(--panel-border);
+    border-radius: var(--radius-card);
+    padding: var(--panel-padding);
   }
 
+  /* Only inside @supports: without backdrop-filter the surface would have to
+     be opaque, or text ends up sitting directly on the artwork. */
   @supports (backdrop-filter: blur(1px)) {
-    .shell,
-    main {
+    .shell-main,
+    body:not(:has(.shell)) main > .container {
       -webkit-backdrop-filter: blur(var(--panel-blur));
       backdrop-filter: blur(var(--panel-blur));
     }
