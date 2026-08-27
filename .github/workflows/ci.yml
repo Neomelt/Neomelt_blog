@@ -1,0 +1,53 @@
+# Verification only. Deployment lives in astro.yml and stays on master.
+name: CI
+
+on:
+  push:
+    # master is covered by the deploy workflow, which builds the same thing.
+    branches-ignore: ["master"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run per branch; a new push makes the previous run irrelevant.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Test and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Astro 7 refuses to start below 22.12. Kept in step with .nvmrc
+          # and the engines field.
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Unit tests
+        # Includes the skin contract checks: identical token names across
+        # skins and across their dark blocks, no orphan tokens, no skin names
+        # inside blocks.
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Check the build produced pages
+        # A build can succeed having emitted nothing if a content query goes
+        # wrong, and that is worth catching here rather than on the site.
+        run: |
+          count=$(find dist -name '*.html' | wc -l)
+          echo "built $count pages"
+          test "$count" -ge 20
