@@ -63,12 +63,14 @@
      rounded, raised, with air between them. This is the structural half of
      the difference between the two skins. */
   --list-item-padding: 1.35rem 1.4rem;
-  --list-item-surface: var(--bg-card);
+  --list-item-surface: color-mix(in srgb, var(--bg-card) 58%, transparent);
   --list-item-border-width: var(--border-width);
   --list-item-divider-width: var(--border-width);
   --list-item-radius: var(--radius-card);
   --list-item-shadow: var(--shadow-card);
   --list-item-gap: 1.1rem;
+  /* The cards are the glass now, so the blur lives on them. */
+  --list-item-blur: 12px;
   /* Illustration fills the right of the card and fades out under the text,
      the way axi404.top does it - an absolutely positioned image at partial
      opacity rather than a thumbnail column. */
@@ -118,10 +120,10 @@
   /* The content panel's own surface. Transparent with no blur leaves the
      page flat; a translucent blurred one floats it over the backdrop, which
      is how the reference frames its list. */
-  --panel-surface: color-mix(in srgb, var(--bg) 72%, transparent);
-  --panel-blur: 16px;
-  --panel-border: color-mix(in srgb, var(--border) 70%, transparent);
-  --panel-padding: 1.4rem;
+  --panel-surface: transparent;
+  --panel-blur: 0px;
+  --panel-border: transparent;
+  --panel-padding: 0px;
   --aside-width: 290px;
   --header-height: 64px;
 

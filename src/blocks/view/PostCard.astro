@@ -143,6 +143,15 @@ const cover: ImageMetadata | null =
       background-color var(--transition);
   }
 
+  /* Inside @supports: without backdrop-filter a translucent card would leave
+     text sitting straight on the artwork. */
+  @supports (backdrop-filter: blur(1px)) {
+    .post-card {
+      -webkit-backdrop-filter: blur(var(--list-item-blur));
+      backdrop-filter: blur(var(--list-item-blur));
+    }
+  }
+
   .post-card:hover {
     transform: translateX(var(--card-hover-lift));
     background-color: rgba(var(--accent-rgb), var(--card-hover-tint));
