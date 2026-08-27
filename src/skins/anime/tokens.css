@@ -5,8 +5,10 @@
    is referenced by any block directly - blocks only ever read
    var(--x), so this file alone repaints the whole site.
 
-   Cool violet rather than the usual pink, per the site owner's
-   palette preference. Swap the hex values to re-tint; the
+   Built on Tailwind's slate ramp with a blue accent on slate's own
+   hue, matching the reference the site owner pointed at - that site is
+   almost entirely slate, and its atmosphere comes from typography and
+   thumbnails rather than from saturated colour. Swap the hex values to re-tint; the
    contract stays intact as long as every name below keeps its
    format (--*-rgb must remain bare channel triples).
 
@@ -21,19 +23,19 @@
 /* ---------- Design Tokens (Light Mode) ---------- */
 [data-skin="anime"] {
   /* Colors */
-  --bg: #f7f6fd;
+  --bg: #f8fafc;
   --bg-card: #ffffff;
-  --bg-code: #efedfa;
-  --border: #ddd7f2;
-  --text: #2b2640;
-  --text-muted: #746e93;
-  --accent: #7361d9;
-  --accent-hover: #5a49bd;
-  --accent-rgb: 115, 97, 217;
-  --ink-rgb: 90, 73, 189;
-  --tag-bg: #e9e4fb;
-  --badge-bg: #d9cffa;
-  --badge-text: #4436a0;
+  --bg-code: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --accent: #3a67a6;
+  --accent-hover: #2d5183;
+  --accent-rgb: 58, 103, 166;
+  --ink-rgb: 45, 81, 131;
+  --tag-bg: #e8eef6;
+  --badge-bg: #dbe5f2;
+  --badge-text: #2a4a78;
   --accent-contrast: #ffffff;
 
   /* Glass surface - needs something behind it to read as glass, which is
@@ -65,10 +67,10 @@
   --list-item-gap: 0.85rem;
   --surface-sheen: linear-gradient(
     145deg,
-    rgba(140, 122, 233, 0.07) 0%,
-    rgba(140, 122, 233, 0) 60%
+    rgba(58, 103, 166, 0.05) 0%,
+    rgba(58, 103, 166, 0) 60%
   );
-  --tag-text: #5b4bad;
+  --tag-text: #33598f;
 
   /* Shape - the actual difference between the two skins. Rounder, softer,
      with a tinted glow instead of a hairline shadow. */
@@ -78,8 +80,8 @@
   --radius-card: 18px;
   --radius-pill: 999px;
   --border-width: 1px;
-  --shadow-card: 0 6px 20px rgba(115, 97, 217, 0.12);
-  --shadow-float: 0 24px 64px rgba(60, 45, 130, 0.28);
+  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.07);
+  --shadow-float: 0 24px 64px rgba(15, 23, 42, 0.2);
 
   /* Typography */
   --font-sans:
@@ -100,28 +102,28 @@
 
 /* ---------- Dark Mode ---------- */
 [data-skin="anime"].dark {
-  --bg: #15121f;
-  --bg-card: #1e1a2c;
-  --bg-code: #191527;
-  --border: #322a48;
-  --text: #eae6f7;
-  --text-muted: #a79fc6;
-  --accent: #a596f2;
-  --accent-hover: #c0b4f8;
-  --accent-rgb: 165, 150, 242;
-  --ink-rgb: 214, 205, 251;
-  --tag-bg: #2a2243;
-  --badge-bg: #3a2d63;
-  --badge-text: #c5b6fb;
-  --accent-contrast: #15121f;
-  --glass-bg: rgba(32, 27, 47, 0.55);
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --bg-code: #172033;
+  --border: #334155;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent: #619fd1;
+  --accent-hover: #8bbbe1;
+  --accent-rgb: 97, 159, 209;
+  --ink-rgb: 176, 205, 230;
+  --tag-bg: #24344a;
+  --badge-bg: #263c58;
+  --badge-text: #a3c6e6;
+  --accent-contrast: #0f172a;
+  --glass-bg: rgba(30, 41, 59, 0.58);
   --surface-sheen: linear-gradient(
     145deg,
-    rgba(165, 150, 242, 0.1) 0%,
-    rgba(165, 150, 242, 0) 60%
+    rgba(148, 163, 184, 0.08) 0%,
+    rgba(148, 163, 184, 0) 60%
   );
-  --glass-border: rgba(165, 150, 242, 0.22);
-  --tag-text: #b6a7f2;
+  --glass-border: rgba(148, 163, 184, 0.18);
+  --tag-text: #93b8dc;
   --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);
   --shadow-float: 0 24px 64px rgba(0, 0, 0, 0.62);
 }
