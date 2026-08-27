@@ -34,9 +34,32 @@ export const coverPool: ImageMetadata[] = Object.keys(coverModules)
   .sort()
   .map((key) => coverModules[key]!.default);
 
+/**
+ * Who the site belongs to. Consumed by widget/Profile and available to any
+ * other block that wants it - the footer still carries its own copy of these
+ * links, which is worth unifying at some point.
+ */
+export const profile = {
+  name: "Neomelt",
+  /** Root-absolute, under public/. */
+  avatar: "/head.jpg",
+  /** i18n key, so the bio follows the language toggle. */
+  bioKey: "index.heroIntro1" as const,
+  links: [
+    { label: "GitHub", url: "https://github.com/Neomelt", icon: "github" },
+    {
+      label: "Bilibili",
+      url: "https://space.bilibili.com/1025251137",
+      icon: "bilibili",
+    },
+    { label: "Email", url: "mailto:3212929002@qq.com", icon: "mail" },
+  ],
+} as const;
+
 export const siteLayout = {
   skin: "minimal",
   layout: "grid",
+  asidePosition: "left",
 
   regions: {
     backdrop: [
@@ -62,6 +85,7 @@ export const siteLayout = {
     // Appears in the post sidebar. BlogPost grows the column on its own, so
     // adding to this list is the whole operation - no layout edit.
     aside: [
+      "widget/Profile",
       "widget/BlogStats",
       { use: "widget/TagCloud", props: { limit: 18 } },
       "widget/Calendar",

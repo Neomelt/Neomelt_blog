@@ -179,7 +179,7 @@ const withSidebar = sidebar && asideBlocks.length > 0;
     </div>
     {
       withSidebar ? (
-        <div class="shell">
+        <div class="shell" data-aside={siteLayout.asidePosition ?? "right"}>
           <div class="shell-main">
             <slot />
           </div>
@@ -248,6 +248,12 @@ const withSidebar = sidebar && asideBlocks.length > 0;
     flex-direction: column;
     gap: 1rem;
     padding-block: calc(var(--header-height) + 3rem) 3rem;
+  }
+
+  /* row-reverse rather than order: it moves the column without changing
+     source order, so the content still comes first for a screen reader. */
+  .shell[data-aside="left"] {
+    flex-direction: row-reverse;
   }
 
   @media (max-width: 1099px) {
