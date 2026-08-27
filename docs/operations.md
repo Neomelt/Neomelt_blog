@@ -68,6 +68,47 @@ npm run covers:lock
 
 ---
 
+## 写文章时能用的
+
+### 提示框
+
+GitHub 的 alert 语法，在 GitHub 上看这份 md 也能正确渲染：
+
+```markdown
+> [!NOTE]
+> 普通说明。
+
+> [!TIP]
+> 建议。
+
+> [!WARNING]
+> 会覆盖文件之类的警告。
+```
+
+五种：`NOTE` `TIP` `IMPORTANT` `WARNING` `CAUTION`。写别的（比如 `[!FOO]`）不会被转换，还是普通引用。
+
+### 系列文章
+
+在 frontmatter 填 `series`，同名的自动成组：
+
+```yaml
+series: "网络与远程访问"
+```
+
+文章页底部出现「第 N / M 篇」和整个系列的目录，`/series` 页列出所有系列。**空字符串不算**——所有文章模板里都带 `series: ""`，那是没填。
+
+系列内按发表时间**从早到晚**排（系列是往前读的，跟博客列表相反）。
+
+### 分享图
+
+每篇文章的 `heroImage` 就是它分享到微信/Twitter 时的预览图，构建时自动裁成 1200×630 JPEG。不用额外配。
+
+### 表格和代码块
+
+宽表格会自动套一层横向滚动容器，不会把整页撑破。代码块和数学公式同理。
+
+---
+
 ## 外观
 
 Header 右上角三个按钮，都存 localStorage：
@@ -101,6 +142,8 @@ export const siteLayout = {
 | `--card-cover-width` | 封面占卡片宽度的比例，`0%` 就是不显示封面 |
 | `--list-item-surface` | `transparent` 是分隔线列表，`var(--bg-card)` 是独立卡片 |
 | `--aside-width` | 侧栏宽度 |
+
+侧栏在左还是右，改 `src/site.config.ts` 的 `asidePosition`（`"left"` / `"right"`）。用的是 `row-reverse` 而不是 `order`，所以视觉换边但正文在源码里仍然靠前——屏幕阅读器按源码顺序读。
 
 ---
 
@@ -140,7 +183,9 @@ aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
 
 ### 区域
 
-从后往前：`backdrop` → 页面内容 → `masthead` → `aside` → `floating`
+从后往前：`backdrop`（全屏背景）→ 页面内容 → `masthead`（顶部 banner）→ `aside`（侧栏）→ `floating`（进度条、返回顶部、特效）
+
+现成的 widget：`Profile`（头像+简介+社交，数据在 config 的 `profile`）、`BlogStats`、`TagCloud`、`Calendar`、`FriendCircle`、`TableOfContents`。
 
 配置里可以限定某个 block 只在某个 skin 下出现：
 
