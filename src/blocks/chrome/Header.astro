@@ -3,6 +3,7 @@ import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
 import { withBase } from "../../utils/url";
 import SearchModal from "../../components/SearchModal.astro";
+import ReaderSettings from "./ReaderSettings.astro";
 
 const defaultLocaleLabelZh = getDefaultUiText("locale.label");
 const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
@@ -30,8 +31,10 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       <a href={withBase("/posts")} class="nav-link" data-i18n="header.posts"
         >{getDefaultUiText("header.posts")}</a
       >
-      <a href={withBase("/posts/archive")} class="nav-link" data-i18n="header.archive"
-        >{getDefaultUiText("header.archive")}</a
+      <a
+        href={withBase("/posts/archive")}
+        class="nav-link"
+        data-i18n="header.archive">{getDefaultUiText("header.archive")}</a
       >
       <a href={withBase("/tags")} class="nav-link" data-i18n="header.tags"
         >{getDefaultUiText("header.tags")}</a
@@ -140,12 +143,19 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
         </svg>
       </button>
 
-      <!-- Skin toggle -->
+      <!--
+        One button where the skin and layout toggles used to be. Those two
+        could only cycle - reaching a named skin or layout meant clicking
+        until it came round - and they cost two slots to expose two of the
+        four axes. This opens the palette, which addresses every axis by
+        name, shows which value is current, and has room for the next
+        setting without taking another slot in the header.
+      -->
       <button
-        id="skin-toggle"
+        id="settings-toggle"
         class="icon-btn"
-        data-i18n-aria-label="header.skinAria"
-        aria-label={getDefaultUiText("header.skinAria")}
+        data-i18n-aria-label="header.settingsAria"
+        aria-label={getDefaultUiText("header.settingsAria")}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -155,45 +165,14 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
           viewBox="0 0 24 24"
           stroke="currentColor"
           stroke-width="2"
+          stroke-linecap="round"
           aria-hidden="true"
         >
-          <circle cx="13.5" cy="6.5" r=".6" fill="currentColor" stroke="none"
-          ></circle>
-          <circle cx="17.5" cy="10.5" r=".6" fill="currentColor" stroke="none"
-          ></circle>
-          <circle cx="8.5" cy="7.5" r=".6" fill="currentColor" stroke="none"
-          ></circle>
-          <circle cx="6.5" cy="12.5" r=".6" fill="currentColor" stroke="none"
-          ></circle>
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10a2 2 0 0 0 2-2 1.9 1.9 0 0 0-.5-1.3 1.9 1.9 0 0 1-.5-1.3 2 2 0 0 1 2-2h2.3A4.7 4.7 0 0 0 22 10.7C22 5.9 17.5 2 12 2z"
-          ></path>
+          <path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"></path>
+          <circle cx="16" cy="6" r="2"></circle>
+          <circle cx="8" cy="12" r="2"></circle>
+          <circle cx="16" cy="18" r="2"></circle>
         </svg>
-      </button>
-
-      <!-- Layout switch -->
-      <button
-        id="layout-toggle"
-        class="icon-btn layout-btn"
-        data-i18n-aria-label="header.layoutAria"
-        aria-label={getDefaultUiText("header.layoutAria")}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="17"
-          height="17"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-        </svg>
-        <span id="layout-toggle-label" class="layout-label"></span>
       </button>
 
       <!-- Mobile menu toggle -->
@@ -240,25 +219,34 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
        a11y tree), so no aria-hidden here — a static one would keep the open
        drawer invisible to screen readers. -->
   <div id="mobile-nav" class="mobile-nav">
-    <a href={withBase("/posts")} class="mobile-nav-link" data-i18n="header.posts"
-      >{getDefaultUiText("header.posts")}</a
+    <a
+      href={withBase("/posts")}
+      class="mobile-nav-link"
+      data-i18n="header.posts">{getDefaultUiText("header.posts")}</a
     >
-    <a href={withBase("/posts/archive")} class="mobile-nav-link" data-i18n="header.archive"
-      >{getDefaultUiText("header.archive")}</a
+    <a
+      href={withBase("/posts/archive")}
+      class="mobile-nav-link"
+      data-i18n="header.archive">{getDefaultUiText("header.archive")}</a
     >
     <a href={withBase("/tags")} class="mobile-nav-link" data-i18n="header.tags"
       >{getDefaultUiText("header.tags")}</a
     >
-    <a href={withBase("/friends")} class="mobile-nav-link" data-i18n="header.friends"
-      >{getDefaultUiText("header.friends")}</a
+    <a
+      href={withBase("/friends")}
+      class="mobile-nav-link"
+      data-i18n="header.friends">{getDefaultUiText("header.friends")}</a
     >
-    <a href={withBase("/about")} class="mobile-nav-link" data-i18n="header.about"
-      >{getDefaultUiText("header.about")}</a
+    <a
+      href={withBase("/about")}
+      class="mobile-nav-link"
+      data-i18n="header.about">{getDefaultUiText("header.about")}</a
     >
   </div>
 </header>
 
 <SearchModal />
+<ReaderSettings />
 
 <script define:vars={{ defaultLocaleLabelZh, defaultLocaleLabelEn }}>
   // ---- Theme ----
@@ -302,32 +290,9 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       themeToggle.dataset.bound = "true";
     }
 
-    const layoutToggle = document.getElementById("layout-toggle");
-    const layoutLabel = document.getElementById("layout-toggle-label");
-    const paintLayoutLabel = () => {
-      const current = getThemeApi()?.getLayout?.();
-      if (layoutLabel && current) {
-        layoutLabel.textContent =
-          window.__siteI18n?.t(`layout.${current}`, current) ?? current;
-      }
-    };
-    paintLayoutLabel();
-    if (layoutToggle && !layoutToggle.dataset.bound) {
-      layoutToggle.addEventListener("click", () => {
-        getThemeApi()?.cycleLayout?.();
-        paintLayoutLabel();
-      });
-      layoutToggle.dataset.bound = "true";
-    }
-    document.addEventListener("site:locale-change", paintLayoutLabel);
-
-    const skinToggle = document.getElementById("skin-toggle");
-    if (skinToggle && !skinToggle.dataset.bound) {
-      skinToggle.addEventListener("click", () => {
-        getThemeApi()?.cycleSkin?.();
-      });
-      skinToggle.dataset.bound = "true";
-    }
+    // Skin and layout are no longer toggles here - #settings-toggle opens the
+    // reading panel, which binds it. __siteTheme.cycleSkin/cycleLayout are
+    // still exported and still work; nothing in this file calls them.
 
     // ---- Mobile menu ----
     const menuToggle = document.getElementById("menu-toggle");
@@ -393,23 +358,6 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 </script>
 
 <style>
-  .layout-btn {
-    width: auto;
-    gap: 0.35rem;
-    padding-inline: 0.5rem;
-  }
-
-  .layout-label {
-    font-size: 0.78rem;
-    line-height: 1;
-  }
-
-  @media (max-width: 768px) {
-    .layout-label {
-      display: none;
-    }
-  }
-
   #site-header {
     position: sticky;
     top: 0;
