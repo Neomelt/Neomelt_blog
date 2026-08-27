@@ -36,9 +36,13 @@ export const siteLayout = {
       },
     ],
 
-    // Wired but empty. Sidebar widgets dropped in here appear on post pages
-    // without any layout edit - BlogPost grows the column on its own.
-    aside: [],
+    // Appears in the post sidebar. BlogPost grows the column on its own, so
+    // adding to this list is the whole operation - no layout edit.
+    aside: [
+      "widget/BlogStats",
+      { use: "widget/TagCloud", props: { limit: 18 } },
+      "widget/Calendar",
+    ],
 
     floating: [
       {

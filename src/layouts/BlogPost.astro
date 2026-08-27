@@ -253,7 +253,11 @@ const hasAside = hasToc || siteLayout.regions.aside.length > 0;
   /* Desktop TOC sidebar */
   .toc-sidebar {
     display: none;
-    width: 220px;
+    flex-direction: column;
+    gap: 1rem;
+    /* Wider than the 220px a bare ToC needed: the column now stacks widgets,
+       and a month grid is seven columns wide. */
+    width: 250px;
     flex-shrink: 0;
     position: sticky;
     top: calc(var(--header-height) + 2rem);
@@ -264,7 +268,7 @@ const hasAside = hasToc || siteLayout.regions.aside.length > 0;
 
   @media (min-width: 1100px) {
     .toc-sidebar {
-      display: block;
+      display: flex;
     }
   }
 

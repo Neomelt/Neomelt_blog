@@ -1,0 +1,120 @@
+---
+import { getCollection } from "astro:content";
+import GlassPanel from "../surface/GlassPanel.astro";
+import { SITE_START_DATE } from "../../consts";
+import { getDefaultUiText } from "../../i18n/ui";
+
+/**
+ * Post count, word count, tag count and uptime.
+ *
+ * Self-sufficient: it queries the collection itself, so it can be placed in
+ * any region without the surrounding page passing it anything.
+ *
+ * Uptime is computed in the browser rather than here. A build-time number
+ * would freeze on the day the site was deployed and quietly drift, which is
+ * the kind of wrong that nobody notices for months.
+ */
+export interface Props {
+  /** Hide the panel heading when the surrounding layout supplies one. */
+  heading?: boolean;
+}
+
+const { heading = true } = Astro.props;
+
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
+const words = posts.reduce((sum, post) => sum + (post.body?.length ?? 0), 0);
+const tags = new Set(posts.flatMap((post) => post.data.tags ?? [])).size;
+
+const compact = (n: number): string =>
+  n >= 10000 ? `${(n / 10000).toFixed(1)}w` : String(n);
+---
+
+<GlassPanel class="stats">
+  {
+    heading && (
+      <h2 class="stats-title" data-i18n="widget.statsTitle">
+        {getDefaultUiText("widget.statsTitle")}
+      </h2>
+    )
+  }
+  <dl class="stats-grid">
+    <div class="stats-cell">
+      <dt data-i18n="widget.statsPosts">
+        {getDefaultUiText("widget.statsPosts")}
+      </dt>
+      <dd>{posts.length}</dd>
+    </div>
+    <div class="stats-cell">
+      <dt data-i18n="widget.statsWords">
+        {getDefaultUiText("widget.statsWords")}
+      </dt>
+      <dd>{compact(words)}</dd>
+    </div>
+    <div class="stats-cell">
+      <dt data-i18n="sidebar.tags">{getDefaultUiText("sidebar.tags")}</dt>
+      <dd>{tags}</dd>
+    </div>
+    <div class="stats-cell">
+      <dt data-i18n="widget.statsDays">
+        {getDefaultUiText("widget.statsDays")}
+      </dt>
+      <dd
+        class="stats-uptime"
+        data-start={SITE_START_DATE.toISOString()}
+        aria-live="off"
+      >
+        —
+      </dd>
+    </div>
+  </dl>
+</GlassPanel>
+
+<style>
+  .stats-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem 0.4rem;
+    margin: 0;
+  }
+
+  .stats-cell {
+    text-align: center;
+  }
+
+  .stats-cell dt {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.15rem;
+  }
+
+  .stats-cell dd {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<script>
+  const paintUptime = () => {
+    document.querySelectorAll(".stats-uptime").forEach((node) => {
+      const start = node.getAttribute("data-start");
+      if (!start) return;
+      const days = Math.floor(
+        (Date.now() - new Date(start).getTime()) / 86_400_000,
+      );
+      node.textContent = String(Math.max(days, 0));
+    });
+  };
+
+  document.addEventListener("DOMContentLoaded", paintUptime);
+  document.addEventListener("astro:page-load", paintUptime);
+</script>

@@ -4,7 +4,10 @@ import Banner from "./chrome/Banner.astro";
 import Backdrop from "./decor/Backdrop.astro";
 import ClickEffect from "./decor/ClickEffect.astro";
 import SakuraFall from "./decor/SakuraFall.astro";
+import BlogStats from "./widget/BlogStats.astro";
+import Calendar from "./widget/Calendar.astro";
 import FriendCircle from "./widget/FriendCircle.astro";
+import TagCloud from "./widget/TagCloud.astro";
 import ImageLightbox from "./behavior/ImageLightbox.astro";
 
 /**
@@ -25,7 +28,10 @@ export const BLOCKS = {
   "decor/Backdrop": Backdrop,
   "decor/ClickEffect": ClickEffect,
   "decor/SakuraFall": SakuraFall,
+  "widget/BlogStats": BlogStats,
+  "widget/Calendar": Calendar,
   "widget/FriendCircle": FriendCircle,
+  "widget/TagCloud": TagCloud,
   "behavior/ImageLightbox": ImageLightbox,
 } satisfies Record<string, AstroComponentFactory>;
 

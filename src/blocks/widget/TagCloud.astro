@@ -1,0 +1,129 @@
+---
+import { getCollection } from "astro:content";
+import GlassPanel from "../surface/GlassPanel.astro";
+import { getDefaultUiText } from "../../i18n/ui";
+import { withBase } from "../../utils/url";
+
+/**
+ * Tags sized by how many posts carry them, linking into the tag index.
+ *
+ * Self-sufficient like BlogStats. Size is bucketed rather than continuous:
+ * a linear scale makes the long tail illegible, and past four steps the
+ * difference stops being readable anyway.
+ */
+export interface Props {
+  /** Cap on how many tags to show, most-used first. */
+  limit?: number;
+  heading?: boolean;
+}
+
+const { limit = 24, heading = true } = Astro.props;
+
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
+
+const counts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags ?? []) {
+    counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  }
+}
+
+const ranked = [...counts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, limit);
+const max = ranked[0]?.[1] ?? 1;
+const min = ranked.at(-1)?.[1] ?? 1;
+const tags = ranked.map(([name, count]) => ({
+  name,
+  count,
+  // Normalised across the observed range, not against max alone: tag counts
+  // are long-tailed, so count/max pins almost everything to one step and
+  // wastes the scale. 1-4 rather than a continuous size because past four
+  // steps the difference stops being readable.
+  step: max === min ? 2 : 1 + Math.round(((count - min) / (max - min)) * 3),
+}));
+---
+
+<GlassPanel class="cloud">
+  {
+    heading && (
+      <h2 class="cloud-title" data-i18n="sidebar.tags">
+        {getDefaultUiText("sidebar.tags")}
+      </h2>
+    )
+  }
+  <div class="cloud-body">
+    {
+      tags.map(({ name, count, step }) => (
+        <a
+          href={`${withBase("/tags")}#${name}`}
+          class={`cloud-tag step-${step}`}
+          title={`${name} (${count})`}
+        >
+          #{name}
+        </a>
+      ))
+    }
+  </div>
+  {
+    tags.length >= limit && (
+      <a href={withBase("/tags")} class="cloud-more" data-i18n="sidebar.more">
+        {getDefaultUiText("sidebar.more")}
+      </a>
+    )
+  }
+</GlassPanel>
+
+<style>
+  .cloud-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .cloud-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.4rem;
+  }
+
+  .cloud-tag {
+    color: var(--text-muted);
+    text-decoration: none;
+    line-height: 1.5;
+    transition: color var(--transition);
+  }
+
+  .cloud-tag:hover {
+    color: var(--accent);
+  }
+
+  .step-1 {
+    font-size: 0.74rem;
+  }
+  .step-2 {
+    font-size: 0.84rem;
+  }
+  .step-3 {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .step-4 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .cloud-more {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .cloud-more:hover {
+    text-decoration: underline;
+  }
+</style>
