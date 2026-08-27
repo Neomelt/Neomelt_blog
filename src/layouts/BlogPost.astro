@@ -5,6 +5,8 @@ import Comments from "../blocks/widget/Comments.astro";
 import TableOfContents from "../blocks/widget/TableOfContents.astro";
 import PostNavigation from "../blocks/widget/PostNavigation.astro";
 import BaseLayout from "./BaseLayout.astro";
+import Region from "../components/Region.astro";
+import { siteLayout } from "../site.config";
 import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
@@ -36,15 +38,19 @@ const hasMath = renderedHtml
   ? renderedHtml.includes('class="katex')
   : /\$/.test(post.body || "");
 const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
+// The sidebar column exists if the ToC needs it or the aside region is
+// configured, so adding a sidebar widget never means editing this layout.
+const hasAside = hasToc || siteLayout.regions.aside.length > 0;
 ---
 
 <BaseLayout title={title} description={description} katex={hasMath}>
   <div class="post-page">
     <!-- TOC sidebar (desktop) -->
     {
-      hasToc && (
+      hasAside && (
         <aside class="toc-sidebar">
-          <TableOfContents headings={headings} />
+          {hasToc && <TableOfContents headings={headings} />}
+          <Region name="aside" context={{ headings, post }} />
         </aside>
       )
     }
