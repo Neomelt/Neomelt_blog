@@ -263,6 +263,82 @@ const cover =
     }
   }
 
+  /* ---- grid / magazine: cover on top, in flow ---- */
+  :global([data-layout="grid"]) .post-card,
+  :global([data-layout="magazine"]) .post-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-card);
+    background-color: var(--bg-card);
+  }
+
+  :global([data-layout="grid"]) .post-cover,
+  :global([data-layout="magazine"]) .post-cover {
+    position: static;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    z-index: 0;
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  :global([data-layout="grid"]) .post-card-body,
+  :global([data-layout="magazine"]) .post-card-body {
+    padding: 1rem 1.1rem 1.2rem;
+  }
+
+  :global([data-layout="grid"]) .post-card:hover,
+  :global([data-layout="magazine"]) .post-card:hover {
+    transform: none;
+    border-color: rgba(var(--accent-rgb), 0.45);
+  }
+
+  /* The hero card in magazine layout gets a taller cover and bigger title. */
+  :global([data-layout="magazine"]) .post-list > :first-child .post-cover {
+    aspect-ratio: 21 / 9;
+  }
+
+  :global([data-layout="magazine"]) .post-list > :first-child .post-card-title {
+    font-size: 1.6rem;
+  }
+
+  /* ---- timeline: a dot on the rail, no frame ---- */
+  :global([data-layout="timeline"]) .post-card {
+    position: relative;
+    padding: 0.9rem 0;
+    margin-bottom: 0;
+    border: none;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  :global([data-layout="timeline"]) .post-card::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: calc(-1.6rem - 5px);
+    top: 1.5rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+
+  :global([data-layout="timeline"]) .post-cover {
+    display: none;
+  }
+
+  :global([data-layout="timeline"]) .post-card-desc {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .post-card,
     .post-card:hover {
