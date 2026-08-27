@@ -11,6 +11,23 @@ import type { SiteLayout } from "./types/layout";
  * Regions paint back to front: backdrop, page, floating.
  * Adding a block: write it, register it, name it here.
  */
+/**
+ * Decorative cover art, unrelated to post content.
+ *
+ * Reference blogs pair each post with an illustration from a pool, not with
+ * a screenshot from the body - a Gazebo debugging capture makes a poor
+ * decorative panel. Drop images in public/covers/ and list them here; each
+ * post picks one deterministically from its title, so the assignment is
+ * stable across builds and spread across the pool.
+ *
+ * Leave it empty and posts fall back to a generated gradient panel.
+ * A post can always override with its own heroImage.
+ */
+export const coverPool: string[] = [
+  // "/covers/01.webp",
+  // "/covers/02.webp",
+];
+
 export const siteLayout = {
   skin: "minimal",
 
