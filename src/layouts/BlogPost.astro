@@ -1,9 +1,9 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
-import Comments from "../components/Comments.astro";
-import TableOfContents from "../components/TableOfContents.astro";
-import PostNavigation from "../components/PostNavigation.astro";
+import Comments from "../blocks/widget/Comments.astro";
+import TableOfContents from "../blocks/widget/TableOfContents.astro";
+import PostNavigation from "../blocks/widget/PostNavigation.astro";
 import BaseLayout from "./BaseLayout.astro";
 import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
