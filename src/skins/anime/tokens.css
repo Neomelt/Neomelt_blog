@@ -51,20 +51,19 @@
      behaviour between the two skins. */
   --card-hover-lift: 2px;
   --card-hover-tint: 0.05;
-  --tag-border-alpha: 0.22;
   --tag-hover-lift: 1px;
   --heading-bar-width: 4px;
 
   /* List item form. anime detaches every row into its own card: framed,
      rounded, raised, with air between them. This is the structural half of
      the difference between the two skins. */
-  --list-item-padding: 1.05rem 1.15rem;
+  --list-item-padding: 1.35rem 1.4rem;
   --list-item-surface: var(--bg-card);
   --list-item-border-width: var(--border-width);
   --list-item-divider-width: var(--border-width);
   --list-item-radius: var(--radius-card);
   --list-item-shadow: var(--shadow-card);
-  --list-item-gap: 0.85rem;
+  --list-item-gap: 1.1rem;
   /* Illustration fills the right of the card and fades out under the text,
      the way axi404.top does it - an absolutely positioned image at partial
      opacity rather than a thumbnail column. */
@@ -72,11 +71,7 @@
   --card-cover-opacity: 0.42;
   --card-cover-fade: 42%;
   --card-body-pad-end: 1.5rem;
-  --surface-sheen: linear-gradient(
-    145deg,
-    rgba(58, 103, 166, 0.05) 0%,
-    rgba(58, 103, 166, 0) 60%
-  );
+  --surface-sheen: none;
   --tag-text: #33598f;
 
   /* Shape - the actual difference between the two skins. Rounder, softer,
@@ -127,11 +122,7 @@
   --badge-text: #a3c6e6;
   --accent-contrast: #0f172a;
   --glass-bg: rgba(30, 41, 59, 0.58);
-  --surface-sheen: linear-gradient(
-    145deg,
-    rgba(148, 163, 184, 0.08) 0%,
-    rgba(148, 163, 184, 0) 60%
-  );
+  --surface-sheen: none;
   --glass-border: rgba(148, 163, 184, 0.18);
   --tag-text: #93b8dc;
   --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);

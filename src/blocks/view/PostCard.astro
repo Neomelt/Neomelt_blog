@@ -46,34 +46,30 @@ const heroSrc =
 // Posts without an image get a generated panel rather than a blank box or a
 // stock placeholder. Deterministic from the title, so it is stable across
 // builds, and every colour is a token, so it follows the skin. Two offset
-// radial blooms over a linear base read as a soft mesh instead of the flat
 // band a single gradient gives.
 const title = post.data.title;
 const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
 
+// No generated stand-in when there is no artwork. A gradient panel in place
+// of an image looks like filler, and filler is worse than the honest thing:
+// a text listing carried by typography and space. Supply coverPool and the
+// cards get real covers; leave it empty and they stay clean.
 const cover =
   heroSrc && !heroSrc.includes("cover.svg")
     ? heroSrc
     : coverPool.length > 0
       ? withBase(coverPool[hash % coverPool.length]!)
       : null;
-const pick = (shift: number, mod: number, base = 0) =>
-  base + ((hash >> shift) % mod);
-const coverStyle = [
-  `--cover-angle: ${hash % 360}deg`,
-  `--bloom1-x: ${pick(2, 55, 15)}%`,
-  `--bloom1-y: ${pick(5, 45, 10)}%`,
-  `--bloom2-x: ${pick(8, 50, 45)}%`,
-  `--bloom2-y: ${pick(11, 45, 45)}%`,
-  `--cover-a: ${(0.42 + pick(14, 24) / 100).toFixed(2)}`,
-  `--cover-b: ${(0.16 + pick(17, 18) / 100).toFixed(2)}`,
-].join("; ");
 ---
 
 <a href={url} class="post-card">
-  <div class="post-cover" style={coverStyle} aria-hidden="true">
-    {cover && <img src={cover} alt="" loading="lazy" decoding="async" />}
-  </div>
+  {
+    cover && (
+      <div class="post-cover" aria-hidden="true">
+        <img src={cover} alt="" loading="lazy" decoding="async" />
+      </div>
+    )
+  }
 
   <div class="post-card-body">
     <div class="post-card-meta">
@@ -165,8 +161,8 @@ const coverStyle = [
   }
 
   /* Sits behind the text at partial opacity and masked away on its left
-     edge, so the copy never lands on busy artwork. Width 0 under a skin
-     that wants no cover removes it entirely. */
+     edge, so the copy never lands on busy artwork. Only rendered when there
+     is a real image - see the comment on `cover`. */
   .post-cover {
     position: absolute;
     inset-block: 0;
@@ -185,25 +181,6 @@ const coverStyle = [
       transparent 0%,
       black var(--card-cover-fade)
     );
-    /* Generated panel for posts with no image: two offset blooms over a
-       linear base plus a fine grid, all derived from a hash of the title so
-       it is stable across builds and distinct per post. */
-    background-image:
-      radial-gradient(
-        circle at var(--bloom1-x) var(--bloom1-y),
-        rgba(var(--accent-rgb), var(--cover-a)) 0%,
-        rgba(var(--accent-rgb), 0) 58%
-      ),
-      radial-gradient(
-        circle at var(--bloom2-x) var(--bloom2-y),
-        rgba(var(--ink-rgb), var(--cover-b)) 0%,
-        rgba(var(--ink-rgb), 0) 55%
-      ),
-      linear-gradient(
-        var(--cover-angle),
-        rgba(var(--accent-rgb), 0.34),
-        rgba(var(--ink-rgb), 0.16)
-      );
   }
 
   .post-card:hover .post-cover {
@@ -220,18 +197,23 @@ const coverStyle = [
   .post-card-meta {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.8rem;
     flex-wrap: wrap;
-    font-size: 0.8125rem;
+    font-size: 0.78rem;
+    /* Tabular figures so dates line up down the column. */
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
     color: var(--text-muted);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.55rem;
   }
 
   .post-card-title {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1.28rem;
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: -0.008em;
     color: var(--text);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
     transition: color var(--transition);
   }
 
@@ -240,9 +222,9 @@ const coverStyle = [
   }
 
   .post-card-desc {
-    font-size: 0.9rem;
+    font-size: 0.94rem;
     color: var(--text-muted);
-    line-height: 1.6;
+    line-height: 1.7;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -250,11 +232,13 @@ const coverStyle = [
     overflow: hidden;
   }
 
+  /* Italics on a stats line reads as a template default; the references
+     keep this the same weight as the rest of the metadata. */
   .post-card-stats {
-    margin-top: 0.4rem;
+    margin-top: 0.6rem;
     color: var(--text-muted);
-    font-size: 0.88rem;
-    font-style: italic;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .stats-sep {
@@ -265,8 +249,8 @@ const coverStyle = [
   .post-card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.6rem;
+    gap: 0.45rem;
+    margin-top: 0.9rem;
   }
 
   /* On narrow screens the copy needs the full width, so the cover spans the
