@@ -164,7 +164,7 @@ const { effect = "ink-ripple" } = Astro.props;
   .ce-glyph,
   .ce-flick {
     position: fixed;
-    z-index: 9999;
+    z-index: var(--z-effect);
     pointer-events: none;
     transform: translate(-50%, -50%);
   }

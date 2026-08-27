@@ -128,7 +128,7 @@
   .lightbox-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 200;
+    z-index: var(--z-overlay);
     background: rgba(8, 10, 14, 0.82);
     opacity: 0;
     transition: opacity 0.28s ease;
@@ -141,7 +141,7 @@
 
   .lightbox-image {
     position: fixed;
-    z-index: 201;
+    z-index: var(--z-overlay-control);
     margin: 0;
     border-radius: var(--radius-sm);
     transition: transform 0.28s cubic-bezier(0.2, 0, 0.2, 1);

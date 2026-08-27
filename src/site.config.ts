@@ -59,7 +59,6 @@ export const profile = {
 export const siteLayout = {
   skin: "minimal",
   layout: "grid",
-  asidePosition: "left",
 
   regions: {
     backdrop: [
@@ -80,18 +79,27 @@ export const siteLayout = {
       // the cards use.
       {
         use: "chrome/Banner",
-        props: { subtitleKey: "index.heroIntro1", height: "38vh", coverIndex: 0 },
+        props: {
+          subtitleKey: "index.heroIntro1",
+          height: "42vh",
+          coverIndex: 0,
+          bleed: true,
+        },
       },
     ],
 
-    // Appears in the post sidebar. BlogPost grows the column on its own, so
-    // adding to this list is the whole operation - no layout edit.
-    aside: [
+    // Left column. The shell adds a column for each side that has blocks, so
+    // moving a widget across is moving one line.
+    asideStart: [
       "widget/Profile",
       "widget/BlogStats",
       { use: "widget/TagCloud", props: { limit: 18 } },
       "widget/Calendar",
     ],
+
+    // Right column - empty for now, and the shell stays two-wide because of
+    // it. Add a block here and it becomes three.
+    asideEnd: [],
 
     floating: [
       { use: "decor/ReadingProgress", props: { height: "3px" } },

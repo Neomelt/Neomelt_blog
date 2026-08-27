@@ -11,6 +11,20 @@
 /* Token values live in src/skins/<skin>/tokens.css, selected by the
    data-skin attribute rendered on <html>. See src/site.config.ts. */
 
+/* ---------- Stacking order ---------- */
+/* Every layer named in one place. These were seven magic numbers spread
+   across as many components, which is how the progress bar ended up at 80
+   underneath a header at 100 - invisible, since the header is opaque. */
+:root {
+  --z-backdrop: -1;
+  --z-sticky: 100;
+  --z-progress: 110;
+  --z-floating: 120;
+  --z-overlay: 200;
+  --z-overlay-control: 210;
+  --z-effect: 300;
+}
+
 /* ---------- Reset & Base ---------- */
 *,
 *::before,
