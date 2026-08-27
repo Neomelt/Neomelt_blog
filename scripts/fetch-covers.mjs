@@ -32,11 +32,15 @@ const BANNER = process.argv.includes("--banner");
 const OUT_DIR = INBOX
   ? join(process.cwd(), ".cover-inbox")
   : join(process.cwd(), "src", "assets", BANNER ? "banner" : "covers");
-const WIDTH = BANNER ? 1920 : 1200;
+// The inbox holds candidates for either use, so it keeps the uncropped
+// 1920-wide version: a banner can take it as-is, and a card crop can still
+// be made from it. Cropping to 1200x630 on the way in would make every
+// candidate unusable as a banner.
+const WIDTH = BANNER || INBOX ? 1920 : 1200;
 // Banners are not cropped. The element is 100vw by a vh height with
 // object-fit: cover, so the viewport decides the visible slice - cropping
 // here as well would throw away most of a 4:3 illustration for nothing.
-const HEIGHT = BANNER ? null : 630;
+const HEIGHT = BANNER || INBOX ? null : 630;
 const QUALITY = 82;
 const PROXY = (id) => `https://pixiv.cat/${id}.jpg`;
 const META = (id) => `https://www.pixiv.net/ajax/illust/${id}`;

@@ -258,6 +258,32 @@ const cover: ImageMetadata | null =
     }
   }
 
+  /* ---- list: an inset thumbnail beside the text ---- */
+  :global([data-layout="list"]) .post-card {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  :global([data-layout="list"]) .post-cover {
+    position: static;
+    flex: none;
+    width: var(--thumb-width);
+    height: var(--thumb-height);
+    z-index: 0;
+    opacity: 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  :global([data-layout="list"]) .post-card-body {
+    min-width: 0;
+    flex: 1;
+  }
+
   /* ---- grid / magazine: cover on top, in flow ---- */
   :global([data-layout="grid"]) .post-card,
   :global([data-layout="magazine"]) .post-card {
