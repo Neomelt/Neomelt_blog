@@ -75,10 +75,12 @@ export const siteLayout = {
     // loudest single move a skin can make, and no token expresses it - the
     // element either exists or it does not - so it lives here.
     masthead: [
+      // No skins filter: the banner replaces the old text hero on the home
+      // page, so it belongs under both. coverIndex draws from the same pool
+      // the cards use.
       {
         use: "chrome/Banner",
-        props: { subtitleKey: "index.heroIntro1", height: "34vh" },
-        skins: ["anime"],
+        props: { subtitleKey: "index.heroIntro1", height: "38vh", coverIndex: 0 },
       },
     ],
 

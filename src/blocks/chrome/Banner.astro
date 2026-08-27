@@ -1,6 +1,9 @@
 ---
+import { Image } from "astro:assets";
+
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
+import { coverPool } from "../../site.config";
 
 /**
  * The oversized masthead that sits between the header and the content.
@@ -19,22 +22,37 @@ export interface Props {
   /** Any CSS length. Roughly a third of the viewport reads as a banner
       without pushing the content below the fold. */
   height?: string;
-  /** Root-absolute path to an image in public/. */
-  src?: string;
+  /** Which entry of coverPool to use. Omit for the gradient alone. */
+  coverIndex?: number;
 }
 
 const {
   title = SITE_TITLE,
   subtitleKey,
   height = "34vh",
-  src,
+  coverIndex,
 } = Astro.props;
+
+// Drawn from the same pool the cards use, so adding art in one place feeds
+// both. Falls back to the gradient when the pool is empty or the index is out
+// of range, which keeps a fresh checkout working with no assets.
+const image =
+  coverIndex !== undefined ? (coverPool[coverIndex] ?? null) : null;
 ---
 
-<div
-  class="banner"
-  style={`--banner-height: ${height}${src ? `; --banner-image: url("${src}")` : ""}`}
->
+<div class="banner" style={`--banner-height: ${height}`}>
+  {
+    image && (
+      <Image
+        class="banner-image"
+        src={image}
+        alt=""
+        widths={[720, 1280, 1920]}
+        loading="eager"
+        decoding="async"
+      />
+    )
+  }
   <div class="banner-inner">
     <h1 class="banner-title">{title}</h1>
     {
@@ -61,7 +79,6 @@ const {
        the skin instead of being locked to one palette. */
     background-color: var(--bg-card);
     background-image:
-      var(--banner-image, none),
       radial-gradient(
         ellipse 70% 90% at 20% 10%,
         rgba(var(--accent-rgb), 0.34) 0%,
@@ -77,13 +94,26 @@ const {
     box-shadow: var(--shadow-card);
   }
 
+  .banner-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Held back so the title stays readable over whatever the art is doing. */
+    opacity: var(--banner-image-opacity, 0.55);
+  }
+
   .banner-inner {
+    position: relative;
     text-align: center;
     padding: 1rem 1.4rem;
   }
 
   .banner-title {
     margin: 0;
+    /* The art sits behind this, so the text needs its own separation. */
+    text-shadow: 0 1px 12px rgba(var(--ink-rgb), 0.35);
     font-size: clamp(1.9rem, 6vw, 3.2rem);
     font-weight: 700;
     line-height: 1.15;
