@@ -37,6 +37,7 @@ export const UI_TRANSLATIONS = {
     "widget.calendarTitle": "文章日历",
     "widget.calendarWeekdays": "日,一,二,三,四,五,六",
     "widget.tagsTitle": "标签",
+    "widget.musicTitle": "正在播放",
 
     "footer.running": "已运行",
     "footer.day": "天",
@@ -56,6 +57,14 @@ export const UI_TRANSLATIONS = {
     "search.emptyLoading": "正在加载搜索索引...",
     "search.typeBlog": "博客",
     "search.typeEssay": "随笔",
+
+    "music.label": "音乐播放器",
+    "music.play": "播放",
+    "music.pause": "暂停",
+    "music.prev": "上一首",
+    "music.next": "下一首",
+    "music.seek": "播放进度",
+    "music.volume": "音量",
 
     "pagination.aria": "分页",
     "pagination.prev": "上一页",
@@ -323,6 +332,7 @@ export const UI_TRANSLATIONS = {
     "widget.calendarTitle": "Post calendar",
     "widget.calendarWeekdays": "Su,Mo,Tu,We,Th,Fr,Sa",
     "widget.tagsTitle": "Tags",
+    "widget.musicTitle": "Now playing",
 
     "footer.running": "Uptime",
     "footer.day": "d",
@@ -342,6 +352,14 @@ export const UI_TRANSLATIONS = {
     "search.emptyLoading": "Loading search index...",
     "search.typeBlog": "Blog",
     "search.typeEssay": "Essay",
+
+    "music.label": "Music player",
+    "music.play": "Play",
+    "music.pause": "Pause",
+    "music.prev": "Previous track",
+    "music.next": "Next track",
+    "music.seek": "Seek",
+    "music.volume": "Volume",
 
     "pagination.aria": "Pagination",
     "pagination.prev": "Previous page",

@@ -7,6 +7,7 @@ import ReadingProgress from "./decor/ReadingProgress.astro";
 import BlogStats from "./widget/BlogStats.astro";
 import Calendar from "./widget/Calendar.astro";
 import FriendCircle from "./widget/FriendCircle.astro";
+import MusicPlayer from "./widget/MusicPlayer.astro";
 import Profile from "./widget/Profile.astro";
 import TagCloud from "./widget/TagCloud.astro";
 import ImageLightbox from "./behavior/ImageLightbox.astro";
@@ -32,6 +33,7 @@ export const BLOCKS = {
   "widget/BlogStats": BlogStats,
   "widget/Calendar": Calendar,
   "widget/FriendCircle": FriendCircle,
+  "widget/MusicPlayer": MusicPlayer,
   "widget/Profile": Profile,
   "widget/TagCloud": TagCloud,
   "behavior/ImageLightbox": ImageLightbox,
