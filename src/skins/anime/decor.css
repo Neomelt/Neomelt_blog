@@ -1,0 +1,85 @@
+/* ============================================================
+   SKIN: anime — decoration layer
+   ------------------------------------------------------------
+   Everything a token cannot express: overlays, pseudo-elements,
+   motion. Every rule is prefixed with [data-skin="anime"], so
+   switching back to minimal makes the whole file stop matching
+   and the decoration disappears on its own - no block knows any
+   of this exists.
+
+   This is the layer that answers "will my anime component turn
+   minimal automatically?". A block stays style-neutral and the
+   skin paints it from out here, which is why the answer can be
+   yes. Put ornament in a block instead and it travels with the
+   block into every skin.
+
+   Ceiling: CSS only. Decoration that needs real DOM - a
+   character illustration with alt text, a canvas of falling
+   petals - is a block placed in the backdrop slot instead.
+   ============================================================ */
+
+/* ---------- Card surfaces ---------- */
+/* --card-backdrop is `none` in minimal, so this is the token's only
+   consumer and it costs nothing when the skin is not anime. */
+[data-skin="anime"] .mobile-toc,
+[data-skin="anime"] .search-box,
+[data-skin="anime"] .pagination span,
+[data-skin="anime"] .prose pre {
+  background-image: var(--card-backdrop);
+  box-shadow: var(--shadow-card);
+}
+
+/* ---------- Tags read as soft pills ---------- */
+[data-skin="anime"] .tag {
+  border: var(--border-width) solid rgba(var(--accent-rgb), 0.22);
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+[data-skin="anime"] .tag:hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+
+/* ---------- Post cards lift instead of just recolouring ---------- */
+[data-skin="anime"] .post-card {
+  border-radius: var(--radius-card);
+  padding-inline: 0.9rem;
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+[data-skin="anime"] .post-card:hover {
+  background-color: rgba(var(--accent-rgb), 0.05);
+  transform: translateX(2px);
+}
+
+/* ---------- Section headings get a leading accent bar ---------- */
+/* One rule, one place. Fuwari copy-pasted this same motif into four
+   components with drifting magic numbers; keeping it here means a change
+   is a change in one file. */
+[data-skin="anime"] .section-heading {
+  position: relative;
+  padding-left: 0.85rem;
+}
+
+[data-skin="anime"] .section-heading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 4px;
+  height: 0.85em;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+/* ---------- Respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-skin="anime"] .tag,
+  [data-skin="anime"] .tag:hover,
+  [data-skin="anime"] .post-card,
+  [data-skin="anime"] .post-card:hover {
+    transition: none;
+    transform: none;
+  }
+}
