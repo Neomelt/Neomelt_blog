@@ -74,7 +74,7 @@ export const bannerPool: ImageMetadata[] = Object.keys(bannerModules)
 
 export const siteLayout = {
   skin: "minimal",
-  layout: "grid",
+  layout: "feature",
 
   regions: {
     backdrop: [
