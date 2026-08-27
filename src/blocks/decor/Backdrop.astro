@@ -16,7 +16,8 @@ import { bannerPool } from "../../site.config";
 export interface Props {
   /** Which entry of bannerPool to use. Omit for the gradient alone. */
   imageIndex?: number;
-  /** 0-1. How much flat page colour to lay over the image for contrast. */
+  /** 0-1. How much flat page colour to lay over the image. Defaults to the
+      skin's --backdrop-overlay, which differs per mode. */
   overlay?: number;
   /** Blur radius in px applied to the image, softening detail behind text. */
   blur?: number;
@@ -24,7 +25,7 @@ export interface Props {
   drift?: boolean;
 }
 
-const { imageIndex, overlay = 0.55, blur = 0, drift = false } = Astro.props;
+const { imageIndex, overlay, blur = 0, drift = false } = Astro.props;
 const image = imageIndex === undefined ? null : (bannerPool[imageIndex] ?? null);
 ---
 
@@ -36,7 +37,11 @@ const image = imageIndex === undefined ? null : (bannerPool[imageIndex] ?? null)
       </div>
     )
   }
-  <div class="backdrop-wash" style={`opacity: ${overlay}`}></div>
+  <div
+    class="backdrop-wash"
+    style={overlay === undefined ? undefined : `--backdrop-overlay: ${overlay}`}
+  >
+  </div>
 </div>
 
 <style>
@@ -74,12 +79,25 @@ const image = imageIndex === undefined ? null : (bannerPool[imageIndex] ?? null)
     height: 100%;
     object-fit: cover;
     display: block;
+    /* Per mode: a bright illustration behind a dark page reads as a light
+       leak, and raising the overlay instead just flattens it to grey. */
+    filter: var(--backdrop-filter);
+  }
+
+  /* On a phone a landscape illustration is cropped to a narrow strip that
+     reads as noise rather than art, and it is competing with the content for
+     a much smaller screen. */
+  @media (max-width: 768px) {
+    .backdrop-image {
+      opacity: 0.45;
+    }
   }
 
   .backdrop-wash {
     position: absolute;
     inset: 0;
     background: var(--bg);
+    opacity: var(--backdrop-overlay);
   }
 
   .drift .backdrop-image {
