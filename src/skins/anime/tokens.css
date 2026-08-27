@@ -75,6 +75,10 @@
   --card-cover-width: 58%;
   --card-cover-opacity: 0.26;
   --card-cover-fade: 42%;
+  /* Inset thumbnail, used by the list layout: a real image in the row rather
+     than a faded panel behind the text. */
+  --thumb-width: 136px;
+  --thumb-height: 80px;
   --card-body-pad-end: 1.5rem;
   --surface-sheen: none;
   --tag-text: #33598f;
