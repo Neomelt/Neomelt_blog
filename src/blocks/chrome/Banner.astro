@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 
-import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
 import { coverPool } from "../../site.config";
 
@@ -16,6 +15,8 @@ import { coverPool } from "../../site.config";
  * Falls back to a token-built gradient, so it needs no artwork.
  */
 export interface Props {
+  /** Omit for an image-only banner. The site title is already in the header,
+      so repeating it here is redundant by default. */
   title?: string;
   /** i18n key for the line under the title. */
   subtitleKey?: "index.heroTitle" | "index.heroIntro1" | "friends.lead";
@@ -29,7 +30,7 @@ export interface Props {
 }
 
 const {
-  title = SITE_TITLE,
+  title,
   subtitleKey,
   height = "30vh",
   coverIndex,
@@ -41,6 +42,7 @@ const {
 // of range, which keeps a fresh checkout working with no assets.
 const image =
   coverIndex !== undefined ? (coverPool[coverIndex] ?? null) : null;
+const hasText = Boolean(title || subtitleKey);
 ---
 
 <div class:list={["banner", { bleed }]} style={`--banner-height: ${height}`}>
@@ -56,16 +58,18 @@ const image =
       />
     )
   }
-  <div class="banner-inner">
-    <h1 class="banner-title">{title}</h1>
-    {
-      subtitleKey && (
-        <p class="banner-subtitle" data-i18n={subtitleKey}>
-          {getDefaultUiText(subtitleKey)}
-        </p>
-      )
-    }
-  </div>
+  {
+    hasText && (
+      <div class="banner-inner">
+        {title && <h1 class="banner-title">{title}</h1>}
+        {subtitleKey && (
+          <p class="banner-subtitle" data-i18n={subtitleKey}>
+            {getDefaultUiText(subtitleKey)}
+          </p>
+        )}
+      </div>
+    )
+  }
 </div>
 
 <style>
@@ -121,7 +125,7 @@ const image =
 
   /* A scrim behind the text only, rather than dimming the whole image: the
      edges keep their detail while the centre stays legible. */
-  .banner::after {
+  .banner:has(.banner-inner)::after {
     content: "";
     position: absolute;
     inset: 0;

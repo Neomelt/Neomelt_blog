@@ -79,12 +79,9 @@ export const siteLayout = {
       // the cards use.
       {
         use: "chrome/Banner",
-        props: {
-          subtitleKey: "index.heroIntro1",
-          height: "30vh",
-          coverIndex: 0,
-          bleed: true,
-        },
+        // No title or subtitle: the site name is in the header and the bio is
+        // in the sidebar profile, so the banner is just the image.
+        props: { height: "30vh", coverIndex: 0, bleed: true },
       },
     ],
 
