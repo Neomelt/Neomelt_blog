@@ -1,0 +1,583 @@
+---
+import { READER_PREFS_KEY, READER_SETTINGS } from "../../data/reader-settings";
+import { getDefaultUiText } from "../../i18n/ui";
+
+/**
+ * The reader's side of the site.
+ *
+ * site.config.ts decides what the page is made of; this decides how it reads
+ * for one visitor - text size, measure, line height, and which of the axes
+ * BaseHead already owns are in effect. It is deliberately not a command
+ * palette and deliberately not a search box: navigation is the header's job,
+ * finding a post is the magnifier's, and mixing the three produced a list
+ * where "go to archive" sat next to "line height".
+ *
+ * Nothing here can add or remove a block. Every control moves a value some
+ * rule was already reading, so no setting can reach a state the author did
+ * not build - see src/data/reader-settings.ts for which properties those are
+ * and why each one is safe to hand over.
+ */
+const settings = READER_SETTINGS.map((setting) => ({
+  ...setting,
+  label: getDefaultUiText(setting.labelKey),
+  hint: setting.hintKey ? getDefaultUiText(setting.hintKey) : "",
+  group: getDefaultUiText(setting.groupKey),
+  control:
+    setting.control.kind === "choice"
+      ? {
+          ...setting.control,
+          options: setting.control.options.map((option) => ({
+            ...option,
+            label: getDefaultUiText(option.labelKey),
+          })),
+        }
+      : setting.control,
+}));
+
+/** Groups in first-appearance order, so the data file controls the order. */
+const groups = [...new Set(settings.map((setting) => setting.groupKey))].map(
+  (groupKey) => ({
+    key: groupKey,
+    label: getDefaultUiText(groupKey),
+    settings: settings.filter((setting) => setting.groupKey === groupKey),
+  }),
+);
+
+const readerFallbacks = {
+  "reader.title": getDefaultUiText("reader.title"),
+  "reader.aria": getDefaultUiText("reader.aria"),
+  "reader.reset": getDefaultUiText("reader.reset"),
+  "reader.resetHint": getDefaultUiText("reader.resetHint"),
+  "reader.closeAria": getDefaultUiText("reader.closeAria"),
+} as const;
+---
+
+<div id="reader-settings" class="reader-overlay" aria-hidden="true">
+  <div
+    class="reader-box"
+    role="dialog"
+    aria-modal="true"
+    data-i18n-aria-label="reader.aria"
+    aria-label={readerFallbacks["reader.aria"]}
+  >
+    <div class="reader-head">
+      <h3 class="reader-title" data-i18n="reader.title">
+        {readerFallbacks["reader.title"]}
+      </h3>
+      <button
+        id="reader-close"
+        class="reader-close"
+        data-i18n-aria-label="reader.closeAria"
+        aria-label={readerFallbacks["reader.closeAria"]}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" d="M6 18 18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="reader-body">
+      {
+        groups.map((group) => (
+          <section class="reader-group" aria-labelledby={`rg-${group.key}`}>
+            <h4
+              class="reader-group-title"
+              id={`rg-${group.key}`}
+              data-i18n={group.key}
+            >
+              {group.label}
+            </h4>
+
+            {group.settings.map((setting) => (
+              <div class="reader-row" data-setting={setting.id}>
+                <div class="reader-label">
+                  <span data-i18n={setting.labelKey}>{setting.label}</span>
+                  {setting.hint && (
+                    <span class="reader-hint" data-i18n={setting.hintKey}>
+                      {setting.hint}
+                    </span>
+                  )}
+                </div>
+
+                {setting.control.kind === "choice" ? (
+                  /* Pills rather than a <select>: two to five named values
+                     are all worth seeing at once, and the current one has to
+                     be visible without opening anything. */
+                  <div class="reader-choices" role="group">
+                    {setting.control.options.map((option) => (
+                      <button
+                        type="button"
+                        class="reader-pill"
+                        data-value={option.value}
+                        data-i18n={option.labelKey}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div class="reader-range">
+                    <input
+                      type="range"
+                      min={setting.control.min}
+                      max={setting.control.max}
+                      step={setting.control.step}
+                      aria-labelledby={`rg-${group.key}`}
+                      data-i18n-aria-label={setting.labelKey}
+                      aria-label={setting.label}
+                    />
+                    <output class="reader-value" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </section>
+        ))
+      }
+    </div>
+
+    <div class="reader-foot">
+      <button
+        type="button"
+        id="reader-reset"
+        class="reader-reset"
+        data-i18n="reader.reset"
+      >
+        {readerFallbacks["reader.reset"]}
+      </button>
+      <span class="reader-hint" data-i18n="reader.resetHint">
+        {readerFallbacks["reader.resetHint"]}
+      </span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .reader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4rem 1rem 1rem;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .reader-overlay.open {
+    display: flex;
+  }
+
+  .reader-box {
+    width: min(30rem, 100%);
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-card);
+    background-color: var(--bg-card);
+    background-image: var(--surface-sheen);
+    box-shadow: var(--shadow-card);
+  }
+
+  .reader-head,
+  .reader-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.1rem;
+  }
+
+  .reader-head {
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .reader-foot {
+    border-top: var(--border-width) solid var(--border);
+  }
+
+  .reader-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .reader-close {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--transition);
+  }
+
+  .reader-close:hover {
+    color: var(--accent);
+  }
+
+  /* The body scrolls, the header and the reset row stay put - the reset has
+     to be reachable at the moment a setting has gone wrong. */
+  .reader-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.4rem 1.1rem 0.8rem;
+  }
+
+  .reader-group + .reader-group {
+    margin-top: 1.2rem;
+  }
+
+  .reader-group-title {
+    margin: 0.9rem 0 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .reader-row + .reader-row {
+    margin-top: 0.9rem;
+  }
+
+  .reader-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .reader-hint {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+  }
+
+  .reader-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .reader-pill {
+    padding: 0.3rem 0.7rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      color var(--transition);
+  }
+
+  .reader-pill:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  }
+
+  /* The value in effect. Filled rather than outlined, so which one is on is
+     readable at a glance instead of by comparing border colours. */
+  .reader-pill[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+  }
+
+  .reader-range {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .reader-range input {
+    flex: 1;
+    min-width: 0;
+    height: 3px;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: var(--radius-pill);
+    background: var(--border);
+    cursor: pointer;
+  }
+
+  .reader-range input::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+  }
+
+  .reader-range input::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+  }
+
+  .reader-value {
+    flex-shrink: 0;
+    min-width: 3.2rem;
+    text-align: end;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+  }
+
+  .reader-reset {
+    flex-shrink: 0;
+    padding: 0.35rem 0.8rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+
+  .reader-reset:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .reader-pill:focus-visible,
+  .reader-reset:focus-visible,
+  .reader-close:focus-visible,
+  .reader-range input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reader-pill,
+    .reader-reset,
+    .reader-close {
+      transition: none;
+    }
+  }
+</style>
+
+<script define:vars={{ settings, prefsKey: READER_PREFS_KEY }}>
+  /**
+   * Reader overrides live in one localStorage blob and are re-applied on every
+   * page, before this panel is ever opened - the settings have to survive
+   * navigation whether or not the reader goes looking for them again.
+   */
+  function readPrefs() {
+    try {
+      const raw = localStorage.getItem(prefsKey);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writePrefs(prefs) {
+    try {
+      localStorage.setItem(prefsKey, JSON.stringify(prefs));
+    } catch {
+      // Private mode, or a full quota. The page still reflects the change for
+      // this session; only remembering it is lost, which is not worth a throw.
+    }
+  }
+
+  function applyPrefs(prefs) {
+    const root = document.documentElement;
+    for (const setting of settings) {
+      if (setting.target.kind !== "cssVar") continue;
+      const value = prefs[setting.id];
+      const property = setting.target.property;
+      if (value === undefined || value === null || value === "") {
+        // Remove rather than write the default back: the skin owns this
+        // property again the moment the reader stops having an opinion.
+        if (property.startsWith("--")) root.style.removeProperty(property);
+        else root.style.removeProperty(property);
+        continue;
+      }
+      const css = `${value}${setting.control.cssUnit ?? ""}`;
+      if (property.startsWith("--")) root.style.setProperty(property, css);
+      else root.style.setProperty(property, css);
+    }
+  }
+
+  // Runs at script evaluation, not on DOMContentLoaded: the sooner the
+  // overrides land the smaller the flash of the author's defaults.
+  applyPrefs(readPrefs());
+
+  function initReaderSettings() {
+    const panel = document.getElementById("reader-settings");
+    const toggle = document.getElementById("settings-toggle");
+    const closeButton = document.getElementById("reader-close");
+    const resetButton = document.getElementById("reader-reset");
+    if (!panel || !closeButton || !resetButton) return;
+
+    const theme = () => window.__siteTheme;
+    const i18n = () => window.__siteI18n;
+
+    /** The value in effect for a setting, whoever owns it. */
+    function currentValue(setting) {
+      if (setting.target.kind === "siteTheme") {
+        const api = theme();
+        if (setting.target.axis === "theme") return api?.getTheme?.();
+        if (setting.target.axis === "skin") return api?.getSkin?.();
+        return api?.getLayout?.();
+      }
+      if (setting.target.kind === "locale") return i18n()?.getLocale?.();
+      const stored = readPrefs()[setting.id];
+      return stored === undefined ? setting.fallback : stored;
+    }
+
+    function setValue(setting, value) {
+      if (setting.target.kind === "siteTheme") {
+        const api = theme();
+        if (setting.target.axis === "theme") api?.applyTheme?.(value);
+        else if (setting.target.axis === "skin") api?.setSkin?.(value);
+        else api?.setLayout?.(value);
+        return;
+      }
+      if (setting.target.kind === "locale") {
+        i18n()?.setLocale?.(value);
+        return;
+      }
+      const prefs = readPrefs();
+      prefs[setting.id] = value;
+      writePrefs(prefs);
+      applyPrefs(prefs);
+    }
+
+    /** Redraw every control from the live state. */
+    function paint() {
+      for (const setting of settings) {
+        const row = panel.querySelector(`[data-setting="${setting.id}"]`);
+        if (!row) continue;
+        const value = currentValue(setting);
+
+        if (setting.control.kind === "choice") {
+          // aria-pressed rather than a class alone: these are toggle buttons,
+          // and the pressed state is the only thing saying which is active.
+          row.querySelectorAll(".reader-pill").forEach((pill) => {
+            pill.setAttribute(
+              "aria-pressed",
+              String(pill.dataset.value === String(value)),
+            );
+          });
+          continue;
+        }
+
+        const input = row.querySelector("input");
+        const output = row.querySelector(".reader-value");
+        if (input) input.value = String(value);
+        if (output)
+          output.textContent = `${value}${setting.control.unit ?? ""}`;
+      }
+    }
+
+    function openPanel() {
+      paint();
+      panel.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      closeButton.focus();
+    }
+
+    function closePanel() {
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    if (!panel.dataset.bound) {
+      panel.dataset.bound = "true";
+
+      for (const setting of settings) {
+        const row = panel.querySelector(`[data-setting="${setting.id}"]`);
+        if (!row) continue;
+
+        if (setting.control.kind === "choice") {
+          row.querySelectorAll(".reader-pill").forEach((pill) => {
+            pill.addEventListener("click", () => {
+              setValue(setting, pill.dataset.value);
+              paint();
+            });
+          });
+          continue;
+        }
+
+        const input = row.querySelector("input");
+        // input, not change: the page has to move under the thumb while it is
+        // being dragged, or the reader is picking a number rather than
+        // choosing how the text looks.
+        input?.addEventListener("input", () => {
+          setValue(setting, Number(input.value));
+          paint();
+        });
+      }
+
+      resetButton.addEventListener("click", () => {
+        writePrefs({});
+        applyPrefs({});
+        paint();
+      });
+
+      closeButton.addEventListener("click", closePanel);
+      panel.addEventListener("click", (event) => {
+        if (event.target === panel) closePanel();
+      });
+    }
+
+    if (toggle && !toggle.dataset.readerBound) {
+      toggle.dataset.readerBound = "true";
+      toggle.addEventListener("click", openPanel);
+    }
+
+    // Labels are rendered server-side and rewritten by the i18n runtime, but
+    // the pressed states and slider readouts are ours to refresh.
+    document.addEventListener("site:locale-change", paint);
+
+    const previous = window.__readerKeydown;
+    if (previous) document.removeEventListener("keydown", previous);
+    const onKeydown = (event) => {
+      if (event.key === "Escape" && panel.classList.contains("open")) {
+        closePanel();
+      }
+    };
+    document.addEventListener("keydown", onKeydown);
+    window.__readerKeydown = onKeydown;
+  }
+
+  document.addEventListener("DOMContentLoaded", initReaderSettings);
+  document.addEventListener("astro:page-load", () => {
+    // A new document means new controls; re-apply before they are painted.
+    applyPrefs(readPrefs());
+    initReaderSettings();
+  });
+</script>
