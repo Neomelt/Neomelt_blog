@@ -29,7 +29,11 @@ const { imageIndex, overlay, blur = 0, drift = false } = Astro.props;
 const image = imageIndex === undefined ? null : (bannerPool[imageIndex] ?? null);
 ---
 
-<div class:list={["backdrop", { drift }]} aria-hidden="true">
+<div
+  class:list={["backdrop", { drift }]}
+  transition:persist="backdrop"
+  aria-hidden="true"
+>
   {
     image && (
       <div class="backdrop-image" style={`filter: blur(${blur}px)`}>

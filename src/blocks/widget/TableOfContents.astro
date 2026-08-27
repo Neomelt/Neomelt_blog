@@ -34,7 +34,7 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
 }
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  const setupToc = () => {
     const links = document.querySelectorAll(".toc-link");
     if (!links.length) return;
 
@@ -68,7 +68,12 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
         }
       });
     });
-  });
+  };
+
+  document.addEventListener("DOMContentLoaded", setupToc);
+  // The router keeps one session alive, so DOMContentLoaded fires once for
+  // the whole visit - each navigation after that needs this run again.
+  document.addEventListener("astro:page-load", setupToc);
 </script>
 
 <style>

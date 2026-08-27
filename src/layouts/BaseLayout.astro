@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from "astro:transitions";
+
 import BaseHead from "../components/BaseHead.astro";
 import Footer from "../blocks/chrome/Footer.astro";
 import Header from "../blocks/chrome/Header.astro";
@@ -53,6 +55,7 @@ const withSidebar = hasStart || hasEnd;
 <html lang="zh-CN" data-skin={siteLayout.skin} data-layout={siteLayout.layout}>
   <head>
     <BaseHead title={title} description={description} image={image} />
+    <ClientRouter />
     {
       katex && (
         <link

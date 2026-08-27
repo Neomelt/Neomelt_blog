@@ -85,7 +85,7 @@ export const siteLayout = {
       // owned by either. Add skins: ["anime"] to confine it.
       // overlay is left to the skin: it differs between light and dark, and a
       // value here would pin both to one.
-      { use: "decor/Backdrop", props: { imageIndex: 0, blur: 2 } },
+      { use: "decor/Backdrop", props: { imageIndex: 0, blur: 2 }, skins: ["anime"] },
     ],
 
     // Between the header and the content. An oversized masthead is the

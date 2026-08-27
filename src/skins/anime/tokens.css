@@ -71,8 +71,8 @@
   /* A bright illustration behind a dark page reads as a light leak, so it is
      dimmed and desaturated rather than merely covered by more overlay -
      overlay alone flattens it to a grey wash. */
-  --backdrop-filter: brightness(0.45) saturate(0.7);
-  --backdrop-overlay: 0.5;
+  --backdrop-filter: brightness(0.62) saturate(0.8);
+  --backdrop-overlay: 0.4;
   --list-item-gap: 1.1rem;
   /* The cards are the glass now, so the blur lives on them. */
   --list-item-blur: 12px;
@@ -87,7 +87,12 @@
   --thumb-width: 136px;
   --thumb-height: 80px;
   --card-body-pad-end: 1.5rem;
-  --surface-sheen: none;
+  --surface-sheen: linear-gradient(
+    135deg,
+    rgba(58, 103, 166, 0.07) 0%,
+    rgba(58, 103, 166, 0) 55%,
+    rgba(29, 118, 183, 0.05) 100%
+  );
   --tag-text: #33598f;
 
   /* Shape - the actual difference between the two skins. Rounder, softer,
@@ -168,6 +173,12 @@
   /* A bright illustration behind a dark page reads as a light leak, so it is
      dimmed and desaturated rather than merely buried under more overlay -
      overlay alone flattens it to a grey wash. */
-  --backdrop-filter: brightness(0.45) saturate(0.7);
-  --backdrop-overlay: 0.5;
+  --backdrop-filter: brightness(0.62) saturate(0.8);
+  --backdrop-overlay: 0.4;
+  --surface-sheen: linear-gradient(
+    135deg,
+    rgba(148, 163, 184, 0.1) 0%,
+    rgba(148, 163, 184, 0) 55%,
+    rgba(97, 159, 209, 0.07) 100%
+  );
 }
