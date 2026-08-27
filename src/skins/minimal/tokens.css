@@ -58,6 +58,12 @@
   --list-item-radius: 0px;
   --list-item-shadow: none;
   --list-item-gap: 0px;
+  /* Cover thumbnail. Size 0 removes the column entirely, so a skin that
+     wants a text-only list needs no markup change. */
+  --card-cover-size: 84px;
+  --card-cover-ratio: 1;
+  --card-cover-radius: var(--radius-sm);
+  --card-cover-gap: 1rem;
   --surface-sheen: none;
   --tag-text: #355460;
 
