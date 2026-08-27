@@ -250,8 +250,17 @@ const primaryHostname = canonicalURL.hostname;
     };
 
     // Resolve every axis before first paint.
-    apply(getSkin(), getMode(), { persist: false });
-    applyLayout(getLayout(), { persist: false });
+    const restore = () => {
+      apply(getSkin(), getMode(), { persist: false });
+      applyLayout(getLayout(), { persist: false });
+    };
+    restore();
+
+    // View transitions swap the document, and the incoming <html> carries the
+    // server-rendered defaults - so a visitor's chosen skin would snap back on
+    // every navigation. after-swap runs before the new document is painted,
+    // which is early enough that nothing is visible.
+    document.addEventListener("astro:after-swap", restore);
   })();
 </script>
 

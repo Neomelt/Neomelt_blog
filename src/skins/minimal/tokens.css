@@ -159,4 +159,5 @@
   --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.55);
   --backdrop-filter: none;
   --backdrop-overlay: 0.92;
+  --surface-sheen: none;
 }
