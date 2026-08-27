@@ -68,6 +68,8 @@ export const siteLayout = {
     ],
 
     floating: [
+      { use: "decor/ReadingProgress", props: { height: "3px" } },
+      { use: "decor/BackToTop" },
       {
         use: "decor/SakuraFall",
         props: { count: 20, duration: 16 },

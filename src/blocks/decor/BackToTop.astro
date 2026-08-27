@@ -1,0 +1,146 @@
+---
+import { getDefaultUiText } from "../../i18n/ui";
+
+/**
+ * Appears once the page has scrolled past a threshold.
+ *
+ * Visibility is driven by an IntersectionObserver on a sentinel rather than a
+ * scroll listener: the browser reports the crossing instead of the page
+ * recomputing a scroll offset on every frame.
+ */
+export interface Props {
+  /** How far down before the button appears. Any CSS length. */
+  threshold?: string;
+}
+
+const { threshold = "80vh" } = Astro.props;
+---
+
+<div
+  class="back-to-top-sentinel"
+  style={`--back-to-top-threshold: ${threshold}`}
+  aria-hidden="true"
+>
+</div>
+
+<button
+  type="button"
+  class="back-to-top"
+  data-i18n-aria-label="common.backToTop"
+  aria-label={getDefaultUiText("common.backToTop")}
+  hidden
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 19V5"></path>
+    <path d="m5 12 7-7 7 7"></path>
+  </svg>
+</button>
+
+<style>
+  /* Zero-height marker at the scroll depth where the button should appear. */
+  .back-to-top-sentinel {
+    position: absolute;
+    top: var(--back-to-top-threshold);
+    inset-inline-start: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  .back-to-top {
+    position: fixed;
+    inset-block-end: 1.5rem;
+    inset-inline-end: 1.5rem;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-pill);
+    background-color: var(--bg-card);
+    color: var(--text-muted);
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition:
+      opacity var(--transition),
+      transform var(--transition),
+      color var(--transition),
+      border-color var(--transition);
+  }
+
+  .back-to-top[hidden] {
+    display: none;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .back-to-top:hover {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+      transition: none;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .back-to-top {
+      inset-block-end: 1rem;
+      inset-inline-end: 1rem;
+    }
+  }
+</style>
+
+<script>
+  const setup = () => {
+    const button = document.querySelector<HTMLButtonElement>(".back-to-top");
+    const sentinel = document.querySelector(".back-to-top-sentinel");
+    if (!button || !sentinel || button.dataset.bound) return;
+    button.dataset.bound = "true";
+
+    button.addEventListener("click", () => {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+    });
+
+    // hidden gates display; is-visible drives the fade, so the button is never
+    // a focus target while invisible.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const past = entry ? !entry.isIntersecting && entry.boundingClientRect.top < 0 : false;
+        if (past) {
+          button.hidden = false;
+          requestAnimationFrame(() => button.classList.add("is-visible"));
+        } else {
+          button.classList.remove("is-visible");
+          button.hidden = true;
+        }
+      },
+      { threshold: 0 },
+    );
+    observer.observe(sentinel);
+  };
+
+  document.addEventListener("DOMContentLoaded", setup);
+  document.addEventListener("astro:page-load", setup);
+</script>
