@@ -21,9 +21,16 @@ export type SkinName = "minimal" | "anime";
 /**
  * Regions that hold an ordered list of blocks, painted back to front:
  * backdrop sits behind the page, floating above it, and masthead runs
- * between the header and the content.
+ * between the header and the content. asideStart and asideEnd are the
+ * columns either side of the content - list blocks under one, the other, or
+ * both, and the shell becomes two or three columns to match.
  */
-export type RegionName = "backdrop" | "masthead" | "aside" | "floating";
+export type RegionName =
+  | "backdrop"
+  | "masthead"
+  | "asideStart"
+  | "asideEnd"
+  | "floating";
 
 /** A bare name when the block needs no props, an object when it does. */
 export type BlockPlacement =
@@ -45,8 +52,6 @@ export type BlockPlacement =
 
 export interface SiteLayout {
   skin: SkinName;
-  /** Which side the aside column sits on. */
-  asidePosition?: "left" | "right";
   /** Default post-list arrangement; visitors can switch it in the header. */
   layout: LayoutName;
   regions: Record<RegionName, BlockPlacement[]>;

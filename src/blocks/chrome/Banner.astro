@@ -24,6 +24,8 @@ export interface Props {
   height?: string;
   /** Which entry of coverPool to use. Omit for the gradient alone. */
   coverIndex?: number;
+  /** Span the full viewport width, edge to edge, with no corner radius. */
+  bleed?: boolean;
 }
 
 const {
@@ -31,6 +33,7 @@ const {
   subtitleKey,
   height = "34vh",
   coverIndex,
+  bleed = false,
 } = Astro.props;
 
 // Drawn from the same pool the cards use, so adding art in one place feeds
@@ -40,7 +43,7 @@ const image =
   coverIndex !== undefined ? (coverPool[coverIndex] ?? null) : null;
 ---
 
-<div class="banner" style={`--banner-height: ${height}`}>
+<div class:list={["banner", { bleed }]} style={`--banner-height: ${height}`}>
   {
     image && (
       <Image
@@ -66,6 +69,17 @@ const image =
 </div>
 
 <style>
+  /* Full-bleed: the masthead container is centred and padded like the rest of
+     the page, so escaping it takes a viewport-width negative margin rather
+     than just width: 100%. */
+  .banner.bleed {
+    width: 100vw;
+    margin-inline-start: 50%;
+    translate: -50% 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
   .banner {
     position: relative;
     height: var(--banner-height);

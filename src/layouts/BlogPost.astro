@@ -49,7 +49,7 @@ const shareImage =
     : undefined;
 // The sidebar column exists if the ToC needs it or the aside region is
 // configured, so adding a sidebar widget never means editing this layout.
-const hasAside = hasToc || siteLayout.regions.aside.length > 0;
+const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
 ---
 
 <BaseLayout
@@ -65,7 +65,7 @@ const hasAside = hasToc || siteLayout.regions.aside.length > 0;
       hasAside && (
         <aside class="toc-sidebar">
           {hasToc && <TableOfContents headings={headings} />}
-          <Region name="aside" context={{ headings, post }} />
+          <Region name="asideStart" context={{ headings, post }} />
         </aside>
       )
     }

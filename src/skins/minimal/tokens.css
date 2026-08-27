@@ -100,6 +100,10 @@
   --content-width: 800px;
   /* Two-column shell. --aside-width 0 collapses it back to one column. */
   --shell-width: 1180px;
+  /* Three columns need room the two-column measure does not have:
+     subtracting two sidebars from --shell-width would leave the text
+     around 580px. */
+  --shell-width-wide: 1520px;
   --shell-gap: 2.5rem;
   --aside-width: 260px;
   --header-height: 64px;
