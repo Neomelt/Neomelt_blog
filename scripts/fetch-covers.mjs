@@ -3,6 +3,7 @@
  * Download pixiv illustrations for use as post covers.
  *
  *   node scripts/fetch-covers.mjs 126327443 134308706 ...
+ *   node scripts/fetch-covers.mjs --inbox 126327443 ...   # review first
  *   node scripts/fetch-covers.mjs --from covers.txt
  *
  * pixiv's own ajax endpoint returns metadata without a login but leaves every
@@ -15,11 +16,17 @@
  * files under src/ go through Astro's image pipeline, which is what produces
  * the hashed, immutable webp the reference blogs serve.
  */
-import { mkdir, readFile, writeFile, access } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile, access } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 
-const OUT_DIR = join(process.cwd(), "src", "assets", "covers");
+// --inbox keeps downloads out of the repository until they have been looked
+// at. pixiv only flags outright R18, so anything merely suggestive arrives
+// unmarked and no filter catches it - the decision has to be a human one.
+const INBOX = process.argv.includes("--inbox");
+const OUT_DIR = INBOX
+  ? join(process.cwd(), ".cover-inbox")
+  : join(process.cwd(), "src", "assets", "covers");
 const WIDTH = 1200;
 const HEIGHT = 630;
 const QUALITY = 82;
@@ -138,7 +145,30 @@ if (credits.length > 0) {
   console.log(`\ncredits appended to src/assets/covers/CREDITS.md`);
 }
 
+if (INBOX && credits.length > 0) {
+  // A contact sheet, so picking does not mean opening fifteen files.
+  const files = (await readdir(OUT_DIR)).filter((f) => f.endsWith(".webp")).sort();
+  const html =
+    `<!doctype html><meta charset="utf-8"><title>cover inbox</title>` +
+    `<style>body{background:#111;color:#ccc;font:14px system-ui;margin:0;padding:1rem}` +
+    `.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem}` +
+    `figure{margin:0}img{width:100%;border-radius:8px;display:block}` +
+    `figcaption{padding:.4rem 0;font-size:12px;opacity:.7}</style>` +
+    `<p>keep what you want, then move it into src/assets/covers/ and run <code>npm run covers:lock</code></p>` +
+    `<div class=g>` +
+    files
+      .map(
+        (f) =>
+          `<figure><img src="./${f}" loading="lazy"><figcaption>${f}</figcaption></figure>`,
+      )
+      .join("") +
+    `</div>`;
+  await writeFile(join(OUT_DIR, "index.html"), html);
+}
+
 console.log(
   `\ndone: ${credits.length} downloaded, ${failed} failed.` +
-    `\nthe pool in site.config.ts picks these up automatically - no edit needed.`,
+    (INBOX
+      ? `\nreview: open .cover-inbox/index.html, then move keepers into src/assets/covers/`
+      : `\nthe pool in site.config.ts picks these up automatically - no edit needed.`),
 );

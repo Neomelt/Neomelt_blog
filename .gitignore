@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 backups/
 .cache/
+
+# Downloaded cover candidates awaiting review - never committed
+.cover-inbox/
