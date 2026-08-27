@@ -1,4 +1,6 @@
 ---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../../components/FormattedDate.astro";
 import { getDefaultUiText } from "../../i18n/ui";
@@ -38,27 +40,25 @@ const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
 // Order: the post's own heroImage, then a deterministic pick from the
 // configured pool, then a generated gradient. heroImage is ignored when it
 // is the shared default, since every post points at the same cover.svg.
-const heroSrc =
+const hero =
   typeof post.data.heroImage === "object" && post.data.heroImage
-    ? (post.data.heroImage as { src: string }).src
+    ? (post.data.heroImage as ImageMetadata)
     : null;
 
-// Posts without an image get a generated panel rather than a blank box or a
-// stock placeholder. Deterministic from the title, so it is stable across
-// builds, and every colour is a token, so it follows the skin. Two offset
-// band a single gradient gives.
 const title = post.data.title;
 const hash = [...title].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
 
 // No generated stand-in when there is no artwork. A gradient panel in place
 // of an image looks like filler, and filler is worse than the honest thing:
-// a text listing carried by typography and space. Supply coverPool and the
-// cards get real covers; leave it empty and they stay clean.
-const cover =
-  heroSrc && !heroSrc.includes("cover.svg")
-    ? heroSrc
+// a text listing carried by typography and space.
+//
+// heroImage is ignored when it is the shared default - every post points at
+// the same cover.svg, so honouring it would give identical thumbnails.
+const cover: ImageMetadata | null =
+  hero && !hero.src.includes("cover.svg")
+    ? hero
     : coverPool.length > 0
-      ? withBase(coverPool[hash % coverPool.length]!)
+      ? coverPool[hash % coverPool.length]!
       : null;
 ---
 
@@ -66,7 +66,7 @@ const cover =
   {
     cover && (
       <div class="post-cover" aria-hidden="true">
-        <img src={cover} alt="" loading="lazy" decoding="async" />
+        <Image src={cover} alt="" widths={[420, 720, 1200]} loading="lazy" decoding="async" />
       </div>
     )
   }
