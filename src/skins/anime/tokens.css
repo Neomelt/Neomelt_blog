@@ -73,7 +73,7 @@
      the way axi404.top does it - an absolutely positioned image at partial
      opacity rather than a thumbnail column. */
   --card-cover-width: 58%;
-  --card-cover-opacity: 0.42;
+  --card-cover-opacity: 0.26;
   --card-cover-fade: 42%;
   --card-body-pad-end: 1.5rem;
   --surface-sheen: none;
