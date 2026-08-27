@@ -105,6 +105,10 @@
      around 580px. */
   --shell-width-wide: min(94vw, 1840px);
   --shell-gap: 2.5rem;
+  /* How far the content panel rides up over the banner. 0 leaves them
+     stacked; a positive value makes the content read as set into the image
+     rather than following it. */
+  --content-overlap: 0rem;
   --aside-width: 260px;
   --header-height: 64px;
 
