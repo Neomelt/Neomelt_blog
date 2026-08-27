@@ -7,79 +7,9 @@
    non-render-blocking stylesheet) so it never blocks first paint. The font
    stack below falls back to system fonts until the web font arrives. */
 
-/* ---------- Design Tokens (Light Mode) ---------- */
-:root {
-  /* Colors */
-  --bg: #fafafa;
-  --bg-card: #ffffff;
-  --bg-code: #f4f4f5;
-  --border: #e4e4e7;
-  --text: #18181b;
-  --text-muted: #71717a;
-  --accent: #41697b;
-  --accent-hover: #335663;
-  --accent-rgb: 65, 105, 123;
-  --ink-rgb: 47, 77, 89;
-  --tag-bg: #eaeff1;
-  --tag-text: #355460;
-
-  /* Legacy token compatibility */
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 214, 224, 228;
-  --gray: 113, 113, 122;
-  --gray-light: 228, 228, 231;
-
-  /* Typography */
-  --font-sans:
-    "LXGW WenKai", "Noto Serif SC", "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-  --prose-width: 66ch;
-  --prose-line-height: 1.76;
-  --prose-letter-spacing: 0.012em;
-
-  /* Spacing */
-  --content-width: 800px;
-  --header-height: 64px;
-  --dynamic-narrow-width: 100%;
-  --dynamic-content-width: 100%;
-  --dynamic-wide-width: 100%;
-
-  /* Transitions */
-  --transition: 150ms ease;
-}
-
-/* ---------- Dark Mode ---------- */
-.dark {
-  --bg: #16181d;
-  --bg-card: #1d2128;
-  --bg-code: #171b21;
-  --border: #2b313a;
-  --text: #e8ebf0;
-  --text-muted: #aab1bc;
-  --accent: #8cadbb;
-  --accent-hover: #a8c4d0;
-  --accent-rgb: 140, 173, 187;
-  --ink-rgb: 226, 232, 237;
-  --tag-bg: #25333b;
-  --tag-text: #aac6d2;
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-card);
-  --bg-tertiary: var(--bg-code);
-  --border-color: var(--border);
-  --text-primary: var(--text);
-  --text-secondary: var(--text-muted);
-  --accent-dark: var(--accent-hover);
-  --accent-light: 37, 51, 59;
-  --gray: 170, 177, 188;
-  --gray-light: 43, 49, 58;
-}
+/* ---------- Design Tokens ---------- */
+/* Token values live in src/skins/<skin>/tokens.css, selected by the
+   data-skin attribute rendered on <html>. See src/site.config.ts. */
 
 /* ---------- Reset & Base ---------- */
 *,
@@ -262,14 +192,14 @@ p {
   font-size: 0.875em;
   background: var(--bg-code);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 0.15em 0.4em;
 }
 
 .prose pre {
   background: var(--bg-code);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   padding: 1.25rem;
   overflow-x: auto;
   margin: 1.5rem 0;
@@ -308,7 +238,7 @@ p {
 }
 
 .prose img {
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   margin: 1.5rem auto;
   border: 1px solid var(--border);
 }
@@ -318,7 +248,7 @@ p {
   width: 100%;
   margin: 1.5rem 0;
   padding-top: 56.25%;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--border);
   background: var(--bg-code);
@@ -455,7 +385,7 @@ p {
   display: inline-block;
   font-size: 0.75rem;
   padding: 0.15rem 0.6rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: var(--tag-bg);
   color: var(--tag-text);
   text-decoration: none;
@@ -474,7 +404,7 @@ p {
   gap: 0.25rem;
   font-size: 0.75rem;
   padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   background: #fef3c7;
   color: #92400e;
 }
@@ -526,7 +456,7 @@ p {
   min-width: 2.25rem;
   height: 2.25rem;
   padding: 0 0.6rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -622,7 +552,7 @@ p {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -639,7 +569,7 @@ p {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* ---------- Mobile Compatibility ---------- */

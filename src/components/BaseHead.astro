@@ -1,7 +1,11 @@
 ---
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
+import "../skins/minimal/tokens.css";
+import "../skins/anime/tokens.css";
 import "../styles/global.css";
+import { SKINS, SKIN_THEME_COLORS } from "../skins";
+import { siteLayout } from "../site.config";
 import type { ImageMetadata } from "astro";
 // og/twitter 分享图必须是位图：X/Facebook/Telegram 的抓取器不渲染 SVG。
 // cover-og.png 由 cover.svg 渲染裁剪而来（1200x630 标准卡片尺寸）。
@@ -90,80 +94,111 @@ const primaryHostname = canonicalURL.hostname;
 <meta name="color-scheme" content="dark light" />
 
 <!-- 主题初始化脚本 -->
-<script is:inline>
+<script
+  is:inline
+  define:vars={{ defaultSkin: siteLayout.skin, skinThemeColors: SKIN_THEME_COLORS, skinNames: SKINS }}
+>
   (() => {
-    const STORAGE_KEY = "theme";
-    const DEFAULT_THEME = "dark";
-    const THEME_COLORS = {
-      dark: "#16181d",
-      light: "#fafafa",
-    };
+    const MODE_KEY = "theme";
+    const SKIN_KEY = "skin";
+    const DEFAULT_MODE = "dark";
 
-    const readStoredTheme = () => {
+    const readStored = (key, allowed) => {
       try {
-        const savedTheme = localStorage.getItem(STORAGE_KEY);
-        return savedTheme === "dark" || savedTheme === "light"
-          ? savedTheme
-          : null;
+        const value = localStorage.getItem(key);
+        return allowed.includes(value) ? value : null;
       } catch {
         return null;
       }
     };
 
-    const writeStoredTheme = (theme) => {
+    const writeStored = (key, value) => {
       try {
-        localStorage.setItem(STORAGE_KEY, theme);
+        localStorage.setItem(key, value);
       } catch {
-        // Ignore storage errors and keep theme in memory/DOM only.
+        // Ignore storage errors and keep the choice in memory/DOM only.
       }
     };
 
-    const syncThemeColor = (theme) => {
-      let themeColorMeta = document.head.querySelector(
-        'meta[name="theme-color"]',
-      );
-      if (!themeColorMeta) {
-        themeColorMeta = document.createElement("meta");
-        themeColorMeta.setAttribute("name", "theme-color");
-        document.head.appendChild(themeColorMeta);
+    const syncThemeColor = (skin, mode) => {
+      let meta = document.head.querySelector('meta[name="theme-color"]');
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("name", "theme-color");
+        document.head.appendChild(meta);
       }
-      themeColorMeta.setAttribute("content", THEME_COLORS[theme]);
+      const palette = skinThemeColors[skin] || skinThemeColors[defaultSkin];
+      meta.setAttribute("content", palette[mode]);
     };
 
-    const getAppliedTheme = () => {
+    const getAppliedMode = () => {
       const current = document.documentElement.dataset.theme;
       if (current === "dark" || current === "light") return current;
-      return document.documentElement.classList.contains("dark")
-        ? "dark"
-        : null;
+      return document.documentElement.classList.contains("dark") ? "dark" : null;
     };
 
-    const getTheme = () =>
-      readStoredTheme() ?? getAppliedTheme() ?? DEFAULT_THEME;
+    const getMode = () =>
+      readStored(MODE_KEY, ["dark", "light"]) ?? getAppliedMode() ?? DEFAULT_MODE;
 
-    const applyTheme = (theme, { persist = true } = {}) => {
-      const normalizedTheme = theme === "light" ? "light" : "dark";
-      document.documentElement.classList.toggle(
-        "dark",
-        normalizedTheme === "dark",
+    // The server already stamps data-skin on <html>, so this only ever
+    // narrows to a visitor's stored choice - there is no unskinned frame.
+    const getSkin = () =>
+      readStored(SKIN_KEY, skinNames) ??
+      (skinNames.includes(document.documentElement.dataset.skin)
+        ? document.documentElement.dataset.skin
+        : defaultSkin);
+
+    const apply = (skin, mode, { persist = true } = {}) => {
+      const nextMode = mode === "light" ? "light" : "dark";
+      const nextSkin = skinNames.includes(skin) ? skin : defaultSkin;
+      const root = document.documentElement;
+
+      // .dark is kept alongside data-mode: global.css and two blocks still
+      // select on it, and tailwind.config.js is darkMode: "class".
+      root.classList.toggle("dark", nextMode === "dark");
+      root.dataset.theme = nextMode;
+      root.dataset.mode = nextMode;
+      root.dataset.skin = nextSkin;
+      root.style.colorScheme = nextMode;
+      syncThemeColor(nextSkin, nextMode);
+
+      if (persist) {
+        writeStored(MODE_KEY, nextMode);
+        writeStored(SKIN_KEY, nextSkin);
+      }
+      document.dispatchEvent(
+        new CustomEvent("site:skin-change", {
+          detail: { skin: nextSkin, mode: nextMode },
+        }),
       );
-      document.documentElement.dataset.theme = normalizedTheme;
-      document.documentElement.style.colorScheme = normalizedTheme;
-      syncThemeColor(normalizedTheme);
-      if (persist) writeStoredTheme(normalizedTheme);
-      return normalizedTheme;
+      return nextMode;
     };
 
     window.__siteTheme = {
-      storageKey: STORAGE_KEY,
-      defaultTheme: DEFAULT_THEME,
-      getTheme,
-      applyTheme,
-      toggleTheme: () => applyTheme(getTheme() === "dark" ? "light" : "dark"),
+      storageKey: MODE_KEY,
+      skinStorageKey: SKIN_KEY,
+      defaultTheme: DEFAULT_MODE,
+      defaultSkin,
+      skins: skinNames,
+      getTheme: getMode,
+      getSkin,
+      applyTheme: (mode, options) => apply(getSkin(), mode, options),
+      toggleTheme: () =>
+        apply(getSkin(), getMode() === "dark" ? "light" : "dark"),
+      setSkin: (skin) => {
+        apply(skin, getMode());
+        return skin;
+      },
+      cycleSkin: () => {
+        const next =
+          skinNames[(skinNames.indexOf(getSkin()) + 1) % skinNames.length];
+        apply(next, getMode());
+        return next;
+      },
     };
 
-    // In the absence of a saved preference, default to dark mode before paint.
-    applyTheme(getTheme(), { persist: false });
+    // Resolve both axes before first paint.
+    apply(getSkin(), getMode(), { persist: false });
   })();
 </script>
 

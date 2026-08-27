@@ -368,7 +368,7 @@ const searchFallbacks = {
   .search-box {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     width: 100%;
     max-width: 600px;
     margin: 0 1rem;
@@ -398,7 +398,7 @@ const searchFallbacks = {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     border: none;
     background: transparent;
     color: var(--text-muted);
@@ -437,7 +437,7 @@ const searchFallbacks = {
     width: 100%;
     padding: 0.6rem 0.75rem 0.6rem 2.25rem;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-card);
     background: var(--bg);
     color: var(--text);
     font-size: 0.95rem;
@@ -471,7 +471,7 @@ const searchFallbacks = {
     text-decoration: none;
     color: var(--text);
     transition: background var(--transition);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
   }
 
   .result-item:last-child {
@@ -512,12 +512,12 @@ const searchFallbacks = {
     color: var(--tag-text);
     background: var(--tag-bg);
     padding: 0.1rem 0.4rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
   }
 
   mark {
     background: rgba(250, 204, 21, 0.3);
     color: inherit;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
   }
 </style>

@@ -16,6 +16,7 @@ export const UI_TRANSLATIONS = {
     "header.about": "关于",
     "header.searchAria": "搜索",
     "header.themeAria": "切换深色/浅色模式",
+    "header.skinAria": "切换外观风格",
     "header.menuAria": "菜单",
     "header.languageAria": "切换语言",
 
@@ -271,6 +272,7 @@ export const UI_TRANSLATIONS = {
     "header.about": "About",
     "header.searchAria": "Search",
     "header.themeAria": "Toggle dark/light mode",
+    "header.skinAria": "Switch visual skin",
     "header.menuAria": "Menu",
     "header.languageAria": "Switch language",
 
