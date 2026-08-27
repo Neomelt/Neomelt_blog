@@ -281,6 +281,14 @@ export const UI_TRANSLATIONS = {
     "series.lead": "成组的文章，按发表顺序排列。",
     "series.countUnit": "个系列",
     "series.empty": "还没有系列文章。",
+
+    "notFound.metaTitle": "页面不存在",
+    "notFound.title": "没有这个页面",
+    "notFound.lead": "地址打错了，或者这篇内容已经挪走。下面是几条还在的路。",
+    "notFound.home": "回首页",
+    "notFound.posts": "全部文章",
+    "notFound.search": "搜一下",
+    "notFound.recentTitle": "最近写的",
   },
   en: {
     "locale.label": "EN",
@@ -584,6 +592,15 @@ export const UI_TRANSLATIONS = {
     "series.lead": "Posts that run together, in publication order.",
     "series.countUnit": "series",
     "series.empty": "No series yet.",
+
+    "notFound.metaTitle": "Page not found",
+    "notFound.title": "No page here",
+    "notFound.lead":
+      "The address is wrong, or this piece has moved. Here are a few routes that still work.",
+    "notFound.home": "Home",
+    "notFound.posts": "All posts",
+    "notFound.search": "Search",
+    "notFound.recentTitle": "Written recently",
   },
 } as const satisfies Record<SiteLocale, Record<string, string>>;
 

@@ -1,0 +1,108 @@
+---
+/**
+ * One pill-shaped exit. A link when it navigates, a button when it drives
+ * something already on the page.
+ *
+ * Deliberately smaller than a "button system": the site has exactly one
+ * button idiom, and .tag in global.css is the chip version of it. This is
+ * the version with a real hit area, and it exists so a page can list its
+ * exits as data instead of writing three anchors and their CSS.
+ *
+ * `opensId` covers the case where the target is another block's trigger:
+ * SearchModal binds its open handler to #search-toggle in the header, and
+ * a second element carrying that same id would never receive the listener,
+ * because getElementById returns only the first. Forwarding the click is
+ * what keeps this a component rather than a copy of the modal's wiring.
+ *
+ * The script below is top level and unconditional on purpose. Astro hoists a
+ * component's script once per page however many instances render, but a
+ * <script> placed inside a JSX expression is not hoisted at all - it silently
+ * never reaches the bundle, which is how the first version of this shipped a
+ * dead button. With no [data-opens] on the page it binds nothing.
+ */
+import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
+
+export interface Props {
+  /** Label. i18n key, so it follows the language toggle. */
+  labelKey: UiTranslationKey;
+  /** Navigates here. Pass an already-based path - see utils/url withBase. */
+  href?: string;
+  /** Instead of navigating, forward a click to this element id. */
+  opensId?: string;
+  /** One per row at most: the exit the page expects to be taken. */
+  primary?: boolean;
+}
+
+const { labelKey, href, opensId, primary = false } = Astro.props;
+const label = getDefaultUiText(labelKey);
+const classes = ["action-link", { "is-primary": primary }];
+---
+
+{
+  href ? (
+    <a class:list={classes} href={href} data-i18n={labelKey}>
+      {label}
+    </a>
+  ) : (
+    <button
+      type="button"
+      class:list={classes}
+      data-opens={opensId}
+      data-i18n={labelKey}
+    >
+      {label}
+    </button>
+  )
+}
+
+<script>
+  function bindActionLinks() {
+    document.querySelectorAll<HTMLElement>("[data-opens]").forEach((el) => {
+      if (el.dataset.opensBound) return;
+      el.dataset.opensBound = "true";
+      el.addEventListener("click", () => {
+        const target = el.dataset.opens;
+        if (target) document.getElementById(target)?.click();
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", bindActionLinks);
+  document.addEventListener("astro:page-load", bindActionLinks);
+</script>
+
+<style>
+  .action-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-card);
+    color: var(--text);
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      color var(--transition);
+  }
+
+  .action-link:hover {
+    border-color: color-mix(in srgb, var(--accent) 56%, var(--border));
+    color: var(--accent);
+  }
+
+  .action-link.is-primary {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .action-link {
+      transition: none;
+    }
+  }
+</style>

@@ -4,6 +4,7 @@ import { FRIEND_LINKS } from "../data/friends";
 import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Comments from "../blocks/view/Comments.astro";
+import EmptyState from "../blocks/view/EmptyState.astro";
 import FriendCircle from "../blocks/widget/FriendCircle.astro";
 import { avatarSrc } from "../utils/avatar";
 import { normalizeWalinePath } from "../utils/waline";
@@ -125,9 +126,7 @@ const myFriendLinkText = myFriendLinkItems
               ))}
             </ul>
           ) : (
-            <div class="empty-state" data-i18n="friends.empty">
-              {getDefaultUiText("friends.empty")}
-            </div>
+            <EmptyState messageKey="friends.empty" variant="boxed" />
           )
         }
       </section>
@@ -396,14 +395,6 @@ const myFriendLinkText = myFriendLinkItems
       border: 1px solid var(--border);
       color: var(--text-muted);
       background: var(--bg-card);
-    }
-
-  .empty-state {
-      padding: 1rem;
-      border-radius: var(--radius-card);
-      border: 1px dashed var(--border);
-      color: var(--text-muted);
-      background: var(--bg-code);
     }
 
   .self-link-card {
