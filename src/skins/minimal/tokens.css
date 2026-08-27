@@ -23,6 +23,11 @@
   --accent-rgb: 65, 105, 123;
   --ink-rgb: 47, 77, 89;
   --tag-bg: #eaeff1;
+  --badge-bg: #fef3c7;
+  --badge-text: #92400e;
+  /* Foreground for text sitting on --accent. Not always #fff: in dark mode
+     accent is a light tint, where white text falls under 2:1 contrast. */
+  --accent-contrast: #ffffff;
   --tag-text: #355460;
 
   /* Legacy token compatibility */
@@ -85,6 +90,9 @@
   --accent-rgb: 140, 173, 187;
   --ink-rgb: 226, 232, 237;
   --tag-bg: #25333b;
+  --badge-bg: #3b2a0a;
+  --badge-text: #fcd34d;
+  --accent-contrast: #16181d;
   --tag-text: #aac6d2;
   --bg-primary: var(--bg);
   --bg-secondary: var(--bg-card);
