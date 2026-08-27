@@ -14,5 +14,5 @@ export const SKIN_THEME_COLORS: Record<
   { light: string; dark: string }
 > = {
   minimal: { light: "#fafafa", dark: "#16181d" },
-  anime: { light: "#f7f6fd", dark: "#15121f" },
+  anime: { light: "#f4f8fc", dark: "#0e1621" },
 };
