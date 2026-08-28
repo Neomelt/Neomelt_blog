@@ -428,7 +428,7 @@ p {
 }
 
 /* ---------- Post list arrangements ---------- */
-/* One markup, four arrangements. The container rules are here because
+/* One markup, five arrangements. The container rules are here because
    .post-list is a global class; the card's own rules live in PostCard. */
 
 [data-layout="grid"] .post-list,
