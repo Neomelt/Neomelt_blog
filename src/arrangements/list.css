@@ -1,0 +1,29 @@
+/* list - an inset thumbnail beside the text. The thumbnail is a real image in
+   the row rather than a backdrop, so its box comes from the skin's
+   --thumb-width / --thumb-height rather than from the cover tokens the
+   feature arrangement uses. */
+
+html[data-layout="list"] .post-list .post-card {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+html[data-layout="list"] .post-list .post-cover {
+  position: static;
+  flex: none;
+  width: var(--thumb-width);
+  height: var(--thumb-height);
+  z-index: 0;
+  opacity: 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html[data-layout="list"] .post-list .post-card-body {
+  min-width: 0;
+  flex: 1;
+}

@@ -1,0 +1,58 @@
+/* feature - the cover fills the right of the card and fades out under the
+   text, the way axi404.top does it: an absolutely positioned image at partial
+   opacity rather than a thumbnail. The mask is ours; their copy is narrower,
+   so plain opacity is enough there.
+
+   Sizes come from the skin (--card-cover-width, --card-cover-opacity), so
+   minimal - which sets the width to 0% - renders this as a plain text card
+   without either layer knowing about the other. */
+
+html[data-layout="feature"] .post-list .post-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: block;
+}
+
+html[data-layout="feature"] .post-list .post-cover {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  width: var(--card-cover-width);
+  height: auto;
+  z-index: -1;
+  opacity: var(--card-cover-opacity);
+  border-radius: 0;
+  transition: opacity var(--transition);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black var(--card-cover-fade)
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black var(--card-cover-fade)
+  );
+}
+
+html[data-layout="feature"] .post-list .post-card:hover .post-cover {
+  opacity: calc(var(--card-cover-opacity) * 1.5);
+}
+
+html[data-layout="feature"] .post-list .post-card-body {
+  /* Keeps the copy off the busiest part of the image. */
+  max-width: calc(100% - var(--card-cover-width) * 0.55);
+}
+
+@media (max-width: 560px) {
+  html[data-layout="feature"] .post-list .post-cover {
+    width: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+  }
+
+  html[data-layout="feature"] .post-list .post-card-body {
+    max-width: none;
+  }
+}

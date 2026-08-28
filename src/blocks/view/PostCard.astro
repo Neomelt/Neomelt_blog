@@ -9,6 +9,13 @@ import { getWalinePathForPost } from "../../utils/waline";
 import { coverForPost } from "../../utils/cover";
 import { withBase } from "../../utils/url";
 
+// Every arrangement's stylesheet, discovered rather than listed. They live in
+// src/arrangements/ because this card is the only thing they describe, and
+// globbing them here rather than in BaseLayout keeps them in this component's
+// CSS chunk - three pages render post cards, the other twenty-six should not
+// pay for the rules.
+import.meta.glob("/src/arrangements/*.css", { eager: true });
+
 export interface Props {
   post: CollectionEntry<"blog">;
   /** Resolved publish date - callers already hold the post-dates map. */
@@ -277,161 +284,6 @@ const cover: ImageMetadata | null =
     }
   }
 
-  /* ---- feature: the cover fills the right of the card and fades out under
-     the text, the way axi404.top does it - an absolutely positioned image at
-     partial opacity rather than a thumbnail. The mask is ours: their copy is
-     narrower, so plain opacity is enough there. ---- */
-  :global([data-layout="feature"]) .post-card {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    display: block;
-  }
-
-  :global([data-layout="feature"]) .post-cover {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: 0;
-    width: var(--card-cover-width);
-    height: auto;
-    z-index: -1;
-    opacity: var(--card-cover-opacity);
-    border-radius: 0;
-    transition: opacity var(--transition);
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black var(--card-cover-fade)
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black var(--card-cover-fade)
-    );
-  }
-
-  :global([data-layout="feature"]) .post-card:hover .post-cover {
-    opacity: calc(var(--card-cover-opacity) * 1.5);
-  }
-
-  :global([data-layout="feature"]) .post-card-body {
-    /* Keeps the copy off the busiest part of the image. */
-    max-width: calc(100% - var(--card-cover-width) * 0.55);
-  }
-
-  @media (max-width: 560px) {
-    :global([data-layout="feature"]) .post-cover {
-      width: 100%;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
-      mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
-    }
-
-    :global([data-layout="feature"]) .post-card-body {
-      max-width: none;
-    }
-  }
-
-  /* ---- list: an inset thumbnail beside the text ---- */
-  :global([data-layout="list"]) .post-card {
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  :global([data-layout="list"]) .post-cover {
-    position: static;
-    flex: none;
-    width: var(--thumb-width);
-    height: var(--thumb-height);
-    z-index: 0;
-    opacity: 1;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  :global([data-layout="list"]) .post-card-body {
-    min-width: 0;
-    flex: 1;
-  }
-
-  /* ---- grid / magazine: cover on top, in flow ---- */
-  :global([data-layout="grid"]) .post-card,
-  :global([data-layout="magazine"]) .post-card {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    margin-bottom: 0;
-    overflow: hidden;
-    border: var(--border-width) solid var(--border);
-    border-radius: var(--radius-card);
-    background-color: var(--bg-card);
-  }
-
-  :global([data-layout="grid"]) .post-cover,
-  :global([data-layout="magazine"]) .post-cover {
-    position: static;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    z-index: 0;
-    opacity: 1;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  :global([data-layout="grid"]) .post-card-body,
-  :global([data-layout="magazine"]) .post-card-body {
-    padding: 1rem 1.1rem 1.2rem;
-  }
-
-  :global([data-layout="grid"]) .post-card:hover,
-  :global([data-layout="magazine"]) .post-card:hover {
-    transform: none;
-    border-color: rgba(var(--accent-rgb), 0.45);
-  }
-
-  /* The hero card in magazine layout gets a taller cover and bigger title. */
-  :global([data-layout="magazine"]) .post-list > :first-child .post-cover {
-    aspect-ratio: 21 / 9;
-  }
-
-  :global([data-layout="magazine"]) .post-list > :first-child .post-card-title {
-    font-size: 1.6rem;
-  }
-
-  /* ---- timeline: a dot on the rail, no frame ---- */
-  :global([data-layout="timeline"]) .post-card {
-    position: relative;
-    padding: 0.9rem 0;
-    margin-bottom: 0;
-    border: none;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
-  }
-
-  :global([data-layout="timeline"]) .post-card::before {
-    content: "";
-    position: absolute;
-    inset-inline-start: calc(-1.6rem - 5px);
-    top: 1.5rem;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 3px var(--bg);
-  }
-
-  :global([data-layout="timeline"]) .post-cover {
-    display: none;
-  }
-
-  :global([data-layout="timeline"]) .post-card-desc {
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .post-card,

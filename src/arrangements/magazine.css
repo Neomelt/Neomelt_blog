@@ -1,0 +1,56 @@
+/* magazine - the grid arrangement with its first entry promoted to a hero.
+
+   The card rules are grid's, repeated rather than imported: an arrangement
+   that reads its shape out of another file stops being one file to delete. */
+
+html[data-layout="magazine"] .post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.4rem;
+}
+
+html[data-layout="magazine"] .post-list .post-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background-color: var(--bg-card);
+}
+
+html[data-layout="magazine"] .post-list .post-cover {
+  position: static;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  z-index: 0;
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html[data-layout="magazine"] .post-list .post-card-body {
+  padding: 1rem 1.1rem 1.2rem;
+}
+
+html[data-layout="magazine"] .post-list .post-card:hover {
+  transform: none;
+  border-color: rgba(var(--accent-rgb), 0.45);
+}
+
+/* The first entry gets the hero slot. Only from two columns up - promoting
+   one card in a single-column view just makes it look inconsistent. */
+@media (min-width: 720px) {
+  html[data-layout="magazine"] .post-list > :first-child {
+    grid-column: span 2;
+  }
+}
+
+html[data-layout="magazine"] .post-list > :first-child .post-cover {
+  aspect-ratio: 21 / 9;
+}
+
+html[data-layout="magazine"] .post-list > :first-child .post-card-title {
+  font-size: 1.6rem;
+}

@@ -428,29 +428,12 @@ p {
 }
 
 /* ---------- Post list arrangements ---------- */
-/* One markup, five arrangements. The container rules are here because
-   .post-list is a global class; the card's own rules live in PostCard. */
-
-[data-layout="grid"] .post-list,
-[data-layout="magazine"] .post-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 1.4rem;
-}
-
-/* The first entry gets the hero slot. Only from two columns up - promoting
-   one card in a single-column view just makes it look inconsistent. */
-@media (min-width: 720px) {
-  [data-layout="magazine"] .post-list > :first-child {
-    grid-column: span 2;
-  }
-}
-
-[data-layout="timeline"] .post-list {
-  border-inline-start: 2px solid var(--border);
-  padding-inline-start: 1.6rem;
-  margin-inline-start: 0.3rem;
-}
+/* One markup, five arrangements, none of them here any more: each lives in
+   src/arrangements/<name>.css, container rules and card rules together.
+   They used to be split across this file and PostCard.astro, which meant
+   adding an arrangement was an edit in two places plus a component. Nothing
+   defines .post-list itself - the arrangements that need it a grid say so,
+   and the rest leave it a block. */
 
 /* ---------- Tags ---------- */
 .tag {
