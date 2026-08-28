@@ -78,6 +78,19 @@ describe("skin token contract", () => {
     expect(orphans).toEqual([]);
   });
 
+  it("declares exactly the skins that exist on disk", () => {
+    // The two halves of adding a skin - the tokens.css and the line in
+    // SKIN_REGISTRY - checking each other. Either alone fails silently:
+    // a registered skin with no file is a control that switches to nothing,
+    // and a file with no registration is a stylesheet that ships (the CSS
+    // is globbed now) with no way to reach it.
+    const onDisk = readdirSync(SKIN_DIR, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+    expect([...SKINS].sort()).toEqual(onDisk);
+  });
+
   it("declares a theme-color for every skin", () => {
     for (const skin of SKINS) {
       expect(SKIN_THEME_COLORS[skin]).toMatchObject({
@@ -90,10 +103,17 @@ describe("skin token contract", () => {
   it("keeps skin names out of block code", () => {
     // Blocks are function only. The moment one branches on which skin is
     // active, switching stops being a matter of configuration.
+    //
+    // Matched by pattern rather than by the exact string `data-skin="x"`:
+    // an unquoted attribute selector ([data-skin=anime]) is both legal CSS
+    // and the most natural thing to reach for, and the literal check waved
+    // it through - the guard was narrower than the rule it enforced.
     const blocks = walk(join(SRC_DIR, "blocks"), [".astro"]);
     const leaks = blocks.filter((file) => {
       const body = readFileSync(file, "utf8");
-      return SKINS.some((skin) => body.includes(`data-skin="${skin}"`));
+      return SKINS.some((skin) =>
+        new RegExp(`data-skin\\s*[~^$*|]?=\\s*["']?${skin}\\b`).test(body),
+      );
     });
     expect(leaks).toEqual([]);
   });
