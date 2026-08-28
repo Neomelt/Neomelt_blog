@@ -1,4 +1,21 @@
 import type { UiTranslationKey } from "../i18n/ui";
+import { SKINS } from "../skins";
+import { LAYOUTS } from "../types/layout";
+
+/**
+ * The pills for the skin and layout axes are derived from those axes' own
+ * constants rather than listed again here. Two copies of the same list is
+ * how a new skin ends up declared, styled, and invisible: the panel only
+ * ever offered what this file had been told about.
+ *
+ * Written out per axis rather than through one helper, and with the return
+ * type annotated and no assertion, so `skin.${name}` is genuinely checked
+ * against UiTranslationKey - a skin or layout added without its zh/en label
+ * fails `astro check` instead of rendering a raw key. A shared helper would
+ * have to widen the prefix to "skin" | "layout", which admits the nonsense
+ * pairs (layout.minimal) and takes the check away again.
+ */
+type ChoiceOption = { value: string; labelKey: UiTranslationKey };
 
 /**
  * What a reader is allowed to change about how this site reads.
@@ -33,7 +50,7 @@ export type SettingTarget =
 
 export type SettingControl =
   /** Named values, shown as a row of pills with the current one marked. */
-  | { kind: "choice"; options: { value: string; labelKey: UiTranslationKey }[] }
+  | { kind: "choice"; options: ChoiceOption[] }
   /** A continuous range, shown as a slider with its value beside it. */
   | {
       kind: "range";
@@ -143,10 +160,9 @@ export const READER_SETTINGS: ReaderSetting[] = [
     target: { kind: "siteTheme", axis: "skin" },
     control: {
       kind: "choice",
-      options: [
-        { value: "minimal", labelKey: "skin.minimal" },
-        { value: "anime", labelKey: "skin.anime" },
-      ],
+      options: SKINS.map(
+        (name): ChoiceOption => ({ value: name, labelKey: `skin.${name}` }),
+      ),
     },
   },
   {
@@ -172,13 +188,9 @@ export const READER_SETTINGS: ReaderSetting[] = [
     target: { kind: "siteTheme", axis: "layout" },
     control: {
       kind: "choice",
-      options: [
-        { value: "grid", labelKey: "layout.grid" },
-        { value: "feature", labelKey: "layout.feature" },
-        { value: "list", labelKey: "layout.list" },
-        { value: "magazine", labelKey: "layout.magazine" },
-        { value: "timeline", labelKey: "layout.timeline" },
-      ],
+      options: LAYOUTS.map(
+        (name): ChoiceOption => ({ value: name, labelKey: `layout.${name}` }),
+      ),
     },
   },
 ];
