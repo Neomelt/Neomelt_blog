@@ -1,22 +1,16 @@
 import type { BlockName } from "../blocks/registry";
 import type { SkinName } from "../skins";
+import type { LayoutName } from "../arrangements";
 
 export type { BlockName };
 
 /**
- * How the post listing is arranged. Same markup in every case - only the
- * container and card CSS differ - so switching is a data attribute, not a
- * rebuild.
+ * Re-exported so this file stays the one import for layout types. The list
+ * itself lives beside the stylesheets it names, in src/arrangements/index.ts
+ * - same arrangement as skins, where the registry sits with the tokens.
  */
-export const LAYOUTS = [
-  "grid",
-  "feature",
-  "list",
-  "magazine",
-  "timeline",
-] as const;
-
-export type LayoutName = (typeof LAYOUTS)[number];
+export { LAYOUTS } from "../arrangements";
+export type { LayoutName };
 
 /**
  * Re-exported so this file stays the one import for layout types. The union

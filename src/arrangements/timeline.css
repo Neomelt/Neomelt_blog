@@ -1,0 +1,40 @@
+/* timeline - a dot on a rail, no frame, no cover. The rail is a border on the
+   list; the dot is a pseudo-element pinned to it, which is why this
+   arrangement is the one that cannot be expressed as token values. */
+
+html[data-layout="timeline"] .post-list {
+  border-inline-start: 2px solid var(--border);
+  padding-inline-start: 1.6rem;
+  margin-inline-start: 0.3rem;
+}
+
+html[data-layout="timeline"] .post-list .post-card {
+  position: relative;
+  padding: 0.9rem 0;
+  margin-bottom: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+html[data-layout="timeline"] .post-list .post-card::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(-1.6rem - 5px);
+  top: 1.5rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+html[data-layout="timeline"] .post-list .post-cover {
+  display: none;
+}
+
+html[data-layout="timeline"] .post-list .post-card-desc {
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}

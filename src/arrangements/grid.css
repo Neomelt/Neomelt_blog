@@ -1,0 +1,41 @@
+/* grid - cover on top, in flow, cards in a fixed-minimum grid.
+
+   Self-contained rather than sharing a file with magazine, which is the same
+   card in a grid that promotes its first entry. Two near-identical files is
+   the price of being able to delete an arrangement by deleting one file. */
+
+html[data-layout="grid"] .post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.4rem;
+}
+
+html[data-layout="grid"] .post-list .post-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background-color: var(--bg-card);
+}
+
+html[data-layout="grid"] .post-list .post-cover {
+  position: static;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  z-index: 0;
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html[data-layout="grid"] .post-list .post-card-body {
+  padding: 1rem 1.1rem 1.2rem;
+}
+
+html[data-layout="grid"] .post-list .post-card:hover {
+  transform: none;
+  border-color: rgba(var(--accent-rgb), 0.45);
+}
