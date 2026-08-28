@@ -17,6 +17,8 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  # deploy-pages has required this since v4 to read the build job's artifact.
+  actions: read
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -36,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # Full history so post-dates.ts can read each post's first/last
           # commit time via `git log` (shallow clone would collapse them).
@@ -61,14 +63,14 @@ jobs:
             exit 1
           fi
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
           cache-dependency-path: ${{ env.BUILD_PATH }}/${{ steps.detect-package-manager.outputs.lockfile }}
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
         working-directory: ${{ env.BUILD_PATH }}
@@ -93,9 +95,14 @@ jobs:
           PUBLIC_WALINE_SERVER_URL: ${{ vars.PUBLIC_WALINE_SERVER_URL || secrets.PUBLIC_WALINE_SERVER_URL }}
         working-directory: ${{ env.BUILD_PATH }}
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ${{ env.BUILD_PATH }}/dist
+          # v4 started excluding dotfiles from the tarball. public/.nojekyll
+          # is one, and without it Pages runs the output through Jekyll,
+          # which drops every underscore-prefixed directory - _astro/ holds
+          # all the hashed CSS and JS, so the whole site loses its styles.
+          include-hidden-files: true
 
   deploy:
     environment:
@@ -107,4 +114,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
