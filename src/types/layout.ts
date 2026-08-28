@@ -1,4 +1,5 @@
 import type { BlockName } from "../blocks/registry";
+import type { SkinName } from "../skins";
 
 export type { BlockName };
 
@@ -18,11 +19,12 @@ export const LAYOUTS = [
 export type LayoutName = (typeof LAYOUTS)[number];
 
 /**
- * A skin changes tokens and decoration only - colours, fonts, radii, shadows,
- * ornaments. It never changes which blocks exist or what they do, so any skin
- * combines with any block.
+ * Re-exported so this file stays the one import for layout types. The union
+ * itself is derived from SKIN_REGISTRY in src/skins/index.ts - writing it out
+ * here as well was one of the seven edits a new skin used to need, and the
+ * two copies could disagree.
  */
-export type SkinName = "minimal" | "anime";
+export type { SkinName };
 
 /**
  * Regions that hold an ordered list of blocks, painted back to front:

@@ -1,8 +1,14 @@
 ---
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
-import "../skins/minimal/tokens.css";
-import "../skins/anime/tokens.css";
+// Skin tokens are discovered, not listed. These were two hand-written
+// imports, and this file was the only place they existed: a skin whose
+// tokens.css was written but whose import was forgotten built green, tested
+// green, and fell apart - every page unstyled - the moment a visitor
+// switched to it. The result is unused; the glob is here for its side
+// effect. Order does not matter, each file being scoped to its own
+// [data-skin="<name>"].
+import.meta.glob("/src/skins/*/tokens.css", { eager: true });
 import "../styles/global.css";
 import { SKINS, SKIN_THEME_COLORS } from "../skins";
 import { LAYOUTS } from "../types/layout";
@@ -197,8 +203,9 @@ const primaryHostname = canonicalURL.hostname;
       const nextSkin = skinNames.includes(skin) ? skin : defaultSkin;
       const root = document.documentElement;
 
-      // .dark is kept alongside data-mode: global.css and two blocks still
-      // select on it, and tailwind.config.js is darkMode: "class".
+      // .dark is kept alongside data-mode because each skin's dark block is
+      // [data-skin="<name>"].dark, and CodeCopyButton selects on it too.
+      // (It also used to back tailwind's darkMode: "class"; tailwind is gone.)
       root.classList.toggle("dark", nextMode === "dark");
       root.dataset.theme = nextMode;
       root.dataset.mode = nextMode;
