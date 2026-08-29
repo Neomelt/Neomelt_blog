@@ -90,17 +90,41 @@ const primaryHostname = canonicalURL.hostname;
 <!-- Fonts: preconnect + async (non-render-blocking) load of LXGW WenKai.
      Until it arrives, the CSS font stack falls back to system fonts so the
      page paints immediately, then swaps in the web font. -->
+{
+  /* Why the two tables are named rather than the package's style.css: all
+     that file does is @import six face tables, and this site can reach two
+     of them. --font-mono is JetBrains Mono, so the three Mono tables were
+     never going to apply, and nothing declares font-weight 300, so neither
+     was Light - measured, the browser listed all of those faces as unloaded.
+     That was 121 KB of compressed CSS fetched and ignored. Naming the two
+     directly also turns the @import chain into parallel requests, since
+     style.css had to arrive and be parsed before the browser learned the six
+     addresses.
+
+     This comment is a JSX one, not an HTML one: the block above ships to
+     every page, and a paragraph of rationale is not worth 29 copies. */
+}
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 <link
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
+  href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"
+  media="print"
+  onload="this.media='all'"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css"
   media="print"
   onload="this.media='all'"
 />
 <noscript>
   <link
     rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
+    href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css"
   />
 </noscript>
 <link rel="sitemap" href={withBase("/sitemap-index.xml")} />
