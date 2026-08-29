@@ -233,7 +233,7 @@ aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
 
 推论：**skin 层不许伸手改组件内部类名。** 想让某个 skin 下卡片 hover 位移，不是写 `[data-skin=anime] .post-card:hover`，而是组件自己写 `transform: translateX(var(--card-hover-lift))`，另一个 skin 把这个 token 设成 `0`。
 
-`--*-rgb` 系列必须保持「裸通道三元组」格式（`58, 103, 166`），全站有 20 处 `rgba(var(--ink-rgb), a)` / `rgba(var(--accent-rgb), a)` 分布在 9 个文件里依赖这个格式。想换成 OKLCH 得先把这 20 处改成 `color-mix()`。
+`--*-rgb` 系列必须保持「裸通道三元组」格式（`58, 103, 166`），全站有 23 处 `rgba(var(--ink-rgb), a)` / `rgba(var(--accent-rgb), a)` 分布在 13 个文件里依赖这个格式。想换成 OKLCH 得先把这 23 处改成 `color-mix()`。
 
 ---
 
