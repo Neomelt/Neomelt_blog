@@ -4,7 +4,9 @@
  * Adding one is two steps: write src/arrangements/<name>.css, then add its
  * name below. The stylesheet is picked up by a glob in view/PostCard.astro
  * and the reading panel's pills are derived from this array, so nothing else
- * needs an edit - the same shape as src/skins/index.ts.
+ * needs an edit - the same spirit as src/skins/index.ts, which is an object
+ * only because a skin also carries a theme-color, and src/blocks/registry.ts,
+ * which is a map only because a block is a component to import.
  *
  * The directory is not src/layouts/, which Astro reserves for page layout
  * components. "Arrangement" is what the CSS and the type comments have

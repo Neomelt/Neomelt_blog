@@ -2,7 +2,9 @@
  * The one place a skin is declared.
  *
  * Adding a skin is two steps: write src/skins/<name>/tokens.css, then add a
- * line to SKIN_REGISTRY below. Everything else derives from here - the name
+ * line to SKIN_REGISTRY below. The other two axes have their own registry in
+ * the same spirit - src/arrangements/index.ts and src/blocks/registry.ts -
+ * each shaped by what it holds. Everything else derives from here - the name
  * union, the cycle order, the reading panel's options, and the stylesheet
  * import itself. It used to take seven edits across five files, three of
  * which nothing checked; skins.test.ts now fails if the two steps disagree
