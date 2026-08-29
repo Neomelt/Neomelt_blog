@@ -267,6 +267,7 @@ const { limit = 6, heading = true } = Astro.props;
 
 <script>
   import { withBase } from "../../utils/url";
+  import type { FriendCirclePost } from "../../utils/friend-circle";
   async function fetchFriendCirclePosts() {
     try {
       const response = await fetch(withBase("/friend-circle.json"), {
@@ -280,7 +281,7 @@ const { limit = 6, heading = true } = Astro.props;
     }
   }
 
-  function getFriendCircleSelectionKey(posts) {
+  function getFriendCircleSelectionKey(posts: FriendCirclePost[]) {
     return posts
       .map((post) => post.link ?? "")
       .sort()
@@ -288,8 +289,8 @@ const { limit = 6, heading = true } = Astro.props;
   }
 
   function pickRandomFriendCirclePosts(
-    posts,
-    limit,
+    posts: FriendCirclePost[],
+    limit: number,
     previousSelectionKey = "",
   ) {
     const shuffledPosts = [...posts];
@@ -329,7 +330,7 @@ const { limit = 6, heading = true } = Astro.props;
     return nextPosts;
   }
 
-  function createFriendCircleItem(post) {
+  function createFriendCircleItem(post: FriendCirclePost) {
     const item = document.createElement("li");
     item.className = "circle-item";
 
@@ -392,7 +393,7 @@ const { limit = 6, heading = true } = Astro.props;
     return item;
   }
 
-  function renderFriendCirclePosts(list, posts) {
+  function renderFriendCirclePosts(list: HTMLElement, posts: FriendCirclePost[]) {
     const fragment = document.createDocumentFragment();
     posts.forEach((post) => {
       fragment.appendChild(createFriendCircleItem(post));
@@ -463,7 +464,7 @@ const { limit = 6, heading = true } = Astro.props;
 
   const scheduleFriendCircle = () => {
     if (!document.getElementById("friends-circle-list")) return;
-    if ("requestIdleCallback" in window) {
+    if (typeof window.requestIdleCallback === "function") {
       requestIdleCallback(() => enhanceFriendCircle(), { timeout: 2000 });
     } else {
       window.setTimeout(() => enhanceFriendCircle(), 200);
