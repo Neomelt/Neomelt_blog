@@ -111,20 +111,22 @@ series: "网络与远程访问"
 
 ## 外观
 
-Header 右上角三个按钮，都存 localStorage：
+三条轴——皮肤、排版、明暗——都由访客自己选，各存一个 localStorage 键。
 
-| 按钮 | 作用 |
-| --- | --- |
-| 调色板 | skin：`minimal` ↔ `anime` |
-| 网格图标 + 文字 | 布局：网格 → 列表 → 杂志 → 时间线 |
-| 月亮/太阳 | 明暗 |
+Header 右上角只剩两个直接按钮：🌐 切语言、月亮/太阳切明暗。皮肤和排版收进了 ⚙️ **阅读设置面板**（`chrome/ReaderSettings`），和字号、行高、行宽放在一起。面板里的选项不是手写的，是从 `src/skins/index.ts` 的 `SKIN_REGISTRY` 和 `src/arrangements/index.ts` 的 `LAYOUTS` 生成的——加一个皮肤或排版，面板自动多一个按钮。
+
+| 轴     | 可选值                                                | 声明处                      |
+| ------ | ----------------------------------------------------- | --------------------------- |
+| skin   | `minimal` / `anime`                                   | `src/skins/index.ts`        |
+| layout | `grid` / `feature` / `list` / `magazine` / `timeline` | `src/arrangements/index.ts` |
+| 明暗   | light / dark                                          | 无需声明                    |
 
 改默认值在 `src/site.config.ts`：
 
 ```ts
 export const siteLayout = {
-  skin: "minimal",
-  layout: "grid",
+  skin: "anime",
+  layout: "feature",
   // ...
 };
 ```
@@ -135,21 +137,45 @@ export const siteLayout = {
 
 几个常用的：
 
-| token | 作用 |
-| --- | --- |
-| `--accent` | 主色。改完记得看对比度，链接色对页面底至少要 4.5:1 |
-| `--radius-card` | 卡片圆角 |
-| `--card-cover-width` | 封面占卡片宽度的比例，`0%` 就是不显示封面 |
+| token                 | 作用                                                    |
+| --------------------- | ------------------------------------------------------- |
+| `--accent`            | 主色。改完记得看对比度，链接色对页面底至少要 4.5:1      |
+| `--radius-card`       | 卡片圆角                                                |
+| `--card-cover-width`  | 封面占卡片宽度的比例，`0%` 就是不显示封面               |
 | `--list-item-surface` | `transparent` 是分隔线列表，`var(--bg-card)` 是独立卡片 |
-| `--aside-width` | 侧栏宽度 |
+| `--aside-width`       | 侧栏宽度                                                |
 
-侧栏在左还是右，改 `src/site.config.ts` 的 `asidePosition`（`"left"` / `"right"`）。用的是 `row-reverse` 而不是 `order`，所以视觉换边但正文在源码里仍然靠前——屏幕阅读器按源码顺序读。
+### 加一个皮肤
+
+两步：
+
+```bash
+# 1. 复制一份 token 表，改值（不要增删 token 名）
+cp -r src/skins/minimal src/skins/sepia
+
+# 2. src/skins/index.ts 的 SKIN_REGISTRY 加一行，值是它的 theme-color
+#    sepia: { light: "#f4ecd8", dark: "#2b2620" },
+```
+
+其余全部派生：类型、循环顺序、样式表的引入、阅读设置面板里的按钮。忘了写 `src/i18n/ui.ts` 里的 `skin.sepia` 中英文案，`astro check` 会直接报错，不会等到面板上出现一个 raw key。
+
+### 加一个排版
+
+同样两步：写 `src/arrangements/<name>.css`，在同目录 `index.ts` 的 `LAYOUTS` 数组加个名字。
+
+排版文件里放的是**规则**不是 token（skin 那层才是 token）：因为排版改的是布局模型——绝对定位的封面、`row-reverse` 的缩略图、`::before` 的时间轴圆点——不是同一个布局的不同取值。
+
+写这类文件有一条硬要求，`arrangements.test.ts` 会守：每条选中卡片的选择器都必须带上 `.post-list` 这一层，写成 `html[data-layout="x"] .post-list .post-card`。少了它选择器特异性是 0,2,1，会被 PostCard 自己的 `.post-card:last-child[data-astro-cid-…]`（0,3,0）压过去，症状是某个排版下最后一张卡片莫名少一像素边框。
+
+---
+
+侧栏是两个独立区域 `asideStart` / `asideEnd`，各自是一个数组。哪边有 block 哪边就有列，两边都有就是三栏——挪一个挂件到另一边，是把它那行从一个数组剪到另一个数组。
 
 ---
 
 ## 加一个组件
 
-三步，布局文件一个字都不用改：
+三步，布局文件一个字都不用改。**注意这三步只适用于能被区域放置的 block**（`widget/` 和 `decor/`）——`src/blocks/` 下 28 个组件里有 12 个走这条路，其余的由页面直接 import，原因见下面的目录表。
 
 ```bash
 # 1. 写组件，只用 var(--x)，不准出现字面颜色值
@@ -170,20 +196,20 @@ aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
 
 按**接口形状**分，不是按功能：
 
-| 目录 | 有 slot | 数据来源 | 谁放它 |
-| --- | --- | --- | --- |
-| `surface/` | 有 | 视觉参数 | 任何人拿来包内容 |
-| `widget/` | 无 | 自己查 | `site.config.ts` 的区域数组 |
-| `view/` | 无 | 页面显式传 | 页面代码 |
-| `chrome/` | 无 | 配置 | BaseLayout 的具名 slot |
-| `decor/` | 无 | 视觉参数 | backdrop / floating 层 |
-| `behavior/` | 无渲染输出 | 无 | 挂一次，全局生效 |
+| 目录        | 有 slot    | 数据来源   | 谁放它                      |
+| ----------- | ---------- | ---------- | --------------------------- |
+| `surface/`  | 有         | 视觉参数   | 任何人拿来包内容            |
+| `widget/`   | 无         | 自己查     | `site.config.ts` 的区域数组 |
+| `view/`     | 无         | 页面显式传 | 页面代码                    |
+| `chrome/`   | 无         | 配置       | BaseLayout 的具名 slot      |
+| `decor/`    | 无         | 视觉参数   | backdrop / floating 层      |
+| `behavior/` | 无渲染输出 | 无         | 挂一次，全局生效            |
 
 **只有 `widget/` 和 `decor/` 能进 registry**，因为只有它们不需要页面喂数据。
 
 ### 区域
 
-从后往前：`backdrop`（全屏背景）→ 页面内容 → `masthead`（顶部 banner）→ `aside`（侧栏）→ `floating`（进度条、返回顶部、特效）
+从后往前：`backdrop`（全屏背景）→ 页面内容 → `masthead`（顶部 banner）→ `asideStart` / `asideEnd`（左右两条侧栏）→ `floating`（进度条、返回顶部）
 
 现成的 widget：`Profile`（头像+简介+社交，数据在 config 的 `profile`）、`BlogStats`、`TagCloud`、`Calendar`、`FriendCircle`、`TableOfContents`。
 
@@ -203,18 +229,20 @@ aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
 
 1. **每个 skin 定义完全相同的 token 名。** skin 可以改一个 token 是什么，不能改有哪些——block 只读 `var(--x)`，某个 skin 少一个名字就是切换瞬间的裸元素。
 2. **每个 token 必须有消费方。** 定义了没人读的 token 是死代码。
-3. **`src/blocks/**` 里不准出现 skin 名字。** 一旦组件开始判断「当前是不是 anime」，切换就不再是配置的事了。
+3. **`src/blocks/**` 里不准出现 skin 名字。\*\* 一旦组件开始判断「当前是不是 anime」，切换就不再是配置的事了。
 
 推论：**skin 层不许伸手改组件内部类名。** 想让某个 skin 下卡片 hover 位移，不是写 `[data-skin=anime] .post-card:hover`，而是组件自己写 `transform: translateX(var(--card-hover-lift))`，另一个 skin 把这个 token 设成 `0`。
 
-`--*-rgb` 系列必须保持「裸通道三元组」格式（`58, 103, 166`），`decor/ClickEffect` 有 8 处 `rgba(var(--ink-rgb), a)` 依赖它。
+`--*-rgb` 系列必须保持「裸通道三元组」格式（`58, 103, 166`），全站有 20 处 `rgba(var(--ink-rgb), a)` / `rgba(var(--accent-rgb), a)` 分布在 9 个文件里依赖这个格式。想换成 OKLCH 得先把这 20 处改成 `color-mix()`。
 
 ---
 
 ## 检查
 
 ```bash
-npx astro check    # 类型。18 个 error 是改造前就有的 implicitly-any，不是新增
-npx vitest run     # 单元测试 + skin 契约
-npm run build      # 27 页
+npx astro check    # 类型，应为 0 error / 0 warning
+npx vitest run     # 单元测试 + skin 与 arrangement 的契约
+npm run build      # 29 页
 ```
+
+`astro check` 曾长期停在 18 个 implicitly-any，2026-08-29 清零了。**别让它再红着**——一个永远输出 "18 errors" 的命令，等于没有这道检查：真正的错误会作为第 19 个混进去，没人会发现。
