@@ -1,8 +1,9 @@
 <script>
   const OPEN_CLASS = "lightbox-open";
-  let activeCleanup = null;
+  /** Set while a lightbox is open; calling it tears that one down. */
+  let activeCleanup: (() => void) | null = null;
 
-  function getMaxScale(img, rect) {
+  function getMaxScale(img: HTMLImageElement, rect: DOMRect) {
     const fitW = (window.innerWidth * 0.92) / rect.width;
     const fitH = (window.innerHeight * 0.92) / rect.height;
     let scale = Math.min(fitW, fitH);
@@ -23,7 +24,7 @@
     return Math.max(scale, 1);
   }
 
-  function openLightbox(img) {
+  function openLightbox(img: HTMLImageElement) {
     if (activeCleanup) return;
 
     const rect = img.getBoundingClientRect();
@@ -93,7 +94,7 @@
       }
     };
 
-    const onKeydown = (event) => {
+    const onKeydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
     };
 
