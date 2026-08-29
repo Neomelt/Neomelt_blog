@@ -10,11 +10,6 @@ import Region from "../components/Region.astro";
 import { siteLayout } from "../site.config";
 import type { ImageMetadata } from "astro";
 import type { BlockPlacement, RegionName } from "../types/layout";
-import {
-  DEFAULT_LOCALE,
-  LOCALE_STORAGE_KEY,
-  UI_TRANSLATIONS,
-} from "../i18n/ui";
 
 export interface Props {
   title: string;
@@ -68,15 +63,26 @@ const withSidebar = hasStart || hasEnd;
     }
   </head>
   <body>
-    <script
-      define:vars={{
-        defaultLocale: DEFAULT_LOCALE,
-        localeStorageKey: LOCALE_STORAGE_KEY,
-        uiTranslations: UI_TRANSLATIONS,
-      }}
-    >
+    <!-- Not define:vars, which would force this inline and stamp the whole
+         529-entry dictionary into all 29 pages - 10 KB compressed each, none
+         of it cacheable. Imported instead, so Astro bundles this into one
+         hashed module every page shares.
+
+         The timing is no worse for it. This script sits at the top of
+         <body>, so as an inline script it ran while readyState was still
+         "loading" and had to wait for DOMContentLoaded anyway; a module is
+         deferred, which puts it after parsing but before that event. -->
+    <script>
+      import {
+        DEFAULT_LOCALE as defaultLocale,
+        LOCALE_STORAGE_KEY as localeStorageKey,
+        UI_TRANSLATIONS as uiTranslations,
+      } from "../i18n/ui";
+      import type { SiteLocale } from "../i18n/ui";
+
       (() => {
-        const normalizeLocale = (value) => (value === "en" ? "en" : "zh");
+        const normalizeLocale = (value: string | null): SiteLocale =>
+          value === "en" ? "en" : "zh";
 
         const getStoredLocale = () => {
           try {
@@ -86,7 +92,7 @@ const withSidebar = hasStart || hasEnd;
           }
         };
 
-        const setStoredLocale = (locale) => {
+        const setStoredLocale = (locale: SiteLocale) => {
           try {
             localStorage.setItem(localeStorageKey, locale);
           } catch {
@@ -94,17 +100,27 @@ const withSidebar = hasStart || hasEnd;
           }
         };
 
-        const t = (key, locale, fallback = "") => {
-          const langDict = uiTranslations[locale] || uiTranslations.zh || {};
-          const zhDict = uiTranslations.zh || {};
+        // key is whatever a data-i18n attribute holds - a string, not a
+        // UiTranslationKey, until the lookup proves otherwise. The two
+        // dictionaries are read through an index signature rather than their
+        // literal types: zh and en are separate object types to the checker
+        // even though they carry the same keys, so indexing the union of them
+        // is what it refuses. The hasOwnProperty guards are what make the
+        // widening safe.
+        const dict = (locale: SiteLocale): Record<string, string> =>
+          uiTranslations[locale] ?? uiTranslations.zh;
+
+        const t = (key: string, locale: SiteLocale, fallback = ""): string => {
+          const langDict = dict(locale);
+          const zhDict = dict("zh");
           if (Object.prototype.hasOwnProperty.call(langDict, key))
-            return langDict[key];
+            return langDict[key] ?? (fallback || key);
           if (Object.prototype.hasOwnProperty.call(zhDict, key))
-            return zhDict[key];
+            return zhDict[key] ?? (fallback || key);
           return fallback || key;
         };
 
-        const applyToDom = (locale) => {
+        const applyToDom = (locale: SiteLocale) => {
           document.documentElement.setAttribute(
             "lang",
             locale === "en" ? "en" : "zh-CN",
@@ -133,7 +149,7 @@ const withSidebar = hasStart || hasEnd;
             .forEach((element) => {
               const key = element.getAttribute("data-i18n-placeholder");
               if (!key) return;
-              if ("placeholder" in element) {
+              if (element instanceof HTMLInputElement) {
                 element.placeholder = t(key, locale, element.placeholder || "");
               }
             });
@@ -147,7 +163,7 @@ const withSidebar = hasStart || hasEnd;
 
         let currentLocale = normalizeLocale(getStoredLocale() || defaultLocale);
 
-        const setLocale = (locale) => {
+        const setLocale = (locale: string): SiteLocale => {
           const normalized = normalizeLocale(locale);
           currentLocale = normalized;
           setStoredLocale(normalized);
@@ -155,12 +171,12 @@ const withSidebar = hasStart || hasEnd;
           return normalized;
         };
 
-        const getLocale = () => currentLocale;
+        const getLocale = (): SiteLocale => currentLocale;
         const toggleLocale = () =>
           setLocale(currentLocale === "zh" ? "en" : "zh");
 
         window.__siteI18n = {
-          t: (key, fallback = "") => t(key, currentLocale, fallback),
+          t: (key: string, fallback = "") => t(key, currentLocale, fallback),
           getLocale,
           setLocale,
           toggleLocale,
