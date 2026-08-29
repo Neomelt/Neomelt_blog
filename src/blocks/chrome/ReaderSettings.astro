@@ -561,7 +561,18 @@ const readerFallbacks = {
 
     // Labels are rendered server-side and rewritten by the i18n runtime, but
     // the pressed states and slider readouts are ours to refresh.
+    //
+    // Swapped rather than added, the same way the keydown handler below is
+    // and the same way Header does it: this function runs again on every
+    // navigation, so registering without dropping the previous one left a
+    // copy behind each time - measured at +1 listener per navigation, every
+    // one of them still firing on a language switch.
+    const previousLocaleHandler = window.__readerLocaleHandler;
+    if (previousLocaleHandler) {
+      document.removeEventListener("site:locale-change", previousLocaleHandler);
+    }
     document.addEventListener("site:locale-change", paint);
+    window.__readerLocaleHandler = paint;
 
     const previous = window.__readerKeydown;
     if (previous) document.removeEventListener("keydown", previous);
