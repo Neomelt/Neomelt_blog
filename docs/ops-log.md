@@ -10,14 +10,14 @@
 
 具体变更（均在仓库外）：
 
-| 位置 | 变更 |
-| --- | --- |
-| Vercel `comments-db` 项目 → Domains | 新增 `comments.neomelt.cloud`（Production） |
-| DNSPod `neomelt.cloud` | 新增 CNAME：`comments` → `9d62719f6da5d6ea.vercel-dns-017.com`（项目专属值） |
-| GitHub 仓库 secret | `PUBLIC_WALINE_SERVER_URL` → `https://comments.neomelt.cloud`（Pages 构建链路） |
-| Vercel 前端项目 env | `PUBLIC_WALINE_SERVER_URL` → 同上，并 Redeploy |
+| 位置                                | 变更                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| Vercel `comments-db` 项目 → Domains | 新增 `comments.neomelt.cloud`（Production）                                     |
+| DNSPod `neomelt.cloud`              | 新增 CNAME：`comments` → `9d62719f6da5d6ea.vercel-dns-017.com`（项目专属值）    |
+| GitHub 仓库 secret                  | `PUBLIC_WALINE_SERVER_URL` → `https://comments.neomelt.cloud`（Pages 构建链路） |
+| Vercel 前端项目 env                 | `PUBLIC_WALINE_SERVER_URL` → 同上，并 Redeploy                                  |
 
-代码零改动：serverURL 完全来自 `PUBLIC_WALINE_SERVER_URL` 环境变量（`src/components/Comments.astro`、`src/components/WalineCounter.astro`）。
+代码零改动：serverURL 完全来自 `PUBLIC_WALINE_SERVER_URL` 环境变量（当时在 `src/components/`，v2.0.0 架构调整后移至 `src/blocks/view/Comments.astro` 与 `src/blocks/behavior/WalineCounter.astro`）。
 
 **验证**（2026-07-18）：
 
@@ -39,11 +39,11 @@
 
 **修复**：
 
-| 步骤 | 内容 |
-| --- | --- |
+| 步骤       | 内容                                                                                                                                                                          |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 重建源仓库 | 新建私有仓库 `Neomelt/comments-db`，按官方模板 `walinejs/waline/example` 重建（index.cjs + vercel.json + package.json 等 6 文件），`@waline/vercel` 钉 `1.41.3` 不用 `latest` |
-| 重新关联 | Vercel 项目 Settings → Git → Connect `Neomelt/comments-db` |
-| 触发部署 | 关联后未自动触发，向 main 推空提交触发，构建成功 |
+| 重新关联   | Vercel 项目 Settings → Git → Connect `Neomelt/comments-db`                                                                                                                    |
+| 触发部署   | 关联后未自动触发，向 main 推空提交触发，构建成功                                                                                                                              |
 
 **验证**（2026-07-25）：SECURE_DOMAINS 随新部署生效（矩阵见待办 #1）；评论数据在
 数据库中不受部署影响。注意这次部署实质是服务端升级到 1.41.3（原版本因源丢失不可
@@ -62,9 +62,9 @@ SECURE_DOMAINS 只校验 Origin/Referer 字符串（脚本可伪造合法值）�
 **处置**：Vercel WAF 边缘封禁（Dashboard → `comments-db` 项目 → Firewall →
 Configure → IP Blocking），两条规则：
 
-| IP | Host |
-| --- | --- |
-| 150.251.158.99 | comments.neomelt.cloud |
+| IP             | Host                                                                 |
+| -------------- | -------------------------------------------------------------------- |
+| 150.251.158.99 | comments.neomelt.cloud                                               |
 | 150.251.158.99 | comments-db-one.vercel.app（旧别名仍在线，扫描器清单里存的可能是它） |
 
 选 WAF 而非 Waline 自带黑名单的理由：边缘拦截不消耗函数调用量、整站生效、免改码
@@ -83,3 +83,44 @@ blocked 计数或该 IP 是否再发评论来确认。
    后显）或确认 Akismet 生效。
 3. 旧别名 `comments-db-one.vercel.app` 是否直接删除（大陆本就不可达，留着多一个被扫
    面）——待定。
+
+## 2026-08-29 Vercel 漏投一次部署（四个 commit 滞留）
+
+**问题**：11:01 推送四个 commit（`ed89515` / `e5b9da2` / `6760153` / `cee116d`）后，
+主站 46 分钟没有任何变化。Vercel Deployments 列表里**没有对应条目**——不是构建失败
+（列表里一条 Error 都没有），是 GitHub 集成压根没触发这次部署。上一条 `faab7a6`
+（同一天 10:17）部署正常，前一天也有 8 条，所以集成本身没坏，属于偶发漏投。
+
+**判据**（先分清是 CDN 缓存还是源站没更新）：
+
+```bash
+curl -sD - -o /dev/null https://www.neomelt.cloud/about/ | grep -iE 'age|x-vercel-cache|last-modified'
+# x-vercel-cache: HIT 且 last-modified 始终不变 → 源站没更新，跟缓存无关
+```
+
+再用 GitHub Pages 那份冷备做三方对照，确认产物本身没问题：
+
+```bash
+ls dist/_astro/BaseLayout*.js                                   # 本地构建产物名
+curl -sI https://neomelt.github.io/Neomelt_blog/_astro/<同名>   # 冷备：200 = 产物正确
+curl -sI https://www.neomelt.cloud/_astro/<同名>                # 主站：404 = 卡在 Vercel
+```
+
+当时三方结果是：本地与冷备同为 `BaseLayout…C-Pw0cPg.js` 且 200，主站 404。
+
+**处置**：Vercel 控制台的 Redeploy 只会重跑旧 commit，解决不了「新 commit 没部署」。
+需要一次新的 deployment 事件，最省事的办法就是再推一个 commit——本条日志的提交即用于
+此，一举两得。
+
+**留档的一行判据**（判断线上是否已是新版）：
+
+```bash
+curl -s https://www.neomelt.cloud/ | grep -c uiTranslations
+# 3 = 旧版（翻译字典还内联在 HTML 里）；0 = 新版已上线
+```
+
+这条只在字典外部化（`cee116d`）前后有区分度，日后失效。通用做法仍是比对
+`/_astro/` 下带 hash 的文件名。
+
+**注意**：`gh api repos/.../pages/builds/latest` 返回的是 legacy build API 的陈年记录
+（会显示 2025 年的构建），**不反映 Actions 部署**，别拿它判断上线状态。
