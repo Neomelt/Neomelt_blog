@@ -16,7 +16,7 @@ tags: ["Tailscale", "WireGuard", "NAT", "内网穿透", "ComfyUI"]
 
 远端有一台带 RTX 5060 Ti 的 Linux 主机，上面跑着 ComfyUI 出图服务，只监听 `127.0.0.1:8188`。我人在家里，轻薄本浏览器打开一个域名，就是完整的原生 Web 界面。这不是远程桌面串流，是真在浏览器里操作，没有串流那种卡顿：
 
-![家里笔记本浏览器直开远端主机上的 ComfyUI](../../../public/blog/tailscale-remote-access/comfyui-via-tsnet.png)
+![家里笔记本浏览器直开远端主机上的 ComfyUI](../../assets/blog/tailscale-remote-access/comfyui-via-tsnet.png)
 
 全程不需要公网 IP、不需要自建服务器、不需要动路由器，而且这个服务**从头到尾没有暴露给公网，甚至没有暴露给它所在局域网里的任何人**。
 
@@ -34,7 +34,7 @@ tags: ["Tailscale", "WireGuard", "NAT", "内网穿透", "ComfyUI"]
 
 于是家里的笔记本和远端主机各自躲在 NAT 后面，谁都没法被对方连进来。这不是哪里坏了，也不是你配置没弄对，就是 IPv4 不够用、大家挤一个出口的结果：
 
-![NAT 困境与打洞推导](../../../public/blog/tailscale-remote-access/nat-punch.svg)
+![NAT 困境与打洞推导](../../assets/blog/tailscale-remote-access/nat-punch.svg)
 
 ## 只剩三条路
 
@@ -76,7 +76,7 @@ Tailscale 常被归到"内网穿透"里，但它跟 frp / ngrok 那一类不是�
 
 组网后的全景是这样的：
 
-![Tailscale 组网架构](../../../public/blog/tailscale-remote-access/architecture.svg)
+![Tailscale 组网架构](../../assets/blog/tailscale-remote-access/architecture.svg)
 
 个人免费额度 100 台设备，这个场景绰绰有余。
 
@@ -155,7 +155,7 @@ https://neomelt-b760m-h-ddr4.tail8bd030.ts.net (tailnet only)
 
 一次请求的完整路径是这样。注意 ComfyUI 从头到尾只监听回环，门开在 tailscaled 上，而 tailscaled 只认自己 tailnet 里的成员：
 
-![serve 请求路径](../../../public/blog/tailscale-remote-access/serve-path.svg)
+![serve 请求路径](../../assets/blog/tailscale-remote-access/serve-path.svg)
 
 ## 日常使用
 
@@ -218,7 +218,7 @@ tailscale down / up               # 本机断开 / 恢复入网
 
 页面打不开的时候，按顺序查三层就行：先确认自己这台设备入网了，再确认对面那台机器在线，最后确认它上面的服务还活着。哪一层出的问题很快就能定位出来：
 
-![三步排障](../../../public/blog/tailscale-remote-access/troubleshoot.svg)
+![三步排障](../../assets/blog/tailscale-remote-access/troubleshoot.svg)
 
 ## 最后说说安全
 

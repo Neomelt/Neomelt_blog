@@ -12,7 +12,7 @@ tags: ["Gazebo", "仿真", "SDF", "z-fighting", "渲染"]
 
 今天在 Gazebo 里调一个仿真模型时，遇到了一个显示问题：车体上的灯条只有在差不多正对着看的时候才显示得比较完整，一旦视角稍微偏一点，边缘就像缺了一块，转动镜头的时候还会忽隐忽现，大概像这样：
 
-![Gazebo 中灯条闪烁的现象](../../../public/blog/gazebo-z-fighting-note/1.png)
+![Gazebo 中灯条闪烁的现象](../../assets/blog/gazebo-z-fighting-note/1.png)
 
 可以看到当我们转动视角之后部分灯条会消失，一开始我怀疑的是材质或者光照。因为这个灯条本身用了 `emissive`，看起来像是“自发光”的部件，所以第一反应会觉得是不是 Gazebo / Ogre2 对这种材质的表现不太稳定。但后面仔细看现象之后，发现问题其实不在光照，而在几何本身。
 
@@ -57,7 +57,7 @@ GPU 在渲染的时候，会对每个像素做深度比较。屏幕上的每个�
 
 这里顺手放一张 wiki 对 `z-fighting` 的解释图：
 
-![wiki 中对 z-fighting 的说明](../../../public/blog/gazebo-z-fighting-note/2.png)
+![wiki 中对 z-fighting 的说明](../../assets/blog/gazebo-z-fighting-note/2.png)
 
 一句话概括就是：两个几乎贴在一起的面，在深度缓冲里抢前后顺序。
 
@@ -98,9 +98,9 @@ GPU 在渲染的时候，会对每个像素做深度比较。屏幕上的每个�
 
 修好效果
 
-![修复后的 Gazebo 视图：底盘装甲板上的红色灯条稳定渲染，不再闪烁](../../../public/blog/gazebo-z-fighting-note/3.png)
+![修复后的 Gazebo 视图：底盘装甲板上的红色灯条稳定渲染，不再闪烁](../../assets/blog/gazebo-z-fighting-note/3.png)
 
-![低机位特写：装甲板与灯条边缘干净利落，深度冲突消失](../../../public/blog/gazebo-z-fighting-note/4.png)
+![低机位特写：装甲板与灯条边缘干净利落，深度冲突消失](../../assets/blog/gazebo-z-fighting-note/4.png)
 
 虽然真实装甲板和灯条的上表面本来就可能非常接近，但在真实世界里，这点差异通常不会像仿真里这样被放大。这大概也是仿真和现实之间一个很典型的小区别。
 
