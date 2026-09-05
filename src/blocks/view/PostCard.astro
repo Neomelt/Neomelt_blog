@@ -54,10 +54,25 @@ const hero =
 
 const title = post.data.title;
 
-// No generated stand-in when there is no artwork. A gradient panel in place
-// of an image looks like filler, and filler is worse than the honest thing:
-// a text listing carried by typography and space.
-//
+// Keep the no-image state intentional instead of leaving an empty area. The
+// values are derived from the post id, so a fallback stays stable across
+// builds while still giving each article its own panel.
+const coverHash = [...post.id].reduce(
+  (hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0,
+  7,
+);
+const coverPick = (shift: number, modulo: number, base = 0) =>
+  base + ((coverHash >> shift) % modulo);
+const coverStyle = [
+  `--cover-angle: ${coverHash % 360}deg`,
+  `--bloom1-x: ${coverPick(2, 55, 15)}%`,
+  `--bloom1-y: ${coverPick(5, 45, 10)}%`,
+  `--bloom2-x: ${coverPick(8, 50, 45)}%`,
+  `--bloom2-y: ${coverPick(11, 45, 45)}%`,
+  `--cover-a: ${(0.42 + coverPick(14, 24) / 100).toFixed(2)}`,
+  `--cover-b: ${(0.16 + coverPick(17, 18) / 100).toFixed(2)}`,
+].join("; ");
+
 // heroImage is ignored when it is the shared default - every post points at
 // the same cover.svg, so honouring it would give identical thumbnails.
 const cover: ImageMetadata | null =
@@ -65,13 +80,28 @@ const cover: ImageMetadata | null =
 ---
 
 <a href={url} class="post-card">
-  {
-    cover && (
-      <div class="post-cover" aria-hidden="true">
-        <Image src={cover} alt="" widths={[420, 720, 1200]} loading="lazy" decoding="async" />
-      </div>
-    )
-  }
+  <div
+    class:list={["post-cover", { "post-cover-fallback": !cover }]}
+    style={coverStyle}
+    aria-hidden="true"
+  >
+    {
+      cover && (
+        <Image
+          src={cover}
+          alt=""
+          widths={[420, 720, 1200]}
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
+    {
+      !cover && (
+        <span class="post-cover-fallback-mark">{title.slice(0, 1)}</span>
+      )
+    }
+  </div>
 
   <div class="post-card-body">
     <div class="post-card-meta">
@@ -97,7 +127,11 @@ const cover: ImageMetadata | null =
 
     <div class="post-card-title">{title}</div>
 
-    {post.data.description && <div class="post-card-desc">{post.data.description}</div>}
+    {
+      post.data.description && (
+        <div class="post-card-desc">{post.data.description}</div>
+      )
+    }
 
     <div class="post-card-stats">
       <span class="waline-pageview-count" data-path={walinePath}>0</span>{" "}
@@ -119,7 +153,6 @@ const cover: ImageMetadata | null =
       )
     }
   </div>
-
 </a>
 
 <style>
@@ -182,8 +215,8 @@ const cover: ImageMetadata | null =
   }
 
   /* Sits behind the text at partial opacity and masked away on its left
-     edge, so the copy never lands on busy artwork. Only rendered when there
-     is a real image - see the comment on `cover`. */
+     edge, so the copy never lands on busy artwork. The same panel also
+     carries the deterministic gradient when no image is available. */
   .post-cover {
     position: absolute;
     inset-block: 0;
@@ -191,6 +224,25 @@ const cover: ImageMetadata | null =
     width: var(--card-cover-width);
     z-index: -1;
     opacity: var(--card-cover-opacity);
+    display: grid;
+    place-items: center;
+    background-image:
+      radial-gradient(
+        circle at var(--bloom1-x) var(--bloom1-y),
+        rgba(var(--accent-rgb), var(--cover-a)) 0%,
+        rgba(var(--accent-rgb), 0) 58%
+      ),
+      radial-gradient(
+        circle at var(--bloom2-x) var(--bloom2-y),
+        rgba(var(--ink-rgb), var(--cover-b)) 0%,
+        rgba(var(--ink-rgb), 0) 55%
+      ),
+      linear-gradient(
+        var(--cover-angle),
+        rgba(var(--accent-rgb), 0.3),
+        rgba(var(--ink-rgb), 0.14)
+      );
+    background-color: var(--bg-code);
     transition: opacity var(--transition);
     -webkit-mask-image: linear-gradient(
       to right,
@@ -202,6 +254,25 @@ const cover: ImageMetadata | null =
       transparent 0%,
       black var(--card-cover-fade)
     );
+  }
+
+  /* A missing cover still gets a visible, deterministic panel instead of an
+     empty hole. Keep it a little stronger than a real image, whose artwork
+     already carries its own contrast. */
+  .post-cover-fallback {
+    opacity: 0.52;
+  }
+
+  .post-cover-fallback-mark {
+    position: relative;
+    z-index: 1;
+    color: var(--bg-card);
+    font-size: clamp(2rem, 8vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.82;
+    text-shadow: 0 1px 2px rgba(var(--ink-rgb), 0.28);
+    user-select: none;
   }
 
   .post-card:hover .post-cover {
