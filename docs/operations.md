@@ -13,6 +13,31 @@ npm run dev
 
 机器默认仍是 Node 20，只在这个目录切。`package.json` 的 `engines` 和 GitHub workflow 也都锁在 22。
 
+## 架构速览（v2.1）
+
+站点是 Astro 7 的静态构建：内容、配置和三个登记表进入构建管线，输出静态 HTML、共享的 hash JS/CSS 模块、优化后的图片，以及搜索/RSS/站点地图等派生文件。浏览器端不重新渲染文章，只运行主题、i18n、阅读设置、搜索、灯箱和评论等交互。
+
+- `src/blocks/registry.ts`：可放进区域的 block（大多数 widget/decor，以及少数 chrome/behavior）。固定 chrome、全局行为和需要页面数据的 view/widget 仍由各 layout/page 直接挂载。
+- `src/skins/index.ts`：皮肤名与 theme-color 的唯一登记处；token 在 `src/skins/<name>/tokens.css`。
+- `src/arrangements/index.ts`：文章列表排版的唯一登记处；规则在 `src/arrangements/<name>.css`。
+- `src/site.config.ts`：把 block、皮肤和排版装配到页面区域；当前默认是 anime + feature，anime 下启用 backdrop。
+- `src/assets/blog/`、`src/assets/covers/` 与 `src/assets/banner/`：统一走 Astro 图片管线；不要把会被 Markdown 引用的图片放回 `public/`，否则会额外复制一份原图。
+- `src/i18n/ui.ts`：翻译字典由 Astro 打包成共享模块，不再通过 `define:vars` 写进每个页面。
+
+完整关系图见 [architecture/diagram.html](architecture/diagram.html) 和同目录的 PNG。
+
+### 文章卡片为什么有时没有图片
+
+卡片的封面显示由皮肤和排版共同决定，不是每篇文章单独开关：
+
+- `anime + feature`：显示文章 `heroImage`；缺失时才使用封面池，封面池也为空时才显示确定性渐变和首字母。
+- `grid` / `magazine`：图片在卡片顶部正常显示，渐变只作为图片背后的底色，通常不会被看见。
+- `list`：图片是右侧缩略图，不使用 feature 的渐变叠层。
+- `minimal`：`--card-cover-width: 0`，设计上是纯文字分隔列表。
+- `timeline`：`.post-cover { display: none }`，设计上只保留时间轴。
+
+因此“同一页有的有、有的没有”首先检查阅读设置里的皮肤和排版，以及浏览器保存的 `skin` / `layout` 选择。当前可见文章的 `heroImage` 均指向 `src/assets/covers/` 中存在的文件；构建产物会把它们生成到 `/_astro/`。若仍有单张缺图，再检查该图片请求是否返回 200，以及是否被浏览器扩展拦截。
+
 ---
 
 ## 发一篇文章
@@ -113,7 +138,7 @@ series: "网络与远程访问"
 
 三条轴——皮肤、排版、明暗——都由访客自己选，各存一个 localStorage 键。
 
-Header 右上角只剩两个直接按钮：🌐 切语言、月亮/太阳切明暗。皮肤和排版收进了 ⚙️ **阅读设置面板**（`chrome/ReaderSettings`），和字号、行高、行宽放在一起。面板里的选项不是手写的，是从 `src/skins/index.ts` 的 `SKIN_REGISTRY` 和 `src/arrangements/index.ts` 的 `LAYOUTS` 生成的——加一个皮肤或排版，面板自动多一个按钮。
+Header 里的 skin/layout 切换合并进了 ⚙️ **阅读设置面板**（`chrome/ReaderSettings`）；搜索、语言、明暗和设置按钮仍保留在右上角。面板里的皮肤与排版选项不是手写的，是从 `src/skins/index.ts` 的 `SKIN_REGISTRY` 和 `src/arrangements/index.ts` 的 `LAYOUTS` 生成的——加一个皮肤或排版，面板自动多一个按钮。
 
 | 轴     | 可选值                                                | 声明处                      |
 | ------ | ----------------------------------------------------- | --------------------------- |
@@ -175,7 +200,7 @@ cp -r src/skins/minimal src/skins/sepia
 
 ## 加一个组件
 
-三步，布局文件一个字都不用改。**注意这三步只适用于能被区域放置的 block**（`widget/` 和 `decor/`）——`src/blocks/` 下 28 个组件里有 12 个走这条路，其余的由页面直接 import，原因见下面的目录表。
+三步，布局文件一个字都不用改。**这三步只适用于能被区域放置、且不依赖页面专属数据的 block**。当前 registry 登记了 12 个 block：大多数是 `widget/` / `decor/`，另有 `chrome/Banner` 与 `behavior/ImageLightbox`；Header、Footer、ReaderSettings、CodeCopyButton、WalineCounter 由布局固定挂载，`view/` 和需要页面数据的组件由页面直接 import。
 
 ```bash
 # 1. 写组件，只用 var(--x)，不准出现字面颜色值
@@ -189,7 +214,7 @@ vim src/blocks/widget/Calendar.astro
 
 ```ts
 // 3. src/site.config.ts，放进某个区域
-aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
+regions: { asideStart: ["widget/Calendar"] },
 ```
 
 ### 组件放哪个目录
@@ -205,18 +230,18 @@ aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
 | `decor/`    | 无         | 视觉参数   | backdrop / floating 层      |
 | `behavior/` | 无渲染输出 | 无         | 挂一次，全局生效            |
 
-**只有 `widget/` 和 `decor/` 能进 registry**，因为只有它们不需要页面喂数据。
+registry 的 block 必须能由 `Region` 以字符串名称解析，并接受区域传入的 `context` 与 `props`。目录名是接口形状的提示，不是硬编码白名单；例如 `chrome/Banner` 和 `behavior/ImageLightbox` 也已登记。需要 `headings`、`post` 等页面专属数据的组件仍由页面或布局直接挂载。
 
 ### 区域
 
-从后往前：`backdrop`（全屏背景）→ 页面内容 → `masthead`（顶部 banner）→ `asideStart` / `asideEnd`（左右两条侧栏）→ `floating`（进度条、返回顶部）
+从后往前：`backdrop`（全屏背景）→ 页面内容 → `masthead`（顶部 banner）→ `asideStart` / `asideEnd`（左右两条侧栏）→ `floating`（进度条、返回顶部、图片灯箱脚本）
 
-现成的 widget：`Profile`（头像+简介+社交，数据在 config 的 `profile`）、`BlogStats`、`TagCloud`、`Calendar`、`FriendCircle`、`TableOfContents`。
+可放区域的 widget：`Profile`（头像+简介+社交，数据在 config 的 `profile`）、`BlogStats`、`TagCloud`、`Calendar`、`FriendCircle`、`MusicPlayer`。`WritingHeatmap` 已登记但当前没有放进区域。`TableOfContents` 需要文章 headings，由 `BlogPost` 直接挂载，不属于区域 registry。
 
 配置里可以限定某个 block 只在某个 skin 下出现：
 
 ```ts
-{ use: "decor/SakuraFall", props: { count: 20 }, skins: ["anime"] }
+{ use: "decor/Backdrop", props: { imageIndex: 1, blur: 2 }, skins: ["anime"] }
 ```
 
 它在所有 skin 下都会渲染，由 CSS 按 `data-skin` 隐藏——因为 skin 是访客存在 localStorage 里的选择，服务端不知道，构建期排除的话切换时就出不来了。
@@ -233,7 +258,7 @@ aside: [{ use: "widget/Calendar", props: { weekStart: 1 } }],
 
 推论：**skin 层不许伸手改组件内部类名。** 想让某个 skin 下卡片 hover 位移，不是写 `[data-skin=anime] .post-card:hover`，而是组件自己写 `transform: translateX(var(--card-hover-lift))`，另一个 skin 把这个 token 设成 `0`。
 
-`--*-rgb` 系列必须保持「裸通道三元组」格式（`58, 103, 166`），全站有 23 处 `rgba(var(--ink-rgb), a)` / `rgba(var(--accent-rgb), a)` 分布在 13 个文件里依赖这个格式。想换成 OKLCH 得先把这 23 处改成 `color-mix()`。
+`--*-rgb` 系列必须保持「裸通道三元组」格式（`58, 103, 166`），全站的 `rgba(var(--ink-rgb), a)` / `rgba(var(--accent-rgb), a)` 调用依赖这个格式。想换成 OKLCH 得先把这些调用改成 `color-mix()`。
 
 ---
 

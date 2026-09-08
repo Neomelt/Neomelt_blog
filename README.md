@@ -8,7 +8,7 @@
 
 ![Neomelt Blog 架构图](docs/architecture/diagram.png)
 
-图源是 `docs/architecture/diagram.html`——一个自包含的深色架构图（内联 SVG、手工排版、坐标固定），按 [Cocoon 架构图 skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 的风格绘制。改完图后重新生成 `.png`：用浏览器打开该 HTML，点右上角 `⋯` → `🖼️ PNG` 导出即可，无需额外工具。
+图源是 `docs/architecture/diagram.html`——一个自包含的深色架构图（内联 SVG、手工排版、坐标固定），按 [Cocoon 架构图 skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 的风格绘制。当前图对应 v2.1 的 registry-driven 架构：`site.config.ts` 装配 block，`skins/` 与 `arrangements/` 分别提供视觉 token 和列表规则，i18n 字典以共享 hash module 下发，正文图片统一走 `src/assets` 的 Astro 图片管线。改完图后重新生成 `.png`：用浏览器打开该 HTML，点右上角 `⋯` → `🖼️ PNG` 导出即可，无需额外工具。
 
 ## 目录结构
 
@@ -18,7 +18,7 @@
 │   ├── architecture/        # 架构图：.html 源（自带导出）+ .png
 │   ├── operations.md        # 操作指南：发文、换封面、改外观、加组件
 │   └── ops-log.md           # 运维日志：仓库外的配置变更（Vercel / DNS 等）
-├── public/                  # 直接静态资源（按 URL 原样输出，不过构建管线）
+├── public/                  # 直接静态资源（按 URL 原样输出，不经过构建管线）
 │   ├── avatars/             # 构建时下载并本地化的友链头像
 │   ├── fonts/
 │   ├── music/               # 播放器音频
@@ -31,7 +31,7 @@
 │   │   ├── blog/<slug>/     # 文章正文配图
 │   │   └── covers/          # 文章封面池
 │   ├── blocks/              # 组件库，按接口形状分目录，见 docs/operations.md
-│   │   ├── behavior/        # 无渲染输出，挂一次全局生效
+│   │   ├── behavior/        # 脚本/行为，无独立可见 UI，挂一次全局生效
 │   │   ├── chrome/          # Header / Footer / 阅读设置面板
 │   │   ├── decor/           # 背景、进度条、返回顶部
 │   │   ├── surface/         # 带 slot 的容器
@@ -61,16 +61,20 @@
 └── package.json
 ```
 
-三层的分工：`blocks/` 只有功能实现，`skins/` 只有取值，`arrangements/` 只有排版规则，
-`site.config.ts` 负责装配。加皮肤或加排版都是两步（写文件 + 登记一行），
-细节见 [docs/operations.md](docs/operations.md)。
+这里的“插件式”指构建期的 registry + slots 装配，不是运行时安装 npm 插件：`Region` 按
+`BlockName` 从 `BLOCKS` 解析组件，`site.config.ts` 的 regions 保存 placement（名称、props、
+skins）。三层的分工是：`blocks/` 只有功能实现，`skins/` 只有取值，`arrangements/` 只有排版规则；
+`site.config.ts` 负责装配。加皮肤或加排版都是两步（写文件 + 登记一行），细节见
+[docs/operations.md](docs/operations.md)。
+
+构建时，Astro 从 `src/content/blog/` 读取 Markdown/MDX，生成文章页、归档、标签、系列、RSS、站点地图和搜索索引；友链 RSS 在构建时整理为 `/friend-circle.json`，头像下载到 `public/avatars/`。正文插图和封面留在 `src/assets/`，由 Astro 处理成带 hash 的 webp；`public/` 只放必须按原 URL 输出的字体、音频、头像和第三方脚本。浏览器端只负责主题、语言、阅读设置、搜索和评论等交互。
 
 ## 内容维护约定
 
 - 新文章放在 `src/content/blog/`。
 - 文章 frontmatter 默认 `heroImage` 使用 `src/assets/cover.svg`。
 - 可以通过 frontmatter 的 `hidden: true` 暂时隐藏文章（不会出现在列表、归档、标签、RSS、搜索，也不会生成公开详情页）。
-- 文章插图放在 `src/assets/blog/<文章-slug>/`，在 Markdown 用相对路径引用，如 `![alt](../../assets/blog/<slug>/1.png)`。放这里才会过 Astro 的图片管线（转 webp、加 hash）；放 `public/` 会原样输出，等于多发一份没人引用的原图。
+- 文章插图放在 `src/assets/blog/<文章-slug>/`，封面放 `src/assets/covers/`，首屏背景放 `src/assets/banner/`。在 Markdown 用相对路径引用，如 `![alt](../../assets/blog/<slug>/1.png)`。放这里才会过 Astro 的图片管线（转 webp、加 hash）；放 `public/` 会原样输出，等于多发一份没人引用的原图。
 - 需要固定公网 URL、且不该被改写的资源（字体、音频、第三方脚本）才放 `public/`。
 
 ## 常用命令

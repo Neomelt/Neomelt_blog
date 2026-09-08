@@ -55,7 +55,7 @@
           <button class="toolbar-toggle" onclick="this.parentElement.classList.toggle('expanded')" title="Export options" aria-label="Export options">⋯</button>
         </div>
       </div>
-      <p class="subtitle">Astro static blog · build-time SSG · client runtime · slate theme</p>
+      <p class="subtitle">Astro 7 · plugin-style build-time extensions · shared i18n · optimized assets</p>
     </div>
 
     <div class="diagram-container">
@@ -72,30 +72,34 @@
 
         <!-- ===== Group boundaries ===== -->
         <rect x="18" y="78" width="246" height="320" rx="12" fill="rgba(30,41,59,0.18)" stroke="#94a3b8" stroke-width="1" stroke-dasharray="8,4"/>
-        <text x="34" y="100" fill="#cbd5e1" font-size="11" font-weight="700">1 · SOURCE</text>
+        <text x="34" y="100" fill="#cbd5e1" font-size="11" font-weight="700">1 · EXTENSION PACKS / CONFIG</text>
 
         <rect x="294" y="78" width="378" height="320" rx="12" fill="rgba(6,78,59,0.12)" stroke="#34d399" stroke-width="1" stroke-dasharray="8,4"/>
-        <text x="310" y="100" fill="#6ee7b7" font-size="11" font-weight="700">2 · BUILD / SSG · Astro</text>
+        <text x="310" y="100" fill="#6ee7b7" font-size="11" font-weight="700">2 · BUILD / SSG · ASTRO 7</text>
+
+        <rect x="684" y="78" width="184" height="320" rx="12" fill="rgba(76,29,149,0.12)" stroke="#a78bfa" stroke-width="1" stroke-dasharray="8,4"/>
+        <text x="700" y="100" fill="#c4b5fd" font-size="11" font-weight="700">3 · STATIC OUTPUT</text>
 
         <rect x="884" y="78" width="220" height="320" rx="12" fill="rgba(8,51,68,0.16)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="8,4"/>
         <text x="900" y="100" fill="#67e8f9" font-size="11" font-weight="700">4 · BROWSER RUNTIME</text>
 
-        <text x="700" y="200" fill="#c4b5fd" font-size="11" font-weight="700">3 · STATIC OUTPUT</text>
-
         <!-- ===== Source components (slate) ===== -->
         <rect x="40" y="116" width="200" height="52" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="140" y="138" fill="white" font-size="12" font-weight="600" text-anchor="middle">Authoring Scripts</text>
-        <text x="140" y="155" fill="#94a3b8" font-size="9" text-anchor="middle">new-post · auto-frontmatter</text>
+        <text x="140" y="138" fill="white" font-size="12" font-weight="600" text-anchor="middle">Content + Schema</text>
+        <text x="140" y="155" fill="#94a3b8" font-size="9" text-anchor="middle">Markdown / MDX · content.config</text>
 
         <rect x="40" y="184" width="200" height="66" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="140" y="206" fill="white" font-size="12" font-weight="600" text-anchor="middle">Blog Content</text>
-        <text x="140" y="223" fill="#94a3b8" font-size="9" text-anchor="middle">src/content/blog · md/mdx</text>
-        <text x="140" y="238" fill="#94a3b8" font-size="8" text-anchor="middle">frontmatter → content.config.ts</text>
+        <text x="140" y="206" fill="white" font-size="12" font-weight="600" text-anchor="middle">Block Registry</text>
+        <text x="140" y="223" fill="#94a3b8" font-size="9" text-anchor="middle">BLOCKS → Region placements</text>
+        <text x="140" y="238" fill="#94a3b8" font-size="8" text-anchor="middle">widget · decor · Banner · lightbox</text>
 
         <rect x="40" y="266" width="200" height="66" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="140" y="288" fill="white" font-size="12" font-weight="600" text-anchor="middle">Site Config + UI</text>
-        <text x="140" y="305" fill="#94a3b8" font-size="9" text-anchor="middle">astro.config · layouts · i18n</text>
-        <text x="140" y="320" fill="#94a3b8" font-size="8" text-anchor="middle">friends data · global.css</text>
+        <text x="140" y="288" fill="white" font-size="12" font-weight="600" text-anchor="middle">Skin + Arrangement</text>
+        <text x="140" y="305" fill="#94a3b8" font-size="9" text-anchor="middle">SKIN_REGISTRY · LAYOUTS</text>
+        <text x="140" y="320" fill="#94a3b8" font-size="8" text-anchor="middle">tokens.css · arrangement CSS</text>
+
+        <rect x="40" y="346" width="200" height="38" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="140" y="370" fill="white" font-size="10" font-weight="600" text-anchor="middle">site.config + types/layout</text>
 
         <!-- Friend feeds (external, slate dashed) — under Build, feeds Friend Circle -->
         <rect x="308" y="420" width="158" height="52" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
@@ -104,21 +108,21 @@
 
         <!-- ===== Build components (emerald) ===== -->
         <rect x="308" y="116" width="158" height="62" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
-        <text x="387" y="138" fill="white" font-size="12" font-weight="600" text-anchor="middle">Astro Pipeline</text>
-        <text x="387" y="154" fill="#94a3b8" font-size="9" text-anchor="middle">getCollection('blog')</text>
-        <text x="387" y="168" fill="#94a3b8" font-size="8" text-anchor="middle">MDX · math · video embed</text>
+        <text x="387" y="138" fill="white" font-size="12" font-weight="600" text-anchor="middle">Astro Plugin Host</text>
+        <text x="387" y="154" fill="#94a3b8" font-size="9" text-anchor="middle">MDX + remark / rehype</text>
+        <text x="387" y="168" fill="#94a3b8" font-size="8" text-anchor="middle">sitemap + avatar hook</text>
 
         <rect x="308" y="194" width="158" height="78" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
         <text x="387" y="216" fill="white" font-size="12" font-weight="600" text-anchor="middle">Friend Circle Build</text>
-        <text x="387" y="232" fill="#94a3b8" font-size="9" text-anchor="middle">fetch RSS / Atom</text>
+        <text x="387" y="232" fill="#94a3b8" font-size="9" text-anchor="middle">fetch RSS / Atom at build</text>
         <text x="387" y="246" fill="#94a3b8" font-size="8" text-anchor="middle">localize avatars → public</text>
-        <text x="387" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">static friend-circle.json</text>
+        <text x="387" y="260" fill="#94a3b8" font-size="8" text-anchor="middle">friend-circle.json endpoint</text>
 
         <rect x="498" y="132" width="160" height="74" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
-        <text x="578" y="154" fill="white" font-size="12" font-weight="600" text-anchor="middle">Page Assembly</text>
-        <text x="578" y="170" fill="#94a3b8" font-size="9" text-anchor="middle">Layout · Header · Footer</text>
-        <text x="578" y="184" fill="#94a3b8" font-size="8" text-anchor="middle">pages · pagination</text>
-        <text x="578" y="198" fill="#94a3b8" font-size="8" text-anchor="middle">SEO · routing</text>
+        <text x="578" y="154" fill="white" font-size="12" font-weight="600" text-anchor="middle">Region Resolver</text>
+        <text x="578" y="170" fill="#94a3b8" font-size="9" text-anchor="middle">BLOCKS[use] + context + props</text>
+        <text x="578" y="184" fill="#94a3b8" font-size="8" text-anchor="middle">skin-scope + direct page blocks</text>
+        <text x="578" y="198" fill="#94a3b8" font-size="8" text-anchor="middle">layout / page shell</text>
 
         <rect x="498" y="250" width="160" height="66" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
         <text x="578" y="272" fill="white" font-size="12" font-weight="600" text-anchor="middle">Derived Files</text>
@@ -126,12 +130,14 @@
         <text x="578" y="303" fill="#94a3b8" font-size="8" text-anchor="middle">sitemap · friend-circle</text>
 
         <!-- ===== Static output (violet hero) ===== -->
-        <rect x="700" y="210" width="152" height="112" rx="8" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="2"/>
-        <text x="776" y="238" fill="white" font-size="14" font-weight="700" text-anchor="middle">dist/</text>
-        <text x="776" y="258" fill="#94a3b8" font-size="9" text-anchor="middle">static HTML</text>
-        <text x="776" y="272" fill="#94a3b8" font-size="9" text-anchor="middle">JS · CSS · images</text>
-        <text x="776" y="286" fill="#94a3b8" font-size="9" text-anchor="middle">search + feed artifacts</text>
-        <text x="776" y="307" fill="#c4b5fd" font-size="8" text-anchor="middle">deployed static site</text>
+        <rect x="700" y="132" width="152" height="142" rx="8" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="776" y="158" fill="white" font-size="14" font-weight="700" text-anchor="middle">dist/</text>
+        <text x="776" y="178" fill="#94a3b8" font-size="9" text-anchor="middle">static HTML</text>
+        <text x="776" y="192" fill="#94a3b8" font-size="9" text-anchor="middle">shared JS · CSS</text>
+        <text x="776" y="206" fill="#94a3b8" font-size="9" text-anchor="middle">hashed webp / svg</text>
+        <text x="776" y="220" fill="#94a3b8" font-size="8" text-anchor="middle">search · RSS · sitemap</text>
+        <text x="776" y="236" fill="#94a3b8" font-size="8" text-anchor="middle">friend-circle.json</text>
+        <text x="776" y="258" fill="#c4b5fd" font-size="8" text-anchor="middle">Vercel primary · Pages backup</text>
 
         <!-- ===== Runtime components (cyan) ===== -->
         <rect x="900" y="116" width="188" height="44" rx="22" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
@@ -139,8 +145,8 @@
 
         <rect x="900" y="176" width="188" height="66" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
         <text x="994" y="198" fill="white" font-size="12" font-weight="600" text-anchor="middle">Client UI Runtime</text>
-        <text x="994" y="214" fill="#94a3b8" font-size="9" text-anchor="middle">theme · i18n · mobile nav</text>
-        <text x="994" y="229" fill="#94a3b8" font-size="8" text-anchor="middle">code copy · ink click effect</text>
+        <text x="994" y="214" fill="#94a3b8" font-size="9" text-anchor="middle">localStorage → data-skin/layout</text>
+        <text x="994" y="229" fill="#94a3b8" font-size="8" text-anchor="middle">shared i18n · lightbox · prefs</text>
 
         <rect x="900" y="258" width="90" height="68" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
         <text x="945" y="280" fill="white" font-size="11" font-weight="600" text-anchor="middle">Search</text>
@@ -160,10 +166,12 @@
         <!-- ===== Arrows ===== -->
         <!-- Authoring -> Blog -->
         <line x1="140" y1="168" x2="140" y2="184" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <!-- Blog -> Astro Pipeline -->
-        <line x1="240" y1="214" x2="308" y2="147" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <!-- Site Config -> Astro Pipeline -->
-        <line x1="240" y1="299" x2="308" y2="166" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Content -> Astro plugin host -->
+        <line x1="240" y1="142" x2="308" y2="142" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <!-- Registries / assembly -> Region resolver -->
+        <line x1="240" y1="217" x2="498" y2="158" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="240" y1="300" x2="498" y2="178" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="240" y1="365" x2="498" y2="194" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <!-- Friend Blogs -> Friend Circle (vertical) -->
         <line x1="387" y1="420" x2="387" y2="274" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <text x="393" y="356" fill="#64748b" font-size="8">RSS / Atom</text>
@@ -208,35 +216,38 @@
 
     <div class="cards">
       <div class="card">
-        <div class="card-header"><div class="card-dot cyan"></div><h3>Source &amp; Authoring</h3></div>
+        <div class="card-header"><div class="card-dot cyan"></div><h3>Extension Contract</h3></div>
         <ul>
           <li>• Blog content in Markdown / MDX</li>
           <li>• new-post &amp; auto-frontmatter scripts</li>
           <li>• frontmatter schema → content.config.ts</li>
-          <li>• site config · i18n · friends data</li>
+          <li>• site.config + block / skin / arrangement registries</li>
+          <li>• Region resolves use + context + props</li>
         </ul>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-dot emerald"></div><h3>Build / SSG · Astro</h3></div>
+        <div class="card-header"><div class="card-dot emerald"></div><h3>Plugin Host · Build Time</h3></div>
         <ul>
           <li>• getCollection('blog') + MDX transforms</li>
           <li>• math + video embed processing</li>
-          <li>• friend-circle RSS aggregation</li>
+          <li>• Astro integrations + remark / rehype transforms</li>
+          <li>• friend-circle RSS aggregation → JSON endpoint</li>
+          <li>• image pipeline: src/assets → hashed webp</li>
           <li>• derived: search.json · RSS · sitemap</li>
         </ul>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-dot violet"></div><h3>Output &amp; Runtime</h3></div>
+        <div class="card-header"><div class="card-dot violet"></div><h3>Output &amp; Browser Runtime</h3></div>
         <ul>
           <li>• static dist/ (HTML · JS · CSS · images)</li>
-          <li>• client UI: theme · i18n · ink click</li>
+          <li>• client UI: data-skin/layout · shared i18n · prefs</li>
           <li>• search via /api/search.json</li>
           <li>• comments via Waline server</li>
         </ul>
       </div>
     </div>
 
-    <p class="footer">Neomelt Blog · Astro SSG · slate theme</p>
+    <p class="footer">Neomelt Blog · Astro 7 SSG · registry-driven v2.1</p>
   </div>
 
   <script>

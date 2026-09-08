@@ -22,7 +22,7 @@ function toAbsoluteUrl(path, site) {
 }
 
 // 内容层渲染的 HTML 里，正文图片是未回填的占位符：
-//   <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;../../../public/blog/x.png&#x22;,&#x22;alt&#x22;:…}">
+//   <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;../../assets/blog/x.png&#x22;,&#x22;alt&#x22;:…}">
 // 直接下发会让订阅者看到无 src 的坏图。public/ 下的文件部署后就在站点
 // 根路径，把占位符重写成带绝对 URL 的真实 <img>；解析失败时保留原样。
 function rewriteImagePlaceholders(html, site) {

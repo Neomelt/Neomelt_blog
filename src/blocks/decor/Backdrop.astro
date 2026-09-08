@@ -8,10 +8,10 @@ import { bannerPool } from "../../site.config";
  * a skin's biggest visual move is what sits behind the page, and glass
  * surfaces have nothing to refract without it.
  *
- * Defaults to a pure-CSS gradient so it works with no assets at all. Point
- * `src` at an illustration in public/ when you have one - the overlay and
- * blur controls are there because a busy image destroys text contrast, and
- * that trade-off should be tunable rather than discovered later.
+ * Defaults to a pure-CSS gradient so it works with no assets at all. Set
+ * `imageIndex` to select an illustration from `bannerPool`; those assets live
+ * in `src/assets/banner/` and are processed by Astro's image pipeline. The
+ * overlay and blur controls keep a busy image from destroying text contrast.
  */
 export interface Props {
   /** Which entry of bannerPool to use. Omit for the gradient alone. */
