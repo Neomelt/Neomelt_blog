@@ -61,7 +61,7 @@ export const UI_TRANSLATIONS = {
     "reader.layout": "排布方式",
     "reader.layoutHint": "文章列表页的卡片形态",
     "reader.reset": "恢复默认",
-    "reader.resetHint": "只清除你的调整，站点设定不变",
+    "reader.resetHint": "恢复皮肤、布局、语言和阅读参数的默认值",
     "reader.closeAria": "关闭阅读设置",
     "skin.minimal": "极简",
     "skin.anime": "二次元",
@@ -392,7 +392,7 @@ export const UI_TRANSLATIONS = {
     "reader.layoutHint": "How cards are laid out on the post list",
     "reader.reset": "Reset",
     "reader.resetHint":
-      "Clears your adjustments only; the site defaults return",
+      "Restore the default skin, layout, language, and reading settings",
     "reader.closeAria": "Close reading settings",
     "skin.minimal": "Minimal",
     "skin.anime": "Anime",

@@ -20,6 +20,7 @@ interface SiteI18nApi {
   t(key: string, fallback?: string): string;
   getLocale(): "zh" | "en";
   setLocale(locale: string): "zh" | "en";
+  resetLocale(): void;
   toggleLocale(): "zh" | "en";
 }
 
@@ -28,6 +29,7 @@ interface SiteThemeApi {
   skinStorageKey: string;
   defaultTheme: string;
   defaultSkin: string;
+  defaultLayout: string;
   skins: readonly string[];
   layouts: readonly string[];
   getTheme(): string;
@@ -37,6 +39,7 @@ interface SiteThemeApi {
   toggleTheme(): string;
   setSkin(skin: string): string;
   setLayout(layout: string, options?: { persist?: boolean }): string;
+  resetDefaults(): void;
   cycleSkin(): string;
   cycleLayout(): string;
 }

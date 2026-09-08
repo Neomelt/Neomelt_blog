@@ -543,8 +543,14 @@ const readerFallbacks = {
       }
 
       resetButton.addEventListener("click", () => {
+        // Reset every reader-owned axis. The site theme API owns theme, skin,
+        // and layout storage; locale has its own i18n storage key. The old
+        // implementation only cleared reader-prefs, leaving the visible
+        // card layout unchanged after a reset.
         writePrefs({});
         applyPrefs({});
+        theme()?.resetDefaults?.();
+        i18n()?.resetLocale?.();
         paint();
       });
 

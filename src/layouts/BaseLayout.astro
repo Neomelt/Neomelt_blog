@@ -100,6 +100,14 @@ const withSidebar = hasStart || hasEnd;
           }
         };
 
+        const removeStoredLocale = () => {
+          try {
+            localStorage.removeItem(localeStorageKey);
+          } catch {
+            // Ignore storage errors and still restore the in-memory DOM state.
+          }
+        };
+
         // key is whatever a data-i18n attribute holds - a string, not a
         // UiTranslationKey, until the lookup proves otherwise. The two
         // dictionaries are read through an index signature rather than their
@@ -179,6 +187,11 @@ const withSidebar = hasStart || hasEnd;
           t: (key: string, fallback = "") => t(key, currentLocale, fallback),
           getLocale,
           setLocale,
+          resetLocale: () => {
+            removeStoredLocale();
+            currentLocale = defaultLocale;
+            applyToDom(defaultLocale);
+          },
           toggleLocale,
         };
 

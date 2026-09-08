@@ -178,6 +178,14 @@ const primaryHostname = canonicalURL.hostname;
       }
     };
 
+    const removeStored = (key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // Ignore storage errors and still restore the in-memory DOM state.
+      }
+    };
+
     const syncThemeColor = (skin, mode) => {
       let meta = document.head.querySelector('meta[name="theme-color"]');
       if (!meta) {
@@ -254,6 +262,7 @@ const primaryHostname = canonicalURL.hostname;
       skinStorageKey: SKIN_KEY,
       defaultTheme: DEFAULT_MODE,
       defaultSkin,
+      defaultLayout,
       skins: skinNames,
       getTheme: getMode,
       getSkin,
@@ -267,6 +276,13 @@ const primaryHostname = canonicalURL.hostname;
       getLayout,
       layouts: layoutNames,
       setLayout: applyLayout,
+      resetDefaults: () => {
+        removeStored(MODE_KEY);
+        removeStored(SKIN_KEY);
+        removeStored(LAYOUT_KEY);
+        apply(defaultSkin, DEFAULT_MODE, { persist: false });
+        applyLayout(defaultLayout, { persist: false });
+      },
       cycleLayout: () => {
         const next =
           layoutNames[(layoutNames.indexOf(getLayout()) + 1) % layoutNames.length];
