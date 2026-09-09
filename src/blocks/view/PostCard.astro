@@ -382,8 +382,7 @@ const cover: ImageMetadata | null =
 
     if (!("IntersectionObserver" in window)) {
       images.forEach((image) => {
-        image.loading = "eager";
-        image.dataset.coverObserved = "fallback";
+        promoteCoverImage(image);
       });
       return;
     }
@@ -393,8 +392,7 @@ const cover: ImageMetadata | null =
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           const image = entry.target as HTMLImageElement;
-          image.loading = "eager";
-          image.dataset.coverObserved = "loaded";
+          promoteCoverImage(image);
           observer.unobserve(image);
         });
       },
@@ -405,6 +403,21 @@ const cover: ImageMetadata | null =
       image.dataset.coverObserved = "watching";
       observer.observe(image);
     });
+  }
+
+  function promoteCoverImage(image: HTMLImageElement) {
+    // Changing loading after native lazy loading skipped a request is not
+    // sufficient in every browser. Replacing the node gives the near-viewport
+    // card a fresh eager request, while distant cards remain untouched.
+    if (image.naturalWidth > 0) {
+      image.dataset.coverObserved = "loaded";
+      return;
+    }
+    const replacement = image.cloneNode(true) as HTMLImageElement;
+    replacement.loading = "eager";
+    replacement.removeAttribute("data-cover-lazy");
+    replacement.dataset.coverObserved = "loaded";
+    image.replaceWith(replacement);
   }
 
   document.addEventListener("DOMContentLoaded", observeCoverImages, {
