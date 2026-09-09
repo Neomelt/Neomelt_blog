@@ -91,6 +91,7 @@ const cover: ImageMetadata | null =
           src={cover}
           alt=""
           widths={[420, 720, 1200]}
+          data-cover-lazy
           loading="lazy"
           decoding="async"
         />
@@ -364,3 +365,50 @@ const cover: ImageMetadata | null =
     }
   }
 </style>
+
+<script>
+  /**
+   * Native lazy loading is normally enough, but it can defer an absolutely
+   * positioned card image after a page restores a non-zero scroll position.
+   * Observe the same cards ourselves and promote only images near the
+   * viewport. Off-screen cards stay lazy; visible cards get a deterministic
+   * load trigger instead of relying on the browser's distance heuristic.
+   */
+  function observeCoverImages() {
+    const images = Array.from(
+      document.querySelectorAll<HTMLImageElement>("img[data-cover-lazy]"),
+    ).filter((image) => !image.dataset.coverObserved);
+    if (images.length === 0) return;
+
+    if (!("IntersectionObserver" in window)) {
+      images.forEach((image) => {
+        image.loading = "eager";
+        image.dataset.coverObserved = "fallback";
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const image = entry.target as HTMLImageElement;
+          image.loading = "eager";
+          image.dataset.coverObserved = "loaded";
+          observer.unobserve(image);
+        });
+      },
+      { rootMargin: "400px 0px" },
+    );
+
+    images.forEach((image) => {
+      image.dataset.coverObserved = "watching";
+      observer.observe(image);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", observeCoverImages, {
+    once: true,
+  });
+  document.addEventListener("astro:page-load", observeCoverImages);
+</script>
