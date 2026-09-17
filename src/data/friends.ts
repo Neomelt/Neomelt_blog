@@ -139,4 +139,11 @@ export const FRIEND_LINKS: FriendLink[] = [
     rss: "https://chenc001.github.io/rss.xml",
     tags: ["个人博客"],
   },
+  {
+    name: "Maple's Blog",
+    url: "https://renly.cn",
+    description: "Hello, World…?",
+    avatar: "https://renly.cn/avatar.webp",
+    rss: "https://www.renly.cn/rss.xml",
+  },
 ];
