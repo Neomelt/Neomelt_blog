@@ -4,3 +4,4 @@ node_modules
 .cache
 package-lock.json
 public/vendor
+plugins/telegram-log/test/fixtures
