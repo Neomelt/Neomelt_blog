@@ -28,3 +28,6 @@ backups/
 
 # Downloaded cover candidates awaiting review - never committed
 .cover-inbox/
+
+# Telegram 日常 images, downloaded at build time (plugins/telegram-log)
+public/log-media/

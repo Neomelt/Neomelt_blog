@@ -77,6 +77,21 @@ export const bannerPool: ImageMetadata[] = Object.keys(bannerModules)
   .sort()
   .map((key) => bannerModules[key]!.default);
 
+/**
+ * The "日常" page: short posts pulled from a public Telegram channel at build
+ * time (plugins/telegram-log). Empty channel = feature off: no nav link, and
+ * /log shows an empty state. TELEGRAM_LOG_CHANNEL in the environment
+ * overrides the value here, which is how a local build can point at another
+ * channel without editing this file.
+ */
+export const telegramLog = {
+  channel: "",
+  /** Newest posts kept on the page; older ones stay on Telegram. */
+  limit: 60,
+  /** Zone the timestamps are printed in; the build machine runs on UTC. */
+  timeZone: "Asia/Shanghai",
+};
+
 export const siteLayout = {
   // The skin a first-time visitor gets. Anyone who has picked one in the
   // reading panel keeps their choice - it lives in localStorage and wins.
