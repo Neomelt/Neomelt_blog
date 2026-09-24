@@ -354,7 +354,7 @@ const ch = channel?.data;
 
   .tlog-item {
     position: relative;
-    margin: 0 0 1.25rem;
+    margin: 0 0 2rem;
   }
 
   .tlog-item::before {
@@ -370,10 +370,10 @@ const ch = channel?.data;
   }
 
   .tlog-card {
-    padding: 0.9rem 1.1rem 0.8rem;
-    border: 1px solid var(--tlog-border);
-    border-radius: var(--tlog-radius);
-    background: var(--tlog-card);
+    padding: 0.25rem 0 0.5rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
   }
 
   .tlog-meta {
@@ -583,10 +583,6 @@ const ch = channel?.data;
 
     .tlog-item::before {
       left: calc(-1.1rem + 0.35rem - 4px);
-    }
-
-    .tlog-card {
-      padding: 0.8rem 0.85rem 0.7rem;
     }
   }
 </style>
