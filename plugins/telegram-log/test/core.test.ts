@@ -128,6 +128,16 @@ describe("postsDigest", () => {
     expect(postsDigest(added)).not.toBe(postsDigest(posts));
   });
 
+  it("detects deletion anywhere in the retained window", () => {
+    const retained = Array.from({ length: 20 }, (_, index) => ({
+      ...posts[0],
+      id: String(300 - index),
+      text: `post ${index}`,
+    }));
+    const withoutOldest = retained.slice(0, -1);
+    expect(postsDigest(withoutOldest)).not.toBe(postsDigest(retained));
+  });
+
   it("does not depend on input order", () => {
     expect(postsDigest([...posts].reverse())).toBe(postsDigest(posts));
   });

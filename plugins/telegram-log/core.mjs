@@ -516,13 +516,13 @@ export async function fetchChannel({
 }
 
 /**
- * Fingerprint of the newest posts, used to decide whether a rebuild is
- * worth it. View and reaction counts are left out on purpose: they move all
- * the time, and a rebuild for every new view would never stop.
+ * Fingerprint of the posts kept by the site, used to decide whether a rebuild
+ * is worth it. View and reaction counts are left out on purpose: they move
+ * all the time, and a rebuild for every new view would never stop.
  * @param {TgPost[]} posts
  * @param {number} [count]
  */
-export function postsDigest(posts, count = 15) {
+export function postsDigest(posts, count = posts.length) {
   const newest = [...posts]
     .sort((a, b) => Number(b.id) - Number(a.id))
     .slice(0, count)

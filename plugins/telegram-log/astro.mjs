@@ -72,6 +72,7 @@ export const logChannelSchema = z.object({
   url: z.string(),
   avatar: imageSchema.optional(),
   counters: z.record(z.string(), z.string()),
+  limit: z.number(),
   /** Fingerprint of the newest posts; the rebuild check compares against it. */
   digest: z.string(),
   latestId: z.string().optional(),
@@ -174,6 +175,7 @@ export function telegramChannelLoader(options = {}) {
         id: channel.username,
         data: {
           ...channel,
+          limit: o.limit,
           digest,
           latestId: posts[0]?.id,
           fetchedAt: new Date().toISOString(),

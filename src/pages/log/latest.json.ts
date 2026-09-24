@@ -16,6 +16,7 @@ export const GET: APIRoute = async () => {
     ? {
         channel: channel.data.username,
         digest: channel.data.digest,
+        limit: channel.data.limit,
         latestId: channel.data.latestId ?? null,
         fetchedAt: channel.data.fetchedAt.toISOString(),
       }
