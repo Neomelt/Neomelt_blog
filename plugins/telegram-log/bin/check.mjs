@@ -13,9 +13,6 @@
 import { appendFile } from "node:fs/promises";
 import { fetchChannel, postsDigest } from "../core.mjs";
 
-/** Posts compared; must match the digest the loader stores (postsDigest default). */
-const DIGEST_POSTS = 15;
-
 function arg(name) {
   const index = process.argv.indexOf(`--${name}`);
   return index === -1 ? undefined : process.argv[index + 1];
@@ -56,11 +53,13 @@ if (!state.channel) {
 
 let live;
 try {
+  const limit =
+    Number.isInteger(state.limit) && state.limit > 0 ? state.limit : 60;
   const { posts } = await fetchChannel({
     channel: state.channel,
-    limit: DIGEST_POSTS,
+    limit,
   });
-  live = postsDigest(posts, DIGEST_POSTS);
+  live = postsDigest(posts);
 } catch (error) {
   await report(
     false,

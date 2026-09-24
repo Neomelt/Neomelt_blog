@@ -85,7 +85,7 @@ export const bannerPool: ImageMetadata[] = Object.keys(bannerModules)
  * channel without editing this file.
  */
 export const telegramLog = {
-  channel: "",
+  channel: "yohakunite",
   /** Newest posts kept on the page; older ones stay on Telegram. */
   limit: 60,
   /** Zone the timestamps are printed in; the build machine runs on UTC. */
