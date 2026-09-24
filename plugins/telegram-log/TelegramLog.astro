@@ -123,218 +123,230 @@ const ch = channel?.data;
 ---
 
 <section class="tlog">
-  {
-    ch && (
-      <header class="tlog-channel">
-        {ch.avatar && (
-          <img
-            class="tlog-avatar"
-            src={media(ch.avatar.src)}
-            width={56}
-            height={56}
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
-        )}
-        <div class="tlog-channel-text">
+  <div class="tlog-layout">
+    <div class="tlog-main">
+      <ol class="tlog-list">
+        {
+          sorted.map(({ id, data: post }) => (
+            <li class="tlog-item" id={`log-${id}`}>
+              <article class="tlog-card">
+                <header class="tlog-meta">
+                  <time
+                    datetime={post.date.toISOString()}
+                    title={formatDate(post.date)}
+                    data-tlog-time
+                  >
+                    {formatDate(post.date)}
+                  </time>
+                  {post.edited && (
+                    <span class="tlog-edited" data-i18n={labelKeys.edited}>
+                      {labels.edited}
+                    </span>
+                  )}
+                  <a
+                    class="tlog-open"
+                    href={post.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={labels.openInTelegram}
+                  >
+                    ↗
+                  </a>
+                </header>
+
+                {post.forwardedFrom && (
+                  <p class="tlog-forward">
+                    <span data-i18n={labelKeys.forwardedFrom}>
+                      {labels.forwardedFrom}
+                    </span>{" "}
+                    {post.forwardedFrom.url ? (
+                      <a
+                        href={post.forwardedFrom.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {post.forwardedFrom.name}
+                      </a>
+                    ) : (
+                      post.forwardedFrom.name
+                    )}
+                  </p>
+                )}
+
+                <div class="tlog-body prose">
+                  {post.html && <div class="tlog-text" set:html={post.html} />}
+                  {post.photos.length > 0 && (
+                    <div class={`tlog-photos ${gridClass(post.photos.length)}`}>
+                      {post.photos.map((photo) => (
+                        <img
+                          src={media(photo.src)}
+                          srcset={srcset(photo.srcset)}
+                          sizes={gridSizes(post.photos.length)}
+                          width={photo.width}
+                          height={photo.height}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {post.videos.map((video) => (
+                  <a
+                    class="tlog-video"
+                    href={video.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {video.thumb && (
+                      <img
+                        src={media(video.thumb.src)}
+                        width={video.thumb.width}
+                        height={video.thumb.height}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                    <span class="tlog-video-label">
+                      ▶ <span data-i18n={labelKeys.video}>{labels.video}</span>
+                      {video.duration && ` ${video.duration}`}
+                    </span>
+                  </a>
+                ))}
+
+                {post.link && (
+                  <a
+                    class="tlog-link"
+                    href={post.link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {post.link.siteName && (
+                      <span class="tlog-link-site">{post.link.siteName}</span>
+                    )}
+                    {post.link.title && (
+                      <span class="tlog-link-title">{post.link.title}</span>
+                    )}
+                    {post.link.description && (
+                      <span class="tlog-link-desc">
+                        {post.link.description}
+                      </span>
+                    )}
+                  </a>
+                )}
+
+                {(post.missingMedia > 0 || post.unsupported.length > 0) && (
+                  <p class="tlog-note">
+                    <a
+                      href={post.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {post.missingMedia > 0 ? (
+                        <span data-i18n={labelKeys.missingMedia}>
+                          {labels.missingMedia}
+                        </span>
+                      ) : (
+                        <span data-i18n={labelKeys.unsupported}>
+                          {labels.unsupported}
+                        </span>
+                      )}
+                    </a>
+                  </p>
+                )}
+
+                {(post.reactions.length > 0 || post.views) && (
+                  <footer class="tlog-foot">
+                    <span class="tlog-reactions">
+                      {post.reactions.map((r) => (
+                        <span class="tlog-reaction">
+                          {r.emoji} {r.count}
+                        </span>
+                      ))}
+                    </span>
+                    {post.views && (
+                      <span class="tlog-views">
+                        {post.views}{" "}
+                        <span data-i18n={labelKeys.views}>{labels.views}</span>
+                      </span>
+                    )}
+                  </footer>
+                )}
+              </article>
+            </li>
+          ))
+        }
+      </ol>
+
+      {
+        ch && (
+          <p class="tlog-older">
+            <a
+              href={`https://t.me/s/${ch.username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span data-i18n={labelKeys.older}>{labels.older}</span> →
+            </a>
+          </p>
+        )
+      }
+    </div>
+
+    {
+      ch && (
+        <aside class="tlog-channel">
+          {ch.avatar && (
+            <img
+              class="tlog-avatar"
+              src={media(ch.avatar.src)}
+              width={56}
+              height={56}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+          <div class="tlog-channel-text">
+            <a
+              class="tlog-channel-title"
+              href={ch.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {ch.title}
+            </a>
+            <p class="tlog-channel-sub">
+              @{ch.username}
+              {ch.counters.subscribers && (
+                <>
+                  {" · "}
+                  {ch.counters.subscribers}{" "}
+                  <span data-i18n={labelKeys.subscribers}>
+                    {labels.subscribers}
+                  </span>
+                </>
+              )}
+            </p>
+            {ch.description && (
+              <p class="tlog-channel-desc">{ch.description}</p>
+            )}
+          </div>
           <a
-            class="tlog-channel-title"
+            class="tlog-subscribe"
             href={ch.url}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {ch.title}
+            <span data-i18n={labelKeys.subscribe}>{labels.subscribe}</span>
           </a>
-          <p class="tlog-channel-sub">
-            @{ch.username}
-            {ch.counters.subscribers && (
-              <>
-                {" · "}
-                {ch.counters.subscribers}{" "}
-                <span data-i18n={labelKeys.subscribers}>
-                  {labels.subscribers}
-                </span>
-              </>
-            )}
-          </p>
-          {ch.description && <p class="tlog-channel-desc">{ch.description}</p>}
-        </div>
-        <a
-          class="tlog-subscribe"
-          href={ch.url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span data-i18n={labelKeys.subscribe}>{labels.subscribe}</span>
-        </a>
-      </header>
-    )
-  }
-
-  <ol class="tlog-list">
-    {
-      sorted.map(({ id, data: post }) => (
-        <li class="tlog-item" id={`log-${id}`}>
-          <article class="tlog-card">
-            <header class="tlog-meta">
-              <time
-                datetime={post.date.toISOString()}
-                title={formatDate(post.date)}
-                data-tlog-time
-              >
-                {formatDate(post.date)}
-              </time>
-              {post.edited && (
-                <span class="tlog-edited" data-i18n={labelKeys.edited}>
-                  {labels.edited}
-                </span>
-              )}
-              <a
-                class="tlog-open"
-                href={post.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={labels.openInTelegram}
-              >
-                ↗
-              </a>
-            </header>
-
-            {post.forwardedFrom && (
-              <p class="tlog-forward">
-                <span data-i18n={labelKeys.forwardedFrom}>
-                  {labels.forwardedFrom}
-                </span>{" "}
-                {post.forwardedFrom.url ? (
-                  <a
-                    href={post.forwardedFrom.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {post.forwardedFrom.name}
-                  </a>
-                ) : (
-                  post.forwardedFrom.name
-                )}
-              </p>
-            )}
-
-            <div class="tlog-body prose">
-              {post.html && <div class="tlog-text" set:html={post.html} />}
-              {post.photos.length > 0 && (
-                <div class={`tlog-photos ${gridClass(post.photos.length)}`}>
-                  {post.photos.map((photo) => (
-                    <img
-                      src={media(photo.src)}
-                      srcset={srcset(photo.srcset)}
-                      sizes={gridSizes(post.photos.length)}
-                      width={photo.width}
-                      height={photo.height}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {post.videos.map((video) => (
-              <a
-                class="tlog-video"
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {video.thumb && (
-                  <img
-                    src={media(video.thumb.src)}
-                    width={video.thumb.width}
-                    height={video.thumb.height}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
-                <span class="tlog-video-label">
-                  ▶ <span data-i18n={labelKeys.video}>{labels.video}</span>
-                  {video.duration && ` ${video.duration}`}
-                </span>
-              </a>
-            ))}
-
-            {post.link && (
-              <a
-                class="tlog-link"
-                href={post.link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {post.link.siteName && (
-                  <span class="tlog-link-site">{post.link.siteName}</span>
-                )}
-                {post.link.title && (
-                  <span class="tlog-link-title">{post.link.title}</span>
-                )}
-                {post.link.description && (
-                  <span class="tlog-link-desc">{post.link.description}</span>
-                )}
-              </a>
-            )}
-
-            {(post.missingMedia > 0 || post.unsupported.length > 0) && (
-              <p class="tlog-note">
-                <a href={post.url} target="_blank" rel="noopener noreferrer">
-                  {post.missingMedia > 0 ? (
-                    <span data-i18n={labelKeys.missingMedia}>
-                      {labels.missingMedia}
-                    </span>
-                  ) : (
-                    <span data-i18n={labelKeys.unsupported}>
-                      {labels.unsupported}
-                    </span>
-                  )}
-                </a>
-              </p>
-            )}
-
-            {(post.reactions.length > 0 || post.views) && (
-              <footer class="tlog-foot">
-                <span class="tlog-reactions">
-                  {post.reactions.map((r) => (
-                    <span class="tlog-reaction">
-                      {r.emoji} {r.count}
-                    </span>
-                  ))}
-                </span>
-                {post.views && (
-                  <span class="tlog-views">
-                    {post.views}{" "}
-                    <span data-i18n={labelKeys.views}>{labels.views}</span>
-                  </span>
-                )}
-              </footer>
-            )}
-          </article>
-        </li>
-      ))
+        </aside>
+      )
     }
-  </ol>
-
-  {
-    ch && (
-      <p class="tlog-older">
-        <a
-          href={`https://t.me/s/${ch.username}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span data-i18n={labelKeys.older}>{labels.older}</span> →
-        </a>
-      </p>
-    )
-  }
+  </div>
 </section>
 
 <script>
@@ -382,12 +394,26 @@ const ch = channel?.data;
     --tlog-radius: var(--radius-card, 16px);
   }
 
+  .tlog-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .tlog-main {
+    min-width: 0;
+  }
+
   .tlog-channel {
+    position: sticky;
+    top: 1rem;
     display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    margin-bottom: 1.75rem;
-    padding: 1rem 1.1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 1rem;
     border: 1px solid var(--tlog-border);
     border-radius: var(--tlog-radius);
     background: var(--tlog-card);
@@ -395,14 +421,14 @@ const ch = channel?.data;
 
   .tlog-avatar {
     flex: none;
-    width: 56px;
-    height: 56px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     object-fit: cover;
   }
 
   .tlog-channel-text {
-    flex: 1;
+    width: 100%;
     min-width: 0;
   }
 
@@ -420,12 +446,14 @@ const ch = channel?.data;
   }
 
   .tlog-subscribe {
-    flex: none;
+    display: block;
+    width: 100%;
     padding: 0.45rem 0.9rem;
     border-radius: var(--radius-pill, 999px);
     background: var(--tlog-accent);
     color: var(--accent-contrast, #fff);
     font-size: 0.85rem;
+    text-align: center;
     text-decoration: none;
     white-space: nowrap;
   }
@@ -672,6 +700,30 @@ const ch = channel?.data;
   .tlog-older a {
     color: var(--tlog-muted);
     text-decoration: none;
+  }
+
+  @media (max-width: 760px) {
+    .tlog-layout {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tlog-channel {
+      position: static;
+      order: -1;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+    }
+
+    .tlog-channel-text {
+      flex: 1;
+      width: auto;
+    }
+
+    .tlog-subscribe {
+      width: auto;
+    }
   }
 
   @media (max-width: 560px) {
