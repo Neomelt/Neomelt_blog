@@ -39,6 +39,13 @@ const labels = Object.fromEntries(
 <BaseLayout
   title={`${getDefaultUiText("log.metaTitle")} | ${SITE_TITLE}`}
   description={getDefaultUiText("log.metaDescription")}
+  regions={{
+    asideEnd: [
+      { use: "widget/TelegramChannel", props: { channel } },
+      { use: "widget/TagCloud", props: { limit: 18 } },
+      "widget/Calendar",
+    ],
+  }}
 >
   <main>
     <div class="container">
