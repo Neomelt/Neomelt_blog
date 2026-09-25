@@ -188,7 +188,7 @@ const ch = channel?.data;
                         height={photo.height}
                         alt=""
                         loading="eager"
-                        decoding="async"
+                        decoding={index === 0 ? "sync" : "async"}
                       />
                     ))}
                     <span class="tlog-media-overlay" aria-hidden="true">
