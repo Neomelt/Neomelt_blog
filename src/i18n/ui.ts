@@ -281,10 +281,10 @@ export const UI_TRANSLATIONS = {
     "legacy.pageSuffix": "页",
     "legacy.uncategorized": "未分类",
 
-    "log.metaTitle": "日常",
+    "log.metaTitle": "片刻",
     "log.metaDescription": "留一方余白，安放途中的片刻",
-    "log.pageCrumb": "日常",
-    "log.title": "日常",
+    "log.pageCrumb": "片刻",
+    "log.title": "片刻",
     "log.lead": "留一方余白，安放途中的片刻。",
     "log.empty": "这里还没有记录。",
     "log.subscribe": "在 Telegram 订阅",
