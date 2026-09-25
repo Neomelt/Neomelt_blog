@@ -40,6 +40,49 @@ npm run dev
 
 ---
 
+## Telegram 日常页
+
+`/log` 是构建时生成的 Telegram 时间线，不是浏览器端实时读取。站点在
+`src/site.config.ts` 中配置频道、保留条数和时区：
+
+```ts
+export const telegramLog = {
+  channel: "yohakunite", // 公开频道用户名，不带 @
+  limit: 0,               // 0 = 全部历史；正数 = 只保留最新 N 条
+  timeZone: "Asia/Shanghai",
+};
+```
+
+频道必须公开并设置用户名，因为插件读取 `t.me/s/<频道名>`。本地临时切换频道时可以设置
+`TELEGRAM_LOG_CHANNEL`，它只覆盖构建时的配置，不会写入前端脚本。设置为空字符串会关闭
+`/log` 的抓取，页面保留空状态。
+
+构建会把文字、图片、视频封面、链接卡片、反应和浏览数写入时间线，并把图片下载到
+`public/log-media/`。同一条消息的多张图片在时间线上合成一个横向预览框：首图裁切铺满，
+中央显示媒体总数；点击后打开全屏查看器，按原比例查看并切换同组媒体。构建时生成的
+`/log/latest.json` 保存频道名、保留条数和内容指纹。
+
+`.github/workflows/telegram-log.yml` 每小时检查一次，也支持 Actions 的 `workflow_dispatch`。
+检查按 `latest.json` 中的保留条数重新抓取频道：窗口内出现新增、删除或编辑时才触发
+Vercel Deploy Hook 和 GitHub Pages 重建；只有浏览数或点赞数变化不会触发构建。两个站点分别
+检查，因此一个站点部署失败不会阻止另一个站点更新。
+
+手动检查或触发同步：
+
+```bash
+node plugins/telegram-log/bin/check.mjs \
+  --state https://www.neomelt.cloud/log/latest.json
+gh workflow run "Telegram log refresh" --ref master
+```
+
+如果检查输出 `up to date`，说明当前站点的指纹与频道一致；输出 `changed` 只表示下一步会
+请求重建，仍需等待对应的 Vercel 或 Pages 部署完成。Telegram 暂时不可访问、状态文件读
+取失败时，检查会跳过本轮并保留现有页面。
+
+插件的独立接口、支持范围和限制见 [plugins/telegram-log/README.md](../plugins/telegram-log/README.md)。
+
+---
+
 ## 发一篇文章
 
 ```bash
