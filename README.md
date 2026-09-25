@@ -4,6 +4,19 @@
 
 日常操作看 [docs/operations.md](docs/operations.md)，变更记录看 [CHANGELOG.md](CHANGELOG.md)，仓库外的配置变更（Vercel / DNS 等）记在 [docs/ops-log.md](docs/ops-log.md)。
 
+## Telegram 日常页
+
+`/log` 会在构建时读取公开 Telegram 频道，生成时间线。频道用户名在
+`src/site.config.ts` 的 `telegramLog.channel` 中配置；设为空字符串即可关闭这个功能。
+页面默认 `limit: 0`，保留整个公开频道历史，不存在固定的 60 条上限。图片会下载到
+`public/log-media/`，构建产物只保留本地化后的 webp。
+
+频道变更由 `.github/workflows/telegram-log.yml` 每小时检查一次，也可以在 GitHub Actions
+中手动运行。检查会比较上次构建写入的 `/log/latest.json` 指纹；保留范围内的新增、删除和
+编辑都会触发对应站点重建。多图消息在时间线上显示为一张铺满预览框的缩略图，点击后用
+全屏查看器浏览原比例图片和同组媒体。完整配置、部署钩子和故障处理见
+[Telegram 插件文档](plugins/telegram-log/README.md) 与 [操作指南](docs/operations.md)。
+
 ## 架构图
 
 ![Neomelt Blog 架构图](docs/architecture/diagram.png)
@@ -18,6 +31,9 @@
 │   ├── architecture/        # 架构图：.html 源（自带导出）+ .png
 │   ├── operations.md        # 操作指南：发文、换封面、改外观、加组件
 │   └── ops-log.md           # 运维日志：仓库外的配置变更（Vercel / DNS 等）
+├── .github/workflows/
+│   └── telegram-log.yml     # 定时检查频道并触发站点重建
+├── plugins/telegram-log/    # Telegram 日常页的数据加载、媒体本地化和展示
 ├── public/                  # 直接静态资源（按 URL 原样输出，不经过构建管线）
 │   ├── avatars/             # 构建时下载并本地化的友链头像
 │   ├── fonts/
@@ -67,7 +83,7 @@ skins）。三层的分工是：`blocks/` 只有功能实现，`skins/` 只有�
 `site.config.ts` 负责装配。加皮肤或加排版都是两步（写文件 + 登记一行），细节见
 [docs/operations.md](docs/operations.md)。
 
-构建时，Astro 从 `src/content/blog/` 读取 Markdown/MDX，生成文章页、归档、标签、系列、RSS、站点地图和搜索索引；友链 RSS 在构建时整理为 `/friend-circle.json`，头像下载到 `public/avatars/`。正文插图和封面留在 `src/assets/`，由 Astro 处理成带 hash 的 webp；`public/` 只放必须按原 URL 输出的字体、音频、头像和第三方脚本。浏览器端只负责主题、语言、阅读设置、搜索和评论等交互。
+构建时，Astro 从 `src/content/blog/` 读取 Markdown/MDX，生成文章页、归档、标签、系列、RSS、站点地图和搜索索引；友链 RSS 在构建时整理为 `/friend-circle.json`，头像下载到 `public/avatars/`。正文插图和封面留在 `src/assets/`，由 Astro 处理成带 hash 的 webp；`public/` 只放必须按原 URL 输出的字体、音频、头像和第三方脚本。浏览器端只负责主题、语言、阅读设置、搜索、评论和图片灯箱等交互。
 
 ## 内容维护约定
 
