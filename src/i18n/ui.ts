@@ -282,10 +282,10 @@ export const UI_TRANSLATIONS = {
     "legacy.uncategorized": "未分类",
 
     "log.metaTitle": "日常",
-    "log.metaDescription": "碎片化的生活记录，来自 Telegram 频道",
+    "log.metaDescription": "留一方余白，安放途中的片刻",
     "log.pageCrumb": "日常",
     "log.title": "日常",
-    "log.lead": "碎片化的生活记录，来自 Telegram 频道。",
+    "log.lead": "留一方余白，安放途中的片刻。",
     "log.empty": "这里还没有记录。",
     "log.subscribe": "在 Telegram 订阅",
     "log.subscribers": "订阅者",
@@ -655,11 +655,10 @@ export const UI_TRANSLATIONS = {
     "legacy.uncategorized": "Uncategorized",
 
     "log.metaTitle": "Log",
-    "log.metaDescription":
-      "Fragments of everyday life, from a Telegram channel",
+    "log.metaDescription": "A quiet margin for the moments along the way",
     "log.pageCrumb": "Log",
     "log.title": "Log",
-    "log.lead": "Fragments of everyday life, from a Telegram channel.",
+    "log.lead": "A quiet margin for the moments along the way.",
     "log.empty": "Nothing here yet.",
     "log.subscribe": "Follow on Telegram",
     "log.subscribers": "subscribers",
