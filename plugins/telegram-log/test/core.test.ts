@@ -74,7 +74,10 @@ describe("parseChannelPage", () => {
     expect(html).toContain(
       '<a href="https://example.com/x" target="_blank" rel="noopener noreferrer nofollow">ok</a>',
     );
-    expect(html).toContain('<span class="tlog-spoiler">secret</span>');
+    expect(html).toContain('<span class="tlog-spoiler"');
+    expect(html).toContain('tabindex="0"');
+    expect(html).toContain('role="button"');
+    expect(html).toContain('aria-expanded="false"');
   });
 
   it("reads photos, albums, videos and link previews", () => {

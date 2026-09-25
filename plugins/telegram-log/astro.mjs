@@ -10,8 +10,8 @@
  *   };
  *
  * Both loaders share one fetch per build. When t.me cannot be reached the
- * loaders keep whatever the previous successful run stored and only warn, so
- * a Telegram hiccup never takes the rest of the site down with it.
+ * loaders clear their current stores and warn, so a failed run cannot leave
+ * stale entries that point at unavailable generated media.
  */
 import path from "node:path";
 import { z } from "astro/zod";
@@ -21,7 +21,7 @@ import { localizeChannelMedia } from "./media.mjs";
 /**
  * @typedef {{
  *   channel?: string;       // public channel username, without @
- *   limit?: number;         // newest posts to keep (default 60)
+ *   limit?: number;         // newest posts to keep (default 0 = all history)
  *   mediaDir?: string;      // where images are written (default public/log-media)
  *   mediaPath?: string;     // URL path of mediaDir, relative to the site base (default log-media/)
  * }} TelegramLogOptions
@@ -86,7 +86,7 @@ const runs = new Map();
 function resolve(options) {
   return {
     channel: (options.channel ?? "").trim().replace(/^@/, ""),
-    limit: options.limit ?? 60,
+    limit: options.limit ?? 0,
     mediaDir:
       options.mediaDir ?? path.join(process.cwd(), "public", "log-media"),
     mediaPath: options.mediaPath ?? "log-media/",
@@ -131,9 +131,11 @@ export function telegramLogLoader(options = {}) {
       try {
         result = await run(o);
       } catch (error) {
+        const cleared = store.keys().length;
+        store.clear();
         logger.warn(
           `could not read t.me/s/${o.channel} (${error instanceof Error ? error.message : error}); ` +
-            `keeping ${store.keys().length} posts from the last successful run`,
+            `cleared ${cleared} posts from the current build`,
         );
         return;
       }
@@ -168,6 +170,7 @@ export function telegramChannelLoader(options = {}) {
       try {
         result = await run(o);
       } catch {
+        store.clear();
         return; // telegramLogLoader already reported it
       }
       const { channel, posts, digest } = result;

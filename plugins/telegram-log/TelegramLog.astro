@@ -320,8 +320,50 @@ const ch = channel?.data;
       el.textContent = rtf.format(Math.round(seconds / divisor), unit);
     }
   }
-  relativize();
-  document.addEventListener("astro:page-load", relativize);
+
+  function setupSpoilers() {
+    for (const spoiler of document.querySelectorAll<HTMLElement>(
+      ".tlog-spoiler",
+    )) {
+      if (spoiler.dataset.tlogSpoilerReady) continue;
+      spoiler.dataset.tlogSpoilerReady = "true";
+      const toggle = () => {
+        const revealed = spoiler.classList.toggle("is-revealed");
+        spoiler.setAttribute("aria-expanded", String(revealed));
+      };
+      spoiler.addEventListener("click", toggle);
+      spoiler.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        toggle();
+      });
+    }
+  }
+
+  let relativeTimeTimer: number | undefined;
+  function startRelativeTimeUpdates() {
+    if (document.hidden || relativeTimeTimer !== undefined) return;
+    relativeTimeTimer = window.setInterval(relativize, 60_000);
+  }
+  function stopRelativeTimeUpdates() {
+    if (relativeTimeTimer === undefined) return;
+    window.clearInterval(relativeTimeTimer);
+    relativeTimeTimer = undefined;
+  }
+  function refreshRelativeTimes() {
+    relativize();
+    if (document.hidden) stopRelativeTimeUpdates();
+    else startRelativeTimeUpdates();
+  }
+
+  setupSpoilers();
+  refreshRelativeTimes();
+  document.addEventListener("visibilitychange", refreshRelativeTimes);
+  document.addEventListener("site:locale-change", relativize);
+  document.addEventListener("astro:page-load", () => {
+    setupSpoilers();
+    refreshRelativeTimes();
+  });
 </script>
 
 <style>
@@ -420,13 +462,21 @@ const ch = channel?.data;
   }
 
   .tlog-text :global(.tlog-spoiler) {
+    cursor: pointer;
     border-radius: 3px;
     background: currentColor;
     transition: background 0.2s;
   }
 
-  .tlog-text :global(.tlog-spoiler:hover) {
+  .tlog-text :global(.tlog-spoiler:hover),
+  .tlog-text :global(.tlog-spoiler:focus),
+  .tlog-text :global(.tlog-spoiler.is-revealed) {
     background: transparent;
+  }
+
+  .tlog-text :global(.tlog-spoiler:focus-visible) {
+    outline: 2px solid var(--tlog-accent);
+    outline-offset: 2px;
   }
 
   .tlog-photos {
