@@ -192,7 +192,12 @@ function cleanNode(node, base) {
       {
         type: "element",
         tagName: "span",
-        properties: { className: ["tlog-spoiler"] },
+        properties: {
+          className: ["tlog-spoiler"],
+          tabIndex: 0,
+          role: "button",
+          "aria-expanded": "false",
+        },
         children: cleanChildren(node.children ?? [], base),
       },
     ];

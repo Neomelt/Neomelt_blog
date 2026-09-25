@@ -1,6 +1,10 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
-import { TELEGRAM_LOG_ENABLED } from "../../utils/telegram-log";
+import { telegramLog } from "../../site.config";
+import {
+  TELEGRAM_LOG_CHANNEL,
+  TELEGRAM_LOG_ENABLED,
+} from "../../utils/telegram-log";
 
 /**
  * What the 日常 page was built from. The scheduled workflow
@@ -20,7 +24,15 @@ export const GET: APIRoute = async () => {
         latestId: channel.data.latestId ?? null,
         fetchedAt: channel.data.fetchedAt.toISOString(),
       }
-    : { channel: null };
+    : TELEGRAM_LOG_ENABLED
+      ? {
+          channel: TELEGRAM_LOG_CHANNEL,
+          digest: null,
+          limit: telegramLog.limit,
+          latestId: null,
+          fetchedAt: null,
+        }
+      : { channel: null };
   return new Response(JSON.stringify(body), {
     headers: { "Content-Type": "application/json" },
   });
