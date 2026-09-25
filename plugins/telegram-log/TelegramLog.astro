@@ -1,0 +1,638 @@
+---
+/**
+ * A Telegram channel as a timeline of short posts.
+ *
+ * Takes the entries of the two collections from astro.mjs and draws them;
+ * it fetches nothing itself. Colours and radii come from CSS variables with
+ * plain fallbacks (--bg-card, --border, --text, --text-muted, --accent,
+ * --radius-card), so a site that defines them gets its own look and one that
+ * does not still gets something sane.
+ *
+ *   <TelegramLog posts={await getCollection("log")} channel={channelEntry} />
+ */
+interface Image {
+  src: string;
+  srcset: string;
+  width: number;
+  height: number;
+}
+
+interface Post {
+  url: string;
+  date: Date;
+  html: string;
+  text: string;
+  photos: Image[];
+  videos: { url: string; duration?: string; thumb?: Image }[];
+  link?: {
+    url: string;
+    siteName?: string;
+    title?: string;
+    description?: string;
+  };
+  forwardedFrom?: { name: string; url?: string };
+  reactions: { emoji: string; count: string }[];
+  views?: string;
+  edited: boolean;
+  unsupported: string[];
+  missingMedia: number;
+}
+
+interface Channel {
+  username: string;
+  title: string;
+  description: string;
+  url: string;
+  avatar?: Image;
+  counters: Record<string, string>;
+}
+
+const defaultLabels = {
+  subscribe: "在 Telegram 订阅",
+  subscribers: "订阅者",
+  views: "次浏览",
+  edited: "已编辑",
+  openInTelegram: "在 Telegram 查看",
+  video: "视频",
+  forwardedFrom: "转发自",
+  missingMedia: "有图片没能加载，去 Telegram 看原帖",
+  unsupported: "这条带有网页显示不了的内容，去 Telegram 看原帖",
+  older: "更早的记录在 Telegram 频道里",
+};
+type Labels = typeof defaultLabels;
+
+export interface Props {
+  posts: { id: string; data: Post }[];
+  channel?: { id: string; data: Channel };
+  /** Time zone for the printed timestamps. The build machine's own zone is
+      usually UTC, which is rarely what the writer meant. */
+  timeZone?: string;
+  /** Width in px of the column the log sits in; feeds the images' sizes. */
+  maxWidth?: number;
+  labels?: Partial<Labels>;
+  /** Optional data-i18n keys, for sites that swap UI text client-side. */
+  labelKeys?: Partial<Record<keyof Labels, string>>;
+}
+
+const {
+  posts,
+  channel,
+  timeZone = "Asia/Shanghai",
+  maxWidth = 760,
+  labels: labelOverrides = {},
+  labelKeys = {},
+} = Astro.props;
+const labels: Labels = { ...defaultLabels, ...labelOverrides };
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const media = (path: string) =>
+  /^(https?:)?\/\//.test(path) ? path : `${base}${path}`;
+const srcset = (set: string) =>
+  set
+    .split(",")
+    .map((part) => media(part.trim()))
+    .join(", ");
+
+const stamp = new Intl.DateTimeFormat("en-CA", {
+  timeZone,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+const formatDate = (date: Date) => {
+  const p = Object.fromEntries(
+    stamp.formatToParts(date).map((x) => [x.type, x.value]),
+  );
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`;
+};
+
+const sorted = [...posts].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const gridClass = (n: number) =>
+  n === 1 ? "one" : n === 2 || n === 4 ? "two" : "three";
+const gridSizes = (n: number) => {
+  const cols = n === 1 ? 1 : n === 2 || n === 4 ? 2 : 3;
+  return `(max-width: 820px) ${Math.round(94 / cols)}vw, ${Math.round(maxWidth / cols)}px`;
+};
+const ch = channel?.data;
+---
+
+<section class="tlog">
+  <ol class="tlog-list">
+    {
+      sorted.map(({ id, data: post }) => (
+        <li class="tlog-item" id={`log-${id}`}>
+          <article class="tlog-card">
+            <header class="tlog-meta">
+              <time
+                datetime={post.date.toISOString()}
+                title={formatDate(post.date)}
+                data-tlog-time
+              >
+                {formatDate(post.date)}
+              </time>
+              {post.edited && (
+                <span class="tlog-edited" data-i18n={labelKeys.edited}>
+                  {labels.edited}
+                </span>
+              )}
+              <a
+                class="tlog-open"
+                href={post.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={labels.openInTelegram}
+              >
+                ↗
+              </a>
+            </header>
+
+            {post.forwardedFrom && (
+              <p class="tlog-forward">
+                <span data-i18n={labelKeys.forwardedFrom}>
+                  {labels.forwardedFrom}
+                </span>{" "}
+                {post.forwardedFrom.url ? (
+                  <a
+                    href={post.forwardedFrom.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {post.forwardedFrom.name}
+                  </a>
+                ) : (
+                  post.forwardedFrom.name
+                )}
+              </p>
+            )}
+
+            <div class="tlog-body prose">
+              {post.html && <div class="tlog-text" set:html={post.html} />}
+              {post.photos.length > 0 && (
+                <div class={`tlog-photos ${gridClass(post.photos.length)}`}>
+                  {post.photos.map((photo) => (
+                    <img
+                      src={media(photo.src)}
+                      srcset={srcset(photo.srcset)}
+                      sizes={gridSizes(post.photos.length)}
+                      width={photo.width}
+                      height={photo.height}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {post.videos.map((video) => (
+              <a
+                class="tlog-video"
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {video.thumb && (
+                  <img
+                    src={media(video.thumb.src)}
+                    width={video.thumb.width}
+                    height={video.thumb.height}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+                <span class="tlog-video-label">
+                  ▶ <span data-i18n={labelKeys.video}>{labels.video}</span>
+                  {video.duration && ` ${video.duration}`}
+                </span>
+              </a>
+            ))}
+
+            {post.link && (
+              <a
+                class="tlog-link"
+                href={post.link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {post.link.siteName && (
+                  <span class="tlog-link-site">{post.link.siteName}</span>
+                )}
+                {post.link.title && (
+                  <span class="tlog-link-title">{post.link.title}</span>
+                )}
+                {post.link.description && (
+                  <span class="tlog-link-desc">{post.link.description}</span>
+                )}
+              </a>
+            )}
+
+            {(post.missingMedia > 0 || post.unsupported.length > 0) && (
+              <p class="tlog-note">
+                <a href={post.url} target="_blank" rel="noopener noreferrer">
+                  {post.missingMedia > 0 ? (
+                    <span data-i18n={labelKeys.missingMedia}>
+                      {labels.missingMedia}
+                    </span>
+                  ) : (
+                    <span data-i18n={labelKeys.unsupported}>
+                      {labels.unsupported}
+                    </span>
+                  )}
+                </a>
+              </p>
+            )}
+
+            {(post.reactions.length > 0 || post.views) && (
+              <footer class="tlog-foot">
+                <span class="tlog-reactions">
+                  {post.reactions.map((r) => (
+                    <span class="tlog-reaction">
+                      {r.emoji} {r.count}
+                    </span>
+                  ))}
+                </span>
+                {post.views && (
+                  <span class="tlog-views">
+                    {post.views}{" "}
+                    <span data-i18n={labelKeys.views}>{labels.views}</span>
+                  </span>
+                )}
+              </footer>
+            )}
+          </article>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    ch && (
+      <p class="tlog-older">
+        <a
+          href={`https://t.me/s/${ch.username}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span data-i18n={labelKeys.older}>{labels.older}</span> →
+        </a>
+      </p>
+    )
+  }
+</section>
+
+<script>
+  // Recent posts read better as "3 小时前"; older ones keep the date. Runs on
+  // the client because a build-time "2 days ago" is wrong a day later.
+  function relativize() {
+    const lang = document.documentElement.lang || navigator.language || "zh-CN";
+    const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
+    const now = Date.now();
+    const steps: [number, Intl.RelativeTimeFormatUnit][] = [
+      [60, "second"],
+      [3600, "minute"],
+      [86400, "hour"],
+      [86400 * 7, "day"],
+    ];
+    for (const el of document.querySelectorAll<HTMLTimeElement>(
+      "time[data-tlog-time]",
+    )) {
+      const seconds = (new Date(el.dateTime).getTime() - now) / 1000;
+      const abs = Math.abs(seconds);
+      const step = steps.find(([limit]) => abs < limit);
+      if (!step) continue;
+      const unit = step[1];
+      const divisor =
+        unit === "second"
+          ? 1
+          : unit === "minute"
+            ? 60
+            : unit === "hour"
+              ? 3600
+              : 86400;
+      el.textContent = rtf.format(Math.round(seconds / divisor), unit);
+    }
+  }
+
+  function setupSpoilers() {
+    for (const spoiler of document.querySelectorAll<HTMLElement>(
+      ".tlog-spoiler",
+    )) {
+      if (spoiler.dataset.tlogSpoilerReady) continue;
+      spoiler.dataset.tlogSpoilerReady = "true";
+      const toggle = () => {
+        const revealed = spoiler.classList.toggle("is-revealed");
+        spoiler.setAttribute("aria-expanded", String(revealed));
+      };
+      spoiler.addEventListener("click", toggle);
+      spoiler.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        toggle();
+      });
+    }
+  }
+
+  let relativeTimeTimer: number | undefined;
+  function startRelativeTimeUpdates() {
+    if (document.hidden || relativeTimeTimer !== undefined) return;
+    relativeTimeTimer = window.setInterval(relativize, 60_000);
+  }
+  function stopRelativeTimeUpdates() {
+    if (relativeTimeTimer === undefined) return;
+    window.clearInterval(relativeTimeTimer);
+    relativeTimeTimer = undefined;
+  }
+  function refreshRelativeTimes() {
+    relativize();
+    if (document.hidden) stopRelativeTimeUpdates();
+    else startRelativeTimeUpdates();
+  }
+
+  setupSpoilers();
+  refreshRelativeTimes();
+  document.addEventListener("visibilitychange", refreshRelativeTimes);
+  document.addEventListener("site:locale-change", relativize);
+  document.addEventListener("astro:page-load", () => {
+    setupSpoilers();
+    refreshRelativeTimes();
+  });
+</script>
+
+<style>
+  .tlog {
+    --tlog-card: var(--bg-card, #fff);
+    --tlog-border: var(--border, #e5e7eb);
+    --tlog-muted: var(--text-muted, #6b7280);
+    --tlog-accent: var(--accent, #3b82f6);
+    --tlog-radius: var(--radius-card, 16px);
+  }
+
+  .tlog-list {
+    position: relative;
+    margin: 0;
+    padding: 0 0 0 1.5rem;
+    list-style: none;
+  }
+
+  /* The thread down the left that ties the entries into one diary. */
+  .tlog-list::before {
+    content: "";
+    position: absolute;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    left: 0.35rem;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--tlog-border);
+  }
+
+  .tlog-item {
+    position: relative;
+    margin: 0 0 2rem;
+  }
+
+  .tlog-item::before {
+    content: "";
+    position: absolute;
+    top: 1.15rem;
+    left: calc(-1.5rem + 0.35rem - 4px);
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--tlog-card);
+    border-radius: 50%;
+    background: var(--tlog-accent);
+  }
+
+  .tlog-card {
+    padding: 0.25rem 0 0.5rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .tlog-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--tlog-muted);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tlog-edited {
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .tlog-open {
+    margin-left: auto;
+    color: var(--tlog-muted);
+    text-decoration: none;
+  }
+
+  .tlog-open:hover,
+  .tlog-older a:hover {
+    color: var(--tlog-accent);
+  }
+
+  .tlog-forward {
+    margin: 0 0 0.4rem;
+    color: var(--tlog-muted);
+    font-size: 0.82rem;
+  }
+
+  /* .prose is only borrowed for the site's lightbox and link styling; the
+     article column width and image margins it brings do not apply here. */
+  .tlog-body.prose {
+    max-width: none;
+  }
+
+  .tlog-text {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .tlog-text :global(.tlog-spoiler) {
+    cursor: pointer;
+    border-radius: 3px;
+    background: currentColor;
+    transition: background 0.2s;
+  }
+
+  .tlog-text :global(.tlog-spoiler:hover),
+  .tlog-text :global(.tlog-spoiler:focus),
+  .tlog-text :global(.tlog-spoiler.is-revealed) {
+    background: transparent;
+  }
+
+  .tlog-text :global(.tlog-spoiler:focus-visible) {
+    outline: 2px solid var(--tlog-accent);
+    outline-offset: 2px;
+  }
+
+  .tlog-photos {
+    display: grid;
+    gap: 4px;
+    margin-top: 0.6rem;
+    overflow: hidden;
+    border-radius: calc(var(--tlog-radius) * 0.6);
+  }
+
+  .tlog-photos.two {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tlog-photos.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .tlog-body.prose .tlog-photos img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    object-fit: cover;
+    aspect-ratio: 1;
+  }
+
+  .tlog-body.prose .tlog-photos.one img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 32rem;
+    aspect-ratio: auto;
+  }
+
+  .tlog-video {
+    position: relative;
+    display: block;
+    margin-top: 0.6rem;
+    overflow: hidden;
+    border-radius: calc(var(--tlog-radius) * 0.6);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .tlog-video img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .tlog-video-label {
+    position: absolute;
+    left: 0.6rem;
+    bottom: 0.6rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-pill, 999px);
+    background: rgba(0, 0, 0, 0.6);
+    font-size: 0.85rem;
+  }
+
+  .tlog-video:not(:has(img)) {
+    padding: 0.8rem;
+    border: 1px dashed var(--tlog-border);
+    color: var(--tlog-accent);
+  }
+
+  .tlog-video:not(:has(img)) .tlog-video-label {
+    position: static;
+    background: none;
+  }
+
+  .tlog-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--tlog-accent);
+    border-radius: 6px;
+    background: var(--bg-code, rgba(127, 127, 127, 0.08));
+    color: var(--text, inherit);
+    font-size: 0.88rem;
+    text-decoration: none;
+  }
+
+  .tlog-link-site {
+    color: var(--tlog-accent);
+    font-size: 0.78rem;
+  }
+
+  .tlog-link-title {
+    font-weight: 600;
+  }
+
+  .tlog-link-desc {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--tlog-muted);
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .tlog-note {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+  }
+
+  .tlog-note a {
+    color: var(--tlog-muted);
+  }
+
+  .tlog-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    color: var(--tlog-muted);
+    font-size: 0.8rem;
+  }
+
+  .tlog-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tlog-reaction {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--tlog-border);
+    border-radius: var(--radius-pill, 999px);
+  }
+
+  .tlog-views {
+    margin-left: auto;
+  }
+
+  .tlog-older {
+    margin: 0.5rem 0 0 1.5rem;
+    font-size: 0.88rem;
+  }
+
+  .tlog-older a {
+    color: var(--tlog-muted);
+    text-decoration: none;
+  }
+
+  @media (max-width: 560px) {
+    .tlog-list {
+      padding-left: 1.1rem;
+    }
+
+    .tlog-item::before {
+      left: calc(-1.1rem + 0.35rem - 4px);
+    }
+  }
+</style>

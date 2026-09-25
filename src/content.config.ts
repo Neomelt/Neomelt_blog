@@ -1,5 +1,11 @@
 import { glob } from "astro/loaders";
 import { defineCollection, z } from "astro:content";
+import {
+  telegramChannelLoader,
+  telegramLogLoader,
+} from "../plugins/telegram-log/astro.mjs";
+import { telegramLog } from "./site.config";
+import { TELEGRAM_LOG_CHANNEL } from "./utils/telegram-log";
 
 const blog = defineCollection({
   // Load Markdown and MDX files in the `src/content/blog/` directory.
@@ -21,4 +27,15 @@ const blog = defineCollection({
     }),
 });
 
-export const collections = { blog };
+// 日常: posts from a public Telegram channel, fetched at build time. Both
+// collections stay empty while no channel is configured in site.config.ts.
+const telegramOptions = {
+  channel: TELEGRAM_LOG_CHANNEL,
+  limit: telegramLog.limit,
+};
+const log = defineCollection({ loader: telegramLogLoader(telegramOptions) });
+const logChannel = defineCollection({
+  loader: telegramChannelLoader(telegramOptions),
+});
+
+export const collections = { blog, log, logChannel };
