@@ -481,6 +481,7 @@ const ch = channel?.data;
 
   .tlog-photos {
     display: grid;
+    align-items: start;
     gap: 4px;
     margin-top: 0.6rem;
     overflow: hidden;
@@ -498,12 +499,12 @@ const ch = channel?.data;
   .tlog-body.prose .tlog-photos img {
     display: block;
     width: 100%;
-    height: 100%;
+    height: auto;
     margin: 0;
     border: 0;
     border-radius: 0;
-    object-fit: cover;
-    aspect-ratio: 1;
+    object-fit: contain;
+    aspect-ratio: auto;
   }
 
   .tlog-body.prose .tlog-photos.one img {
