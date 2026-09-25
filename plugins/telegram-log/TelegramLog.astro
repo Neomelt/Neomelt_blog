@@ -205,11 +205,14 @@ const ch = channel?.data;
                         decoding="async"
                       />
                     ))}
-                    {post.photos.length > 1 && (
-                      <span class="tlog-media-count">
-                        共 {post.photos.length} 个媒体文件
-                      </span>
-                    )}
+                    <span class="tlog-media-overlay" aria-hidden="true">
+                      <svg viewBox="0 0 32 32" focusable="false">
+                        <rect x="4" y="5" width="24" height="22" rx="2" />
+                        <circle cx="11" cy="12" r="2" />
+                        <path d="m6 24 6-6 4 4 4-5 6 7" />
+                      </svg>
+                      <span>共 {post.photos.length} 个媒体文件</span>
+                    </span>
                   </div>
                 </div>
               )}
@@ -506,7 +509,7 @@ const ch = channel?.data;
     position: relative;
     display: grid;
     place-items: center;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 7 / 2;
     max-height: 28rem;
     justify-content: center;
     overflow: hidden;
@@ -533,11 +536,11 @@ const ch = channel?.data;
     height: calc(100% + 3rem);
     max-height: none;
     border-radius: 0;
-    filter: blur(1.1rem);
+    filter: blur(1.35rem);
     object-fit: cover;
     opacity: 0.65;
     pointer-events: none;
-    transform: scale(1.08);
+    transform: scale(1.22);
   }
 
   .tlog-body.prose .tlog-photos img {
@@ -559,18 +562,33 @@ const ch = channel?.data;
     display: none;
   }
 
-  .tlog-media-count {
+  .tlog-media-overlay {
     position: absolute;
-    right: 0.65rem;
-    bottom: 0.65rem;
-    padding: 0.3rem 0.65rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-pill, 999px);
-    background: rgba(8, 10, 14, 0.68);
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
     color: #fff;
-    font-size: 0.78rem;
+    font-size: 1rem;
     line-height: 1.35;
+    text-align: center;
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.9);
     pointer-events: none;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+
+  .tlog-media-overlay svg {
+    width: 2.75rem;
+    height: 2.75rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
   }
 
   .tlog-video {

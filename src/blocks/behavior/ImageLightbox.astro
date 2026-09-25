@@ -60,6 +60,11 @@
     next.className = "lightbox-control lightbox-next";
     next.setAttribute("aria-label", "下一张");
     next.textContent = "›";
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "lightbox-close";
+    closeButton.setAttribute("aria-label", "关闭");
+    closeButton.textContent = "×";
     const counter = document.createElement("span");
     counter.className = "lightbox-counter";
 
@@ -67,7 +72,7 @@
       const hasGallery = gallery.items.length > 1;
       previous.hidden = !hasGallery;
       next.hidden = !hasGallery;
-      counter.hidden = !hasGallery;
+      counter.hidden = false;
       counter.textContent = `${current + 1} / ${gallery.items.length}`;
     };
 
@@ -90,7 +95,7 @@
     };
 
     document.body.appendChild(backdrop);
-    backdrop.append(clone, previous, next, counter);
+    backdrop.append(clone, previous, next, counter, closeButton);
     if (img.alt) {
       const caption = document.createElement("figcaption");
       caption.className = "lightbox-caption";
@@ -146,6 +151,10 @@
       event.stopPropagation();
       goTo(current + 1);
     });
+    closeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      close();
+    });
     document.addEventListener("keydown", onKeydown);
     activeCleanup = close;
   }
@@ -176,7 +185,8 @@
     position: fixed;
     inset: 0;
     z-index: var(--z-overlay);
-    background: rgba(2, 4, 8, 0.94);
+    background: rgba(0, 0, 0, 0.96);
+    backdrop-filter: blur(0.5rem);
     opacity: 0;
     transition: opacity 0.28s ease;
     cursor: zoom-out;
@@ -192,7 +202,7 @@
     left: 50%;
     z-index: var(--z-overlay-control);
     margin: 0;
-    border-radius: var(--radius-sm);
+    border-radius: 0;
     width: auto;
     height: auto;
     max-width: 92vw;
@@ -211,19 +221,21 @@
     position: fixed;
     top: 50%;
     z-index: calc(var(--z-overlay-control) + 1);
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 50%;
-    background: rgba(8, 10, 14, 0.58);
+    width: 5rem;
+    height: 7rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
     color: #fff;
-    font: 2rem/1 sans-serif;
+    font: 4.5rem/1 sans-serif;
     cursor: pointer;
     transform: translateY(-50%);
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.75);
   }
 
   .lightbox-control:hover {
-    background: rgba(8, 10, 14, 0.82);
+    background: transparent;
+    transform: translateY(-50%) scale(1.08);
   }
 
   .lightbox-control:focus-visible {
@@ -241,20 +253,44 @@
 
   .lightbox-counter {
     position: fixed;
-    left: 50%;
-    bottom: 1.25rem;
+    top: 1.5rem;
+    left: 1.5rem;
     z-index: calc(var(--z-overlay-control) + 1);
-    transform: translateX(-50%);
-    padding: 0.3rem 0.7rem;
-    border-radius: var(--radius-pill);
-    background: rgba(8, 10, 14, 0.58);
+    padding: 0.25rem 0.4rem;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 0.82rem;
+    font-size: 1rem;
     font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.8);
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: 0.6rem;
+    right: 1.25rem;
+    z-index: calc(var(--z-overlay-control) + 1);
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font: 3rem/1 sans-serif;
+    cursor: pointer;
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.8);
+  }
+
+  .lightbox-close:hover {
+    transform: scale(1.08);
+  }
+
+  .lightbox-close:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
   }
 
   .lightbox-control[hidden],
-  .lightbox-counter[hidden] {
+  .lightbox-counter[hidden],
+  .lightbox-close[hidden] {
     display: none;
   }
 
