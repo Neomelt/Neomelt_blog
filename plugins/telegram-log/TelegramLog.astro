@@ -176,20 +176,6 @@ const ch = channel?.data;
                   data-lightbox-gallery={id}
                 >
                   <div class="tlog-photo-row one">
-                    {post.photos[0] && (
-                      <img
-                        class="tlog-photo-backdrop"
-                        src={media(post.photos[0].src)}
-                        srcset={srcset(post.photos[0].srcset)}
-                        sizes="(max-width: 540px) 94vw, 42rem"
-                        width={post.photos[0].width}
-                        height={post.photos[0].height}
-                        alt=""
-                        aria-hidden="true"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    )}
                     {post.photos.map((photo, index) => (
                       <img
                         class:list={{ "tlog-gallery-hidden": index > 0 }}
@@ -521,41 +507,26 @@ const ch = channel?.data;
   .tlog-photo-row::after {
     position: absolute;
     inset: 0;
-    z-index: 0;
-    background: rgba(4, 7, 12, 0.2);
+    z-index: 1;
+    background: rgba(4, 7, 12, 0.16);
     content: "";
     pointer-events: none;
-  }
-
-  .tlog-body.prose .tlog-photos img.tlog-photo-backdrop {
-    position: absolute;
-    inset: -1.5rem;
-    z-index: 0;
-    width: calc(100% + 3rem);
-    max-width: none;
-    height: calc(100% + 3rem);
-    max-height: none;
-    border-radius: 0;
-    filter: blur(1.35rem);
-    object-fit: cover;
-    opacity: 0.65;
-    pointer-events: none;
-    transform: scale(1.22);
   }
 
   .tlog-body.prose .tlog-photos img {
     display: block;
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 0;
     width: 100%;
     max-width: 100%;
     height: 100%;
     max-height: none;
     margin: 0;
     border: 0;
-    border-radius: calc(var(--tlog-radius) * 0.4);
-    object-fit: contain;
+    border-radius: 0;
+    object-fit: cover;
+    object-position: center;
     aspect-ratio: auto;
   }
 
