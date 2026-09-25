@@ -1,34 +1,38 @@
 <script>
+  type GalleryItem = { src: string; width: number; height: number };
   const OPEN_CLASS = "lightbox-open";
   /** Set while a lightbox is open; calling it tears that one down. */
   let activeCleanup: (() => void) | null = null;
 
-  function getMaxScale(img: HTMLImageElement, rect: DOMRect) {
-    const fitW = (window.innerWidth * 0.92) / rect.width;
-    const fitH = (window.innerHeight * 0.92) / rect.height;
-    let scale = Math.min(fitW, fitH);
-
-    // 位图放大不超过原始分辨率（再放就糊了）；SVG 矢量图不设上限。
-    // src 可能是 Astro 的 /_image?href=...%2Fxxx.svg&f=svg 形式，需解码后再判断
-    const src = img.currentSrc || img.src || "";
-    let decoded = src;
-    try {
-      decoded = decodeURIComponent(src);
-    } catch {
-      /* 保底用原始 src */
-    }
-    const isVector = /\.svg\b/i.test(decoded);
-    if (!isVector && img.naturalWidth > 0) {
-      scale = Math.min(scale, img.naturalWidth / rect.width);
-    }
-    return Math.max(scale, 1);
+  function galleryFor(img: HTMLImageElement) {
+    const container = img.closest<HTMLElement>("[data-lightbox-gallery]");
+    const sources = container
+      ? Array.from(
+          container.querySelectorAll<HTMLImageElement>(
+            "img[data-lightbox-src]",
+          ),
+        )
+      : [img];
+    const items: GalleryItem[] = sources.map((source) => ({
+      src: source.dataset.lightboxSrc || source.currentSrc || source.src,
+      width:
+        Number(source.dataset.lightboxWidth) ||
+        source.naturalWidth ||
+        source.width,
+      height:
+        Number(source.dataset.lightboxHeight) ||
+        source.naturalHeight ||
+        source.height,
+    }));
+    const start = Math.max(0, sources.indexOf(img));
+    return { items, start };
   }
 
   function openLightbox(img: HTMLImageElement) {
     if (activeCleanup) return;
 
-    const rect = img.getBoundingClientRect();
-    const scale = getMaxScale(img, rect);
+    const gallery = galleryFor(img);
+    let current = gallery.start;
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -41,19 +45,52 @@
 
     const clone = document.createElement("img");
     clone.className = "lightbox-image";
-    clone.src = img.currentSrc || img.src;
+    clone.src = gallery.items[current]!.src;
     clone.alt = img.alt || "";
-    clone.style.top = `${rect.top}px`;
-    clone.style.left = `${rect.left}px`;
-    clone.style.width = `${rect.width}px`;
-    clone.style.height = `${rect.height}px`;
+    clone.style.opacity = "1";
+    clone.style.transform = "translate(-50%, -50%)";
 
-    // 目标位移：图片中心 → 视口中心
-    const dx = window.innerWidth / 2 - (rect.left + rect.width / 2);
-    const dy = window.innerHeight / 2 - (rect.top + rect.height / 2);
+    const previous = document.createElement("button");
+    previous.type = "button";
+    previous.className = "lightbox-control lightbox-prev";
+    previous.setAttribute("aria-label", "上一张");
+    previous.textContent = "‹";
+    const next = document.createElement("button");
+    next.type = "button";
+    next.className = "lightbox-control lightbox-next";
+    next.setAttribute("aria-label", "下一张");
+    next.textContent = "›";
+    const counter = document.createElement("span");
+    counter.className = "lightbox-counter";
+
+    const updateCounter = () => {
+      const hasGallery = gallery.items.length > 1;
+      previous.hidden = !hasGallery;
+      next.hidden = !hasGallery;
+      counter.hidden = !hasGallery;
+      counter.textContent = `${current + 1} / ${gallery.items.length}`;
+    };
+
+    const showItem = (index: number) => {
+      current = (index + gallery.items.length) % gallery.items.length;
+      const item = gallery.items[current]!;
+      clone.alt = img.alt || "";
+      clone.width = item.width;
+      clone.height = item.height;
+      clone.src = item.src;
+      updateCounter();
+    };
+
+    const goTo = (index: number) => {
+      showItem(index);
+      clone.style.opacity = "0.3";
+      requestAnimationFrame(() => {
+        clone.style.opacity = "1";
+      });
+    };
 
     document.body.appendChild(backdrop);
-    document.body.appendChild(clone);
+    backdrop.append(clone, previous, next, counter);
     if (img.alt) {
       const caption = document.createElement("figcaption");
       caption.className = "lightbox-caption";
@@ -68,15 +105,14 @@
       backdrop.style.transition = "none";
     }
 
-    // 强制 reflow，让初始位置生效后再过渡
-    void clone.getBoundingClientRect();
+    // 让初始图片直接落在居中的观看区域，避免不同长宽比之间发生挤压动画。
+    showItem(current);
     backdrop.classList.add("is-visible");
-    clone.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
 
     const close = () => {
       document.removeEventListener("keydown", onKeydown);
       backdrop.classList.remove("is-visible");
-      clone.style.transform = "";
+      clone.style.opacity = "0";
 
       const finish = () => {
         backdrop.remove();
@@ -96,10 +132,20 @@
 
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
+      if (event.key === "ArrowLeft") goTo(current - 1);
+      if (event.key === "ArrowRight") goTo(current + 1);
     };
 
     backdrop.addEventListener("click", close);
     clone.addEventListener("click", close);
+    previous.addEventListener("click", (event) => {
+      event.stopPropagation();
+      goTo(current - 1);
+    });
+    next.addEventListener("click", (event) => {
+      event.stopPropagation();
+      goTo(current + 1);
+    });
     document.addEventListener("keydown", onKeydown);
     activeCleanup = close;
   }
@@ -130,7 +176,7 @@
     position: fixed;
     inset: 0;
     z-index: var(--z-overlay);
-    background: rgba(8, 10, 14, 0.82);
+    background: rgba(2, 4, 8, 0.94);
     opacity: 0;
     transition: opacity 0.28s ease;
     cursor: zoom-out;
@@ -142,13 +188,74 @@
 
   .lightbox-image {
     position: fixed;
+    top: 50%;
+    left: 50%;
     z-index: var(--z-overlay-control);
     margin: 0;
     border-radius: var(--radius-sm);
-    transition: transform 0.28s cubic-bezier(0.2, 0, 0.2, 1);
+    width: auto;
+    height: auto;
+    max-width: 92vw;
+    max-height: 84vh;
+    object-fit: contain;
+    object-position: center;
+    transition:
+      transform 0.28s cubic-bezier(0.2, 0, 0.2, 1),
+      opacity 0.16s ease;
     transform-origin: center center;
     cursor: zoom-out;
     will-change: transform;
+  }
+
+  .lightbox-control {
+    position: fixed;
+    top: 50%;
+    z-index: calc(var(--z-overlay-control) + 1);
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    background: rgba(8, 10, 14, 0.58);
+    color: #fff;
+    font: 2rem/1 sans-serif;
+    cursor: pointer;
+    transform: translateY(-50%);
+  }
+
+  .lightbox-control:hover {
+    background: rgba(8, 10, 14, 0.82);
+  }
+
+  .lightbox-control:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  .lightbox-prev {
+    left: 1rem;
+  }
+
+  .lightbox-next {
+    right: 1rem;
+  }
+
+  .lightbox-counter {
+    position: fixed;
+    left: 50%;
+    bottom: 1.25rem;
+    z-index: calc(var(--z-overlay-control) + 1);
+    transform: translateX(-50%);
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: rgba(8, 10, 14, 0.58);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lightbox-control[hidden],
+  .lightbox-counter[hidden] {
+    display: none;
   }
 
   .lightbox-caption {
