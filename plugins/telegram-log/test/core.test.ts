@@ -195,6 +195,25 @@ describe("fetchChannel", () => {
     expect(result.channel.title).toBe("Test Channel");
   });
 
+  it("uses zero as an unlimited history request", async () => {
+    const seen: string[] = [];
+    const onePage = fixture
+      .replace('data-before="100"', "")
+      .replace('href="/s/test_log?before=100"', "");
+    const fakeFetch = (async (url: string) => {
+      seen.push(url);
+      return new Response(onePage, { status: 200 });
+    }) as typeof fetch;
+    const result = await fetchChannel({
+      channel: "test_log",
+      limit: 0,
+      fetchImpl: fakeFetch,
+      pauseMs: 0,
+    });
+    expect(result.posts).toHaveLength(3);
+    expect(seen).toEqual(["https://t.me/s/test_log"]);
+  });
+
   it("explains a private or missing channel instead of returning nothing", async () => {
     const redirect = (async () =>
       new Response(null, {

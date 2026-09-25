@@ -37,7 +37,7 @@
      telegramLogLoader,
    } from "../plugins/telegram-log/astro.mjs";
 
-   const options = { channel: "你的频道名", limit: 60 };
+   const options = { channel: "你的频道名", limit: 0 };
    const log = defineCollection({ loader: telegramLogLoader(options) });
    const logChannel = defineCollection({
      loader: telegramChannelLoader(options),
@@ -81,7 +81,7 @@ import { writeFile } from "node:fs/promises";
 import { fetchChannel } from "./telegram-log/core.mjs";
 import { localizeChannelMedia } from "./telegram-log/media.mjs";
 
-const raw = await fetchChannel({ channel: "你的频道名", limit: 60 });
+const raw = await fetchChannel({ channel: "你的频道名", limit: 0 });
 const data = await localizeChannelMedia(raw, {
   outDir: "static/log-media",
   publicPath: "/log-media/",
@@ -91,7 +91,7 @@ await writeFile("data/log.json", JSON.stringify(data, null, 2));
 
 ## 限制
 
-- 页面只保留最近 `limit` 条记录，更早的请到 Telegram 频道查看。
+- 页面默认保留整个公开频道历史；把 `limit` 设为正数时才限制条数，设为 `0` 表示不限制。
 - 贴纸、文件、语音和投票不会显示，这些消息会附上跳转到原帖的链接。
 - 视频只显示封面，点击后去 Telegram 观看。
 - 每次构建都会重新下载图片，因为 Vercel 这类平台不会保留上一次的构建目录。

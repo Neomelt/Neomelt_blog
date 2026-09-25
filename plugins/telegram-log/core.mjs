@@ -458,7 +458,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Newest `limit` posts plus channel info. Walks back page by page (about 20
- * posts each) and stops early when the channel runs out.
+ * posts each); a limit of 0 walks through the whole public channel history.
  *
  * @param {{
  *   channel: string;
@@ -481,14 +481,20 @@ export async function fetchChannel({
   pauseMs = 400,
 }) {
   assertChannelName(channel);
-  const pageCap = maxPages ?? Math.ceil(limit / 15) + 1;
+  const unlimited = limit <= 0;
+  const pageCap =
+    maxPages ?? (unlimited ? Infinity : Math.ceil(limit / 15) + 1);
   /** @type {Map<string, TgPost>} */
   const byId = new Map();
   /** @type {TgChannel | null} */
   let info = null;
   let before = null;
 
-  for (let page = 0; page < pageCap && byId.size < limit; page += 1) {
+  for (
+    let page = 0;
+    page < pageCap && (unlimited || byId.size < limit);
+    page += 1
+  ) {
     if (page > 0) await sleep(pauseMs);
     const html = await fetchPreview(previewUrl(channel, before), {
       fetchImpl,
@@ -511,7 +517,7 @@ export async function fetchChannel({
 
   const posts = [...byId.values()]
     .sort((a, b) => Number(b.id) - Number(a.id))
-    .slice(0, limit);
+    .slice(0, unlimited ? undefined : limit);
   return { channel: /** @type {TgChannel} */ (info), posts };
 }
 
