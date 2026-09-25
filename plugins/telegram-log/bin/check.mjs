@@ -54,7 +54,7 @@ if (!state.channel) {
 let live;
 try {
   const limit =
-    Number.isInteger(state.limit) && state.limit > 0 ? state.limit : 60;
+    Number.isInteger(state.limit) && state.limit >= 0 ? state.limit : 0;
   const { posts } = await fetchChannel({
     channel: state.channel,
     limit,
