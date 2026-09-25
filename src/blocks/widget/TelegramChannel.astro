@@ -1,0 +1,171 @@
+---
+import GlassPanel from "../surface/GlassPanel.astro";
+
+interface Image {
+  src: string;
+  width: number;
+  height: number;
+}
+
+interface Channel {
+  username: string;
+  title: string;
+  description: string;
+  url: string;
+  avatar?: Image;
+  counters: Record<string, string>;
+}
+
+export interface Props {
+  channel?: { data: Channel };
+}
+
+const { channel } = Astro.props;
+const ch = channel?.data;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const media = (path: string) =>
+  /^(https?:)?\/\//.test(path) ? path : `${base}${path}`;
+const counterLabels = {
+  subscribers: { key: "log.subscribers", fallback: "订阅者" },
+  photos: { key: "log.photos", fallback: "图片" },
+  videos: { key: "log.videos", fallback: "视频" },
+  links: { key: "log.links", fallback: "链接" },
+} as const;
+---
+
+{
+  ch && (
+    <GlassPanel class="telegram-channel" as="aside">
+      <div class="telegram-channel-head">
+        {ch.avatar && (
+          <img
+            class="telegram-channel-avatar"
+            src={media(ch.avatar.src)}
+            width={52}
+            height={52}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+        <div class="telegram-channel-meta">
+          <a
+            class="telegram-channel-title"
+            href={ch.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {ch.title}
+          </a>
+          <p class="telegram-channel-username">@{ch.username}</p>
+        </div>
+      </div>
+
+      {ch.description && (
+        <p class="telegram-channel-description">{ch.description}</p>
+      )}
+
+      <dl class="telegram-channel-counters">
+        {Object.entries(counterLabels).map(([name, label]) =>
+          ch.counters[name] ? (
+            <div class="telegram-channel-counter">
+              <dt data-i18n={label.key}>{label.fallback}</dt>
+              <dd>{ch.counters[name]}</dd>
+            </div>
+          ) : null,
+        )}
+      </dl>
+
+      <a
+        class="telegram-channel-subscribe"
+        href={ch.url}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span data-i18n="log.subscribe">在 Telegram 订阅</span>
+      </a>
+    </GlassPanel>
+  )
+}
+
+<style>
+  .telegram-channel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .telegram-channel-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .telegram-channel-avatar {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .telegram-channel-meta {
+    min-width: 0;
+  }
+
+  .telegram-channel-title {
+    color: var(--text);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .telegram-channel-title:hover {
+    color: var(--accent);
+  }
+
+  .telegram-channel-username,
+  .telegram-channel-description {
+    margin: 0.15rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
+  }
+
+  .telegram-channel-counters {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .telegram-channel-counter {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .telegram-channel-counter dt {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  .telegram-channel-counter dd {
+    margin: 0;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .telegram-channel-subscribe {
+    display: block;
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--radius-pill, 999px);
+    background: var(--accent);
+    color: var(--accent-contrast, #fff);
+    font-size: 0.82rem;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+</style>

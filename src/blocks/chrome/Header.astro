@@ -2,6 +2,7 @@
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
 import { withBase } from "../../utils/url";
+import { TELEGRAM_LOG_ENABLED } from "../../utils/telegram-log";
 import SearchModal from "../../components/SearchModal.astro";
 import ReaderSettings from "./ReaderSettings.astro";
 
@@ -31,6 +32,13 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       <a href={withBase("/posts")} class="nav-link" data-i18n="header.posts"
         >{getDefaultUiText("header.posts")}</a
       >
+      {
+        TELEGRAM_LOG_ENABLED && (
+          <a href={withBase("/log")} class="nav-link" data-i18n="header.log">
+            {getDefaultUiText("header.log")}
+          </a>
+        )
+      }
       <a
         href={withBase("/posts/archive")}
         class="nav-link"
@@ -224,6 +232,17 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       class="mobile-nav-link"
       data-i18n="header.posts">{getDefaultUiText("header.posts")}</a
     >
+    {
+      TELEGRAM_LOG_ENABLED && (
+        <a
+          href={withBase("/log")}
+          class="mobile-nav-link"
+          data-i18n="header.log"
+        >
+          {getDefaultUiText("header.log")}
+        </a>
+      )
+    }
     <a
       href={withBase("/posts/archive")}
       class="mobile-nav-link"

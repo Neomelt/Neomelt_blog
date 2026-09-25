@@ -1,0 +1,125 @@
+---
+import { getCollection } from "astro:content";
+import TelegramLog from "../../plugins/telegram-log/TelegramLog.astro";
+import { SITE_TITLE } from "../consts";
+import { getDefaultUiText, type UiTranslationKey } from "../i18n/ui";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Comments from "../blocks/view/Comments.astro";
+import EmptyState from "../blocks/view/EmptyState.astro";
+import { telegramLog } from "../site.config";
+import { TELEGRAM_LOG_ENABLED } from "../utils/telegram-log";
+import { withBase } from "../utils/url";
+import { normalizeWalinePath } from "../utils/waline";
+
+// Skip the queries while the feature is off: Astro warns about empty
+// collections, and there is nothing to ask for anyway.
+const posts = TELEGRAM_LOG_ENABLED ? await getCollection("log") : [];
+const [channel] = TELEGRAM_LOG_ENABLED ? await getCollection("logChannel") : [];
+const walinePath = normalizeWalinePath("/log");
+
+// The component ships Chinese defaults; hand it the site's own strings plus
+// their keys so the language toggle can swap them like everything else.
+const labelKeys = {
+  subscribe: "log.subscribe",
+  subscribers: "log.subscribers",
+  views: "common.views",
+  edited: "log.edited",
+  openInTelegram: "log.openInTelegram",
+  video: "log.video",
+  forwardedFrom: "log.forwardedFrom",
+  missingMedia: "log.missingMedia",
+  unsupported: "log.unsupported",
+  older: "log.older",
+} satisfies Record<string, UiTranslationKey>;
+const labels = Object.fromEntries(
+  Object.entries(labelKeys).map(([name, key]) => [name, getDefaultUiText(key)]),
+);
+---
+
+<BaseLayout
+  title={`${getDefaultUiText("log.metaTitle")} | ${SITE_TITLE}`}
+  description={getDefaultUiText("log.metaDescription")}
+  regions={{
+    asideEnd: [
+      { use: "widget/TelegramChannel", props: { channel } },
+      { use: "widget/TagCloud", props: { limit: 18 } },
+      "widget/Calendar",
+    ],
+  }}
+>
+  <main>
+    <div class="container">
+      <nav
+        class="breadcrumb"
+        data-i18n-aria-label="post.breadcrumbAria"
+        aria-label={getDefaultUiText("post.breadcrumbAria")}
+      >
+        <a href={withBase("/")} data-i18n="common.home"
+          >{getDefaultUiText("common.home")}</a
+        >
+        <span>›</span>
+        <span data-i18n="log.pageCrumb"
+          >{getDefaultUiText("log.pageCrumb")}</span
+        >
+      </nav>
+
+      <header class="log-header">
+        <h1 data-i18n="log.title">{getDefaultUiText("log.title")}</h1>
+        <p class="log-lead" data-i18n="log.lead">
+          {getDefaultUiText("log.lead")}
+        </p>
+      </header>
+
+      {
+        posts.length > 0 ? (
+          <TelegramLog
+            posts={posts}
+            channel={channel}
+            timeZone={telegramLog.timeZone}
+            labels={labels}
+            labelKeys={labelKeys}
+          />
+        ) : (
+          <EmptyState messageKey="log.empty" variant="boxed" />
+        )
+      }
+
+      <Comments path={walinePath} />
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 2rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+
+  .log-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .log-header h1 {
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.8rem, 2.6vw, 2.3rem);
+  }
+
+  .log-lead {
+    margin: 0;
+    color: var(--text-muted);
+  }
+</style>

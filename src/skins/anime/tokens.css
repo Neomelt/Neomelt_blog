@@ -122,7 +122,7 @@
      subtracting two sidebars from --shell-width would leave the text
      around 580px. */
   --shell-width-wide: min(94vw, 1900px);
-  --shell-gap: 3rem;
+  --shell-gap: 2rem;
   /* How far the content panel rides up over the banner. 0 leaves them
      stacked; a positive value makes the content read as set into the image
      rather than following it. */
@@ -137,7 +137,7 @@
   /* Light mode wants the illustration close to its own values. */
   --backdrop-filter: saturate(0.92);
   --backdrop-overlay: 0.42;
-  --aside-width: 290px;
+  --aside-width: 250px;
   --header-height: 64px;
 
   /* Transitions - slightly slower, so hovers feel springy rather than curt */

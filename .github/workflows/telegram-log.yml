@@ -1,0 +1,78 @@
+# Keeps the 日常 page (/log) in step with the Telegram channel.
+#
+# Every hour: compare the digest each published site was built from
+# (/log/latest.json) with the channel itself. Each site is checked separately,
+# so a successful deploy on one host does not suppress the other host's update.
+# Nothing happens while site.config.ts has no channel, because /log/latest.json
+# then reports none.
+#
+# Setup: create a Deploy Hook in the Vercel project (Settings -> Git -> Deploy
+# Hooks, branch master) and store its URL as the repository secret
+# VERCEL_DEPLOY_HOOK. Without it only the GitHub Pages mirror is rebuilt.
+# The optional repository variables TELEGRAM_LOG_VERCEL_STATE_URL and
+# TELEGRAM_LOG_PAGES_STATE_URL override the two published state URLs.
+#
+# Cost: each run bills about one Actions minute, ~720 a month at this
+# schedule. Free for public repositories; within the 2000-minute allowance of
+# a free private one. Do not go below every 30 minutes on a private repo.
+name: Telegram log refresh
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write # to start the Pages deploy workflow
+
+concurrency:
+  group: telegram-log
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Compare Vercel site and channel
+        id: vercel
+        env:
+          STATE_URL: ${{ vars.TELEGRAM_LOG_VERCEL_STATE_URL || vars.TELEGRAM_LOG_STATE_URL || 'https://www.neomelt.cloud/log/latest.json' }}
+        run: node plugins/telegram-log/bin/check.mjs --state "$STATE_URL"
+
+      - name: Compare GitHub Pages site and channel
+        id: pages
+        env:
+          STATE_URL: ${{ vars.TELEGRAM_LOG_PAGES_STATE_URL || 'https://neomelt.github.io/Neomelt_blog/log/latest.json' }}
+        run: node plugins/telegram-log/bin/check.mjs --state "$STATE_URL"
+
+      - name: Rebuild on Vercel
+        if: steps.vercel.outputs.changed == 'true'
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "VERCEL_DEPLOY_HOOK is not set; skipping Vercel."
+          else
+            curl -fsS -X POST "$HOOK" > /dev/null
+            echo "Vercel rebuild requested."
+          fi
+
+      - name: Rebuild GitHub Pages mirror
+        if: steps.pages.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run astro.yml --ref master
