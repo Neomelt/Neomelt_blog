@@ -146,4 +146,11 @@ export const FRIEND_LINKS: FriendLink[] = [
     avatar: "https://renly.cn/avatar.webp",
     rss: "https://www.renly.cn/rss.xml",
   },
+  {
+    name: "Alister's Blog",
+    url: "https://alistereno.top/",
+    description: "把喜欢的、想到的，都留在这里。",
+    avatar: "https://alistereno.top/images/profile/avatar.webp",
+    rss: "https://alistereno.top/rss.xml",
+  },
 ];
