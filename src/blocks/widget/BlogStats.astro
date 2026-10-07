@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import GlassPanel from "../surface/GlassPanel.astro";
 import { SITE_START_DATE } from "../../consts";
 import { getDefaultUiText } from "../../i18n/ui";
+import { countMarkdownText, countTextUnits } from "../../utils/text-count";
 
 /**
  * Post count, word count, tag count and uptime.
@@ -22,7 +23,15 @@ export interface Props {
 const { heading = true } = Astro.props;
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
-const words = posts.reduce((sum, post) => sum + (post.body?.length ?? 0), 0);
+const logPosts = await getCollection("log");
+const words =
+  posts.reduce(
+    (sum, post) =>
+      sum +
+      countTextUnits(post.data.title) +
+      countMarkdownText(post.body ?? ""),
+    0,
+  ) + logPosts.reduce((sum, post) => sum + countTextUnits(post.data.text), 0);
 const tags = new Set(posts.flatMap((post) => post.data.tags ?? [])).size;
 
 const compact = (n: number): string =>
