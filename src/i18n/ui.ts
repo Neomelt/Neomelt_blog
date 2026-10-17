@@ -127,7 +127,7 @@ export const UI_TRANSLATIONS = {
     "index.recentPosts": "近作",
     "index.viewAll": "阅览全部 →",
 
-    "profile.bio": "我会带你去往星河的彼端",
+    "profile.bio": "Keep looking, don't settle",
 
     "about.title": "自述",
     "about.pageCrumb": "自述",
