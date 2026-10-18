@@ -17,6 +17,12 @@
 全屏查看器浏览原比例图片和同组媒体。完整配置、部署钩子和故障处理见
 [Telegram 插件文档](plugins/telegram-log/README.md) 与 [操作指南](docs/operations.md)。
 
+## 本地音乐库
+
+侧栏播放器读取 `src/data/playlist.ts`，音频文件放在 `public/music/library/`。完整说明见
+[音乐库操作指南](docs/operations.md#本地音乐库)。这些文件会进入 Git 仓库；部署时，
+`public/` 中的音频会成为可直接访问的静态资源。
+
 ## 架构图
 
 ![Neomelt Blog 架构图](docs/architecture/diagram.png)
@@ -37,7 +43,7 @@
 ├── public/                  # 直接静态资源（按 URL 原样输出，不经过构建管线）
 │   ├── avatars/             # 构建时下载并本地化的友链头像
 │   ├── fonts/
-│   ├── music/               # 播放器音频
+│   ├── music/library/       # 本地播放器音乐
 │   └── vendor/              # 第三方脚本（如 Waline）
 ├── scripts/                 # 发布与内容维护脚本
 ├── src/
