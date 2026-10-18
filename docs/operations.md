@@ -13,6 +13,31 @@ npm run dev
 
 机器默认仍是 Node 20，只在这个目录切。`package.json` 的 `engines` 和 GitHub workflow 也都锁在 22。
 
+## 本地音乐库
+
+侧栏 `MusicPlayer` 从 `src/data/playlist.ts` 读取曲目，音频文件放在
+`public/music/library/`，随静态站点一起发布。添加曲目时，把音频文件复制到该目录，并在
+`PLAYLIST` 中登记：
+
+```bash
+cp ~/Music/歌曲名.mp3 public/music/library/
+```
+
+```ts
+{
+  title: "歌曲名",
+  artist: "歌手",
+  src: "/music/library/歌曲名.mp3",
+}
+```
+
+曲目显示顺序与 `PLAYLIST` 顺序一致。移除曲目时，从列表中删除对应条目，并删除
+`public/music/library/` 中对应的文件，避免未引用的大音频继续进入部署产物。完成后运行
+`npm run build` 检查。
+
+推送音乐文件会把它们写进 Git 历史；部署站点时，`public/` 中的音频会成为可直接访问的
+静态资源。批量同步前应检查远端仓库和站点的存储、分发策略。
+
 ## 架构速览（v2.1）
 
 站点是 Astro 7 的静态构建：内容、配置和三个登记表进入构建管线，输出静态 HTML、共享的 hash JS/CSS 模块、优化后的图片，以及搜索/RSS/站点地图等派生文件。浏览器端不重新渲染文章，只运行主题、i18n、阅读设置、搜索、灯箱和评论等交互。
