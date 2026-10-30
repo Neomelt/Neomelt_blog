@@ -200,6 +200,36 @@ series: "网络与远程访问"
 
 宽表格会自动套一层横向滚动容器，不会把整页撑破。代码块和数学公式同理。
 
+### 论文引用
+
+论文标题后面跟一个 `BibTeX` 徽标：鼠标悬停预览，点击后固定，弹窗里可以一键复制；手机上点按打开，再点一次或点别处关闭。
+
+**只能在 `.mdx` 文章里用。** 要引用论文的那篇把后缀从 `.md` 改成 `.mdx`，在 frontmatter 下面 import：
+
+```mdx
+import BibRef from "../../components/BibRef.astro";
+
+<BibRef
+  title="AerialVLN: Vision-and-Language Navigation for UAVs"
+  url="https://arxiv.org/abs/2308.06735"
+  bib={String.raw`@inproceedings{liu2023aerialvln,
+  title={AerialVLN: Vision-and-Language Navigation for UAVs},
+  year={2023}
+}`}
+/>
+```
+
+- `url` 可以省略，省了标题就不是链接。
+- `bib` **必须用 `String.raw`**。普通模板字符串会吃掉反斜杠（`{\"u}` 变成 `{"u}`），遇到 `\url` 直接编译失败。
+- 字段缩进写不写都行：MDX 会把它去掉，组件再补回两个空格。
+
+改后缀之前要知道两件事：
+
+- MDX 把正文里 `<` 加字母当成 JSX 标签，把 `{` 当成表达式。代码块和行内代码之外出现的要写成 `\<`、`\{`，否则构建失败。
+- 文章的「更新于」取自 git 最后一次提交，改后缀的那次提交会把它刷成当天。
+
+没有引用的文章不用改。
+
 ---
 
 ## 外观

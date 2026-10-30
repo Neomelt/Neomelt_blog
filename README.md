@@ -60,7 +60,7 @@
 │   │   ├── view/            # 需要页面喂数据的展示组件
 │   │   ├── widget/          # 侧栏挂件，自己查数据
 │   │   └── registry.ts      # 能被区域放置的 block 登记表
-│   ├── components/          # 不属于 block 体系的：BaseHead、SearchModal、Region
+│   ├── components/          # 不属于 block 体系的：BaseHead、SearchModal、Region、BibRef
 │   ├── content/
 │   │   └── blog/            # 博客 Markdown/MDX
 │   ├── data/                # 站点数据（友链、播放列表、阅读设置项）
@@ -98,6 +98,7 @@ skins）。三层的分工是：`blocks/` 只有功能实现，`skins/` 只有�
 - 可以通过 frontmatter 的 `hidden: true` 暂时隐藏文章（不会出现在列表、归档、标签、RSS、搜索，也不会生成公开详情页）。
 - 文章插图放在 `src/assets/blog/<文章-slug>/`，封面放 `src/assets/covers/`，首屏背景放 `src/assets/banner/`。在 Markdown 用相对路径引用，如 `![alt](../../assets/blog/<slug>/1.png)`。放这里才会过 Astro 的图片管线（转 webp、加 hash）；放 `public/` 会原样输出，等于多发一份没人引用的原图。
 - 需要固定公网 URL、且不该被改写的资源（字体、音频、第三方脚本）才放 `public/`。
+- 要引用论文的文章写成 `.mdx`，用 `BibRef` 组件给标题加 BibTeX 悬停预览，写法见 [docs/operations.md](docs/operations.md#论文引用)。
 
 ## 常用命令
 
