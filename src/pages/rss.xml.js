@@ -1,4 +1,7 @@
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
+import { loadRenderers } from "astro:container";
+import { experimental_AstroContainer as AstroContainer } from "astro/container";
+import { getContainerRenderer as getMdxRenderer } from "@astrojs/mdx/container-renderer";
 import rss from "@astrojs/rss";
 import { SITE_TITLE } from "../consts";
 import { resolvePostDates } from "../utils/post-dates";
@@ -45,6 +48,29 @@ function rewriteImagePlaceholders(html, site) {
       }
     },
   );
+}
+
+// MDX 条目没有 post.rendered（内容层只预渲染 Markdown），只能在这里渲染一遍；
+// 否则会退回 post.body，订阅者看到的是 MDX 源码。
+let mdxContainer;
+async function renderMdxHtml(post, site) {
+  mdxContainer ??= await AstroContainer.create({
+    renderers: await loadRenderers([getMdxRenderer()]),
+  });
+  const { Content } = await render(post);
+  const html = await mdxContainer.renderToString(Content);
+  const origin = new URL(site).origin;
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/(\s(?:src|href))="\/(?!\/)/g, `$1="${origin}/`);
+}
+
+async function getPostHtml(post, site) {
+  if (post.rendered?.html) {
+    return rewriteImagePlaceholders(post.rendered.html, site);
+  }
+  if (post.filePath?.endsWith(".mdx")) return renderMdxHtml(post, site);
+  return undefined;
 }
 
 function getImageUrl(heroImage, site) {
@@ -117,6 +143,11 @@ export async function GET(context) {
   postsWithResolvedDates.sort(
     (a, b) => b.pubDate.valueOf() - a.pubDate.valueOf(),
   );
+  const htmlById = new Map(
+    await Promise.all(
+      posts.map(async (post) => [post.id, await getPostHtml(post, site)]),
+    ),
+  );
 
   const lastBuildDate = postsWithResolvedDates.reduce((latest, post) => {
     const candidate = post.updatedDate;
@@ -156,10 +187,7 @@ export async function GET(context) {
         description: post.data.description,
         pubDate,
         link,
-        content:
-          rewriteImagePlaceholders(post.rendered?.html, site) ??
-          post.body ??
-          post.data.description,
+        content: htmlById.get(post.id) ?? post.body ?? post.data.description,
         author: FEED_AUTHOR,
         commentsUrl: `${itemUrl}#comments`,
         categories,

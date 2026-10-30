@@ -9,6 +9,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeVideoEmbed from "./src/utils/rehype-video-embed.mjs";
 import rehypeTableScroll from "./src/utils/rehype-table-scroll.mjs";
 import rehypeCallout from "./src/utils/rehype-callout.mjs";
+import remarkMathFlag from "./src/utils/remark-math-flag.mjs";
 import { localizeAvatars } from "./src/utils/localize-avatars";
 
 // Download + cache friend avatars to public/avatars/ before pages render, on
@@ -29,7 +30,7 @@ export default defineConfig({
   integrations: [mdx(), sitemap(), localizeAvatarsIntegration],
 
   markdown: {
-    remarkPlugins: [remarkMath],
+    remarkPlugins: [remarkMath, remarkMathFlag],
     rehypePlugins: [rehypeKatex, rehypeVideoEmbed, rehypeTableScroll, rehypeCallout],
   },
 });
