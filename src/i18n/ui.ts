@@ -106,6 +106,9 @@ export const UI_TRANSLATIONS = {
     "code.expand": "展开代码块",
     "code.collapse": "折叠代码块",
 
+    "bibref.copy": "复制",
+    "bibref.copied": "已复制",
+
     "common.home": "归处",
     "common.posts": "札记",
     "common.essay": "随笔",
@@ -456,6 +459,9 @@ export const UI_TRANSLATIONS = {
     "code.copy": "Copy code",
     "code.expand": "Expand code block",
     "code.collapse": "Collapse code block",
+
+    "bibref.copy": "Copy",
+    "bibref.copied": "Copied",
 
     "common.home": "Home",
     "common.posts": "Posts",
