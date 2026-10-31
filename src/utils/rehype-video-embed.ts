@@ -1,13 +1,28 @@
+import type { RehypePlugin } from "@astrojs/markdown-remark";
+import type { Element, ElementContent, Nodes } from "hast";
+
+type BilibiliInfo = { bvid: string; aid: number | null; cid: number | null };
+type Embed =
+  | { provider: "youtube"; id: string }
+  | ({ provider: "bilibili" } & BilibiliInfo);
+type BilibiliMetadata = { aid: number; cid: number };
+type BilibiliViewResponse = {
+  data?: { aid?: number; cid?: number; pages?: { cid?: number }[] };
+};
+
 const SHORTCODE_PATTERN = /^@\[(video|youtube|bilibili)\]\((.+)\)$/i;
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 const BILIBILI_BVID_PATTERN = /^BV[0-9A-Za-z]{10}$/i;
-const bilibiliMetadataCache = new Map();
+const bilibiliMetadataCache = new Map<
+  string,
+  Promise<BilibiliMetadata | null>
+>();
 
-function formatBilibiliBvid(value) {
+function formatBilibiliBvid(value: string) {
   return `BV${value.slice(2)}`;
 }
 
-function normalizeYouTubeId(input) {
+function normalizeYouTubeId(input: string): string | null {
   const raw = input.trim();
   if (YOUTUBE_ID_PATTERN.test(raw)) {
     return raw;
@@ -41,7 +56,7 @@ function normalizeYouTubeId(input) {
   return null;
 }
 
-function normalizeBilibiliInfo(input) {
+function normalizeBilibiliInfo(input: string): BilibiliInfo | null {
   const raw = input.trim();
   if (BILIBILI_BVID_PATTERN.test(raw)) {
     return { bvid: formatBilibiliBvid(raw), aid: null, cid: null };
@@ -69,9 +84,10 @@ function normalizeBilibiliInfo(input) {
   }
 }
 
-async function fetchBilibiliMetadata(bvid) {
-  if (bilibiliMetadataCache.has(bvid)) {
-    return bilibiliMetadataCache.get(bvid);
+function fetchBilibiliMetadata(bvid: string) {
+  const cached = bilibiliMetadataCache.get(bvid);
+  if (cached) {
+    return cached;
   }
 
   const promise = fetch(
@@ -79,12 +95,12 @@ async function fetchBilibiliMetadata(bvid) {
       bvid,
     )}`,
   )
-    .then(async (response) => {
+    .then(async (response): Promise<BilibiliMetadata | null> => {
       if (!response.ok) {
         throw new Error(`Bilibili API responded with ${response.status}`);
       }
 
-      const payload = await response.json();
+      const payload = (await response.json()) as BilibiliViewResponse;
       const aid = Number(payload?.data?.aid || "");
       const cid = Number(payload?.data?.cid || payload?.data?.pages?.[0]?.cid);
       if (
@@ -104,7 +120,7 @@ async function fetchBilibiliMetadata(bvid) {
   return promise;
 }
 
-async function resolveBilibiliEmbed(source) {
+async function resolveBilibiliEmbed(source: string): Promise<Embed | null> {
   const info = normalizeBilibiliInfo(source);
   if (!info) {
     return null;
@@ -123,7 +139,10 @@ async function resolveBilibiliEmbed(source) {
   };
 }
 
-async function buildEmbedInfo(provider, source) {
+async function buildEmbedInfo(
+  provider: string,
+  source: string,
+): Promise<Embed | null> {
   if (provider === "youtube") {
     const id = normalizeYouTubeId(source);
     return id ? { provider: "youtube", id } : null;
@@ -146,20 +165,20 @@ async function buildEmbedInfo(provider, source) {
   return null;
 }
 
-function textContent(node) {
+function textContent(node: Nodes | undefined): string {
   if (!node) {
     return "";
   }
   if (node.type === "text") {
     return String(node.value || "");
   }
-  if (!Array.isArray(node.children)) {
+  if (!("children" in node) || !Array.isArray(node.children)) {
     return "";
   }
   return node.children.map((child) => textContent(child)).join("");
 }
 
-function makeTextParagraphNode(value) {
+function makeTextParagraphNode(value: string): Element {
   return {
     type: "element",
     tagName: "p",
@@ -173,7 +192,7 @@ function makeTextParagraphNode(value) {
   };
 }
 
-function makeIframeNode(embed) {
+function makeIframeNode(embed: Embed): Element {
   if (embed.provider === "youtube") {
     return {
       type: "element",
@@ -219,7 +238,7 @@ function makeIframeNode(embed) {
   };
 }
 
-function makeVideoWrapNode(embed) {
+function makeVideoWrapNode(embed: Embed): Element {
   return {
     type: "element",
     tagName: "div",
@@ -230,7 +249,7 @@ function makeVideoWrapNode(embed) {
   };
 }
 
-async function parseShortcodeText(value) {
+async function parseShortcodeText(value: string) {
   const match = String(value || "")
     .trim()
     .match(SHORTCODE_PATTERN);
@@ -244,7 +263,10 @@ async function parseShortcodeText(value) {
   return await buildEmbedInfo(provider, source);
 }
 
-async function parseLinkAsEmbed(linkNode, options = {}) {
+async function parseLinkAsEmbed(
+  linkNode: ElementContent | undefined,
+  options: { requireAtPrefix?: boolean } = {},
+) {
   const { requireAtPrefix = true } = options;
   if (!linkNode || linkNode.type !== "element" || linkNode.tagName !== "a") {
     return null;
@@ -269,7 +291,7 @@ async function parseLinkAsEmbed(linkNode, options = {}) {
   return await buildEmbedInfo(provider, href);
 }
 
-function normalizeParagraphChildren(children) {
+function normalizeParagraphChildren(children: ElementContent[]) {
   return children.filter((child) => {
     if (child.type !== "text") {
       return true;
@@ -278,7 +300,9 @@ function normalizeParagraphChildren(children) {
   });
 }
 
-async function parseParagraphAsEmbed(paragraphNode) {
+async function parseParagraphAsEmbed(
+  paragraphNode: Nodes,
+): Promise<Element[] | null> {
   if (
     !paragraphNode ||
     paragraphNode.type !== "element" ||
@@ -299,23 +323,24 @@ async function parseParagraphAsEmbed(paragraphNode) {
   }
 
   // Markdown usually parses "@[video](...)" as text("@") + link("video").
-  if (children.length === 2 && children[0].type === "text") {
-    const prefix = String(children[0].value || "").trim();
+  const [first, second] = children;
+  if (children.length === 2 && first.type === "text") {
+    const prefix = String(first.value || "").trim();
     if (prefix === "@") {
-      const embed = await parseLinkAsEmbed(children[1], {
+      const embed = await parseLinkAsEmbed(second, {
         requireAtPrefix: false,
       });
       return embed ? [makeVideoWrapNode(embed)] : null;
     }
 
-    const inlineEmbed = await parseLinkAsEmbed(children[1], {
+    const inlineEmbed = await parseLinkAsEmbed(second, {
       requireAtPrefix: false,
     });
     if (!inlineEmbed) {
       return null;
     }
 
-    const leadingText = String(children[0].value || "");
+    const leadingText = String(first.value || "");
     const splitMatch = leadingText.match(/^([\s\S]*?)@\s*$/);
     if (!splitMatch) {
       return null;
@@ -332,8 +357,8 @@ async function parseParagraphAsEmbed(paragraphNode) {
   return null;
 }
 
-async function transformNode(node) {
-  if (!node || !Array.isArray(node.children)) {
+async function transformNode(node: Nodes): Promise<void> {
+  if (!node || !("children" in node) || !Array.isArray(node.children)) {
     return;
   }
 
@@ -349,8 +374,8 @@ async function transformNode(node) {
   }
 }
 
-export default function rehypeVideoEmbed() {
-  return async (tree) => {
-    await transformNode(tree);
-  };
-}
+const rehypeVideoEmbed: RehypePlugin<[]> = () => async (tree) => {
+  await transformNode(tree);
+};
+
+export default rehypeVideoEmbed;

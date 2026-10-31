@@ -1,4 +1,5 @@
-import { getCollection, render } from "astro:content";
+import type { APIContext } from "astro";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 import { loadRenderers } from "astro:container";
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getContainerRenderer as getMdxRenderer } from "@astrojs/mdx/container-renderer";
@@ -7,11 +8,14 @@ import { SITE_TITLE } from "../consts";
 import { resolvePostDates } from "../utils/post-dates";
 import { withBase } from "../utils/url";
 
+type Post = CollectionEntry<"blog">;
+type Site = string | URL;
+
 const FEED_AUTHOR = "Neomelt";
 const FEED_DESCRIPTION = "Latest posts from Neomelt Blog.";
 const FALLBACK_SITE = "https://www.neomelt.cloud/";
 
-function escapeXml(value) {
+function escapeXml(value: string) {
   return value
     .replaceAll("&", "&amp;")
     .replaceAll('"', "&quot;")
@@ -20,7 +24,7 @@ function escapeXml(value) {
     .replaceAll(">", "&gt;");
 }
 
-function toAbsoluteUrl(path, site) {
+function toAbsoluteUrl(path: string, site: Site) {
   return new URL(path, site).toString();
 }
 
@@ -28,13 +32,13 @@ function toAbsoluteUrl(path, site) {
 //   <img __ASTRO_IMAGE_="{&#x22;src&#x22;:&#x22;../../assets/blog/x.png&#x22;,&#x22;alt&#x22;:…}">
 // 直接下发会让订阅者看到无 src 的坏图。public/ 下的文件部署后就在站点
 // 根路径，把占位符重写成带绝对 URL 的真实 <img>；解析失败时保留原样。
-function rewriteImagePlaceholders(html, site) {
+function rewriteImagePlaceholders(html: string, site: Site) {
   if (!html) return html;
   return html.replace(
     /<img\s+__ASTRO_IMAGE_="([^"]*)"[^>]*>/g,
-    (match, encodedJson) => {
+    (match, encodedJson: string) => {
       try {
-        const meta = JSON.parse(
+        const meta: { src?: unknown; alt?: unknown } = JSON.parse(
           encodedJson.replaceAll("&#x22;", '"').replaceAll("&amp;", "&"),
         );
         const src = typeof meta.src === "string" ? meta.src : "";
@@ -52,8 +56,8 @@ function rewriteImagePlaceholders(html, site) {
 
 // MDX 条目没有 post.rendered（内容层只预渲染 Markdown），只能在这里渲染一遍；
 // 否则会退回 post.body，订阅者看到的是 MDX 源码。
-let mdxContainer;
-async function renderMdxHtml(post, site) {
+let mdxContainer: AstroContainer | undefined;
+async function renderMdxHtml(post: Post, site: Site) {
   mdxContainer ??= await AstroContainer.create({
     renderers: await loadRenderers([getMdxRenderer()]),
   });
@@ -65,7 +69,7 @@ async function renderMdxHtml(post, site) {
     .replace(/(\s(?:src|href))="\/(?!\/)/g, `$1="${origin}/`);
 }
 
-async function getPostHtml(post, site) {
+async function getPostHtml(post: Post, site: Site) {
   if (post.rendered?.html) {
     return rewriteImagePlaceholders(post.rendered.html, site);
   }
@@ -73,7 +77,7 @@ async function getPostHtml(post, site) {
   return undefined;
 }
 
-function getImageUrl(heroImage, site) {
+function getImageUrl(heroImage: unknown, site: Site) {
   if (!heroImage) return undefined;
   if (typeof heroImage === "string") {
     if (heroImage.startsWith("__ASTRO_IMAGE_")) return undefined;
@@ -92,7 +96,7 @@ function getImageUrl(heroImage, site) {
   return undefined;
 }
 
-function guessImageMimeType(url) {
+function guessImageMimeType(url: string) {
   const normalizedUrl = url.toLowerCase().split("?")[0];
   if (normalizedUrl.endsWith(".png")) return "image/png";
   if (normalizedUrl.endsWith(".jpg") || normalizedUrl.endsWith(".jpeg"))
@@ -103,7 +107,7 @@ function guessImageMimeType(url) {
   return undefined;
 }
 
-function toRfc822Date(date) {
+function toRfc822Date(date: Date) {
   return new Date(date).toUTCString();
 }
 
@@ -113,6 +117,12 @@ function buildItemCustomData({
   updatedDate,
   imageUrl,
   imageMimeType,
+}: {
+  author: string;
+  publishedDate: Date;
+  updatedDate: Date;
+  imageUrl?: string;
+  imageMimeType?: string;
 }) {
   const fields = [
     `<dc:creator>${escapeXml(author)}</dc:creator>`,
@@ -131,7 +141,7 @@ function buildItemCustomData({
   return fields.join("");
 }
 
-export async function GET(context) {
+export async function GET(context: APIContext) {
   const site = context.site ?? FALLBACK_SITE;
   const posts = await getCollection("blog", ({ data }) => !data.hidden);
   const postsWithResolvedDates = await Promise.all(
@@ -145,7 +155,9 @@ export async function GET(context) {
   );
   const htmlById = new Map(
     await Promise.all(
-      posts.map(async (post) => [post.id, await getPostHtml(post, site)]),
+      posts.map(
+        async (post) => [post.id, await getPostHtml(post, site)] as const,
+      ),
     ),
   );
 
@@ -178,7 +190,9 @@ export async function GET(context) {
       const imageMimeType = imageUrl ? guessImageMimeType(imageUrl) : undefined;
       const categories = Array.from(
         new Set(
-          [post.data.category, ...(post.data.tags ?? [])].filter(Boolean),
+          [post.data.category, ...(post.data.tags ?? [])].filter(
+            (value): value is string => Boolean(value),
+          ),
         ),
       );
 
