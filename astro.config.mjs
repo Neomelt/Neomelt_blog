@@ -2,6 +2,7 @@
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import { unified } from "@astrojs/markdown-remark";
 import { defineConfig } from "astro/config";
 
 import remarkMath from "remark-math";
@@ -30,7 +31,9 @@ export default defineConfig({
   integrations: [mdx(), sitemap(), localizeAvatarsIntegration],
 
   markdown: {
-    remarkPlugins: [remarkMath, remarkMathFlag],
-    rehypePlugins: [rehypeKatex, rehypeVideoEmbed, rehypeTableScroll, rehypeCallout],
+    processor: unified({
+      remarkPlugins: [remarkMath, remarkMathFlag],
+      rehypePlugins: [rehypeKatex, rehypeVideoEmbed, rehypeTableScroll, rehypeCallout],
+    }),
   },
 });
