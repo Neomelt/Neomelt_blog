@@ -110,7 +110,9 @@ skins）。三层的分工是：`blocks/` 只有功能实现，`skins/` 只有�
 - `npm run test`：运行测试（含皮肤与排版的契约检查）
 - `npx astro check`：类型检查，应为 0 error
 - `npm run new`：创建新文章模板
-- `npm run covers`：抓取新的封面候选图
+- `npm run covers`：下载封面候选到 `.cover-inbox/`（支持 `--ranking`、`--search`、直传 ID 等）
+- `npm run covers -- --review`：刷新并打开候选预览页
+- `npm run covers -- --accept <ID...>`：将预览页选定的图片裁剪入池并分配封面
 - `npm run covers:lock`：给还没有封面的文章各分配一张
 - `npm run watch:frontmatter`：自动补齐 frontmatter
 

@@ -4,6 +4,18 @@
 
 版本号只是这份文件里的分节标记——本项目不发布到 npm，`package.json` 的 `version` 字段无实际用途。
 
+## v2.1.6 — 2026-11-01
+
+### 封面工作流
+
+- 重构封面抓取流程：从单文件脚本拆分为 `pixiv.mjs`（API + 重试）、`cover-review.mjs`（预览页）和 `fetch-covers.mjs`（命令入口）。
+- 新增 `--ranking daily|weekly|monthly`、`--accept`、`--discard`、`--clean`、`--review` 子命令；`--search` 和 ID 直传保留。
+- 下载默认进 `.cover-inbox/`，`--accept` 时才裁剪入池并自动运行 `covers:lock`；`--discard` 将 ID 写入 `discarded.txt`，后续自动抓图跳过。
+- 可配置并发数（`--concurrency 1–6`，默认 3），多个 worker 串行写入署名与状态记录。
+- 预览页（`--review`）改为静态 HTML，每张图提供「入池 / 删除」下拉，操作合并为一条可复制的命令。
+- `--accept --banner` 将图片保留比例入池为背景图；`--clean` 清理已入池的 inbox 副本。
+- 入池前验证候选文件存在，文件丢失时给出明确错误而不是 sharp 底层报错。
+
 ## v2.1.5 — 2026-10-31
 
 ### 论文引用

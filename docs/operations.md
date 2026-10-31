@@ -132,25 +132,35 @@ heroImage: "../../assets/covers/148651669.webp"
 ### 加封面
 
 ```bash
-npm run covers -- --inbox 148682428 147803538      # 下到暂存区，不进 git
-xdg-open .cover-inbox/index.html                   # 浏览器里挑
-mv .cover-inbox/148682428.webp src/assets/covers/  # 留下满意的
-npm run covers:lock                                # 分配给没封面的文章
+npm run covers -- --ranking daily --take 8        # 日榜，也支持 weekly / monthly
+npm run covers -- --search "<标签>" --take 8        # 替换为想搜的 Pixiv 标签
+xdg-open .cover-inbox/index.html                  # 勾选图片、选择操作，复制命令
+npm run covers -- --accept 148682428 147803538    # 入池、保存署名、分配封面
 ```
 
-**一定要先进暂存区看。** pixiv 只标 R18，擦边内容完全不标记，任何自动筛选都挡不住——这一步必须人看。
+下载默认进入 `.cover-inbox/`，不进 Git。搜索和排行榜最多读取 5 页，筛选宽度 ≥1200 的横向单图作品，按作品 ID 跳过暂存区、封面池和背景图中已有的图片。`--date 20261030` 可指定排行榜日期；`--take` 默认 6，范围 1–50。
 
-作品 ID 就是链接末尾的数字：`pixiv.net/artworks/`**`148682428`**
+**入池前需要人工看图。** 脚本检查全年龄标记，图片是否适合本站由你决定。预览页为每张勾选的图选择「入池」或「删除」，可同时勾选清理已入池副本，所有操作合并为一条命令。已有候选时，`npm run covers -- --review` 可重新生成并打开预览页。
 
-脚本会：走 pixiv.cat 反代下载（官方接口不登录拿不到图片 URL）→ 裁成 1200×630 → 转 webp（通常压掉 95% 以上）→ 把标题和作者追加到 `src/assets/covers/CREDITS.md`。
+也可以直接传作品 ID，或用 `--from covers.txt` 批量读取 ID / 作品链接。作品 ID 是 `pixiv.net/artworks/` 后的数字。
+
+候选图通过 pixiv.cat 下载，保留比例、缩放到宽度不超过 1920 的 WebP。默认同时下载 3 张，`--concurrency 1–6` 可调整；署名与状态记录依次写入。原图请求超时为 60 秒，接口请求为 20 秒；超时、连接中断及临时 HTTP 错误最多重试两次，仍失败则报错退出。
+
+去重依据作品 ID，同一 ID 在单次命令和本地图库中都会跳过；不同 ID 的相同画面暂不识别。
+
+`--accept <ID...>` 将封面裁成 1200×630、保存署名并分配给文章；`--accept --banner <ID...>` 保留图片比例，作为背景入池。入池成功后清理对应候选副本。`--clean` 可清理之前遗留的已入池副本。
+
+`--discard <ID...>` 删除候选及暂存区署名，作品 ID 记在 `.cover-inbox/discarded.txt`，后续自动抓图会跳过。手动传 ID 可重新下载。删除与清理仅处理暂存区，封面池和背景图保留。
+
+例如：`npm run covers -- --accept 148682428 --discard 147803538 --clean`。
 
 ### 换掉某张封面
 
 ```bash
 rm src/assets/covers/148676633.webp
-npm run covers -- --inbox <新ID>
-mv .cover-inbox/<新ID>.webp src/assets/covers/
-npm run covers:lock
+npm run covers -- <新ID>
+xdg-open .cover-inbox/index.html
+npm run covers -- --accept <新ID>
 ```
 
 `covers:lock` 会发现某篇文章的 `heroImage` 指向的文件没了，自动给它重新分配。
