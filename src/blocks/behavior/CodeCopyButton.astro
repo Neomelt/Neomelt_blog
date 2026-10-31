@@ -146,7 +146,8 @@ const codeFallbacks = {
   }
 
   function addCodeBlockControls() {
-    const codeBlocks = document.querySelectorAll(".prose pre");
+    // Mermaid sources become diagrams, not code to copy.
+    const codeBlocks = document.querySelectorAll(".prose pre:not(.md-mermaid)");
 
     codeBlocks.forEach((codeBlock) => {
       if (codeBlock.dataset.codeEnhanced === "true") return;

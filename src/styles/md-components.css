@@ -448,6 +448,20 @@
   color: var(--callout-tip);
 }
 
+/* ---------- mermaid ---------- */
+.prose pre.md-mermaid.is-drawn {
+  padding: 0.5rem 0;
+  border: none;
+  background: none;
+  text-align: center;
+  white-space: normal;
+}
+
+.prose pre.md-mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .prose .md-blur,
   .prose .md-tip::after {

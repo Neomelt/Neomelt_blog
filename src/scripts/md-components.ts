@@ -1,6 +1,7 @@
 /**
  * Browser half of the Markdown components (src/utils/remark-components.ts):
- * tabs and copy buttons. Everything here is an enhancement; the server HTML already reads correctly without it.
+ * tabs, copy buttons and Mermaid diagrams. Everything here is an
+ * enhancement; the server HTML already reads correctly without it.
  */
 /* ---------- tabs ---------- */
 
@@ -94,12 +95,56 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+/* ---------- mermaid ---------- */
+
+type Mermaid = typeof import("mermaid").default;
+let mermaidLoader: Promise<Mermaid> | null = null;
+let drawCount = 0;
+
+/** Only pages that contain a diagram ever download mermaid. */
+async function drawMermaid(redraw = false) {
+  const blocks = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      redraw ? "pre.md-mermaid" : "pre.md-mermaid:not(.is-drawn)",
+    ),
+  );
+  if (blocks.length === 0) return;
+  mermaidLoader ??= import("mermaid").then((module) => module.default);
+  const mermaid = await mermaidLoader;
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "strict",
+    theme:
+      document.documentElement.dataset.theme === "dark" ? "dark" : "neutral",
+    fontFamily: getComputedStyle(document.body).fontFamily,
+  });
+  for (const block of blocks) {
+    const source = block.dataset.source ?? block.textContent ?? "";
+    block.dataset.source = source;
+    // A broken diagram stays readable as its source.
+    if (!(await mermaid.parse(source, { suppressErrors: true }))) continue;
+    try {
+      const { svg } = await mermaid.render(`md-mermaid-${++drawCount}`, source);
+      block.innerHTML = svg;
+      block.classList.add("is-drawn");
+    } catch (err) {
+      console.error("[md-components] Mermaid failed:", err);
+    }
+  }
+}
+
+new MutationObserver(() => void drawMermaid(true)).observe(
+  document.documentElement,
+  { attributes: true, attributeFilter: ["data-theme"] },
+);
+
 /* ---------- wiring ---------- */
 
 // Each step skips work it has already done, so running on both the first
 // load and astro:page-load (which can fire before this module) is safe.
 function init() {
   enhanceTabs();
+  void drawMermaid();
 }
 
 init();

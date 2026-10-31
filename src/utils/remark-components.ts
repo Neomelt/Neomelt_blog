@@ -9,6 +9,9 @@
  * and feed readers still see readable markup. A directive this file does
  * not know is put back exactly as it was written, so a stray `:name` in
  * prose never disappears.
+ *
+ * Also turns ```mermaid fences into <pre class="md-mermaid">, drawn in the
+ * browser by src/scripts/md-components.ts.
  */
 import type { RemarkPlugin } from "@astrojs/markdown-remark";
 import type { Element, ElementContent, Properties } from "hast";
@@ -432,6 +435,19 @@ function transform(
         isDirective(node) ? node.name : undefined,
       );
 
+    // Straight to hast: remark-rehype trims every line of an mdast text node,
+    // and indentation is syntax in diagrams such as mindmap.
+    if (node.type === "code" && node.lang === "mermaid") {
+      next.push(
+        part(
+          "pre",
+          { className: ["md-mermaid"] },
+          [],
+          [{ type: "text", value: node.value }],
+        ),
+      );
+      continue;
+    }
     if (!isDirective(node) || (node.name === "tab" && parentName === "tabs")) {
       next.push(node);
       continue;

@@ -100,6 +100,12 @@ describe("remark-components", () => {
     expect(html).toContain('<p class="md-tab-label"><strong>pnpm</strong></p>');
   });
 
+  it("turns mermaid fences into a pre the browser can draw", async () => {
+    expect(await render("```mermaid\nflowchart LR\n  A --> B\n```")).toBe(
+      '<pre class="md-mermaid">flowchart LR\n  A --> B</pre>',
+    );
+  });
+
   it("gives back unknown directives as written", async () => {
     expect(await render("比分 3:2，链接 a:b，还有 :unknown[文字]{x=1}")).toBe(
       "<p>比分 3:2，链接 a:b，还有 :unknown[文字]{x=1}</p>",
