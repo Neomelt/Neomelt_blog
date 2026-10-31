@@ -27,6 +27,14 @@ export function countMarkdownText(value: string): number {
     // Media embeds and Markdown images are not prose.
     .replace(/@\[(?:video|youtube|bilibili)\]\([^\n]*\)/giu, " ")
     .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    // Component fences (:::folding{…}) are markup; an inline component
+    // (:kbd[Ctrl]{…}) keeps its label text.
+    .replace(
+      /^[ \t]*:{2,}[a-z][\w-]*(?:\[[^\]\n]*\])?(?:\{[^}\n]*\})?[ \t]*$/gim,
+      " ",
+    )
+    .replace(/^[ \t]*:{3,}[ \t]*$/gm, " ")
+    .replace(/(?<!:):[a-z][\w-]*\[([^\]\n]*)\](?:\{[^}\n]*\})?/gi, "$1")
     // Keep link text but discard its destination.
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/\[([^\]]+)\]\[[^\]]*\]/g, "$1")

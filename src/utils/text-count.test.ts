@@ -23,4 +23,14 @@ const ignored = "代码";
 @[video](https://example.com/video)`;
     expect(countMarkdownText(markdown)).toBe(13);
   });
+
+  it("counts component labels but not component markup", () => {
+    const markdown = `:::folding{title="Hidden title"}
+正文
+:::
+
+按 :kbd[Ctrl] 键`;
+    // 正文 + 按 + Ctrl + 键
+    expect(countMarkdownText(markdown)).toBe(5);
+  });
 });

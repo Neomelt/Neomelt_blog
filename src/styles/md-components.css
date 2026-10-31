@@ -1,0 +1,456 @@
+/* Markdown components from src/utils/remark-components.ts. Tokens only:
+   each skin decides what these look like. */
+
+/* ---------- folding ---------- */
+.prose .md-folding {
+  margin: 1.25rem 0;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-code);
+}
+
+.prose .md-folding > summary {
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.prose .md-folding[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.prose .md-folding-body {
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+.prose .md-folding-body > :last-child {
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- link card ---------- */
+.prose a.md-link-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+  padding: 0.75rem 1rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color var(--transition);
+}
+
+.prose a.md-link-card:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.prose .md-link-card-icon {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.prose .md-link-card-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.prose .md-link-card-title,
+.prose .md-link-card-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prose .md-link-card-desc {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- timeline ---------- */
+.prose .md-timeline > :is(ul, ol) {
+  list-style: none;
+  margin: 1.5rem 0;
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--border);
+}
+
+.prose .md-timeline > :is(ul, ol) > li {
+  position: relative;
+  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+}
+
+.prose .md-timeline > :is(ul, ol) > li::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: calc(-1.25rem - 6px);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--bg-card);
+}
+
+.prose .md-timeline li > :is(strong, p > strong):first-child {
+  display: block;
+  color: var(--accent);
+  font-size: 0.9em;
+}
+
+/* ---------- card list ---------- */
+.prose .md-card-list > :is(ul, ol) {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prose .md-card-list > :is(ul, ol) > li {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+}
+
+.prose .md-card-list > :is(ul, ol) > li > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- blur (spoiler) ---------- */
+.prose .md-blur {
+  filter: blur(5px);
+  cursor: pointer;
+  transition: filter var(--transition);
+}
+
+.prose .md-blur:is(:hover, :focus) {
+  filter: none;
+  outline: none;
+}
+
+/* ---------- keys ---------- */
+.prose .md-keys {
+  white-space: nowrap;
+}
+
+.prose .md-keys kbd {
+  margin: 0 0.15em;
+  padding: 0.05em 0.45em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-code);
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+}
+
+/* ---------- tip ---------- */
+.prose .md-tip {
+  position: relative;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.prose .md-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(16rem, 80vw);
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-float);
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-indent: 0;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%);
+  transition: opacity var(--transition);
+}
+
+.prose .md-tip:is(:hover, :focus)::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ---------- badge ---------- */
+.prose .md-badge {
+  --badge-accent: var(--callout-note);
+  display: inline-block;
+  padding: 0 0.5em;
+  border: 1px solid color-mix(in srgb, var(--badge-accent) 35%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--badge-accent) 12%, transparent);
+  color: var(--badge-accent);
+  font-size: 0.75em;
+  line-height: 1.6;
+  vertical-align: 0.1em;
+  white-space: nowrap;
+}
+
+.prose .md-badge-tip {
+  --badge-accent: var(--callout-tip);
+}
+
+.prose .md-badge-warning {
+  --badge-accent: var(--callout-warning);
+}
+
+.prose .md-badge-danger {
+  --badge-accent: var(--callout-caution);
+}
+
+/* ---------- quote ---------- */
+.prose .md-quote {
+  margin: 2rem 0;
+}
+
+.prose .md-quote blockquote {
+  position: relative;
+  margin: 0;
+  padding: 0.25rem 1.5rem;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 1.08em;
+  text-align: center;
+}
+
+.prose .md-quote blockquote::before {
+  content: "\201C";
+  position: absolute;
+  top: -0.6em;
+  left: 0;
+  color: var(--accent);
+  font-size: 3em;
+  line-height: 1;
+  opacity: 0.35;
+}
+
+.prose .md-quote figcaption {
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.prose .md-quote figcaption::before {
+  content: "\2014\2009";
+}
+
+/* ---------- poetry ---------- */
+.prose .md-poetry {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.prose .md-poetry-head {
+  margin-bottom: 0.75rem;
+}
+
+.prose .md-poetry-head strong {
+  display: block;
+  font-size: 1.15em;
+}
+
+.prose .md-poetry-author {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Each source line is a line of the poem. */
+.prose .md-poetry-body p {
+  margin-bottom: 0.75rem;
+  line-height: 2;
+  text-indent: 0;
+  white-space: pre-line;
+}
+
+/* ---------- picture with caption ---------- */
+.prose .md-pic {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.prose .md-pic p {
+  margin-bottom: 0;
+  text-indent: 0;
+}
+
+.prose .md-pic img {
+  margin: 0 auto;
+}
+
+.prose .md-pic figcaption {
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- chat ---------- */
+.prose .md-chat {
+  margin: 1.5rem 0;
+  padding: 0.85rem 1rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-code);
+}
+
+.prose .md-chat > :is(ul, ol) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prose .md-chat li {
+  margin: 0;
+}
+
+.prose .md-chat-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 85%;
+}
+
+.prose .md-chat-msg.is-me {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.prose .md-chat-name {
+  margin-bottom: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.prose .md-chat-bubble {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+  text-indent: 0;
+}
+
+.prose .md-chat-bubble > :last-child {
+  margin-bottom: 0;
+}
+
+.prose .md-chat-msg.is-me .md-chat-bubble {
+  background: color-mix(in srgb, var(--accent) 18%, var(--bg-card));
+}
+
+.prose .md-chat-system {
+  align-self: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ---------- tabs ---------- */
+.prose .md-tabs {
+  margin: 1.5rem 0;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.prose .md-tab-bar {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose .md-tab-button {
+  flex: none;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.prose .md-tab-button[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.prose .md-tab-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.prose .md-tab {
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+/* Without the script every panel shows, each under its own label. */
+.prose .md-tabs.is-enhanced .md-tab-label {
+  display: none;
+}
+
+/* ---------- copy ---------- */
+.prose .md-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.prose .md-copy code {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.prose .md-copy-btn {
+  display: inline-flex;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-code);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.prose .md-copy-btn:hover {
+  color: var(--accent);
+}
+
+.prose .md-copy-btn.copied {
+  color: var(--callout-tip);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose .md-blur,
+  .prose .md-tip::after {
+    transition: none;
+  }
+}

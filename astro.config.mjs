@@ -5,8 +5,10 @@ import sitemap from "@astrojs/sitemap";
 import { unified } from "@astrojs/markdown-remark";
 import { defineConfig } from "astro/config";
 
+import remarkDirective from "remark-directive";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import remarkComponents from "./src/utils/remark-components";
 import rehypeVideoEmbed from "./src/utils/rehype-video-embed";
 import rehypeTableScroll from "./src/utils/rehype-table-scroll";
 import rehypeCallout from "./src/utils/rehype-callout";
@@ -32,7 +34,7 @@ export default defineConfig({
 
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath, remarkMathFlag],
+      remarkPlugins: [remarkDirective, remarkComponents, remarkMath, remarkMathFlag],
       rehypePlugins: [rehypeKatex, rehypeVideoEmbed, rehypeTableScroll, rehypeCallout],
     }),
   },

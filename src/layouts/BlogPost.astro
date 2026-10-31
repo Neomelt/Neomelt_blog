@@ -15,6 +15,7 @@ import { resolvePostDates } from "../utils/post-dates";
 import { estimateReadingTime } from "../utils/reading-time";
 import { postTitleTransition } from "../utils/transition";
 import { withBase } from "../utils/url";
+import "../styles/md-components.css";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -171,6 +172,10 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
     </main>
   </div>
 </BaseLayout>
+
+<script>
+  import "../scripts/md-components";
+</script>
 
 <style>
   .post-page {
