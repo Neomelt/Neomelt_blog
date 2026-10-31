@@ -100,6 +100,19 @@ describe("remark-components", () => {
     expect(html).toContain('<p class="md-tab-label"><strong>pnpm</strong></p>');
   });
 
+  it("keeps BibTeX exactly, backslashes included", async () => {
+    const html = await render(
+      ':::bibref{title="Paper" url="https://arxiv.org/abs/1"}\n```bibtex\n@article{a,\n  author={M{\\"u}ller}\n}\n```\n:::',
+    );
+    expect(html).toContain(
+      '<span class="bibref"><a href="https://arxiv.org/abs/1"',
+    );
+    expect(html).toContain(
+      'data-bib="@article{a,\n  author={M{\\&#x22;u}ller}\n}"',
+    );
+    expect(html).not.toContain("<pre");
+  });
+
   it("turns mermaid fences into a pre the browser can draw", async () => {
     expect(await render("```mermaid\nflowchart LR\n  A --> B\n```")).toBe(
       '<pre class="md-mermaid">flowchart LR\n  A --> B</pre>',

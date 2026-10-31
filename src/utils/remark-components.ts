@@ -333,6 +333,34 @@ const renderers: Record<string, Renderer> = {
       ),
     ]);
   },
+
+  bibref(node) {
+    if (node.type !== "containerDirective") return null;
+    const label = takeLabel(node);
+    const titleText = attr(node, "title");
+    const code = node.children.find((child) => child.type === "code");
+    if (!code || (!label && !titleText)) return null;
+    const title = label ?? [text(titleText!)];
+    const url = safeUrl(attr(node, "url"));
+    return part("p", { className: ["bibref-line"] }, [
+      part("span", { className: ["bibref"] }, [
+        url
+          ? part("a", { href: url, ...externalLink(url) }, title)
+          : part("span", {}, title),
+        part(
+          "button",
+          {
+            type: "button",
+            className: ["bibref-badge"],
+            dataBib: code.value.trim(),
+            ariaExpanded: "false",
+            ariaControls: ["bibref-popover"],
+          },
+          [text("BibTeX")],
+        ),
+      ]),
+    ]);
+  },
 };
 
 /** `- 名字: 内容` becomes a bubble; an item without a name is a system line. */
