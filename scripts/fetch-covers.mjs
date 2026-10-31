@@ -1,260 +1,503 @@
 #!/usr/bin/env node
-/**
- * Download pixiv illustrations for use as post covers.
- *
- *   node scripts/fetch-covers.mjs 126327443 134308706 ...
- *   node scripts/fetch-covers.mjs --inbox 126327443 ...   # review first
- *   node scripts/fetch-covers.mjs --from covers.txt
- *   node scripts/fetch-covers.mjs --search 初音ミク --take 8 --inbox
- *   node scripts/fetch-covers.mjs --banner 126327443            # 1920x640
- *
- * pixiv's own ajax endpoint returns metadata without a login but leaves every
- * entry in `urls` null, so the image itself needs a session cookie. The
- * pixiv.cat proxy serves originals by illust id with no auth, which is what
- * this uses. Originals run to several megabytes, so each one is resized and
- * re-encoded before it ever reaches the repository.
- *
- * Images land in src/assets/covers/ rather than public/ on purpose: only
- * files under src/ go through Astro's image pipeline, which is what produces
- * the hashed, immutable webp the reference blogs serve.
- */
-import { mkdir, readFile, readdir, writeFile, access } from "node:fs/promises";
-import { join } from "node:path";
+/** Download candidates, then import the IDs selected in the contact sheet. */
+import { execFile } from "node:child_process";
+import {
+  access,
+  mkdir,
+  readFile,
+  readdir,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
+import { join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { parseArgs, promisify } from "node:util";
 import sharp from "sharp";
+import {
+  fetchIllustration,
+  fetchOriginal,
+  findIllustrations,
+} from "./pixiv.mjs";
+import { writeInboxIndex } from "./cover-review.mjs";
 
-// --inbox keeps downloads out of the repository until they have been looked
-// at. pixiv only flags outright R18, so anything merely suggestive arrives
-// unmarked and no filter catches it - the decision has to be a human one.
-const INBOX = process.argv.includes("--inbox");
-// Banner art lives apart from card art: the masthead showing the same
-// illustration as a card below it reads as an accident.
-const BANNER = process.argv.includes("--banner");
-const OUT_DIR = INBOX
-  ? join(process.cwd(), ".cover-inbox")
-  : join(process.cwd(), "src", "assets", BANNER ? "banner" : "covers");
-// The inbox holds candidates for either use, so it keeps the uncropped
-// 1920-wide version: a banner can take it as-is, and a card crop can still
-// be made from it. Cropping to 1200x630 on the way in would make every
-// candidate unusable as a banner.
-const WIDTH = BANNER || INBOX ? 1920 : 1200;
-// Banners are not cropped. The element is 100vw by a vh height with
-// object-fit: cover, so the viewport decides the visible slice - cropping
-// here as well would throw away most of a 4:3 illustration for nothing.
-const HEIGHT = BANNER || INBOX ? null : 630;
-const QUALITY = 82;
-const PROXY = (id) => `https://pixiv.cat/${id}.jpg`;
-const META = (id) => `https://www.pixiv.net/ajax/illust/${id}`;
-const UA =
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
+const exec = promisify(execFile);
+const IMAGE = /^(\d+)\.(?:webp|jpe?g|png|avif)$/i;
+const HELP = `Pixiv cover candidates and reviewed imports.
 
-const args = process.argv.slice(2);
-if (args.length === 0) {
-  console.error(
-    "usage: node scripts/fetch-covers.mjs <illust-id...> | --from <file> | --search <tag> [--take N] [--inbox]",
-  );
-  process.exit(1);
-}
+  npm run covers -- --ranking daily --take 8
+  npm run covers -- --search "<标签>" --take 8
+  npm run covers -- 126327443 134308706
+  npm run covers -- --from covers.txt
+  npm run covers -- --review
+  npm run covers -- --accept 126327443
+  npm run covers -- --accept --banner 134308706
+  npm run covers -- --discard 126327443
+  npm run covers -- --clean
+  npm run covers -- --accept 126327443 --discard 134308706 --clean
 
-/**
- * pixiv's tag search works without a login, unlike the illust endpoint that
- * returns null image urls. mode=safe filters R18 at the source; the rest of
- * the filtering is about whether an image can serve as a banner or card at
- * all - portrait art loses half its frame to a 1200x630 crop, and anything
- * under 1200px wide would be upscaled.
- */
-async function searchTag(tag, take) {
-  const q = encodeURIComponent(tag);
-  const url =
-    `https://www.pixiv.net/ajax/search/illustrations/${q}` +
-    `?word=${q}&order=popular_d&mode=safe&p=1&s_mode=s_tag&type=illust`;
-  const res = await fetch(url, {
-    headers: { "User-Agent": UA, Referer: "https://www.pixiv.net/" },
+Options:
+  --ranking daily|weekly|monthly   All-ages illustration rankings
+  --date YYYYMMDD                 Ranking date (default: latest)
+  --search TAG                    Tag search, all ages
+  --take N                        Up to N new candidates, 1–50 (default: 6)
+  --concurrency N                 Concurrent downloads, 1–6 (default: 3)
+  --from FILE                     Read artwork IDs or URLs from a file
+  --inbox                         Candidates always go to .cover-inbox/
+  --review                        Refresh and open the static preview page
+  --accept                        Import reviewed IDs and assign covers
+  --discard                       Delete candidates and skip future auto-fetches
+  --clean                         Remove inbox copies already imported
+  --banner                        Select or import uncropped background art
+  --help
+
+Search and rankings read at most five pages. Review .cover-inbox/index.html
+before --accept. Image downloads allow 60s and two retries. Failed requests
+exit nonzero. Deletion only affects .cover-inbox/.`;
+
+function optionsFor(argv) {
+  const { values, positionals, tokens } = parseArgs({
+    args: argv,
+    tokens: true,
+    allowPositionals: true,
+    options: {
+      ranking: { type: "string" },
+      date: { type: "string" },
+      search: { type: "string" },
+      take: { type: "string" },
+      concurrency: { type: "string" },
+      from: { type: "string" },
+      inbox: { type: "boolean" },
+      accept: { type: "boolean" },
+      discard: { type: "boolean" },
+      clean: { type: "boolean" },
+      review: { type: "boolean" },
+      banner: { type: "boolean" },
+      help: { type: "boolean" },
+    },
   });
-  const json = await res.json();
-  const found = json?.body?.illust?.data ?? [];
-
-  const picks = found.filter((it) => {
-    const w = Number(it.width) || 0;
-    const h = Number(it.height) || 0;
-    if (Number(it.pageCount ?? 1) !== 1) return false;
-    if (Number(it.xRestrict ?? 0) !== 0) return false;
-    if (w < 1200) return false;
-    return w / h >= 1.15;
-  });
-
-  console.log(
-    `search "${tag}": ${found.length} results, ${picks.length} usable ` +
-      `(landscape, >=1200px, single page)\n`,
-  );
-  for (const it of picks.slice(0, take)) {
-    console.log(
-      `  ${it.id}  ${it.width}x${it.height}  ${String(it.title).slice(0, 24).padEnd(26)} by ${it.userName}`,
+  if (values.help) return values;
+  const sourcesWithFlags = [
+    "ranking",
+    "date",
+    "search",
+    "take",
+    "concurrency",
+    "from",
+    "inbox",
+  ].some((key) => values[key] !== undefined);
+  if (values.review) {
+    if (
+      positionals.length ||
+      sourcesWithFlags ||
+      values.accept ||
+      values.discard ||
+      values.clean
+    ) {
+      throw new Error(
+        "--review does not take another action or a download source",
+      );
+    }
+    return values;
+  }
+  if (positionals.some((id) => !/^\d+$/.test(id)))
+    throw new Error("artwork IDs must contain digits only");
+  if (values.accept || values.discard || values.clean) {
+    if (sourcesWithFlags)
+      throw new Error("reviewed actions do not take a download source");
+    const plan = { accept: [], discard: [] };
+    const actions = ["accept", "discard"].filter((name) => values[name]);
+    let action = actions.length === 1 ? actions[0] : null;
+    for (const token of tokens) {
+      if (
+        token.kind === "option" &&
+        ["accept", "discard", "clean"].includes(token.name)
+      )
+        action = token.name === "clean" ? null : token.name;
+      if (token.kind === "positional") {
+        if (!action)
+          throw new Error("place artwork IDs after --accept or --discard");
+        plan[action].push(token.value);
+      }
+    }
+    for (const name of ["accept", "discard"]) {
+      plan[name] = [...new Set(plan[name])];
+      if (values[name] && !plan[name].length)
+        throw new Error(`--${name} requires artwork IDs`);
+    }
+    if (values.banner && !plan.accept.length)
+      throw new Error("--banner requires images to import");
+    if (plan.accept.some((id) => plan.discard.includes(id)))
+      throw new Error(
+        "an artwork cannot be imported and discarded in the same command",
+      );
+    return { ...values, plan };
+  }
+  const sources = [
+    values.ranking !== undefined,
+    values.search !== undefined,
+    values.from !== undefined,
+    positionals.length > 0,
+  ].filter(Boolean);
+  if (sources.length !== 1)
+    throw new Error("choose one source: IDs, --from, --search or --ranking");
+  if (
+    values.ranking !== undefined &&
+    !["daily", "weekly", "monthly"].includes(values.ranking)
+  ) {
+    throw new Error("--ranking must be daily, weekly or monthly");
+  }
+  if (values.search !== undefined && !values.search.trim())
+    throw new Error("--search needs a tag");
+  if (values.from !== undefined && !values.from.trim())
+    throw new Error("--from needs a file path");
+  if (values.date !== undefined) {
+    const iso = values.date.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
+    if (
+      !values.ranking ||
+      !/^\d{8}$/.test(values.date) ||
+      Number.isNaN(Date.parse(iso)) ||
+      new Date(iso).toISOString().slice(0, 10) !== iso
+    ) {
+      throw new Error("--date requires --ranking and a valid YYYYMMDD date");
+    }
+  }
+  const take = Number(values.take ?? 6);
+  if (
+    !Number.isInteger(take) ||
+    take < 1 ||
+    take > 50 ||
+    (values.take !== undefined && !values.search && !values.ranking)
+  ) {
+    throw new Error(
+      "--take requires --search or --ranking and an integer from 1 to 50",
     );
   }
-  console.log();
-  return picks.slice(0, take).map((it) => String(it.id));
-}
-
-async function resolveIds() {
-  const searchIndex = args.indexOf("--search");
-  if (searchIndex !== -1) {
-    const tag = args[searchIndex + 1];
-    if (!tag) throw new Error("--search needs a tag");
-    const takeIndex = args.indexOf("--take");
-    const take = takeIndex === -1 ? 6 : Number(args[takeIndex + 1]) || 6;
-    return searchTag(tag, take);
-  }
-  const fromIndex = args.indexOf("--from");
-  if (fromIndex === -1) return args.filter((a) => /^\d+$/.test(a));
-  const file = args[fromIndex + 1];
-  if (!file) throw new Error("--from needs a file path");
-  const text = await readFile(file, "utf8");
-  return [...text.matchAll(/(\d{6,})/g)].map((m) => m[1]);
-}
-
-/** Title and author, for the credits file. Works without a login. */
-async function fetchMeta(id) {
-  try {
-    const res = await fetch(META(id), {
-      headers: { "User-Agent": UA, Referer: "https://www.pixiv.net/" },
-    });
-    const json = await res.json();
-    const body = json?.body ?? {};
-    return { title: body.illustTitle ?? body.title ?? null, author: body.userName ?? null };
-  } catch {
-    return { title: null, author: null };
-  }
+  const concurrency = Number(values.concurrency ?? 3);
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 6)
+    throw new Error("--concurrency must be an integer from 1 to 6");
+  return { ...values, take, concurrency, ids: [...new Set(positionals)] };
 }
 
 async function exists(path) {
   try {
     await access(path);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error.code === "ENOENT") return false;
+    throw error;
   }
 }
 
-async function fetchOne(id) {
-  const out = join(OUT_DIR, `${id}.webp`);
-  if (await exists(out)) return { id, skipped: true };
+async function images(dir) {
+  try {
+    return (await readdir(dir)).filter((file) => IMAGE.test(file)).sort();
+  } catch (error) {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  }
+}
 
-  const res = await fetch(PROXY(id), {
-    headers: { "User-Agent": UA, Referer: "https://www.pixiv.net/" },
-    redirect: "follow",
-  });
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+async function readCredits(dir) {
+  const file = join(dir, "CREDITS.md");
+  const text = (await exists(file))
+    ? await readFile(file, "utf8")
+    : "# Cover art\n";
+  const entries = new Map();
+  for (const line of text.split("\n")) {
+    const id = creditId(line);
+    if (id) entries.set(id, line);
+  }
+  return { text, entries };
+}
 
-  const original = Buffer.from(await res.arrayBuffer());
-  // Card covers crop to the share-card aspect rather than letterboxing, with
-  // sharp's attention strategy keeping the subject in frame more often than a
-  // plain centre crop. Banners only get scaled - see HEIGHT above.
-  const buf = await sharp(original)
-    .resize(
-      WIDTH,
-      HEIGHT,
-      HEIGHT === null
-        ? { withoutEnlargement: true }
-        : { fit: "cover", position: sharp.strategy.attention },
-    )
-    .webp({ quality: QUALITY })
-    .toBuffer();
-  await writeFile(out, buf);
+function creditId(line) {
+  return line.match(/^- .*\(https:\/\/www\.pixiv\.net\/artworks\/(\d+)\)/)?.[1];
+}
 
-  const meta = await fetchMeta(id);
+async function appendCredits(dir, additions) {
+  const { text, entries } = await readCredits(dir);
+  const lines = additions
+    .filter(([id]) => !entries.has(id))
+    .map(([, line]) => line);
+  if (lines.length)
+    await writeFile(
+      join(dir, "CREDITS.md"),
+      `${text.trimEnd()}\n${lines.join("\n")}\n`,
+    );
+}
+
+function creditLine(id, { title, author }) {
+  const clean = (text) => text.replace(/\s+/g, " ").replace(/[\\[\]]/g, "\\$&");
+  return `- [${clean(title)}](https://www.pixiv.net/artworks/${id}) — ${clean(author)}`;
+}
+
+async function importedIds(dirs) {
+  return new Set(
+    (await images(dirs.covers))
+      .concat(await images(dirs.banner))
+      .map((file) => file.match(IMAGE)[1]),
+  );
+}
+
+async function refreshInbox(dirs, banner) {
+  const imported = await importedIds(dirs);
+  const files = await images(dirs.inbox);
+  await mkdir(dirs.inbox, { recursive: true });
+  await writeInboxIndex(
+    dirs.inbox,
+    files.filter((file) => !imported.has(file.match(IMAGE)[1])),
+    {
+      banner,
+      importedCopies: files.filter((file) => imported.has(file.match(IMAGE)[1]))
+        .length,
+    },
+  );
+}
+
+async function readDiscarded(inbox) {
+  const file = join(inbox, "discarded.txt");
+  return new Set(
+    (await exists(file))
+      ? ((await readFile(file, "utf8")).match(/^\d+$/gm) ?? [])
+      : [],
+  );
+}
+
+async function checkDiscard(dirs, ids) {
+  const discarded = await readDiscarded(dirs.inbox);
+  const candidates = new Set(
+    (await images(dirs.inbox)).map((file) => file.match(IMAGE)[1]),
+  );
+  for (const id of ids)
+    if (!discarded.has(id) && !candidates.has(id))
+      throw new Error(`${id}: candidate not found`);
+}
+
+async function removeCandidates(dirs, ids, discard = false) {
+  const selected = new Set(ids);
+  const files = (await images(dirs.inbox)).filter((file) =>
+    selected.has(file.match(IMAGE)[1]),
+  );
+  if (discard) {
+    const discarded = await readDiscarded(dirs.inbox);
+    await mkdir(dirs.inbox, { recursive: true });
+    await writeFile(
+      join(dirs.inbox, "discarded.txt"),
+      [...new Set([...discarded, ...ids])].sort().join("\n") + "\n",
+    );
+  }
+  for (const file of files) await unlink(join(dirs.inbox, file));
+  if (files.length) {
+    const { text } = await readCredits(dirs.inbox);
+    await writeFile(
+      join(dirs.inbox, "CREDITS.md"),
+      text
+        .split("\n")
+        .filter((line) => !selected.has(creditId(line)))
+        .join("\n"),
+    );
+  }
+  return files.length;
+}
+
+async function cleanableIds(dirs, ids) {
+  const imported = await importedIds(dirs);
+  const candidates = new Set(
+    (await images(dirs.inbox)).map((file) => file.match(IMAGE)[1]),
+  );
+  const selected = (ids ?? [...candidates]).filter(
+    (id) => candidates.has(id) && imported.has(id),
+  );
+  const credits = new Set([
+    ...(await readCredits(dirs.covers)).entries.keys(),
+    ...(await readCredits(dirs.banner)).entries.keys(),
+  ]);
+  for (const id of selected)
+    if (!credits.has(id))
+      throw new Error(
+        `${id}: record attribution in the pool before cleaning its candidate`,
+      );
+  return selected;
+}
+
+async function cleanImported(dirs, ids) {
+  return removeCandidates(dirs, await cleanableIds(dirs, ids));
+}
+
+async function acceptReviewed(options, cwd, dirs) {
+  const target = options.banner ? dirs.banner : dirs.covers;
+  const { entries } = await readCredits(dirs.inbox);
+  const existing = new Set(
+    (await images(target)).map((file) => file.match(IMAGE)[1]),
+  );
+  const pending = [];
+  // Validate and encode the whole selection before adding it to the pool.
+  for (const id of options.ids) {
+    if (existing.has(id)) continue;
+    if (!entries.has(id))
+      throw new Error(`${id}: missing attribution in .cover-inbox/CREDITS.md`);
+    const src = join(dirs.inbox, `${id}.webp`);
+    if (!(await exists(src)))
+      throw new Error(`${id}: candidate file missing from .cover-inbox/`);
+    const buffer = await sharp(src)
+      .resize(
+        options.banner ? 1920 : 1200,
+        options.banner ? null : 630,
+        options.banner
+          ? { withoutEnlargement: true }
+          : { fit: "cover", position: sharp.strategy.attention },
+      )
+      .webp({ quality: 82 })
+      .toBuffer();
+    pending.push({ id, buffer });
+  }
+  await mkdir(target, { recursive: true });
+  await appendCredits(
+    target,
+    pending.map(({ id }) => [id, entries.get(id)]),
+  );
+  for (const { id, buffer } of pending) {
+    await writeFile(join(target, `${id}.webp`), buffer, { flag: "wx" });
+    console.log(`  imported ${id} -> ${options.banner ? "banner" : "covers"}`);
+  }
+  if (!options.banner) {
+    const { stdout } = await exec(
+      process.execPath,
+      [fileURLToPath(new URL("./lock-covers.mjs", import.meta.url))],
+      { cwd },
+    );
+    process.stdout.write(stdout);
+  }
   return {
-    id,
-    before: original.length,
-    after: buf.length,
-    ...meta,
+    imported: pending.length,
+    removed: await cleanImported(dirs, options.ids),
   };
 }
 
-const ids = [...new Set(await resolveIds())];
-if (ids.length === 0) {
-  console.error("no illust ids found");
-  process.exit(1);
-}
-await mkdir(OUT_DIR, { recursive: true });
-
-console.log(`fetching ${ids.length} image(s) into ${INBOX ? ".cover-inbox" : `src/assets/${BANNER ? "banner" : "covers"}`}/\n`);
-const credits = [];
-let failed = 0;
-
-for (const id of ids) {
-  try {
-    const r = await fetchOne(id);
-    if (r.skipped) {
-      console.log(`  = ${id}  already present, skipped`);
-      continue;
-    }
-    const kb = (n) => `${(n / 1024).toFixed(0)}KB`;
+export async function runCovers(argv, cwd = process.cwd()) {
+  const options = optionsFor(argv);
+  if (options.help) {
+    console.log(HELP);
+    return;
+  }
+  const dirs = {
+    inbox: join(cwd, ".cover-inbox"),
+    covers: join(cwd, "src/assets/covers"),
+    banner: join(cwd, "src/assets/banner"),
+  };
+  if (options.review) {
+    await refreshInbox(dirs, options.banner);
+    return { preview: join(dirs.inbox, "index.html") };
+  }
+  if (options.plan) {
+    const { accept, discard } = options.plan;
+    await checkDiscard(dirs, discard);
+    // Validate --clean preconditions before any writes; cleanImported repeats the call.
+    if (options.clean) await cleanableIds(dirs);
+    let result = { imported: 0, removed: 0 };
+    if (accept.length)
+      result = await acceptReviewed(
+        { ids: accept, banner: options.banner },
+        cwd,
+        dirs,
+      );
+    if (discard.length)
+      result.removed += await removeCandidates(dirs, discard, true);
+    if (options.clean) result.removed += await cleanImported(dirs);
+    await refreshInbox(dirs, options.banner);
     console.log(
-      `  + ${id}  ${kb(r.before)} -> ${kb(r.after)}` +
-        (r.author ? `  by ${r.author}` : ""),
+      `${result.imported} imported, ${result.removed} inbox image(s) removed.`,
     );
-    credits.push(
-      `- [${r.title ?? id}](https://www.pixiv.net/artworks/${id})` +
-        (r.author ? ` — ${r.author}` : ""),
-    );
-  } catch (err) {
-    failed += 1;
-    console.error(`  ! ${id}  ${err.message}`);
+    return;
   }
-}
-
-if (credits.length > 0) {
-  // Keep attribution with the files. These are other people's illustrations.
-  const path = join(OUT_DIR, "CREDITS.md");
-  const prev = (await exists(path)) ? await readFile(path, "utf8") : "# Cover art\n\n";
-  await writeFile(path, prev.trimEnd() + "\n" + credits.join("\n") + "\n");
-  console.log(`\ncredits appended to src/assets/covers/CREDITS.md`);
-}
-
-if (INBOX) {
-  // A contact sheet, so picking does not mean opening files one at a time.
-  // Each card carries its dominant colour and how warm it is, because the
-  // decision here is partly "does this sit with the rest of the site" and
-  // that is easier to judge from a swatch than from a thumbnail.
-  const files = (await readdir(OUT_DIR)).filter((f) => f.endsWith(".webp")).sort();
-  const cards = [];
-  for (const f of files) {
-    let swatch = "#333";
-    let note = "";
-    try {
-      const stats = await sharp(join(OUT_DIR, f)).stats();
-      const { r, g, b } = stats.dominant;
-      swatch = `rgb(${r},${g},${b})`;
-      // Positive means the red channel leads, negative means blue does.
-      const warmth = (r - b) / 255;
-      const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-      note =
-        `${warmth > 0.08 ? "暖" : warmth < -0.08 ? "冷" : "中"} · ` +
-        `${lum < 0.35 ? "暗" : lum > 0.68 ? "亮" : "中亮"}`;
-    } catch {
-      // A file that will not decode is not worth failing the sheet over.
+  const imported = await importedIds(dirs);
+  const discarded = await readDiscarded(dirs.inbox);
+  const known = new Set([
+    ...imported,
+    ...(await images(dirs.inbox)).map((file) => file.match(IMAGE)[1]),
+  ]);
+  let ids = options.ids;
+  if (options.from) {
+    const text = await readFile(resolve(cwd, options.from), "utf8");
+    ids = [...new Set([...text.matchAll(/\b\d{6,}\b/g)].map(([id]) => id))];
+    if (ids.length === 0)
+      throw new Error("no artwork IDs found in --from file");
+  }
+  if (options.search || options.ranking) {
+    ids = await findIllustrations(options, new Set([...known, ...discarded]));
+    console.log(
+      `${ids.length} new candidates selected (up to ${options.take}).`,
+    );
+  }
+  const skipped = ids.filter((id) => known.has(id)).length;
+  if (skipped) console.log(`${skipped} already downloaded, skipped.`);
+  ids = ids.filter((id) => !known.has(id));
+  await mkdir(dirs.inbox, { recursive: true });
+  let downloaded = 0;
+  const failures = [];
+  const pending = ids.values();
+  let writeQueue = Promise.resolve();
+  async function worker() {
+    for (const id of pending) {
+      try {
+        const meta = await fetchIllustration(id);
+        const original = await fetchOriginal(id);
+        const buffer = await sharp(original)
+          .resize({ width: 1920, withoutEnlargement: true })
+          .webp({ quality: 82 })
+          .toBuffer();
+        // Workers share attribution and discard records; serialize their writes.
+        const saved = writeQueue.then(async () => {
+          await appendCredits(dirs.inbox, [[id, creditLine(id, meta)]]);
+          await writeFile(join(dirs.inbox, `${id}.webp`), buffer, {
+            flag: "wx",
+          });
+          if (discarded.delete(id))
+            await writeFile(
+              join(dirs.inbox, "discarded.txt"),
+              [...discarded].sort().join("\n") + "\n",
+            );
+        });
+        writeQueue = saved.catch(() => {});
+        await saved;
+        downloaded += 1;
+        console.log(`  downloaded ${id} — ${meta.title} / ${meta.author}`);
+      } catch (error) {
+        failures.push(`${id}: ${error.message}`);
+        console.error(`  failed ${failures.at(-1)}`);
+      }
     }
-    cards.push(
-      `<figure><img src="./${f}" loading="lazy">` +
-        `<figcaption><span class="sw" style="background:${swatch}"></span>` +
-        `${f.replace(".webp", "")} · ${note}</figcaption></figure>`,
-    );
   }
-  const html =
-    `<!doctype html><meta charset="utf-8"><title>cover inbox</title>` +
-    `<style>body{background:#111;color:#ccc;font:14px system-ui;margin:0;padding:1rem}` +
-    `.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem}` +
-    `figure{margin:0}img{width:100%;border-radius:8px;display:block}` +
-    `figcaption{padding:.4rem 0;font-size:12px;opacity:.75;display:flex;align-items:center;gap:.4rem}` +
-    `.sw{width:14px;height:14px;border-radius:3px;flex:none;border:1px solid #0006}</style>` +
-    `<p>留下想要的，移进 src/assets/banner/ 或 src/assets/covers/，其余删掉</p>` +
-    `<div class=g>${cards.join("")}</div>`;
-  await writeFile(join(OUT_DIR, "index.html"), html);
+  await Promise.all(
+    Array.from({ length: Math.min(options.concurrency, ids.length) }, worker),
+  );
+  await refreshInbox(dirs, options.banner);
+  console.log(
+    `${downloaded} downloaded, ${failures.length} failed. Review: npm run covers -- --review${options.banner ? " --banner" : ""}`,
+  );
+  if (failures.length)
+    throw new Error(
+      "some candidates failed; successful downloads remain in .cover-inbox/",
+    );
 }
 
-console.log(
-  `\ndone: ${credits.length} downloaded, ${failed} failed.` +
-    (INBOX
-      ? `\nreview: open .cover-inbox/index.html, then move keepers into src/assets/covers/`
-      : `\nthe pool in site.config.ts picks these up automatically - no edit needed.`),
-);
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+  runCovers(process.argv.slice(2))
+    .then((review) => {
+      if (!review) return;
+      console.log(`Cover preview: ${review.preview}`);
+      execFile("xdg-open", [review.preview], (error) => {
+        if (error)
+          console.error(
+            `Could not open the browser: ${error.message}. Open ${review.preview}`,
+          );
+      });
+    })
+    .catch((error) => {
+      console.error(`[covers] ${error.message}`);
+      process.exitCode = 1;
+    });
+}
