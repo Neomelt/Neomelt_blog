@@ -73,7 +73,7 @@ cp ~/Music/歌曲名.mp3 public/music/library/
 ```ts
 export const telegramLog = {
   channel: "yohakunite", // 公开频道用户名，不带 @
-  limit: 0,               // 0 = 全部历史；正数 = 只保留最新 N 条
+  limit: 0, // 0 = 全部历史；正数 = 只保留最新 N 条
   timeZone: "Asia/Shanghai",
 };
 ```
@@ -114,9 +114,10 @@ gh workflow run "Telegram log refresh" --ref master
 npm run friends:check
 ```
 
-逐个检查 `src/data/friends.ts` 里的友链：站点状态码（跟随跳转，跳到别的域名会标出来）、证书剩余天数、订阅能否访问、订阅最近一次更新的日期。结果在终端里打印成表格，末尾列出有问题的站点。站点打不开或证书 14 天内过期时退出码为 1。
+检查 `src/data/friends.ts` 里每个友链的状态码、证书剩余天数、订阅是否可用和最近更新日期。站点打不开或证书不足 14 天时退出码为 1。
 
-只手动跑，不进构建也不进 CI。`ECONNRESET`、`timeout` 有可能只是本机网络连不上（比如 `pages.dev`），先换个网络再确认。订阅 404 时，打开对方首页看 `<head>` 里的 `<link rel="alternate">`，那里写的才是真实的订阅地址。
+- `ECONNRESET`、`timeout` 可能是本机网络问题，换个网络再确认。
+- 订阅 404 时，到对方首页 `<head>` 里找 `<link rel="alternate">`，那是真实的订阅地址。
 
 ---
 
@@ -131,15 +132,13 @@ npm run covers:lock   # 给它分配一张还没被占用的封面
 
 ### 技术文和随笔
 
-frontmatter 里的 `type` 决定版式，不写就是 `tech`：
-
 ```yaml
-type: story
+type: story # 默认 tech
 ```
 
-`story` 是随笔版式：标题、日期和标签居中，正文栏居中，二三级标题居中，段落首行缩进两字（只有一张图的段落不缩进）。新建时可以直接带上：`npm run new -- --title "..." --type story`。
+`story` 版式：标题和正文居中，段落首行缩进。新建时用 `npm run new -- --type story`。
 
-**给已有文章改版式时要同时写上 `updatedDate`**，填它现在显示的「更新于」时间。否则「更新于」取自 git 最后一次提交，改 frontmatter 的那次提交会把它刷成当天。查当前值：`git log --follow -1 --format=%aI -- src/content/blog/<文件>.md`。
+已有文章改 `type` 时，同时写上 `updatedDate`，值取 `git log --follow -1 --format=%aI -- <文件>`。不写的话，「更新于」会变成这次提交的日期。
 
 ---
 
@@ -236,75 +235,66 @@ series: "网络与远程访问"
 
 ### 组件
 
-普通 `.md` 文章就能用，不需要 MDX。写法是冒号开头的「指令」（remark-directive），分三种：
+基于 remark-directive，`.md` 和 `.mdx` 都能用。`:` 是行内组件，`::` 是单行组件，`:::` 包住一段正文，以 `:::` 结束。
 
-| 冒号 | 形状 | 例子 |
-| ---- | ---- | ---- |
-| `:` | 行内，夹在一句话里 | `:kbd[Ctrl+C]` |
-| `::` | 独占一行，没有正文 | `::link-card{url="…" title="…"}` |
-| `:::` | 包一段正文，`:::` 结束 | `:::folding` … `:::` |
+行内：
 
-`[...]` 是标签（显示的文字），`{...}` 是属性。构建时直接生成 HTML，RSS 阅读器里也能正常读。不认识的名字会按原文显示，所以正文里写 `3:2`、`a:b` 不受影响。
+| 组件     | 写法                                                                |
+| -------- | ------------------------------------------------------------------- |
+| 按键     | `:kbd[Ctrl+Shift+P]`                                                |
+| 悬停提示 | `:tip[术语]{tip="解释"}`                                            |
+| 防剧透   | `:blur[剧透内容]`                                                   |
+| 徽章     | `:badge[新]{type="tip"}`，type 可选 `info` `tip` `warning` `danger` |
+| 复制     | `:copy[npm run build]`                                              |
 
-**嵌套时外层要多一个冒号**，否则内层的 `:::` 会把外层提前关掉：
-
-```md
-::::folding{title="外层"}
-:::folding{title="内层"}
-内容
-:::
-::::
-```
-
-行内组件：
+单行：
 
 ```md
-按 :kbd[Ctrl+Shift+P]                   按键，+ 分隔组合键
-:tip[术语]{tip="悬停显示的解释"}         悬停提示，手机上点按
-结局是 :blur[主角其实是猫]               防剧透，悬停或点按显示
-:badge[新] :badge[推荐]{type="tip"}      徽章，type: info / tip / warning / danger
-:copy[npm run covers -- --review]        一键复制的命令，按原样复制
+::link-card{url="https://example.com" title="标题" desc="描述" icon="https://example.com/icon.png"}
 ```
 
-块级组件：
+`desc` 省略时显示域名，`icon` 可省略。
 
-````md
-:::folding{title="点开看"}               折叠；加 open 默认展开，标题也可以写成 :::folding[标题]
+块级：
+
+```md
+:::folding{title="点开看" open}
 内容
 :::
 
-::link-card{url="https://…" title="标题" desc="描述" icon="https://…/icon.png"}
-                                          链接卡片；desc 省略时显示域名，icon 可省
+:::timeline
 
-:::timeline                              时间线：一个列表，每项开头的粗体是时间
 - **2024-08** 博客上线
 - **2026-11** 加上组件
-:::
+  :::
 
-:::card-list                             卡片列表：列表的每一项变成一张卡片
-- **响应式**：手机和桌面都能看
-:::
+:::card-list
 
-:::quote{cite="鲁迅"}                    带出处的引用
+- 第一张卡片
+- 第二张卡片
+  :::
+
+:::quote{cite="鲁迅"}
 其实地上本没有路。
 :::
 
-:::poetry{title="静夜思" author="李白"}  诗词：每一行原样换行，居中
+:::poetry{title="静夜思" author="李白"}
 床前明月光，
 疑是地上霜。
 :::
 
-:::pic[图片说明]                         带说明的图片，图片照常写
-![alt](../../assets/blog/<slug>/1.png)
+:::pic[图片说明]
+![alt](../../assets/blog/slug/1.png)
 :::
 
-:::chat{me="Neomelt"}                    聊天记录：「名字：内容」，me 指定的人靠右，没有名字的是居中的系统消息
+:::chat{me="Neomelt"}
+
 - 2026-11-01 03:00
 - 朋友：在吗
 - Neomelt: 在
-:::
+  :::
 
-::::tabs                                 标签页：外层四个冒号，每个 :::tab 是一页
+::::tabs
 :::tab[npm]
 `npm i`
 :::
@@ -312,30 +302,36 @@ series: "网络与远程访问"
 `pnpm add`
 :::
 ::::
-````
+```
 
-链接卡片的标题和描述是手写的，构建时不会去抓对方网页。
+注意：
+
+- 嵌套时外层要多一个冒号（如上面的 `::::tabs`），否则内层的 `:::` 会提前关掉外层。
+- `folding` 的标题也可以写成 `:::folding[标题]`。
+- `timeline` 里每项开头的粗体是时间；`chat` 里每项按「名字：内容」写，`me` 指定的人靠右，没有名字的是系统消息。
+- 名字写错或不存在的组件会按原文显示。
 
 ### 论文引用
 
-论文标题后面跟一个 `BibTeX` 徽标：鼠标悬停预览，点击后固定，弹窗里可以一键复制；手机上点按打开，再点一次或点别处关闭。BibTeX 放在代码块里，反斜杠和缩进都原样保留：
+标题后面显示 `BibTeX` 徽标，悬停预览，点击固定，弹窗里可以复制。
 
 ````md
 :::bibref{title="AerialVLN: Vision-and-Language Navigation for UAVs" url="https://arxiv.org/abs/2308.06735"}
+
 ```bibtex
 @inproceedings{liu2023aerialvln,
   title={AerialVLN: Vision-and-Language Navigation for UAVs},
   year={2023}
 }
 ```
+
 :::
 ````
 
-`url` 可以省略，省了标题就不是链接。它是块级的，独占一行；放在列表项里要和列表文字对齐缩进。
+- `url` 可省略，省略后标题不是链接。
+- 块级组件，独占一行，放在列表项里要和列表文字对齐缩进。
 
 ### 图表（Mermaid）
-
-用文字画流程图、时序图、甘特图等，写在 `mermaid` 代码块里：
 
 ````md
 ```mermaid
@@ -344,10 +340,11 @@ flowchart LR
 ```
 ````
 
-图在访客浏览器里画，切换明暗时重画。只有含图表的页面才会下载 mermaid（首次约 160 KB gzip），其他页面不受影响。RSS 里显示的是图表源码。语法写错时，页面上保留源码，不会白屏。语法见 [mermaid 文档](https://mermaid.js.org/intro/)。
+- 在浏览器里渲染，只有含图表的页面才加载 mermaid（约 160 KB gzip）。
+- 语法错误时显示源码；RSS 里也是源码。
+- 语法见 [mermaid 文档](https://mermaid.js.org/intro/)。
 
-> [!NOTE]
-> 改了 Markdown 插件（`src/utils/remark-*.ts`、`rehype-*.ts`）之后，本地要用 `npm run build -- --force` 才能看到效果：普通构建会复用内容缓存里上次渲染的文章。Vercel 每次都是全新构建，不受影响。
+改了 `src/utils/` 下的 Markdown 插件后，本地要用 `npm run build -- --force` 构建，否则会用到内容缓存里的旧结果。
 
 ---
 
