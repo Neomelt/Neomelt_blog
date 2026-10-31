@@ -17,6 +17,7 @@
     "new": "node scripts/new-post.mjs",
     "covers": "node scripts/fetch-covers.mjs",
     "covers:lock": "node scripts/lock-covers.mjs",
+    "friends:check": "node scripts/check-friends.mjs",
     "watch:frontmatter": "node scripts/auto-frontmatter.mjs"
   },
   "dependencies": {
