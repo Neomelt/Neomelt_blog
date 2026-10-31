@@ -7,6 +7,7 @@ import { getDefaultUiText } from "../../i18n/ui";
 import { estimateReadingTime } from "../../utils/reading-time";
 import { getWalinePathForPost } from "../../utils/waline";
 import { coverForPost } from "../../utils/cover";
+import { postTitleTransition } from "../../utils/transition";
 import { withBase } from "../../utils/url";
 
 // Every arrangement's stylesheet, discovered rather than listed. They live in
@@ -126,7 +127,7 @@ const cover: ImageMetadata | null =
       }
     </div>
 
-    <div class="post-card-title">{title}</div>
+    <div class="post-card-title" style={postTitleTransition(post.id)}>{title}</div>
 
     {
       post.data.description && (

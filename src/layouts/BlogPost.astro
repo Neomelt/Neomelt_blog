@@ -13,6 +13,7 @@ import { getWalinePathForPost } from "../utils/waline";
 import { getDefaultUiText } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
 import { estimateReadingTime } from "../utils/reading-time";
+import { postTitleTransition } from "../utils/transition";
 import { withBase } from "../utils/url";
 
 export interface Props {
@@ -86,7 +87,7 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
       <article>
         <!-- Post header -->
         <header class="post-header">
-          <h1 class="post-title">{title}</h1>
+          <h1 class="post-title" style={postTitleTransition(post.id)}>{title}</h1>
           <div class="post-meta-row">
             <FormattedDate date={resolvedPubDate} showTime={true} />
             {
