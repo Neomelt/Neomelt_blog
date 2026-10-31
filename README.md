@@ -60,7 +60,7 @@
 │   │   ├── view/            # 需要页面喂数据的展示组件
 │   │   ├── widget/          # 侧栏挂件，自己查数据
 │   │   └── registry.ts      # 能被区域放置的 block 登记表
-│   ├── components/          # 不属于 block 体系的：BaseHead、SearchModal、Region、BibRef
+│   ├── components/          # 不属于 block 体系的：BaseHead、SearchModal、Region
 │   ├── content/
 │   │   └── blog/            # 博客 Markdown/MDX
 │   ├── data/                # 站点数据（友链、播放列表、阅读设置项）
@@ -70,10 +70,11 @@
 │   │   ├── api/             # search.json 等端点
 │   │   ├── posts/           # 列表 / 归档 / 分页 / 详情
 │   │   └── terms/           # 隐私、版权、免责声明等
+│   ├── scripts/             # 文章页的浏览器脚本：标签页、复制、BibTeX 弹窗、Mermaid
 │   ├── skins/               # 两套皮肤的 token，各一个 tokens.css + 一份登记表
-│   ├── styles/              # global.css，只消费 token 不定义 token
+│   ├── styles/              # global.css 与 md-components.css，只消费 token 不定义 token
 │   ├── types/
-│   ├── utils/
+│   ├── utils/               # 工具函数与 Markdown 插件（remark-* / rehype-*）
 │   ├── consts.ts
 │   ├── content.config.ts
 │   ├── env.d.ts             # inline script 挂在 window 上的全局声明
@@ -98,7 +99,8 @@ skins）。三层的分工是：`blocks/` 只有功能实现，`skins/` 只有�
 - 可以通过 frontmatter 的 `hidden: true` 暂时隐藏文章（不会出现在列表、归档、标签、RSS、搜索，也不会生成公开详情页）。
 - 文章插图放在 `src/assets/blog/<文章-slug>/`，封面放 `src/assets/covers/`，首屏背景放 `src/assets/banner/`。在 Markdown 用相对路径引用，如 `![alt](../../assets/blog/<slug>/1.png)`。放这里才会过 Astro 的图片管线（转 webp、加 hash）；放 `public/` 会原样输出，等于多发一份没人引用的原图。
 - 需要固定公网 URL、且不该被改写的资源（字体、音频、第三方脚本）才放 `public/`。
-- 要引用论文的文章写成 `.mdx`，用 `BibRef` 组件给标题加 BibTeX 悬停预览，写法见 [docs/operations.md](docs/operations.md#论文引用)。
+- 正文里可以用折叠、链接卡片、时间线、标签页、聊天记录、论文引用、Mermaid 图表等组件，普通 `.md` 就能用，写法见 [docs/operations.md](docs/operations.md#组件)。
+- 随笔在 frontmatter 写 `type: story`，换成居中标题、首行缩进的版式。
 
 ## 常用命令
 
@@ -114,6 +116,7 @@ skins）。三层的分工是：`blocks/` 只有功能实现，`skins/` 只有�
 - `npm run covers -- --review`：刷新并打开候选预览页
 - `npm run covers -- --accept <ID...>`：将预览页选定的图片裁剪入池并分配封面
 - `npm run covers:lock`：给还没有封面的文章各分配一张
+- `npm run friends:check`：检查友链能否访问、证书和订阅是否正常
 - `npm run watch:frontmatter`：自动补齐 frontmatter
 
 ## 自动生成文章头（frontmatter）
@@ -147,6 +150,7 @@ npm run new -- --title "我的新文章" --tags "astro,blog" --category "开发"
 - `--series` 系列
 - `--pinned` 是否置顶（`true/false`）
 - `--hidden` 是否隐藏（`true/false`）
+- `--type` 版式（`tech` / `story`，默认 `tech`）
 - `--hero` 头图路径（默认 `../../assets/cover.svg`）
 - `--pubDate` 发布时间（默认当前时间）
 - `--dry-run` 只预览，不落盘
