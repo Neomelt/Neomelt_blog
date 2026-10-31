@@ -17,12 +17,6 @@ export const FRIEND_LINKS: FriendLink[] = [
     tags: ["技术", "生活", "思考"],
   },
   {
-    name: "YuxBao",
-    url: "https://yux-bao.site",
-    description: "一程山水，一念清欢",
-    avatar: "https://yux-bao.site/avatar.webp",
-  },
-  {
     name: "game-life04",
     url: "https://game-life04.github.io/",
     description: "ICPC选手 | 医疗AI探索者",
@@ -109,12 +103,6 @@ export const FRIEND_LINKS: FriendLink[] = [
     url: "https://mtftau-5.github.io/",
     description: "不喜欢佳代子的都是坏人😭",
     avatar: "https://mtftau-5.github.io/images/logo/favicon.jpg",
-  },
-  {
-    name: "LonelyStar",
-    url: "https://firefly-7a0.pages.dev",
-    description: "Blog",
-    avatar: "https://firefly-7a0.pages.dev/avatar.jpg",
   },
   {
     name: "evil0knight's Blog",
