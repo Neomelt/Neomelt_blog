@@ -79,6 +79,7 @@ function buildFrontmatter({
   category,
   series,
   tags,
+  type,
 }) {
   const tagText =
     tags.length > 0
@@ -95,6 +96,7 @@ function buildFrontmatter({
     `category: ${formatYamlString(category)}`,
     `series: ${formatYamlString(series)}`,
     `tags: ${tagText}`,
+    `type: ${type}`,
     "---",
     "",
   ].join("\n");
@@ -116,6 +118,7 @@ Optional flags:
   --series "Series name"                  (default: "")
   --pinned true|false                     (default: false)
   --hidden true|false                     (default: false)
+  --type tech|story                       (default: tech; story = essay layout)
   --hero "../../assets/cover.svg"
   --pubDate "2026-02-24T18:30:00+08:00"   (default: now)
   --dry-run
@@ -173,6 +176,14 @@ async function main() {
     typeof args.hidden === "string"
       ? parseBoolean(args.hidden, false)
       : parseBoolean(await ask("Hidden [true/false]", "false"), false);
+  const typeInput = (
+    (typeof args.type === "string" && args.type.trim()) ||
+    (await ask("Type [tech/story]", "tech"))
+  ).toLowerCase();
+  if (!["tech", "story"].includes(typeInput)) {
+    rl?.close();
+    throw new Error("Type must be tech or story.");
+  }
   const heroImage =
     (args.hero && String(args.hero).trim()) ||
     (await ask("Hero image", "../../assets/cover.svg"));
@@ -192,6 +203,7 @@ async function main() {
     category,
     series,
     tags: normalizeTags(tagsInput),
+    type: typeInput,
   });
 
   rl?.close();

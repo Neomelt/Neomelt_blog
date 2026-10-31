@@ -84,7 +84,7 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
         <span>{title}</span>
       </nav>
 
-      <article>
+      <article class:list={{ "post-story": post.data.type === "story" }}>
         <!-- Post header -->
         <header class="post-header">
           <h1 class="post-title" style={postTitleTransition(post.id)}>{title}</h1>
@@ -231,6 +231,37 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
 
   .post-stats-line {
     margin: 0.1rem 0;
+  }
+
+  /* Essay layout: centred headings, first-line indent like printed prose.
+     Paragraphs that are only an image stay flush so pictures keep centred. */
+  .post-story .post-header {
+    text-align: center;
+  }
+
+  .post-story .post-meta-row,
+  .post-story .post-tags-row {
+    justify-content: center;
+  }
+
+  /* The prose column is narrower than the header, so centre it under the
+     centred title instead of leaving it flush left. */
+  .post-story .prose {
+    margin-inline: auto;
+  }
+
+  .post-story .prose :global(h2),
+  .post-story .prose :global(h3) {
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .post-story .prose > :global(p) {
+    text-indent: 2em;
+  }
+
+  .post-story .prose > :global(p:has(> img:only-child)) {
+    text-indent: 0;
   }
 
   /* Mobile TOC */

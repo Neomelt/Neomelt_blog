@@ -24,6 +24,8 @@ const blog = defineCollection({
       tags: z.array(z.string()).optional(),
       pinned: z.boolean().optional(),
       hidden: z.boolean().default(false),
+      // story: essays laid out with centred headings and indented paragraphs.
+      type: z.enum(["tech", "story"]).default("tech"),
     }),
 });
 

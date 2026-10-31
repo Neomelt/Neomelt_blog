@@ -2,12 +2,14 @@
 title: "关于RM的碎碎念"
 description: "前段时间太忙了没来得及写，周末闲暇来写一下吧"
 pubDate: "2026-06-07T14:10:00+08:00"
+updatedDate: "2026-08-29T10:55:26+08:00"
 pinned: false
 hidden: false
 heroImage: "../../assets/covers/148698382.webp"
 category: ""
 series: ""
 tags: []
+type: story
 ---
 
 今年是真的作为观众了，现在回想起来25赛季结束的时候发了个空间：
