@@ -8,8 +8,8 @@ import {
   fetchChannel,
   parseChannelPage,
   postsDigest,
-} from "../core.mjs";
-import { createImageLocalizer } from "../media.mjs";
+} from "../../../plugins/telegram-log/core.mjs";
+import { createImageLocalizer } from "../../../plugins/telegram-log/media.mjs";
 
 const fixture = readFileSync(
   new URL("./fixtures/channel.html", import.meta.url),

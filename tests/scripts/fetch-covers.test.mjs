@@ -10,8 +10,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { runCovers } from "./fetch-covers.mjs";
-import { findIllustrations } from "./pixiv.mjs";
+import { runCovers } from "../../scripts/fetch-covers.mjs";
+import { findIllustrations } from "../../scripts/pixiv.mjs";
 
 let cwd;
 const image = await sharp({

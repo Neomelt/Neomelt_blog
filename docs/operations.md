@@ -372,7 +372,7 @@ export const siteLayout = {
 
 ### 调整某个 skin
 
-所有视觉参数在 `src/skins/<skin>/tokens.css`。改值就行，**不要加新的 token 名**——两个 skin 必须定义完全相同的名字，`src/skins/skins.test.ts` 会在不一致时失败。
+所有视觉参数在 `src/skins/<skin>/tokens.css`。改值就行，**不要加新的 token 名**——两个 skin 必须定义完全相同的名字，`tests/skins/skins.test.ts` 会在不一致时失败。
 
 几个常用的：
 
@@ -464,7 +464,7 @@ registry 的 block 必须能由 `Region` 以字符串名称解析，并接受区
 
 ## 组件契约
 
-三条硬约束，`src/skins/skins.test.ts` 会在违反时让测试失败：
+三条硬约束，`tests/skins/skins.test.ts` 会在违反时让测试失败：
 
 1. **每个 skin 定义完全相同的 token 名。** skin 可以改一个 token 是什么，不能改有哪些——block 只读 `var(--x)`，某个 skin 少一个名字就是切换瞬间的裸元素。
 2. **每个 token 必须有消费方。** 定义了没人读的 token 是死代码。

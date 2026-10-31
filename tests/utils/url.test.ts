@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyBase } from "./url";
+import { applyBase } from "../../src/utils/url";
 
 describe("applyBase", () => {
   it("is a no-op on the primary deployment (base '/')", () => {

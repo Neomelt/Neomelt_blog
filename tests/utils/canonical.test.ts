@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizePathname } from "./canonical";
+import { normalizePathname } from "../../src/utils/canonical";
 
 describe("canonical utils", () => {
   it("normalizes pathnames safely", () => {

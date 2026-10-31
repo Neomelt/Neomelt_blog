@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { LAYOUTS } from "./index";
+import { LAYOUTS } from "../../src/arrangements/index";
 
 const ARRANGEMENT_DIR = join(process.cwd(), "src", "arrangements");
 const SRC_DIR = join(process.cwd(), "src");

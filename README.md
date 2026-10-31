@@ -79,6 +79,7 @@
 │   ├── content.config.ts
 │   ├── env.d.ts             # inline script 挂在 window 上的全局声明
 │   └── site.config.ts       # 装配文件：站点由哪些 block 组成、默认皮肤与排版
+├── tests/                   # 测试，目录结构对应 src/ 与 scripts/（Telegram 插件的测试在插件目录内）
 ├── astro.config.mjs
 ├── CHANGELOG.md             # 可感知的变化与架构调整
 └── package.json

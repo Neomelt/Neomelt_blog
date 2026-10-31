@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { getWalinePathForPost, normalizeWalinePath } from "./waline";
+import {
+  getWalinePathForPost,
+  normalizeWalinePath,
+} from "../../src/utils/waline";
 
 describe("waline path utils", () => {
   it("normalizes path for waline", () => {

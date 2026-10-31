@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { postTitleTransition } from "./transition";
+import { postTitleTransition } from "../../src/utils/transition";
 
 describe("postTitleTransition", () => {
   it("keeps ASCII and CJK ids as they are", () => {

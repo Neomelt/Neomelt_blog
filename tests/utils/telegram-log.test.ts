@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveTelegramLogChannel } from "./telegram-log";
+import { resolveTelegramLogChannel } from "../../src/utils/telegram-log";
 
 describe("resolveTelegramLogChannel", () => {
   it("uses the configured channel when the environment value is blank", () => {

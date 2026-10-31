@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchOriginal, findIllustrations } from "./pixiv.mjs";
+import { fetchOriginal, findIllustrations } from "../../scripts/pixiv.mjs";
 
 beforeEach(() => {
   vi.useFakeTimers();

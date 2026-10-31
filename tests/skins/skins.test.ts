@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { SKINS, SKIN_THEME_COLORS } from "./index";
+import { SKINS, SKIN_THEME_COLORS } from "../../src/skins/index";
 
 const SKIN_DIR = join(process.cwd(), "src", "skins");
 const SRC_DIR = join(process.cwd(), "src");
@@ -49,7 +49,11 @@ describe("skin token contract", () => {
       const tokens = readSkinTokens(skin);
       const missing = [...reference].filter((t) => !tokens.has(t));
       const extra = [...tokens].filter((t) => !reference.has(t));
-      expect({ skin, missing, extra }).toEqual({ skin, missing: [], extra: [] });
+      expect({ skin, missing, extra }).toEqual({
+        skin,
+        missing: [],
+        extra: [],
+      });
     }
   });
 
@@ -63,7 +67,11 @@ describe("skin token contract", () => {
       const tokens = readDarkTokens(skin);
       const missing = [...reference].filter((t) => !tokens.has(t));
       const extra = [...tokens].filter((t) => !reference.has(t));
-      expect({ skin, missing, extra }).toEqual({ skin, missing: [], extra: [] });
+      expect({ skin, missing, extra }).toEqual({
+        skin,
+        missing: [],
+        extra: [],
+      });
     }
   });
 

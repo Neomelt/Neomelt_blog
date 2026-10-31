@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { paginate } from "./pagination";
+import { paginate } from "../../src/utils/pagination";
 
 describe("pagination utils", () => {
   it("paginates and clamps current page", () => {

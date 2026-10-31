@@ -1,7 +1,7 @@
 import { createMarkdownProcessor } from "@astrojs/markdown-remark";
 import remarkDirective from "remark-directive";
 import { beforeAll, describe, expect, it } from "vitest";
-import remarkComponents from "./remark-components";
+import remarkComponents from "../../src/utils/remark-components";
 
 let render: (md: string) => Promise<string>;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { countMarkdownText, countTextUnits } from "./text-count";
+import { countMarkdownText, countTextUnits } from "../../src/utils/text-count";
 
 describe("text count", () => {
   it("counts Han characters and English words only", () => {
