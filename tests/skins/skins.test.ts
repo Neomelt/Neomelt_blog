@@ -17,7 +17,8 @@ function readSkinTokens(skin: string): Set<string> {
 /** Tokens declared inside a skin's .dark block, which overrides the base. */
 function readDarkTokens(skin: string): Set<string> {
   const css = readFileSync(join(SKIN_DIR, skin, "tokens.css"), "utf8");
-  const start = css.indexOf(".dark");
+  const marker = `[data-skin="${skin}"].dark {`;
+  const start = css.indexOf(marker);
   if (start === -1) return new Set();
   const block = css.slice(start, css.indexOf("\n}", start));
   return new Set(

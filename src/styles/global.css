@@ -42,6 +42,7 @@ html {
 
 body {
   font-family: var(--font-sans);
+  font-weight: var(--ui-font-weight);
   background-color: var(--bg);
   color: var(--text);
   font-size: 1.0625rem;
@@ -139,11 +140,13 @@ p {
 .prose {
   max-width: var(--prose-width);
   color: var(--text);
-  font-size: 1.03rem;
+  font-family: var(--font-serif);
+  font-size: var(--prose-font-size);
+  font-weight: var(--prose-font-weight);
   line-height: var(--prose-line-height);
   letter-spacing: var(--prose-letter-spacing);
   text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: var(--prose-font-smoothing);
 }
 
 .prose h1,
