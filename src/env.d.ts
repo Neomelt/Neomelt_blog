@@ -33,10 +33,12 @@ interface SiteThemeApi {
   skins: readonly string[];
   layouts: readonly string[];
   getTheme(): string;
+  getResolvedTheme(): string;
   getSkin(): string;
   getLayout(): string;
   applyTheme(mode: string, options?: { persist?: boolean }): string;
   toggleTheme(): string;
+  cycleTheme(): string;
   setSkin(skin: string): string;
   setLayout(layout: string, options?: { persist?: boolean }): string;
   resetDefaults(): void;
@@ -48,7 +50,12 @@ interface Window {
   __siteI18n?: SiteI18nApi;
   __siteTheme?: SiteThemeApi;
 
+  /** Theme media listener, replaced across view-transition document swaps. */
+  __siteThemeMediaQuery?: MediaQueryList;
+  __siteThemeMediaHandler?: (event: MediaQueryListEvent) => void;
+
   /** Listener slots, held so the next navigation can remove the last one. */
+  __headerThemeHandler?: EventListener;
   __headerLocaleHandler?: EventListener;
   __searchLocaleHandler?: EventListener;
   __searchKeydownHandler?: EventListener;

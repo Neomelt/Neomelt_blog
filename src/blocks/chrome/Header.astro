@@ -111,10 +111,10 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       <button
         id="theme-toggle"
         class="icon-btn"
-        data-i18n-aria-label="header.themeAria"
-        aria-label={getDefaultUiText("header.themeAria")}
+        aria-label={getDefaultUiText("header.themeStateDark")}
+        title={getDefaultUiText("header.themeStateDark")}
       >
-        <!-- Moon (shown in light mode) -->
+        <!-- Moon (shown for dark theme preference) -->
         <svg
           id="moon-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -127,7 +127,7 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
         >
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
-        <!-- Sun (shown in dark mode) -->
+        <!-- Sun (shown for light theme preference) -->
         <svg
           id="sun-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -148,6 +148,22 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
           <line x1="21" y1="12" x2="23" y2="12"></line>
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg
+          id="system-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          style="display:none"
+          aria-hidden="true"
+        >
+          <rect x="3" y="4" width="18" height="13" rx="2"></rect>
+          <path d="M8 21h8M12 17v4"></path>
+          <circle cx="12" cy="10.5" r="2.5"></circle>
         </svg>
       </button>
 
@@ -277,21 +293,37 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     return getThemeApi()?.getTheme?.() || "dark";
   }
 
-  function applyTheme(theme) {
-    const normalizedTheme =
-      getThemeApi()?.applyTheme?.(theme) ||
-      (theme === "light" ? "light" : "dark");
+  function syncThemeIcons() {
+    const preference = getTheme();
     const moon = document.getElementById("moon-icon");
     const sun = document.getElementById("sun-icon");
-    if (normalizedTheme === "dark") {
-      moon && (moon.style.display = "none");
-      sun && (sun.style.display = "");
-    } else {
-      moon && (moon.style.display = "");
-      sun && (sun.style.display = "none");
-    }
+    const system = document.getElementById("system-icon");
+    const button = document.getElementById("theme-toggle");
+    const i18n = window.__siteI18n;
+    const stateKey =
+      preference === "system"
+        ? "header.themeStateSystem"
+        : preference === "light"
+          ? "header.themeStateLight"
+          : "header.themeStateDark";
+    const fallback =
+      preference === "system"
+        ? "当前：跟随系统（点击切换）"
+        : preference === "light"
+          ? "当前：浅色模式（点击切换）"
+          : "当前：深色模式（点击切换）";
+    const label = i18n?.t?.(stateKey, fallback) || fallback;
 
-    return normalizedTheme;
+    if (moon) moon.style.display = preference === "dark" ? "" : "none";
+    if (sun) sun.style.display = preference === "light" ? "" : "none";
+    if (system) system.style.display = preference === "system" ? "" : "none";
+    button?.setAttribute("aria-label", label);
+    if (button) button.title = label;
+  }
+
+  function applyTheme(theme) {
+    getThemeApi()?.applyTheme?.(theme);
+    syncThemeIcons();
   }
 
   // Apply on load (also runs before DOMContentLoaded via inline script in BaseHead)
@@ -300,11 +332,20 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
   function initHeader() {
     applyTheme(getTheme());
 
+    const previousThemeHandler = window.__headerThemeHandler;
+    if (previousThemeHandler) {
+      document.removeEventListener("site:skin-change", previousThemeHandler);
+      document.removeEventListener("site:locale-change", previousThemeHandler);
+    }
+    document.addEventListener("site:skin-change", syncThemeIcons);
+    document.addEventListener("site:locale-change", syncThemeIcons);
+    window.__headerThemeHandler = syncThemeIcons;
+
     const themeToggle = document.getElementById("theme-toggle");
     if (themeToggle && !themeToggle.dataset.bound) {
       themeToggle.addEventListener("click", () => {
-        const isDark = document.documentElement.classList.contains("dark");
-        applyTheme(isDark ? "light" : "dark");
+        getThemeApi()?.cycleTheme?.();
+        syncThemeIcons();
       });
       themeToggle.dataset.bound = "true";
     }

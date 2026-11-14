@@ -140,19 +140,6 @@ export const READER_SETTINGS: ReaderSetting[] = [
 
   // --- Appearance ---
   {
-    id: "theme",
-    labelKey: "reader.theme",
-    groupKey: "reader.groupAppearance",
-    target: { kind: "siteTheme", axis: "theme" },
-    control: {
-      kind: "choice",
-      options: [
-        { value: "light", labelKey: "reader.themeLight" },
-        { value: "dark", labelKey: "reader.themeDark" },
-      ],
-    },
-  },
-  {
     id: "skin",
     labelKey: "reader.skin",
     hintKey: "reader.skinHint",

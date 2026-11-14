@@ -148,18 +148,26 @@ const primaryHostname = canonicalURL.hostname;
       (name) =>
         `[data-skin="${name}"] .skin-scope[data-skin-only]:not([data-skin-only~="${name}"]){display:none}`,
     ).join("")}
-/>
+></style>
 
 <!-- 主题初始化脚本 -->
 <script
   is:inline
-  define:vars={{ defaultSkin: siteLayout.skin, skinThemeColors: SKIN_THEME_COLORS, skinNames: SKINS, defaultLayout: siteLayout.layout, layoutNames: LAYOUTS }}
+  define:vars={{
+    defaultSkin: siteLayout.skin,
+    skinThemeColors: SKIN_THEME_COLORS,
+    skinNames: SKINS,
+    defaultLayout: siteLayout.layout,
+    layoutNames: LAYOUTS,
+  }}
 >
   (() => {
     const MODE_KEY = "theme";
     const SKIN_KEY = "skin";
     const LAYOUT_KEY = "layout";
     const DEFAULT_MODE = "dark";
+    const THEME_MODES = ["system", "light", "dark"];
+    const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const readStored = (key, allowed) => {
       try {
@@ -200,11 +208,22 @@ const primaryHostname = canonicalURL.hostname;
     const getAppliedMode = () => {
       const current = document.documentElement.dataset.theme;
       if (current === "dark" || current === "light") return current;
-      return document.documentElement.classList.contains("dark") ? "dark" : null;
+      return document.documentElement.classList.contains("dark")
+        ? "dark"
+        : null;
     };
 
-    const getMode = () =>
-      readStored(MODE_KEY, ["dark", "light"]) ?? getAppliedMode() ?? DEFAULT_MODE;
+    const getMode = () => {
+      const stored = readStored(MODE_KEY, THEME_MODES);
+      if (stored) return stored;
+      const stamped = document.documentElement.dataset.mode;
+      return THEME_MODES.includes(stamped)
+        ? stamped
+        : (getAppliedMode() ?? DEFAULT_MODE);
+    };
+    const resolveMode = (mode) =>
+      mode === "system" ? (systemThemeQuery.matches ? "dark" : "light") : mode;
+    const getResolvedMode = () => getAppliedMode() ?? resolveMode(getMode());
 
     // The server already stamps data-skin on <html>, so this only ever
     // narrows to a visitor's stored choice - there is no unskinned frame.
@@ -231,7 +250,8 @@ const primaryHostname = canonicalURL.hostname;
     };
 
     const apply = (skin, mode, { persist = true } = {}) => {
-      const nextMode = mode === "light" ? "light" : "dark";
+      const nextPreference = THEME_MODES.includes(mode) ? mode : DEFAULT_MODE;
+      const nextMode = resolveMode(nextPreference);
       const nextSkin = skinNames.includes(skin) ? skin : defaultSkin;
       const root = document.documentElement;
 
@@ -240,21 +260,25 @@ const primaryHostname = canonicalURL.hostname;
       // (It also used to back tailwind's darkMode: "class"; tailwind is gone.)
       root.classList.toggle("dark", nextMode === "dark");
       root.dataset.theme = nextMode;
-      root.dataset.mode = nextMode;
+      root.dataset.mode = nextPreference;
       root.dataset.skin = nextSkin;
       root.style.colorScheme = nextMode;
       syncThemeColor(nextSkin, nextMode);
 
       if (persist) {
-        writeStored(MODE_KEY, nextMode);
+        writeStored(MODE_KEY, nextPreference);
         writeStored(SKIN_KEY, nextSkin);
       }
       document.dispatchEvent(
         new CustomEvent("site:skin-change", {
-          detail: { skin: nextSkin, mode: nextMode },
+          detail: {
+            skin: nextSkin,
+            mode: nextMode,
+            preference: nextPreference,
+          },
         }),
       );
-      return nextMode;
+      return nextPreference;
     };
 
     window.__siteTheme = {
@@ -265,10 +289,16 @@ const primaryHostname = canonicalURL.hostname;
       defaultLayout,
       skins: skinNames,
       getTheme: getMode,
+      getResolvedTheme: getResolvedMode,
       getSkin,
       applyTheme: (mode, options) => apply(getSkin(), mode, options),
       toggleTheme: () =>
-        apply(getSkin(), getMode() === "dark" ? "light" : "dark"),
+        apply(getSkin(), getResolvedMode() === "dark" ? "light" : "dark"),
+      cycleTheme: () => {
+        const modes = ["dark", "light", "system"];
+        const next = modes[(modes.indexOf(getMode()) + 1) % modes.length];
+        return apply(getSkin(), next);
+      },
       setSkin: (skin) => {
         apply(skin, getMode());
         return skin;
@@ -285,7 +315,9 @@ const primaryHostname = canonicalURL.hostname;
       },
       cycleLayout: () => {
         const next =
-          layoutNames[(layoutNames.indexOf(getLayout()) + 1) % layoutNames.length];
+          layoutNames[
+            (layoutNames.indexOf(getLayout()) + 1) % layoutNames.length
+          ];
         return applyLayout(next);
       },
       cycleSkin: () => {
@@ -295,6 +327,26 @@ const primaryHostname = canonicalURL.hostname;
         return next;
       },
     };
+
+    const previousMediaQuery = window.__siteThemeMediaQuery;
+    const previousMediaHandler = window.__siteThemeMediaHandler;
+    if (previousMediaQuery && previousMediaHandler) {
+      previousMediaQuery.removeEventListener?.("change", previousMediaHandler);
+      if (previousMediaQuery.onchange === previousMediaHandler) {
+        previousMediaQuery.onchange = null;
+      }
+    }
+    const systemThemeChanged = () => {
+      if (getMode() === "system")
+        apply(getSkin(), "system", { persist: false });
+    };
+    window.__siteThemeMediaQuery = systemThemeQuery;
+    window.__siteThemeMediaHandler = systemThemeChanged;
+    if (systemThemeQuery.addEventListener) {
+      systemThemeQuery.addEventListener("change", systemThemeChanged);
+    } else {
+      systemThemeQuery.onchange = systemThemeChanged;
+    }
 
     // Resolve every axis before first paint.
     const restore = () => {
