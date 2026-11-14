@@ -133,7 +133,8 @@ export const siteLayout = {
     asideStart: [
       "widget/Profile",
       "widget/BlogStats",
-      { use: "widget/MusicPlayer", props: { volume: 0.6 } },
+      // MusicPlayer removed from the rail; re-add with
+      // { use: "widget/MusicPlayer", props: { volume: 0.6 } }.
     ],
 
     // Right column. Splitting the widgets across both sides is what fills a
