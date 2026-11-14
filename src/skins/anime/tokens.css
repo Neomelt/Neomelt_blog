@@ -23,19 +23,19 @@
 /* ---------- Design Tokens (Light Mode) ---------- */
 [data-skin="anime"] {
   /* Colors */
-  --bg: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-code: #f1f5f9;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --accent: #3a67a6;
-  --accent-hover: #2d5183;
-  --accent-rgb: 58, 103, 166;
-  --ink-rgb: 45, 81, 131;
-  --tag-bg: #e8eef6;
-  --badge-bg: #dbe5f2;
-  --badge-text: #2a4a78;
+  --bg: #dfe6eb;
+  --bg-card: #edf1f4;
+  --bg-code: #d4dee5;
+  --border: #bdcbd5;
+  --text: #111e28;
+  --text-muted: #344957;
+  --accent: #315d78;
+  --accent-hover: #264b62;
+  --accent-rgb: 49, 93, 120;
+  --ink-rgb: 38, 75, 98;
+  --tag-bg: #d4e0e7;
+  --badge-bg: #eee2c7;
+  --badge-text: #634a23;
   --callout-note: #3b7ea1;
   --callout-tip: #2f855a;
   --callout-important: #6b46c1;
@@ -45,8 +45,8 @@
 
   /* Glass surface - needs something behind it to read as glass, which is
      what decor/Backdrop provides. */
-  --glass-bg: rgba(255, 255, 255, 0.58);
-  --glass-border: rgba(255, 255, 255, 0.66);
+  --glass-bg: rgba(237, 241, 244, 0.97);
+  --glass-border: rgba(255, 255, 255, 0.72);
   --glass-blur-sm: 6px;
   --glass-blur-md: 14px;
   --glass-blur-lg: 26px;
@@ -63,7 +63,7 @@
      rounded, raised, with air between them. This is the structural half of
      the difference between the two skins. */
   --list-item-padding: 1.35rem 1.4rem;
-  --list-item-surface: color-mix(in srgb, var(--bg-card) 58%, transparent);
+  --list-item-surface: color-mix(in srgb, var(--bg-card) 97%, transparent);
   --list-item-border-width: var(--border-width);
   --list-item-divider-width: var(--border-width);
   --list-item-radius: var(--radius-card);
@@ -80,7 +80,7 @@
      the way axi404.top does it - an absolutely positioned image at partial
      opacity rather than a thumbnail column. */
   --card-cover-width: 58%;
-  --card-cover-opacity: 0.26;
+  --card-cover-opacity: 0.4;
   --card-cover-fade: 42%;
   /* Inset thumbnail, used by the list layout: a real image in the row rather
      than a faded panel behind the text. */
@@ -89,11 +89,11 @@
   --card-body-pad-end: 1.5rem;
   --surface-sheen: linear-gradient(
     135deg,
-    rgba(58, 103, 166, 0.07) 0%,
-    rgba(58, 103, 166, 0) 55%,
-    rgba(29, 118, 183, 0.05) 100%
+    rgba(56, 107, 134, 0.055) 0%,
+    rgba(56, 107, 134, 0) 55%,
+    rgba(220, 130, 102, 0.035) 100%
   );
-  --tag-text: #33598f;
+  --tag-text: #31596d;
 
   /* Shape - the actual difference between the two skins. Rounder, softer,
      with a tinted glow instead of a hairline shadow. */
@@ -103,8 +103,8 @@
   --radius-card: 18px;
   --radius-pill: 999px;
   --border-width: 1px;
-  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.07);
-  --shadow-float: 0 24px 64px rgba(15, 23, 42, 0.2);
+  --shadow-card: 0 6px 20px rgba(31, 62, 78, 0.1);
+  --shadow-float: 0 24px 64px rgba(31, 62, 78, 0.18);
 
   /* Typography */
   --font-sans:
@@ -141,9 +141,12 @@
   --panel-blur: 0px;
   --panel-border: transparent;
   --panel-padding: 0px;
-  /* Light mode wants the illustration close to its own values. */
-  --backdrop-filter: saturate(0.92);
-  --backdrop-overlay: 0.42;
+  /* Light mode: full-brightness illustration under a lighter wash. */
+  --backdrop-filter: brightness(1) saturate(0.92);
+  --backdrop-overlay: 0.2;
+  /* Colour of the wash laid over the backdrop. Washing with a grey --bg is
+     what made the light illustration look foggy. */
+  --backdrop-wash: #eaf2f8;
   --aside-width: 250px;
   --header-height: 64px;
 
@@ -153,6 +156,8 @@
 
 [data-skin="anime"]:not(.dark) {
   --ui-font-weight: 500;
+  --list-item-surface: color-mix(in srgb, var(--bg-card) 78%, transparent);
+  --list-item-blur: 8px;
 }
 
 /* ---------- Dark Mode ---------- */
@@ -179,6 +184,8 @@
   --glass-bg: rgba(30, 41, 59, 0.58);
   --glass-border: rgba(148, 163, 184, 0.18);
   --tag-text: #93b8dc;
+  --card-cover-opacity: 0.26;
+  --backdrop-wash: var(--bg);
   --prose-font-size: 1.03rem;
   --prose-font-weight: 400;
   --prose-font-smoothing: antialiased;

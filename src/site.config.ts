@@ -106,12 +106,12 @@ export const siteLayout = {
       // src/types/layout.ts for why this is not a build-time exclusion.
       // overlay is left to the skin: it differs between light and dark, and a
       // value here would pin both to one.
-      // imageIndex is a position in bannerPool, which is the banner directory
-      // sorted by filename - dropping in a file that sorts earlier shifts
-      // every index after it.
+      // Both image indexes address bannerPool (sorted by filename); the
+      // light variant uses a brighter illustration while dark keeps the city.
+      // Dropping a file that sorts earlier shifts every index after it.
       {
         use: "decor/Backdrop",
-        props: { imageIndex: 1, blur: 2 },
+        props: { imageIndex: 1, lightImageIndex: 0, blur: 2 },
         skins: ["anime"],
       },
     ],
