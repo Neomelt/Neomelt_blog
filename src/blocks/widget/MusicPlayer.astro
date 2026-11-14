@@ -148,7 +148,7 @@ const tracks = PLAYLIST.map((track) => ({
   /* Matches .cal-title and the other widget headings. */
   .music-title-heading {
     margin: 0 0 0.7rem;
-    font-size: 0.95rem;
+    font-size: calc(0.95rem * var(--widget-scale, 1));
     font-weight: 600;
   }
 
@@ -162,7 +162,7 @@ const tracks = PLAYLIST.map((track) => ({
   .music-track {
     margin: 0;
     min-width: 0;
-    font-size: 0.85rem;
+    font-size: calc(0.85rem * var(--widget-scale, 1));
     line-height: 1.35;
     color: var(--text);
     white-space: nowrap;
@@ -231,7 +231,7 @@ const tracks = PLAYLIST.map((track) => ({
 
   .music-time {
     flex-shrink: 0;
-    font-size: 0.72rem;
+    font-size: calc(0.72rem * var(--widget-scale, 1));
     font-variant-numeric: tabular-nums;
   }
 

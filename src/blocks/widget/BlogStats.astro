@@ -81,7 +81,7 @@ const compact = (n: number): string =>
 <style>
   .stats-title {
     margin: 0 0 0.7rem;
-    font-size: 0.95rem;
+    font-size: calc(0.95rem * var(--widget-scale, 1));
     font-weight: 600;
     color: var(--text);
   }
@@ -98,14 +98,14 @@ const compact = (n: number): string =>
   }
 
   .stats-cell dt {
-    font-size: 0.72rem;
+    font-size: calc(0.72rem * var(--widget-scale, 1));
     color: var(--text-muted);
     margin-bottom: 0.15rem;
   }
 
   .stats-cell dd {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: calc(1.15rem * var(--widget-scale, 1));
     font-weight: 600;
     color: var(--accent);
     font-variant-numeric: tabular-nums;

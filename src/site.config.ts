@@ -124,12 +124,12 @@ export const siteLayout = {
     // masthead instead.
     masthead: [],
 
-    // Left column. The shell adds a column for each side that has blocks, so
-    // moving a widget across is moving one line.
-    // MusicPlayer belongs on this side specifically: BlogPost.astro renders
-    // asideStart into its table-of-contents column and has no asideEnd, so a
-    // player on the other side would disappear - and stop - the moment a
-    // visitor opened a post. It renders nothing while playlist.ts is empty.
+    // BlogPost keeps these widgets in the left rail. Its table of contents
+    // has a separate right rail on wide screens, so the profile and player
+    // remain visible instead of being replaced by navigation.
+    // MusicPlayer belongs on this side: BlogPost does not render asideEnd,
+    // and the player should not disappear when a visitor opens an article.
+    // It renders nothing while playlist.ts is empty.
     asideStart: [
       "widget/Profile",
       "widget/BlogStats",

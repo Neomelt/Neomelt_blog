@@ -219,23 +219,19 @@ const withSidebar = hasStart || hasEnd;
     {
       withSidebar ? (
         <div class="shell">
-          {
-            hasStart && (
-              <aside class="shell-aside start">
-                <Region name="asideStart" override={regions.asideStart} />
-              </aside>
-            )
-          }
+          {hasStart && (
+            <aside class="shell-aside start">
+              <Region name="asideStart" override={regions.asideStart} />
+            </aside>
+          )}
           <div class="shell-main">
             <slot />
           </div>
-          {
-            hasEnd && (
-              <aside class="shell-aside end">
-                <Region name="asideEnd" override={regions.asideEnd} />
-              </aside>
-            )
-          }
+          {hasEnd && (
+            <aside class="shell-aside end">
+              <Region name="asideEnd" override={regions.asideEnd} />
+            </aside>
+          )}
         </div>
       ) : (
         <slot />
@@ -313,6 +309,9 @@ const withSidebar = hasStart || hasEnd;
   .shell {
     display: flex;
     align-items: flex-start;
+    /* .shell-main is capped by --main-max-width; centre the columns
+       instead of leaving the leftover width on the right. */
+    justify-content: center;
     gap: var(--shell-gap);
     max-width: var(--shell-width);
     margin: 0 auto;
@@ -328,6 +327,7 @@ const withSidebar = hasStart || hasEnd;
   .shell-main {
     flex: 1;
     min-width: 0;
+    max-width: var(--main-max-width);
   }
 
   /* .container centres itself with margin auto, which inside a flex row eats
@@ -342,7 +342,10 @@ const withSidebar = hasStart || hasEnd;
   /* A column exists only when its region has blocks, so the shell is one,
      two or three wide without any of them knowing about the others. */
   .shell-aside {
-    width: var(--aside-width);
+    width: var(--rail-width);
+    /* Widgets size their text as Nrem * --widget-scale. */
+    --widget-scale: var(--rail-text-scale);
+    font-size: calc(1em * var(--widget-scale));
     flex-shrink: 0;
     position: sticky;
     top: calc(var(--header-height) + 1.5rem);

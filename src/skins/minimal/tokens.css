@@ -110,8 +110,15 @@
 
   /* Spacing */
   --content-width: 800px;
-  /* Two-column shell. --aside-width 0 collapses it back to one column. */
+  /* Keep the article layout contract complete; minimal has no backdrop art. */
+  --article-shell-width: 1220px;
+  --article-main-width: 820px;
+  --article-main-max-width: 960px;
+  --article-toc-width: 220px;
+  --article-prose-width: 76ch;
+  /* Two-column shell. --rail-width 0 collapses it back to one column. */
   --shell-width: min(90vw, 1500px);
+  --main-max-width: 800px;
   /* Three columns need room the two-column measure does not have:
      subtracting two sidebars from --shell-width would leave the text
      around 580px. */
@@ -135,6 +142,9 @@
      what made the light illustration look foggy. */
   --backdrop-wash: var(--bg);
   --aside-width: 260px;
+  --rail-width: 310px;
+  /* Text scale for widgets in the side rails (home and article). */
+  --rail-text-scale: 1.16;
   --header-height: 64px;
 
   /* Transitions */

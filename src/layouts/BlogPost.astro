@@ -4,6 +4,7 @@ import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Comments from "../blocks/view/Comments.astro";
 import TableOfContents from "../blocks/widget/TableOfContents.astro";
+import GlassPanel from "../blocks/surface/GlassPanel.astro";
 import PostNavigation from "../blocks/view/PostNavigation.astro";
 import SeriesNav from "../blocks/view/SeriesNav.astro";
 import BaseLayout from "./BaseLayout.astro";
@@ -36,7 +37,6 @@ const shouldShowUpdated =
 
 const wordCount = (post.body || "").length;
 const readingTime = estimateReadingTime(post.body || "");
-const hasToc = headings.filter((h) => h.depth <= 3).length > 0;
 
 // Every post pins its own cover, so shares carry that rather than one shared
 // card for the whole site.
@@ -44,9 +44,9 @@ const shareImage =
   typeof post.data.heroImage === "object" && post.data.heroImage
     ? (post.data.heroImage as ImageMetadata)
     : undefined;
-// The sidebar column exists if the ToC needs it or the aside region is
-// configured, so adding a sidebar widget never means editing this layout.
-const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
+// The left sidebar is independent of the table of contents: personal widgets
+// stay on the left and headings get their own right rail on wide screens.
+const hasSidebar = siteLayout.regions.asideStart.length > 0;
 ---
 
 <BaseLayout
@@ -57,11 +57,9 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
   sidebar={false}
 >
   <div class="post-page">
-    <!-- TOC sidebar (desktop) -->
     {
-      hasAside && (
-        <aside class="toc-sidebar">
-          {hasToc && <TableOfContents headings={headings} />}
+      hasSidebar && (
+        <aside class="post-sidebar">
           <Region name="asideStart" context={{ headings, post }} />
         </aside>
       )
@@ -88,20 +86,11 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
       <article class:list={{ "post-story": post.data.type === "story" }}>
         <!-- Post header -->
         <header class="post-header">
-          <h1 class="post-title" style={postTitleTransition(post.id)}>{title}</h1>
+          <h1 class="post-title" style={postTitleTransition(post.id)}>
+            {title}
+          </h1>
           <div class="post-meta-row">
             <FormattedDate date={resolvedPubDate} showTime={true} />
-            {
-              shouldShowUpdated && (
-                <span class="text-muted text-sm">
-                  （
-                  <span data-i18n="common.updatedAt">
-                    {getDefaultUiText("common.updatedAt")}
-                  </span>{" "}
-                  <FormattedDate date={resolvedUpdatedDate} showTime={true} />）
-                </span>
-              )
-            }
             <span class="text-muted">·</span>
             <span class="text-muted text-sm">
               {wordCount}
@@ -112,6 +101,17 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
                 >{getDefaultUiText("common.minutes")}</span
               >
             </span>
+            {
+              shouldShowUpdated && (
+                <span class="text-muted text-sm">
+                  · （
+                  <span data-i18n="common.updatedAt">
+                    {getDefaultUiText("common.updatedAt")}
+                  </span>{" "}
+                  <FormattedDate date={resolvedUpdatedDate} showTime={true} />）
+                </span>
+              )
+            }
           </div>
           <div
             class="post-stats"
@@ -144,16 +144,12 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
         </header>
 
         <!-- Mobile TOC (collapsible) -->
-        {
-          hasToc && (
-            <details class="mobile-toc">
-              <summary data-i18n="common.toc">
-                {getDefaultUiText("common.toc")}
-              </summary>
-              <TableOfContents headings={headings} />
-            </details>
-          )
-        }
+        <details class="mobile-toc">
+          <summary data-i18n="common.toc">
+            {getDefaultUiText("common.toc")}
+          </summary>
+          <TableOfContents headings={headings} />
+        </details>
 
         <!-- Post content -->
         <div class="prose">
@@ -170,6 +166,13 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
         <Comments path={walinePath} />
       </article>
     </main>
+
+    <aside class="toc-sidebar">
+      <!-- Same surface as the widgets in the left rail, so both rails match. -->
+      <GlassPanel>
+        <TableOfContents headings={headings} />
+      </GlassPanel>
+    </aside>
   </div>
 </BaseLayout>
 
@@ -179,63 +182,126 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
 
 <style>
   .post-page {
-    display: flex;
-    justify-content: center;
+    --post-layout-width: var(--article-shell-width);
+    display: grid;
+    grid-template-columns: clamp(200px, 16vw, var(--aside-width)) minmax(0, 1fr);
+    align-items: start;
     gap: 2rem;
+    width: min(calc(100% - 2.5rem), var(--post-layout-width));
+    margin-inline: auto;
     padding-top: 0;
   }
 
-  /* Main content column. margin: 0 overrides the global .container's
-     `margin: 0 auto` — inside this flex row the auto margins would eat all
-     free space, defeating justify-content: center and pinning the TOC to
-     the viewport edge with a dead gap before the content. */
-  main.container {
-    flex: 1;
+  .post-sidebar {
+    /* Same widget text scale as the home rails. */
+    --widget-scale: var(--rail-text-scale);
+    font-size: calc(1em * var(--widget-scale));
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
     min-width: 0;
-    max-width: var(--content-width);
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    max-height: calc(100vh - var(--header-height) - 3rem);
+    overflow-y: auto;
+    align-self: start;
+  }
+
+  main.container {
+    grid-column: 2;
+    width: 100%;
+    min-width: 0;
+    max-width: var(--article-main-max-width);
     margin: 0;
+    padding-inline: 0;
+    padding-top: 0;
+  }
+
+  .post-page:not(:has(.post-sidebar)) {
+    --post-layout-width: var(--article-main-max-width);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .post-page:not(:has(.post-sidebar)) main.container {
+    grid-column: 1;
+  }
+
+  .post-page .prose {
+    width: 100%;
+    max-width: min(var(--article-prose-width), 100%);
+    margin-inline: auto;
+  }
+
+  article {
+    padding: 2rem 2.25rem;
+    border: var(--list-item-border-width) solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--list-item-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    article {
+      -webkit-backdrop-filter: blur(var(--list-item-blur));
+      backdrop-filter: blur(var(--list-item-blur));
+    }
   }
 
   /* Post header */
   .post-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--article-main-width);
+    margin: 0 auto 1.5rem;
+    padding: 0;
   }
 
   .post-title {
+    order: 2;
     font-size: 1.875rem;
     font-weight: 700;
     line-height: 1.3;
-    margin-bottom: 0.75rem;
+    margin: 0 0 0.6rem;
     color: var(--text);
   }
 
+  @media (max-width: 768px) {
+    article {
+      padding: 1.25rem 1rem;
+    }
+  }
+
   .post-meta-row {
+    order: 1;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-muted);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.7rem;
   }
 
   .post-tags-row {
+    order: 4;
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
   }
 
   .post-stats {
-    margin-bottom: 0.9rem;
+    order: 3;
+    margin-bottom: 0.75rem;
     color: var(--text-muted);
-    font-size: 0.95rem;
-    font-style: italic;
+    font-size: 0.8rem;
+    font-style: normal;
   }
 
   .post-stats-line {
-    margin: 0.1rem 0;
+    margin: 0;
   }
 
   /* Essay layout: centred headings, first-line indent like printed prose.
@@ -300,31 +366,74 @@ const hasAside = hasToc || siteLayout.regions.asideStart.length > 0;
     transform: rotate(90deg);
   }
 
-  /* Desktop TOC sidebar */
+  /* Desktop TOC moves to its own right rail on wide screens. */
   .toc-sidebar {
     display: none;
+    grid-column: 3;
     flex-direction: column;
     gap: 1rem;
-    /* Wider than the 220px a bare ToC needed: the column now stacks widgets,
-       and a month grid is seven columns wide. */
-    width: 250px;
-    flex-shrink: 0;
+    width: 100%;
+    min-width: 0;
     position: sticky;
     top: calc(var(--header-height) + 2rem);
     max-height: calc(100vh - var(--header-height) - 4rem);
     overflow-y: auto;
-    align-self: flex-start;
+    align-self: start;
   }
 
-  @media (min-width: 1100px) {
+  @media (min-width: 1280px) {
+    .post-page:has(.post-sidebar):has(.toc-sidebar) {
+      /* Same proportions as the home shell: equal rails, a capped main
+         column, the same gap. */
+      /* The home .shell spends 1.25rem a side on padding inside this width. */
+      --post-layout-width: calc(var(--shell-width-wide) - 2.5rem);
+      grid-template-columns:
+        var(--rail-width) minmax(0, var(--main-max-width))
+        var(--rail-width);
+      gap: var(--shell-gap);
+      justify-content: center;
+    }
+
+    .post-page:not(:has(.post-sidebar)):has(.toc-sidebar) {
+      --post-layout-width: calc(
+        var(--article-main-width) + var(--article-toc-width) + 2rem
+      );
+      grid-template-columns: minmax(0, var(--article-main-width)) var(
+          --article-toc-width
+        );
+      justify-content: center;
+    }
+
     .toc-sidebar {
       display: flex;
+    }
+
+    .mobile-toc {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1279px) {
+    .mobile-toc {
+      display: block;
     }
   }
 
   @media (max-width: 1099px) {
-    .mobile-toc {
+    .post-page {
       display: block;
+      width: 100%;
+      padding-inline: 1.25rem;
+    }
+
+    .post-sidebar,
+    .toc-sidebar {
+      display: none;
+    }
+
+    main.container {
+      max-width: var(--article-main-max-width);
+      margin-inline: auto;
     }
   }
 </style>
