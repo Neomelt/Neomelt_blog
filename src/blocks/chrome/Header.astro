@@ -418,40 +418,30 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 </script>
 
 <style>
-  /* The same glass tokens the sidebar cards use, not a flat --bg. With a
-     backdrop behind the page, an opaque bar was the one element the artwork
-     could not show through - it cut the illustration off at the top and read
-     as a strip pasted over the design rather than part of it.
-
-     This is free under minimal: that skin sets --glass-blur-md to 0 and
-     --glass-bg to the opaque card colour, so the header renders exactly as
-     it did. Only anime, which has a backdrop to show, changes. */
+  /* Always transparent with no divider, so the header reads as part of the
+     page rather than a bar laid over it. */
   #site-header {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    background-color: var(--glass-bg);
-    border-bottom: var(--border-width) solid var(--glass-border);
+    background-color: transparent;
+    border-bottom: 0;
     height: var(--header-height);
     overflow: hidden;
   }
 
-  /* backdrop-filter only inside @supports, matching surface/GlassPanel:
-     without it the declared background has to stay fully opaque, or an
-     unsupported browser shows the header text straight over the artwork. */
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    #site-header {
-      -webkit-backdrop-filter: blur(var(--glass-blur-md))
-        saturate(var(--glass-saturate));
-      backdrop-filter: blur(var(--glass-blur-md))
-        saturate(var(--glass-saturate));
-    }
-  }
-
+  /* Same outer edges as the three-column shell below, so the site name lines
+     up with the left rail's cards and the icons with the right rail's. */
   .header-inner {
-    max-width: 1120px;
+    max-width: min(
+      var(--shell-width-wide),
+      calc(
+        2 * var(--rail-width) + var(--main-max-width) + 2 * var(--shell-gap) +
+          2.5rem
+      )
+    );
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1.25rem;
     height: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -484,7 +474,7 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
   }
 
   .nav-link {
-    font-size: 1rem;
+    font-size: 1.15rem;
     color: var(--text-muted);
     text-decoration: none;
     padding: 0.3rem 0.6rem;
