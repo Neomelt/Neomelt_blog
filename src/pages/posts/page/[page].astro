@@ -68,14 +68,32 @@ const pageTitleLabel = `${getDefaultUiText("posts.metaTitle")} ${getDefaultUiTex
 
       <div class="post-list">
         {
-          paginatedPosts.map((post) => (
-            <PostCard
-              post={post}
-              pubDate={
-                postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate
-              } showReadingTime showTags
-            />
-          ))
+          paginatedPosts.map((post, idx) => {
+            const pubDate =
+              postDatesMap.get(getPostDateKey(post))?.pubDate ??
+              post.data.pubDate;
+            const year = String(pubDate.getFullYear());
+            const prevPubDate =
+              idx > 0
+                ? (postDatesMap.get(getPostDateKey(paginatedPosts[idx - 1]!))
+                    ?.pubDate ?? paginatedPosts[idx - 1]!.data.pubDate)
+                : null;
+            const prevYear = prevPubDate
+              ? String(prevPubDate.getFullYear())
+              : null;
+            const yearMark = year !== prevYear ? year : "";
+
+            return (
+              <PostCard
+                post={post}
+                pubDate={pubDate}
+                year={year}
+                yearMark={yearMark}
+                showReadingTime
+                showTags
+              />
+            );
+          })
         }
       </div>
 

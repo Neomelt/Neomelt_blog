@@ -129,13 +129,13 @@ export const READER_SETTINGS: ReaderSetting[] = [
     target: { kind: "cssVar", property: "--prose-width" },
     control: {
       kind: "range",
-      min: 52,
-      max: 90,
+      min: 60,
+      max: 110,
       step: 2,
       unit: "ch",
       cssUnit: "ch",
     },
-    fallback: 66,
+    fallback: 82,
   },
 
   // --- Appearance ---

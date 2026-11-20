@@ -101,15 +101,14 @@ const policyEntries = [
   }
 
   .terms-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    padding: 1rem;
-    background: var(--bg-card);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    background: transparent;
   }
 
   .terms-card h2 {
     margin: 0 0 0.75rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     font-weight: 600;
   }
@@ -118,31 +117,24 @@ const policyEntries = [
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 0.6rem;
+    display: flex;
+    flex-direction: column;
   }
 
   .terms-item {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 0.4rem 0.8rem;
+    gap: 0.25rem 0.8rem;
     align-items: center;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    padding: 0.72rem 0.82rem;
+    border-bottom: 1px solid var(--border);
+    padding: 0.85rem 0;
     text-decoration: none;
     color: inherit;
-    transition:
-      border-color var(--transition),
-      transform var(--transition),
-      background var(--transition);
+    transition: color var(--transition);
   }
 
   .terms-item:hover {
-    border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
-    background: var(--bg);
-    transform: translateY(-1px);
-    color: inherit;
+    color: var(--accent);
   }
 
   .terms-item-title {

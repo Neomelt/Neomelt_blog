@@ -1,29 +1,33 @@
-/* list - an inset thumbnail beside the text. The thumbnail is a real image in
-   the row rather than a backdrop, so its box comes from the skin's
-   --thumb-width / --thumb-height rather than from the cover tokens the
-   feature arrangement uses. */
+/* list - Editorial Monograph bibliography list:
+   Hanging year column on the left, dotted book leader between title and date,
+   dashed hairline dividers, and Spotlight Focus hover dimming. */
 
 html[data-layout="list"] .post-list .post-card {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: flex-start;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  gap: 1.15rem;
+  border-bottom-style: dashed;
 }
 
-html[data-layout="list"] .post-list .post-cover {
-  position: static;
-  flex: none;
-  width: var(--thumb-width);
-  height: var(--thumb-height);
-  z-index: 0;
-  opacity: 1;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  -webkit-mask-image: none;
-  mask-image: none;
+/* Spotlight Focus Effect: non-hovered rows softly dim so the active row pops */
+@media (hover: hover) {
+  html[data-layout="list"] .post-list:hover .post-card {
+    opacity: 0.42;
+  }
+
+  html[data-layout="list"] .post-list:hover .post-card:hover {
+    opacity: 1;
+  }
 }
 
 html[data-layout="list"] .post-list .post-card-body {
   min-width: 0;
-  flex: 1;
+}
+
+@media (max-width: 640px) {
+  html[data-layout="list"] .post-list .post-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+  }
 }

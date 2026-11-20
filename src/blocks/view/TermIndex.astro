@@ -98,18 +98,20 @@ const { titleKey, terms, groups, prefix = "" } = Astro.props;
   .term-cloud {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
+    gap: 0.45rem 1.15rem;
+    margin-bottom: 2.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: var(--border-width) solid var(--border);
   }
 
   .term-item {
     display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.7rem;
-    border: var(--border-width) solid var(--border);
-    border-radius: var(--radius-pill);
-    font-size: 0.875rem;
+    align-items: baseline;
+    gap: 0.28rem;
+    padding: 0.15rem 0;
+    border: none;
+    border-bottom: 1px solid transparent;
+    font-size: 0.94rem;
     color: var(--text);
     text-decoration: none;
     transition:
@@ -118,13 +120,15 @@ const { titleKey, terms, groups, prefix = "" } = Astro.props;
   }
 
   .term-item:hover {
-    border-color: var(--accent);
+    border-bottom-color: var(--accent);
     color: var(--accent);
   }
 
   .term-count {
+    font-family: var(--font-mono);
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .term-section {

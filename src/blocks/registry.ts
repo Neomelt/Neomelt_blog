@@ -9,9 +9,11 @@ import Calendar from "./widget/Calendar.astro";
 import FriendCircle from "./widget/FriendCircle.astro";
 import MusicPlayer from "./widget/MusicPlayer.astro";
 import Profile from "./widget/Profile.astro";
+import SidebarNav from "./widget/SidebarNav.astro";
 import TagCloud from "./widget/TagCloud.astro";
 import TelegramChannel from "./widget/TelegramChannel.astro";
 import WritingHeatmap from "./widget/WritingHeatmap.astro";
+import WritingPulse from "./widget/WritingPulse.astro";
 import ImageLightbox from "./behavior/ImageLightbox.astro";
 
 /**
@@ -46,10 +48,12 @@ export const BLOCKS = {
   "widget/FriendCircle": FriendCircle,
   "widget/MusicPlayer": MusicPlayer,
   "widget/Profile": Profile,
+  "widget/SidebarNav": SidebarNav,
   "widget/TagCloud": TagCloud,
   "widget/TelegramChannel": TelegramChannel,
   // Implemented and registered, deliberately not placed in site.config.ts.
   "widget/WritingHeatmap": WritingHeatmap,
+  "widget/WritingPulse": WritingPulse,
   "behavior/ImageLightbox": ImageLightbox,
 } satisfies Record<string, AstroComponentFactory>;
 

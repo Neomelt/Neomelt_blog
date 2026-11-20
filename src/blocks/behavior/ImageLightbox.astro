@@ -1,8 +1,13 @@
 <script>
   type GalleryItem = { src: string; width: number; height: number };
   const OPEN_CLASS = "lightbox-open";
+  const MIN_SCALE = 1;
   /** Set while a lightbox is open; calling it tears that one down. */
   let activeCleanup: (() => void) | null = null;
+
+  function clamp(value: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, value));
+  }
 
   function galleryFor(img: HTMLImageElement) {
     const container = img.closest<HTMLElement>("[data-lightbox-gallery]");
@@ -18,10 +23,12 @@
       width:
         Number(source.dataset.lightboxWidth) ||
         source.naturalWidth ||
+        Number(source.getAttribute("width")) ||
         source.width,
       height:
         Number(source.dataset.lightboxHeight) ||
         source.naturalHeight ||
+        Number(source.getAttribute("height")) ||
         source.height,
     }));
     const start = Math.max(0, sources.indexOf(img));
@@ -37,6 +44,15 @@
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    let natW = Math.max(1, gallery.items[current]!.width || 800);
+    let natH = Math.max(1, gallery.items[current]!.height || 600);
+    let baseW = natW;
+    let baseH = natH;
+    let maxScale = 6;
+    let scale = 1;
+    let panX = 0;
+    let panY = 0;
+
     const backdrop = document.createElement("div");
     backdrop.className = "lightbox-backdrop";
     backdrop.setAttribute("role", "dialog");
@@ -45,28 +61,153 @@
 
     const clone = document.createElement("img");
     clone.className = "lightbox-image";
-    clone.src = gallery.items[current]!.src;
     clone.alt = img.alt || "";
-    clone.style.opacity = "1";
-    clone.style.transform = "translate(-50%, -50%)";
+    clone.draggable = false;
 
     const previous = document.createElement("button");
     previous.type = "button";
     previous.className = "lightbox-control lightbox-prev";
     previous.setAttribute("aria-label", "上一张");
     previous.textContent = "‹";
+
     const next = document.createElement("button");
     next.type = "button";
     next.className = "lightbox-control lightbox-next";
     next.setAttribute("aria-label", "下一张");
     next.textContent = "›";
-    const closeButton = document.createElement("button");
-    closeButton.type = "button";
-    closeButton.className = "lightbox-close";
-    closeButton.setAttribute("aria-label", "关闭");
-    closeButton.textContent = "×";
+
     const counter = document.createElement("span");
     counter.className = "lightbox-counter";
+
+    // Top-right toolbar: zoom out, reset/readout, zoom in, fit-width, close
+    const toolbar = document.createElement("div");
+    toolbar.className = "lightbox-toolbar";
+
+    const zoomOutBtn = document.createElement("button");
+    zoomOutBtn.type = "button";
+    zoomOutBtn.className = "lightbox-tool-btn";
+    zoomOutBtn.setAttribute("aria-label", "缩小");
+    zoomOutBtn.textContent = "−";
+
+    const zoomResetBtn = document.createElement("button");
+    zoomResetBtn.type = "button";
+    zoomResetBtn.className = "lightbox-tool-btn lightbox-zoom-readout";
+    zoomResetBtn.setAttribute("aria-label", "重置缩放");
+    zoomResetBtn.textContent = "100%";
+
+    const zoomInBtn = document.createElement("button");
+    zoomInBtn.type = "button";
+    zoomInBtn.className = "lightbox-tool-btn";
+    zoomInBtn.setAttribute("aria-label", "放大");
+    zoomInBtn.textContent = "+";
+
+    const fitWidthBtn = document.createElement("button");
+    fitWidthBtn.type = "button";
+    fitWidthBtn.className = "lightbox-tool-btn lightbox-fit-btn";
+    fitWidthBtn.setAttribute("aria-label", "适应阅读宽度");
+    fitWidthBtn.textContent = "适应宽度";
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "lightbox-tool-btn lightbox-close-btn";
+    closeButton.setAttribute("aria-label", "关闭");
+    closeButton.textContent = "×";
+
+    toolbar.append(zoomOutBtn, zoomResetBtn, zoomInBtn, fitWidthBtn, closeButton);
+
+    const measureBase = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const maxW = vw * 0.92;
+      const maxH = vh * 0.84;
+      const fit = Math.min(1, maxW / natW, maxH / natH);
+      baseW = Math.max(1, natW * fit);
+      baseH = Math.max(1, natH * fit);
+      const targetReadableW = Math.min(vw * 0.92, 860);
+      maxScale = clamp(Math.ceil((targetReadableW / baseW) * 1.5), 6, 14);
+      clone.style.width = `${baseW}px`;
+      clone.style.height = `${baseH}px`;
+    };
+
+    const panBounds = (s = scale) => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const curW = baseW * s;
+      const curH = baseH * s;
+      return {
+        maxX: Math.max(0, (curW - vw * 0.9) / 2),
+        maxY: Math.max(0, (curH - vh * 0.86) / 2),
+      };
+    };
+
+    const clampPan = () => {
+      const { maxX, maxY } = panBounds();
+      panX = clamp(panX, -maxX, maxX);
+      panY = clamp(panY, -maxY, maxY);
+    };
+
+    const applyTransform = (animate = true) => {
+      clampPan();
+      clone.classList.toggle("is-dragging", !animate || reduceMotion);
+      clone.classList.toggle("is-zoomed", scale > 1.02);
+      clone.style.transform = `translate(calc(-50% + ${panX}px), calc(-50% + ${panY}px)) scale(${scale})`;
+      zoomResetBtn.textContent = `${Math.round(scale * 100)}%`;
+      zoomOutBtn.disabled = scale <= MIN_SCALE + 0.01;
+      zoomInBtn.disabled = scale >= maxScale - 0.01;
+      const isTall = natH / natW > 1.6;
+      fitWidthBtn.hidden = !isTall && baseW >= Math.min(window.innerWidth * 0.8, 720);
+    };
+
+    const zoomAt = (nextScale: number, clientX: number, clientY: number, animate = true) => {
+      const clamped = clamp(nextScale, MIN_SCALE, maxScale);
+      if (Math.abs(clamped - scale) < 0.001) return;
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      const offsetX = clientX - cx - panX;
+      const offsetY = clientY - cy - panY;
+      const ratio = clamped / scale;
+      panX = clientX - cx - offsetX * ratio;
+      panY = clientY - cy - offsetY * ratio;
+      scale = clamped;
+      if (scale <= 1.01) {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+      }
+      applyTransform(animate);
+    };
+
+    const fitReadableWidth = () => {
+      const targetW = Math.min(window.innerWidth * 0.9, 720);
+      const targetScale = clamp(Math.max(2, targetW / baseW), MIN_SCALE, maxScale);
+      if (Math.abs(scale - targetScale) < 0.12) {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform(true);
+        return;
+      }
+      scale = targetScale;
+      panX = 0;
+      // Align tall images to the top so long screenshots read from the first line down.
+      panY = natH / natW > 1.5 ? panBounds(targetScale).maxY : 0;
+      applyTransform(true);
+    };
+
+    const toggleSmartZoom = (clientX: number, clientY: number) => {
+      if (scale > 1.05) {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform(true);
+        return;
+      }
+      if (natH / natW > 1.6) {
+        fitReadableWidth();
+      } else {
+        zoomAt(Math.min(maxScale, 2.25), clientX, clientY, true);
+      }
+    };
 
     const updateCounter = () => {
       const hasGallery = gallery.items.length > 1;
@@ -79,23 +220,37 @@
     const showItem = (index: number) => {
       current = (index + gallery.items.length) % gallery.items.length;
       const item = gallery.items[current]!;
+      natW = Math.max(1, item.width || 800);
+      natH = Math.max(1, item.height || 600);
+      scale = 1;
+      panX = 0;
+      panY = 0;
       clone.alt = img.alt || "";
-      clone.width = item.width;
-      clone.height = item.height;
       clone.src = item.src;
+      measureBase();
+      applyTransform(false);
       updateCounter();
     };
 
+    clone.addEventListener("load", () => {
+      if (clone.naturalWidth > 0 && clone.naturalHeight > 0) {
+        natW = clone.naturalWidth;
+        natH = clone.naturalHeight;
+        measureBase();
+        applyTransform(false);
+      }
+    });
+
     const goTo = (index: number) => {
       showItem(index);
-      clone.style.opacity = "0.3";
+      clone.style.opacity = "0.35";
       requestAnimationFrame(() => {
         clone.style.opacity = "1";
       });
     };
 
     document.body.appendChild(backdrop);
-    backdrop.append(clone, previous, next, counter, closeButton);
+    backdrop.append(clone, previous, next, counter, toolbar);
     if (img.alt) {
       const caption = document.createElement("figcaption");
       caption.className = "lightbox-caption";
@@ -106,16 +261,105 @@
     document.body.classList.add(OPEN_CLASS);
     img.style.visibility = "hidden";
     if (reduceMotion) {
-      clone.style.transition = "none";
       backdrop.style.transition = "none";
     }
 
-    // 让初始图片直接落在居中的观看区域，避免不同长宽比之间发生挤压动画。
     showItem(current);
+    clone.style.opacity = "1";
     backdrop.classList.add("is-visible");
+
+    // Pointer drag & two-finger pinch-to-zoom
+    const pointers = new Map<number, { x: number; y: number }>();
+    let dragMoved = false;
+    let downX = 0;
+    let downY = 0;
+    let downTarget: EventTarget | null = null;
+    let lastPinchDist = 0;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest(".lightbox-toolbar, .lightbox-control")
+      ) {
+        return;
+      }
+      if (event.button !== 0 && event.pointerType === "mouse") return;
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (pointers.size === 1) {
+        dragMoved = false;
+        downX = event.clientX;
+        downY = event.clientY;
+        downTarget = event.target;
+      } else if (pointers.size === 2) {
+        dragMoved = true;
+        const [a, b] = Array.from(pointers.values());
+        lastPinchDist = Math.hypot(b!.x - a!.x, b!.y - a!.y);
+      }
+      backdrop.setPointerCapture?.(event.pointerId);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      const prev = pointers.get(event.pointerId);
+      if (!prev) return;
+      const nextPt = { x: event.clientX, y: event.clientY };
+      pointers.set(event.pointerId, nextPt);
+
+      if (pointers.size === 2) {
+        const [a, b] = Array.from(pointers.values());
+        const dist = Math.hypot(b!.x - a!.x, b!.y - a!.y);
+        const midX = (a!.x + b!.x) / 2;
+        const midY = (a!.y + b!.y) / 2;
+        if (lastPinchDist > 0 && dist > 0) {
+          zoomAt(scale * (dist / lastPinchDist), midX, midY, false);
+        }
+        lastPinchDist = dist;
+        return;
+      }
+
+      if (pointers.size === 1) {
+        const totalMove = Math.hypot(event.clientX - downX, event.clientY - downY);
+        if (totalMove > 5) dragMoved = true;
+        if (scale > 1.01 && dragMoved) {
+          panX += nextPt.x - prev.x;
+          panY += nextPt.y - prev.y;
+          applyTransform(false);
+        }
+      }
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      if (!pointers.has(event.pointerId)) return;
+      pointers.delete(event.pointerId);
+      if (pointers.size < 2) lastPinchDist = 0;
+
+      if (pointers.size === 0) {
+        if (!dragMoved) {
+          if (downTarget === clone) {
+            toggleSmartZoom(event.clientX, event.clientY);
+          } else if (downTarget === backdrop) {
+            close();
+          }
+        } else {
+          applyTransform(true);
+        }
+      }
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const factor = Math.exp(-event.deltaY * 0.002);
+      zoomAt(scale * factor, event.clientX, event.clientY, false);
+    };
+
+    const onResize = () => {
+      measureBase();
+      applyTransform(false);
+    };
 
     const close = () => {
       document.removeEventListener("keydown", onKeydown);
+      window.removeEventListener("resize", onResize);
+      backdrop.removeEventListener("wheel", onWheel);
       backdrop.classList.remove("is-visible");
       clone.style.opacity = "0";
 
@@ -130,19 +374,72 @@
         finish();
       } else {
         clone.addEventListener("transitionend", finish, { once: true });
-        // transitionend 偶尔不触发（元素被移出视口等），兜底
-        setTimeout(finish, 400);
+        setTimeout(finish, 320);
       }
     };
 
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
-      if (event.key === "ArrowLeft") goTo(current - 1);
-      if (event.key === "ArrowRight") goTo(current + 1);
+      else if (event.key === "+" || event.key === "=") {
+        zoomAt(scale * 1.35, window.innerWidth / 2, window.innerHeight / 2, true);
+      } else if (event.key === "-") {
+        zoomAt(scale / 1.35, window.innerWidth / 2, window.innerHeight / 2, true);
+      } else if (event.key === "0") {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform(true);
+      } else if (event.key === "ArrowUp" && scale > 1.02) {
+        event.preventDefault();
+        panY += 120;
+        applyTransform(true);
+      } else if (event.key === "ArrowDown" && scale > 1.02) {
+        event.preventDefault();
+        panY -= 120;
+        applyTransform(true);
+      } else if (event.key === "ArrowLeft") {
+        if (scale > 1.02 && panBounds().maxX > 0) {
+          panX += 120;
+          applyTransform(true);
+        } else if (gallery.items.length > 1) {
+          goTo(current - 1);
+        }
+      } else if (event.key === "ArrowRight") {
+        if (scale > 1.02 && panBounds().maxX > 0) {
+          panX -= 120;
+          applyTransform(true);
+        } else if (gallery.items.length > 1) {
+          goTo(current + 1);
+        }
+      }
     };
 
-    backdrop.addEventListener("click", close);
-    clone.addEventListener("click", close);
+    backdrop.addEventListener("pointerdown", onPointerDown);
+    backdrop.addEventListener("pointermove", onPointerMove);
+    backdrop.addEventListener("pointerup", onPointerUp);
+    backdrop.addEventListener("pointercancel", onPointerUp);
+    backdrop.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("resize", onResize);
+
+    zoomInBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      zoomAt(scale * 1.4, window.innerWidth / 2, window.innerHeight / 2, true);
+    });
+    zoomOutBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      zoomAt(scale / 1.4, window.innerWidth / 2, window.innerHeight / 2, true);
+    });
+    zoomResetBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      scale = 1;
+      panX = 0;
+      panY = 0;
+      applyTransform(true);
+    });
+    fitWidthBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      fitReadableWidth();
+    });
     previous.addEventListener("click", (event) => {
       event.stopPropagation();
       goTo(current - 1);
@@ -185,11 +482,11 @@
     position: fixed;
     inset: 0;
     z-index: var(--z-overlay);
-    background: rgba(0, 0, 0, 0.96);
-    backdrop-filter: blur(0.5rem);
+    background: rgba(8, 9, 12, 0.96);
     opacity: 0;
-    transition: opacity 0.28s ease;
-    cursor: zoom-out;
+    transition: opacity 0.22s ease;
+    touch-action: none;
+    user-select: none;
   }
 
   .lightbox-backdrop.is-visible {
@@ -203,112 +500,167 @@
     z-index: var(--z-overlay-control);
     margin: 0;
     border-radius: 0;
-    width: auto;
-    height: auto;
-    max-width: 92vw;
-    max-height: 84vh;
+    max-width: none;
+    max-height: none;
     object-fit: contain;
-    object-position: center;
     transition:
-      transform 0.28s cubic-bezier(0.2, 0, 0.2, 1),
+      transform 0.22s cubic-bezier(0.2, 0, 0.2, 1),
       opacity 0.16s ease;
     transform-origin: center center;
-    cursor: zoom-out;
+    cursor: zoom-in;
     will-change: transform;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .lightbox-image.is-zoomed {
+    cursor: grab;
+  }
+
+  .lightbox-image.is-dragging {
+    transition: opacity 0.16s ease;
+  }
+
+  .lightbox-image.is-zoomed.is-dragging {
+    cursor: grabbing;
+  }
+
+  .lightbox-toolbar {
+    position: fixed;
+    top: 1rem;
+    right: 1.25rem;
+    z-index: calc(var(--z-overlay-control) + 2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    background: rgba(18, 20, 24, 0.85);
+  }
+
+  .lightbox-tool-btn {
+    height: 2rem;
+    min-width: 2rem;
+    padding: 0 0.55rem;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.88);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .lightbox-tool-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .lightbox-tool-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .lightbox-zoom-readout {
+    min-width: 3.4rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lightbox-fit-btn {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.78rem;
+  }
+
+  .lightbox-close-btn {
+    font-size: 1.3rem;
+    margin-left: 0.15rem;
   }
 
   .lightbox-control {
     position: fixed;
     top: 50%;
     z-index: calc(var(--z-overlay-control) + 1);
-    width: 5rem;
-    height: 7rem;
+    width: 4rem;
+    height: 6rem;
     padding: 0;
     border: 0;
     background: transparent;
-    color: #fff;
-    font: 4.5rem/1 sans-serif;
+    color: rgba(255, 255, 255, 0.85);
+    font: 3.5rem/1 sans-serif;
     cursor: pointer;
     transform: translateY(-50%);
     text-shadow: 0 0 1rem rgba(0, 0, 0, 0.75);
   }
 
   .lightbox-control:hover {
-    background: transparent;
+    color: #fff;
     transform: translateY(-50%) scale(1.08);
   }
 
+  .lightbox-tool-btn:focus-visible,
   .lightbox-control:focus-visible {
     outline: 2px solid #fff;
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
 
   .lightbox-prev {
-    left: 1rem;
+    left: 0.75rem;
   }
 
   .lightbox-next {
-    right: 1rem;
+    right: 0.75rem;
   }
 
   .lightbox-counter {
     position: fixed;
-    top: 1.5rem;
-    left: 1.5rem;
-    z-index: calc(var(--z-overlay-control) + 1);
-    padding: 0.25rem 0.4rem;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1rem;
+    top: 1.25rem;
+    left: 1.25rem;
+    z-index: calc(var(--z-overlay-control) + 2);
+    padding: 0.25rem 0.5rem;
+    color: rgba(255, 255, 255, 0.82);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.8);
-  }
-
-  .lightbox-close {
-    position: fixed;
-    top: 0.6rem;
-    right: 1.25rem;
-    z-index: calc(var(--z-overlay-control) + 1);
-    width: 3.5rem;
-    height: 3.5rem;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: #fff;
-    font: 3rem/1 sans-serif;
-    cursor: pointer;
-    text-shadow: 0 0 1rem rgba(0, 0, 0, 0.8);
-  }
-
-  .lightbox-close:hover {
-    transform: scale(1.08);
-  }
-
-  .lightbox-close:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 3px;
   }
 
   .lightbox-control[hidden],
   .lightbox-counter[hidden],
-  .lightbox-close[hidden] {
+  .lightbox-tool-btn[hidden] {
     display: none;
   }
 
   .lightbox-caption {
-    position: absolute;
+    position: fixed;
     left: 50%;
     bottom: 1.25rem;
+    z-index: calc(var(--z-overlay-control) + 2);
     transform: translateX(-50%);
     max-width: 86vw;
-    padding: 0.35rem 0.9rem;
-    border-radius: var(--radius-pill);
-    background: rgba(0, 0, 0, 0.45);
+    padding: 0.35rem 0.85rem;
+    border-radius: 4px;
+    background: rgba(18, 20, 24, 0.85);
     color: rgba(255, 255, 255, 0.85);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     line-height: 1.5;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .lightbox-toolbar {
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    .lightbox-counter {
+      top: 0.95rem;
+      left: 0.85rem;
+    }
   }
 </style>

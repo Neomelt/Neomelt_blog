@@ -16,7 +16,7 @@
  * cannot be read back out of a custom property.
  */
 export const SKIN_REGISTRY = {
-  minimal: { light: "#fafafa", dark: "#16181d" },
+  minimal: { light: "#f9fafb", dark: "#131416" },
   anime: { light: "#edf2f6", dark: "#0e1621" },
 } as const satisfies Record<string, { light: string; dark: string }>;
 

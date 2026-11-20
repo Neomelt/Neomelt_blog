@@ -35,6 +35,11 @@ html[data-layout="grid"] .post-list .post-card-body {
   padding: 1rem 1.1rem 1.2rem;
 }
 
+html[data-layout="grid"] .post-list .post-card-margin,
+html[data-layout="grid"] .post-list .post-card-leader {
+  display: none;
+}
+
 html[data-layout="grid"] .post-list .post-card:hover {
   transform: none;
   border-color: rgba(var(--accent-rgb), 0.45);

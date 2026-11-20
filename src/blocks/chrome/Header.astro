@@ -400,6 +400,19 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     window.__headerLocaleHandler = updateLocaleLabel;
     updateLocaleLabel();
 
+    // ---- Scroll state (frosted backdrop once content scrolls beneath) ----
+    const header = document.getElementById("site-header");
+    const syncHeaderScroll = () => {
+      header?.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+    const previousScrollHandler = window.__headerScrollHandler;
+    if (previousScrollHandler) {
+      window.removeEventListener("scroll", previousScrollHandler);
+    }
+    window.addEventListener("scroll", syncHeaderScroll, { passive: true });
+    window.__headerScrollHandler = syncHeaderScroll;
+    syncHeaderScroll();
+
     // ---- Active nav link ----
     const path = window.location.pathname;
     document.querySelectorAll(".nav-link, .mobile-nav-link").forEach((link) => {
@@ -418,16 +431,31 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 </script>
 
 <style>
-  /* Always transparent with no divider, so the header reads as part of the
-     page rather than a bar laid over it. */
   #site-header {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
     background-color: transparent;
-    border-bottom: 0;
+    border-bottom: var(--border-width) solid transparent;
     height: var(--header-height);
     overflow: hidden;
+    transition:
+      background-color var(--transition),
+      border-color var(--transition);
+  }
+
+  #site-header.is-scrolled {
+    background-color: var(--bg);
+    border-bottom-color: var(--border);
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    #site-header.is-scrolled {
+      -webkit-backdrop-filter: blur(var(--glass-blur-md))
+        saturate(var(--glass-saturate));
+      backdrop-filter: blur(var(--glass-blur-md))
+        saturate(var(--glass-saturate));
+    }
   }
 
   /* Same outer edges as the three-column shell below, so the site name lines
@@ -450,8 +478,9 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
   }
 
   .site-title {
-    font-size: 1.8rem;
+    font-size: 1.45rem;
     font-weight: 700;
+    letter-spacing: -0.015em;
     color: var(--text);
     text-decoration: none;
     white-space: nowrap;
@@ -474,14 +503,14 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
   }
 
   .nav-link {
-    font-size: 1.15rem;
+    font-size: 1rem;
     color: var(--text-muted);
     text-decoration: none;
     padding: 0.3rem 0.6rem;
     border-radius: var(--radius-sm);
     transition:
-      color 150ms ease,
-      background 150ms ease;
+      color var(--transition),
+      background-color var(--transition);
   }
 
   .nav-link:hover,
@@ -569,6 +598,14 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
   /* Show mobile toggle only on small screens */
   .mobile-only {
     display: none;
+  }
+
+  /* On desktop (>= 1100px), SidebarNav in the left rail handles brand, search,
+     navigation, and theme controls, so the top bar steps out of the way. */
+  @media (min-width: 1100px) {
+    #site-header {
+      display: none;
+    }
   }
 
   @media (max-width: 640px) {

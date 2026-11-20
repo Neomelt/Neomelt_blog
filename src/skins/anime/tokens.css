@@ -34,7 +34,6 @@
   --accent-rgb: 49, 93, 120;
   --ink-rgb: 38, 75, 98;
   --tag-bg: #d4e0e7;
-  --badge-bg: #eee2c7;
   --badge-text: #634a23;
   --callout-note: #3b7ea1;
   --callout-tip: #2f855a;
@@ -51,6 +50,7 @@
   --glass-blur-md: 14px;
   --glass-blur-lg: 26px;
   --glass-saturate: 1.6;
+  --paper-grain-opacity: 0;
 
   /* Same parameters, non-zero values. This is the entire difference in
      behaviour between the two skins. */
@@ -82,10 +82,6 @@
   --card-cover-width: 58%;
   --card-cover-opacity: 0.4;
   --card-cover-fade: 42%;
-  /* Inset thumbnail, used by the list layout: a real image in the row rather
-     than a faded panel behind the text. */
-  --thumb-width: 136px;
-  --thumb-height: 80px;
   --card-body-pad-end: 1.5rem;
   --surface-sheen: linear-gradient(
     135deg,
@@ -114,8 +110,8 @@
     "LXGW WenKai", "Noto Serif SC", "Source Han Serif SC", "Songti SC",
     "STSong", serif;
   --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-  --prose-width: 66ch;
-  --prose-font-size: 1.08rem;
+  --prose-width: 82ch;
+  --prose-font-size: 1.12rem;
   --prose-font-weight: 400;
   --prose-font-smoothing: auto;
   --ui-font-weight: 500;
@@ -123,20 +119,19 @@
   --prose-letter-spacing: 0.014em;
 
   /* Spacing */
-  --content-width: 800px;
+  --content-width: 880px;
   /* Article geometry and background treatment are skin tokens so the page
      layout never needs to branch on the active skin. */
-  --article-shell-width: 1220px;
-  --article-main-width: 820px;
+  --article-shell-width: 1320px;
+  --article-main-width: 880px;
   --article-main-max-width: 960px;
-  --article-toc-width: 220px;
-  --article-prose-width: 76ch;
-  --shell-width: min(90vw, 1560px);
-  --main-max-width: 800px;
+  --article-toc-width: 240px;
+  --shell-width: min(92vw, 1460px);
+  --main-max-width: 880px;
   /* Three columns need room the two-column measure does not have:
      subtracting two sidebars from --shell-width would leave the text
      around 580px. */
-  --shell-width-wide: min(94vw, 1900px);
+  --shell-width-wide: min(94vw, 1600px);
   --shell-gap: 2rem;
   /* How far the content panel rides up over the banner. 0 leaves them
      stacked; a positive value makes the content read as set into the image
@@ -156,9 +151,9 @@
      what made the light illustration look foggy. */
   --backdrop-wash: #eaf2f8;
   --aside-width: 250px;
-  --rail-width: 310px;
+  --rail-width: 265px;
   /* Text scale for widgets in the side rails (home and article). */
-  --rail-text-scale: 1.16;
+  --rail-text-scale: 1;
   --header-height: 64px;
 
   /* Transitions - slightly slower, so hovers feel springy rather than curt */
@@ -184,7 +179,6 @@
   --accent-rgb: 97, 159, 209;
   --ink-rgb: 176, 205, 230;
   --tag-bg: #24344a;
-  --badge-bg: #263c58;
   --badge-text: #a3c6e6;
   --callout-note: #7cc0dd;
   --callout-tip: #68d391;
@@ -197,7 +191,7 @@
   --tag-text: #93b8dc;
   --card-cover-opacity: 0.26;
   --backdrop-wash: var(--bg);
-  --prose-font-size: 1.03rem;
+  --prose-font-size: 1.12rem;
   --prose-font-weight: 400;
   --prose-font-smoothing: antialiased;
   --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.42);

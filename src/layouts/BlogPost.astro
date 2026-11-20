@@ -4,16 +4,16 @@ import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import Comments from "../blocks/view/Comments.astro";
 import TableOfContents from "../blocks/widget/TableOfContents.astro";
-import GlassPanel from "../blocks/surface/GlassPanel.astro";
 import PostNavigation from "../blocks/view/PostNavigation.astro";
 import SeriesNav from "../blocks/view/SeriesNav.astro";
 import BaseLayout from "./BaseLayout.astro";
 import Region from "../components/Region.astro";
 import { siteLayout } from "../site.config";
 import { getWalinePathForPost } from "../utils/waline";
-import { getDefaultUiText } from "../i18n/ui";
+import { getDefaultUiText, type UiTranslationKey } from "../i18n/ui";
 import { resolvePostDates } from "../utils/post-dates";
 import { estimateReadingTime } from "../utils/reading-time";
+import { countMarkdownText, countTextUnits } from "../utils/text-count";
 import { postTitleTransition } from "../utils/transition";
 import { withBase } from "../utils/url";
 import "../styles/md-components.css";
@@ -35,18 +35,21 @@ const walinePath = getWalinePathForPost(post.id);
 const shouldShowUpdated =
   resolvedUpdatedDate.valueOf() > resolvedPubDate.valueOf();
 
-const wordCount = (post.body || "").length;
+const wordCount = countTextUnits(title) + countMarkdownText(post.body || "");
 const readingTime = estimateReadingTime(post.body || "");
 
-// Every post pins its own cover, so shares carry that rather than one shared
-// card for the whole site.
+const postType = post.data.type ?? "tech";
+const typeLabelKey: UiTranslationKey =
+  postType === "story" ? "common.essay" : "common.tech";
+const category = (post.data.category ?? "").trim();
+
 const shareImage =
   typeof post.data.heroImage === "object" && post.data.heroImage
     ? (post.data.heroImage as ImageMetadata)
     : undefined;
-// The left sidebar is independent of the table of contents: personal widgets
-// stay on the left and headings get their own right rail on wide screens.
+
 const hasSidebar = siteLayout.regions.asideStart.length > 0;
+const hasToc = headings.some((h) => h.depth <= 3);
 ---
 
 <BaseLayout
@@ -83,96 +86,121 @@ const hasSidebar = siteLayout.regions.asideStart.length > 0;
         <span>{title}</span>
       </nav>
 
-      <article class:list={{ "post-story": post.data.type === "story" }}>
-        <!-- Post header -->
+      <article class:list={{ "post-story": postType === "story" }}>
         <header class="post-header">
-          <h1 class="post-title" style={postTitleTransition(post.id)}>
-            {title}
-          </h1>
-          <div class="post-meta-row">
-            <FormattedDate date={resolvedPubDate} showTime={true} />
-            <span class="text-muted">·</span>
-            <span class="text-muted text-sm">
+          <div
+            class="post-meta-row"
+            data-i18n-aria-label="post.statsAria"
+            aria-label={getDefaultUiText("post.statsAria")}
+          >
+            <span class="post-kind">
+              <i class:list={["kind-dot", `is-${postType}`]} aria-hidden="true"
+              ></i>
+              <span data-i18n={typeLabelKey}>
+                {getDefaultUiText(typeLabelKey)}
+              </span>
+              {
+                category && (
+                  <>
+                    <span class="meta-sep">/</span>
+                    <span>{category}</span>
+                  </>
+                )
+              }
+            </span>
+            <span class="meta-sep">·</span>
+            <FormattedDate date={resolvedPubDate} />
+            <span class="meta-sep">·</span>
+            <span>
               {wordCount}
               <span data-i18n="common.words"
                 >{getDefaultUiText("common.words")}</span
-              > · {readingTime}
+              >
+            </span>
+            <span class="meta-sep">·</span>
+            <span>
+              {readingTime}
               <span data-i18n="common.minutes"
                 >{getDefaultUiText("common.minutes")}</span
               >
             </span>
+            <span class="meta-sep">·</span>
+            <span>
+              <span class="waline-pageview-count" data-path={walinePath}>0</span>
+              <span data-i18n="common.views"
+                >{getDefaultUiText("common.views")}</span
+              >
+            </span>
             {
               shouldShowUpdated && (
-                <span class="text-muted text-sm">
-                  · （
-                  <span data-i18n="common.updatedAt">
-                    {getDefaultUiText("common.updatedAt")}
-                  </span>{" "}
-                  <FormattedDate date={resolvedUpdatedDate} showTime={true} />）
-                </span>
+                <>
+                  <span class="meta-sep">·</span>
+                  <span>
+                    <span data-i18n="common.updatedAt">
+                      {getDefaultUiText("common.updatedAt")}
+                    </span>{" "}
+                    <FormattedDate date={resolvedUpdatedDate} />
+                  </span>
+                </>
               )
             }
           </div>
-          <div
-            class="post-stats"
-            data-i18n-aria-label="post.statsAria"
-            aria-label={getDefaultUiText("post.statsAria")}
-          >
-            <p class="post-stats-line">
-              <span class="waline-pageview-count" data-path={walinePath}>0</span
-              >
-              <span data-i18n="common.views"
-                >{getDefaultUiText("common.views")}</span
-              > /
-              <span class="waline-comment-count" data-path={walinePath}>0</span>
-              <span data-i18n="common.comments"
-                >{getDefaultUiText("common.comments")}</span
-              >
-            </p>
-          </div>
+
+          <h1 class="post-title" style={postTitleTransition(post.id)}>
+            {title}
+          </h1>
+
           {
-            tags && tags.length > 0 && (
-              <div class="post-tags-row">
-                {tags.map((tag: string) => (
-                  <a href={withBase(`/tags#${tag}`)} class="tag">
-                    #{tag}
-                  </a>
-                ))}
-              </div>
+            description && (
+              <p class="post-lead">
+                <span>{description}</span>
+              </p>
             )
           }
         </header>
 
         <!-- Mobile TOC (collapsible) -->
-        <details class="mobile-toc">
-          <summary data-i18n="common.toc">
-            {getDefaultUiText("common.toc")}
-          </summary>
-          <TableOfContents headings={headings} />
-        </details>
+        {
+          hasToc && (
+            <details class="mobile-toc">
+              <summary data-i18n="common.toc">
+                {getDefaultUiText("common.toc")}
+              </summary>
+              <TableOfContents headings={headings} />
+            </details>
+          )
+        }
 
         <!-- Post content -->
         <div class="prose">
           <slot />
         </div>
 
-        <!-- Post navigation -->
-        <!-- Renders nothing unless the post declares a series. -->
+        {
+          tags && tags.length > 0 && (
+            <div class="post-tags-row">
+              {tags.map((tag: string) => (
+                <a href={withBase(`/tags#${tag}`)} class="tag">
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )
+        }
+
         <SeriesNav post={post} />
-
         <PostNavigation prevPost={prevPost} nextPost={nextPost} />
-
-        <!-- Comments -->
         <Comments path={walinePath} />
       </article>
     </main>
 
-    <aside class="toc-sidebar">
-      <!-- Same surface as the widgets in the left rail, so both rails match. -->
-      <GlassPanel>
-        <TableOfContents headings={headings} />
-      </GlassPanel>
-    </aside>
+    {
+      hasToc && (
+        <aside class="toc-sidebar">
+          <TableOfContents headings={headings} />
+        </aside>
+      )
+    }
   </div>
 </BaseLayout>
 
@@ -193,20 +221,25 @@ const hasSidebar = siteLayout.regions.asideStart.length > 0;
   }
 
   .post-sidebar {
-    /* Same widget text scale as the home rails. */
     --widget-scale: var(--rail-text-scale);
     font-size: calc(1em * var(--widget-scale));
     grid-column: 1;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
     width: 100%;
     min-width: 0;
     position: sticky;
-    top: calc(var(--header-height) + 2rem);
-    max-height: calc(100vh - var(--header-height) - 3rem);
+    top: 0;
+    height: 100dvh;
     overflow-y: auto;
     align-self: start;
+    padding-block: 1.75rem;
+  }
+
+  .post-sidebar > :global(* + *) {
+    padding-top: 1.25rem;
+    border-top: var(--border-width) solid var(--border);
   }
 
   main.container {
@@ -216,7 +249,6 @@ const hasSidebar = siteLayout.regions.asideStart.length > 0;
     max-width: var(--article-main-max-width);
     margin: 0;
     padding-inline: 0;
-    padding-top: 0;
   }
 
   .post-page:not(:has(.post-sidebar)) {
@@ -230,93 +262,106 @@ const hasSidebar = siteLayout.regions.asideStart.length > 0;
 
   .post-page .prose {
     width: 100%;
-    max-width: min(var(--article-prose-width), 100%);
+    max-width: min(var(--prose-width), 100%);
     margin-inline: auto;
   }
 
   article {
-    padding: 2rem 2.25rem;
-    border: var(--list-item-border-width) solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--list-item-surface);
-    box-shadow: var(--shadow-card);
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
-  @supports (backdrop-filter: blur(1px)) {
-    article {
-      -webkit-backdrop-filter: blur(var(--list-item-blur));
-      backdrop-filter: blur(var(--list-item-blur));
-    }
-  }
-
-  /* Post header */
   .post-header {
-    display: flex;
-    flex-direction: column;
     width: 100%;
     max-width: var(--article-main-width);
-    margin: 0 auto 1.5rem;
-    padding: 0;
-  }
-
-  .post-title {
-    order: 2;
-    font-size: 1.875rem;
-    font-weight: 700;
-    line-height: 1.3;
-    margin: 0 0 0.6rem;
-    color: var(--text);
-  }
-
-  @media (max-width: 768px) {
-    article {
-      padding: 1.25rem 1rem;
-    }
+    margin: 0 auto 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
   }
 
   .post-meta-row {
-    order: 1;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
+    gap: 0.35rem 0.55rem;
+    font-size: 0.84rem;
+    font-variant-numeric: tabular-nums;
     color: var(--text-muted);
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .post-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .kind-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .kind-dot.is-tech {
+    background: var(--accent);
+  }
+
+  .kind-dot.is-story {
+    background: var(--badge-text);
+  }
+
+  .meta-sep {
+    opacity: 0.45;
+  }
+
+  .post-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.85rem, 3.2vw, 2.35rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.012em;
+    margin: 0;
+    color: var(--text);
+    text-wrap: balance;
+  }
+
+  .post-lead {
+    margin: 1.05rem 0 0;
+    padding: 0.82rem 1.05rem;
+    background: var(--bg-card);
+    border-left: 2.5px solid var(--accent);
+    color: var(--text-muted);
+    font-size: 0.96rem;
+    line-height: 1.78;
   }
 
   .post-tags-row {
-    order: 4;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.4rem 0.9rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
   }
 
-  .post-stats {
-    order: 3;
-    margin-bottom: 0.75rem;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    font-style: normal;
-  }
-
-  .post-stats-line {
-    margin: 0;
-  }
-
-  /* Essay layout: centred headings, first-line indent like printed prose.
-     Paragraphs that are only an image stay flush so pictures keep centred. */
+  /* Essay layout: centred headings, first-line indent like printed prose. */
   .post-story .post-header {
     text-align: center;
   }
 
-  .post-story .post-meta-row,
-  .post-story .post-tags-row {
+  .post-story .post-meta-row {
     justify-content: center;
   }
 
-  /* The prose column is narrower than the header, so centre it under the
-     centred title instead of leaving it flush left. */
+  .post-story .post-lead {
+    justify-content: center;
+    text-align: left;
+  }
+
   .post-story .prose {
     margin-inline: auto;
   }
@@ -338,11 +383,10 @@ const hasSidebar = siteLayout.regions.asideStart.length > 0;
   /* Mobile TOC */
   .mobile-toc {
     display: none;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    padding: 0.75rem 1rem;
-    margin-bottom: 1.5rem;
-    background: var(--bg-card);
+    border-block: 1px solid var(--border);
+    padding: 0.7rem 0;
+    margin-bottom: 1.75rem;
+    background: transparent;
   }
 
   .mobile-toc summary {
@@ -375,21 +419,19 @@ const hasSidebar = siteLayout.regions.asideStart.length > 0;
     width: 100%;
     min-width: 0;
     position: sticky;
-    top: calc(var(--header-height) + 2rem);
-    max-height: calc(100vh - var(--header-height) - 4rem);
+    top: 2rem;
+    max-height: calc(100dvh - 3rem);
     overflow-y: auto;
     align-self: start;
+    padding-top: 2rem;
   }
 
   @media (min-width: 1280px) {
     .post-page:has(.post-sidebar):has(.toc-sidebar) {
-      /* Same proportions as the home shell: equal rails, a capped main
-         column, the same gap. */
-      /* The home .shell spends 1.25rem a side on padding inside this width. */
       --post-layout-width: calc(var(--shell-width-wide) - 2.5rem);
       grid-template-columns:
         var(--rail-width) minmax(0, var(--main-max-width))
-        var(--rail-width);
+        var(--article-toc-width);
       gap: var(--shell-gap);
       justify-content: center;
     }

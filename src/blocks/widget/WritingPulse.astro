@@ -1,0 +1,129 @@
+---
+import { getCollection } from "astro:content";
+import GlassPanel from "../surface/GlassPanel.astro";
+import { getDefaultUiText } from "../../i18n/ui";
+import { getPostDateKey, resolvePostDatesMap } from "../../utils/post-dates";
+
+const posts = await getCollection("blog", ({ data }) => !data.hidden);
+const postDatesMap = await resolvePostDatesMap(posts);
+
+const now = new Date();
+const buckets = Array.from({ length: 12 }, (_, idx) => {
+  const dt = new Date(now.getFullYear(), now.getMonth() - (11 - idx), 1);
+  const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
+  return {
+    key,
+    monthNum: String(dt.getMonth() + 1).padStart(2, "0"),
+    count: 0,
+  };
+});
+
+for (const post of posts) {
+  const pubDate =
+    postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate;
+  const key = `${pubDate.getFullYear()}-${String(pubDate.getMonth() + 1).padStart(2, "0")}`;
+  const bucket = buckets.find((b) => b.key === key);
+  if (bucket) bucket.count += 1;
+}
+
+const maxCount = Math.max(1, ...buckets.map((b) => b.count));
+---
+
+<GlassPanel class="pulse-widget">
+  <div class="pulse-head">
+    <h2 class="pulse-title" data-i18n="widget.pulseTitle">
+      {getDefaultUiText("widget.pulseTitle")}
+    </h2>
+    <span class="pulse-sub" data-i18n="widget.pulseSub">
+      {getDefaultUiText("widget.pulseSub")}
+    </span>
+  </div>
+
+  <div class="pulse-bars" role="img" aria-label={getDefaultUiText("widget.pulseTitle")}>
+    {
+      buckets.map((b) => {
+        const heightPct = b.count === 0 ? 10 : Math.round((b.count / maxCount) * 100);
+        return (
+          <div class="pulse-col" title={`${b.key}: ${b.count}`}>
+            <span
+              class:list={["pulse-bar", { "has-post": b.count > 0 }]}
+              style={`height: ${heightPct}%`}
+            />
+          </div>
+        );
+      })
+    }
+  </div>
+
+  <div class="pulse-axis" aria-hidden="true">
+    <span>{buckets[0]?.monthNum}</span>
+    <span>{buckets[5]?.monthNum}</span>
+    <span>{buckets[11]?.monthNum}</span>
+  </div>
+</GlassPanel>
+
+<style>
+  .pulse-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .pulse-title {
+    margin: 0;
+    font-size: calc(0.88rem * var(--widget-scale, 1));
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .pulse-sub {
+    font-family: var(--font-mono);
+    font-size: calc(0.68rem * var(--widget-scale, 1));
+    color: var(--text-muted);
+    opacity: 0.78;
+  }
+
+  .pulse-bars {
+    height: 46px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    align-items: end;
+    padding: 4px 0;
+  }
+
+  .pulse-col {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .pulse-bar {
+    width: 100%;
+    background: var(--border);
+    transition:
+      height var(--transition),
+      background-color var(--transition);
+  }
+
+  .pulse-bar.has-post {
+    background: var(--accent);
+  }
+
+  .pulse-col:hover .pulse-bar {
+    background: var(--text);
+  }
+
+  .pulse-axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: calc(0.65rem * var(--widget-scale, 1));
+    color: var(--text-muted);
+    opacity: 0.72;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

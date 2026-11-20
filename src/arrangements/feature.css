@@ -40,7 +40,11 @@ html[data-layout="feature"] .post-list .post-card:hover .post-cover {
   opacity: calc(var(--card-cover-opacity) * 1.5);
 }
 
-html[data-layout="feature"] .post-list .post-card-body {
+html[data-layout="feature"] .post-list .post-card-margin {
+  display: none;
+}
+
+html[data-layout="feature"] .post-list .post-card:has(.post-cover) .post-card-body {
   /* Keeps the copy off the busiest part of the image. */
   max-width: calc(100% - var(--card-cover-width) * 0.55);
 }

@@ -30,7 +30,8 @@ html[data-layout="timeline"] .post-list .post-card::before {
   box-shadow: 0 0 0 3px var(--bg);
 }
 
-html[data-layout="timeline"] .post-list .post-cover {
+html[data-layout="timeline"] .post-list .post-cover,
+html[data-layout="timeline"] .post-list .post-card-margin {
   display: none;
 }
 

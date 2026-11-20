@@ -1,8 +1,9 @@
 ---
-import { SITE_START_DATE as startDate } from "../../consts";
+import { SITE_START_DATE as startDate, SITE_TITLE } from "../../consts";
 import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
+import { profile } from "../../site.config";
+import { TELEGRAM_LOG_ENABLED } from "../../utils/telegram-log";
 import { withBase } from "../../utils/url";
-
 
 const runtimeFallbacks = {
   "footer.running": getDefaultUiText("footer.running"),
@@ -10,120 +11,127 @@ const runtimeFallbacks = {
   "footer.hour": getDefaultUiText("footer.hour"),
   "footer.minute": getDefaultUiText("footer.minute"),
   "footer.second": getDefaultUiText("footer.second"),
-  "footer.sitePolicy": getDefaultUiText("footer.sitePolicy"),
-  "footer.themePowered": getDefaultUiText("footer.themePowered"),
   enDay: UI_TRANSLATIONS.en["footer.day"],
   enHour: UI_TRANSLATIONS.en["footer.hour"],
   enMinute: UI_TRANSLATIONS.en["footer.minute"],
   enSecond: UI_TRANSLATIONS.en["footer.second"],
-  enSitePolicy: UI_TRANSLATIONS.en["footer.sitePolicy"],
-  enThemePowered: UI_TRANSLATIONS.en["footer.themePowered"],
 } as const;
 ---
 
 <footer id="site-footer">
   <div class="footer-inner">
-    <div class="footer-left">
-      <span class="footer-copy">© {new Date().getFullYear()} Neomelt</span>
-      <span class="footer-sep">·</span>
-      <a
-        href={withBase("/terms/list")}
-        class="footer-link"
-        data-i18n="footer.sitePolicy"
-        >{runtimeFallbacks["footer.sitePolicy"]}</a
-      >
-      <span class="footer-sep">·</span>
-      <a
-        href="https://astro.build/themes/"
-        target="_blank"
-        rel="noopener"
-        class="footer-link"
-        data-i18n="footer.themePowered"
-        >{runtimeFallbacks["footer.themePowered"]}</a
-      >
-      <span class="footer-sep">·</span>
-      <span class="footer-runtime">
-        <span data-i18n="footer.running"
-          >{runtimeFallbacks["footer.running"]}</span
-        >
-        <span id="runtime-display" data-start={startDate.toISOString()}
-          >...</span
-        >
-      </span>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href={withBase("/")} class="footer-title">{SITE_TITLE}</a>
+        <p class="footer-bio" data-i18n={profile.bioKey}>
+          {getDefaultUiText(profile.bioKey)}
+        </p>
+        <p class="footer-runtime">
+          <span data-i18n="footer.running"
+            >{runtimeFallbacks["footer.running"]}</span
+          >
+          <span id="runtime-display" data-start={startDate.toISOString()}
+            >...</span
+          >
+        </p>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h3 class="footer-col-title" data-i18n="footer.colNav">
+            {getDefaultUiText("footer.colNav")}
+          </h3>
+          <ul>
+            <li>
+              <a href={withBase("/posts")} data-i18n="header.posts"
+                >{getDefaultUiText("header.posts")}</a
+              >
+            </li>
+            {
+              TELEGRAM_LOG_ENABLED && (
+                <li>
+                  <a href={withBase("/log")} data-i18n="header.log">
+                    {getDefaultUiText("header.log")}
+                  </a>
+                </li>
+              )
+            }
+            <li>
+              <a href={withBase("/posts/archive")} data-i18n="header.archive"
+                >{getDefaultUiText("header.archive")}</a
+              >
+            </li>
+            <li>
+              <a href={withBase("/friends")} data-i18n="header.friends"
+                >{getDefaultUiText("header.friends")}</a
+              >
+            </li>
+            <li>
+              <a href={withBase("/about")} data-i18n="header.about"
+                >{getDefaultUiText("header.about")}</a
+              >
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3 class="footer-col-title" data-i18n="footer.colConnect">
+            {getDefaultUiText("footer.colConnect")}
+          </h3>
+          <ul>
+            {
+              profile.links.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    {...(link.url.startsWith("http")
+                      ? { target: "_blank", rel: "noopener" }
+                      : {})}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+            <li><a href={withBase("/rss.xml")}>RSS</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h3 class="footer-col-title" data-i18n="footer.colExplore">
+            {getDefaultUiText("footer.colExplore")}
+          </h3>
+          <ul>
+            <li>
+              <a href={withBase("/tags")} data-i18n="header.tags"
+                >{getDefaultUiText("header.tags")}</a
+              >
+            </li>
+            <li>
+              <a href={withBase("/series")} data-i18n="series.title"
+                >{getDefaultUiText("series.title")}</a
+              >
+            </li>
+            <li>
+              <a href={withBase("/terms/list")} data-i18n="footer.sitePolicy"
+                >{getDefaultUiText("footer.sitePolicy")}</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <div class="footer-right">
-      <!-- GitHub -->
+    <div class="footer-bottom">
+      <span class="footer-copy">© {new Date().getFullYear()} {profile.name}</span>
       <a
-        href="https://github.com/Neomelt"
+        href="https://astro.build/"
         target="_blank"
         rel="noopener"
-        aria-label="GitHub"
-        class="footer-icon"
+        class="footer-powered"
+        data-i18n="footer.themePowered"
       >
-        <svg
-          viewBox="0 0 16 16"
-          width="18"
-          height="18"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
-          ></path>
-        </svg>
-      </a>
-      <!-- Bilibili -->
-      <a
-        href="https://space.bilibili.com/1025251137"
-        target="_blank"
-        rel="noopener"
-        aria-label="Bilibili"
-        class="footer-icon"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373z"
-          ></path>
-        </svg>
-      </a>
-      <!-- Email -->
-      <a href="mailto:3212929002@qq.com" aria-label="Email" class="footer-icon">
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-        </svg>
-      </a>
-      <!-- RSS -->
-      <a href={withBase("/rss.xml")} aria-label="RSS" class="footer-icon">
-        <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"
-          ></path>
-          <circle cx="5" cy="19" r="1" fill="currentColor" stroke="none"
-          ></circle>
-        </svg>
+        {getDefaultUiText("footer.themePowered")}
       </a>
     </div>
   </div>
@@ -175,73 +183,137 @@ const runtimeFallbacks = {
 
 <style>
   #site-footer {
-    border-top: 1px solid var(--border);
-    padding: 1.25rem 0;
+    border-top: var(--border-width) solid var(--border);
     margin-top: auto;
+    padding: 3rem 0 1.75rem;
   }
 
   .footer-inner {
-    max-width: var(--content-width);
+    max-width: min(
+      var(--shell-width-wide),
+      calc(
+        2 * var(--rail-width) + var(--main-max-width) + 2 * var(--shell-gap) +
+          2.5rem
+      )
+    );
     margin: 0 auto;
     padding: 0 1.25rem;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr);
+    gap: 2.5rem;
+    padding-bottom: 2.25rem;
+  }
+
+  .footer-title {
+    display: inline-block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    margin-bottom: 0.45rem;
+  }
+
+  .footer-title:hover {
+    color: var(--accent);
+  }
+
+  .footer-bio {
+    margin: 0 0 0.85rem;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .footer-runtime {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    opacity: 0.78;
+  }
+
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .footer-col-title {
+    margin: 0 0 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0.75;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .footer-col a {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .footer-col a:hover {
+    color: var(--accent);
+  }
+
+  .footer-bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .footer-left {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
+    gap: 0.5rem 1rem;
+    padding-top: 1.25rem;
+    border-top: var(--border-width) solid
+      color-mix(in srgb, var(--border) 62%, transparent);
+    font-size: 0.78rem;
     color: var(--text-muted);
-    flex-wrap: wrap;
+    opacity: 0.8;
   }
 
-  .footer-sep {
-    color: var(--border);
-  }
-
-  .footer-link {
+  .footer-powered {
     color: var(--text-muted);
     text-decoration: none;
-    transition: color 150ms ease;
+    transition: color var(--transition);
   }
 
-  .footer-link:hover {
+  .footer-powered:hover {
     color: var(--accent);
   }
 
-  .footer-right {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
+  @media (max-width: 680px) {
+    #site-footer {
+      padding: 2.25rem 0 1.5rem;
+    }
 
-  .footer-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-md);
-    color: var(--text-muted);
-    transition:
-      color 150ms ease,
-      background 150ms ease;
-  }
-
-  .footer-icon:hover {
-    color: var(--text);
-    background: var(--bg-code);
-  }
-
-  @media (max-width: 480px) {
     .footer-inner {
-      flex-direction: column;
-      align-items: flex-start;
+      padding: 0 1.1rem;
+    }
+
+    .footer-top {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    .footer-cols {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
     }
   }
 </style>

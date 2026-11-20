@@ -21,7 +21,20 @@ posts.sort((a, b) => {
   return bDate.valueOf() - aDate.valueOf();
 });
 
-const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
+const pageSize = posts.length <= 24 ? Math.max(posts.length, 10) : 10;
+const { items: paginatedPosts, pagination } = paginate(posts, 1, pageSize);
+
+const techCount = paginatedPosts.filter(
+  (p) => (p.data.type ?? "tech") === "tech",
+).length;
+const storyCount = paginatedPosts.filter((p) => p.data.type === "story").length;
+
+const categoryCounts = new Map<string, number>();
+for (const post of paginatedPosts) {
+  const cat = (post.data.category ?? "").trim();
+  if (cat) categoryCounts.set(cat, (categoryCounts.get(cat) ?? 0) + 1);
+}
+const categories = [...categoryCounts.entries()].sort((a, b) => b[1] - a[1]);
 ---
 
 <BaseLayout title={`${getDefaultUiText("posts.metaTitle")} | ${SITE_TITLE}`}>
@@ -43,16 +56,94 @@ const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
         {getDefaultUiText("posts.title")}
       </h1>
 
-      <div class="post-list">
+      {
+        paginatedPosts.length > 0 && (
+          <div class="post-filters" role="tablist" aria-label="Filter posts">
+            <button
+              type="button"
+              class="filter-tab is-active"
+              data-filter-kind="all"
+              data-filter-value=""
+              aria-selected="true"
+            >
+              <span data-i18n="home.filterAll">
+                {getDefaultUiText("home.filterAll")}
+              </span>
+              <span class="filter-count">{paginatedPosts.length}</span>
+            </button>
+            <button
+              type="button"
+              class="filter-tab"
+              data-filter-kind="type"
+              data-filter-value="tech"
+              aria-selected="false"
+            >
+              <i class="filter-dot is-tech" aria-hidden="true" />
+              <span data-i18n="common.tech">
+                {getDefaultUiText("common.tech")}
+              </span>
+              <span class="filter-count">{techCount}</span>
+            </button>
+            <button
+              type="button"
+              class="filter-tab"
+              data-filter-kind="type"
+              data-filter-value="story"
+              aria-selected="false"
+            >
+              <i class="filter-dot is-story" aria-hidden="true" />
+              <span data-i18n="common.essay">
+                {getDefaultUiText("common.essay")}
+              </span>
+              <span class="filter-count">{storyCount}</span>
+            </button>
+            {categories.length > 0 && (
+              <span class="filter-divider" aria-hidden="true" />
+            )}
+            {categories.map(([cat, count]) => (
+              <button
+                type="button"
+                class="filter-tab"
+                data-filter-kind="category"
+                data-filter-value={cat}
+                aria-selected="false"
+              >
+                <span>{cat}</span>
+                <span class="filter-count">{count}</span>
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="post-list" id="posts-list">
         {
-          paginatedPosts.map((post) => (
-            <PostCard
-              post={post}
-              pubDate={
-                postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate
-              } showReadingTime showTags
-            />
-          ))
+          paginatedPosts.map((post, idx) => {
+            const pubDate =
+              postDatesMap.get(getPostDateKey(post))?.pubDate ??
+              post.data.pubDate;
+            const year = String(pubDate.getFullYear());
+            const prevPubDate =
+              idx > 0
+                ? (postDatesMap.get(getPostDateKey(paginatedPosts[idx - 1]!))
+                    ?.pubDate ?? paginatedPosts[idx - 1]!.data.pubDate)
+                : null;
+            const prevYear = prevPubDate
+              ? String(prevPubDate.getFullYear())
+              : null;
+            const yearMark = year !== prevYear ? year : "";
+
+            return (
+              <PostCard
+                post={post}
+                pubDate={pubDate}
+                year={year}
+                yearMark={yearMark}
+                showReadingTime
+                showTags
+              />
+            );
+          })
         }
       </div>
 
@@ -70,3 +161,123 @@ const { items: paginatedPosts, pagination } = paginate(posts, 1, 10);
     </div>
   </main>
 </BaseLayout>
+
+<script>
+  function initPostFilters() {
+    const bar = document.querySelector<HTMLElement>(".post-filters");
+    const list = document.getElementById("posts-list");
+    if (!bar || !list || bar.dataset.bound === "1") return;
+    bar.dataset.bound = "1";
+
+    const tabs = Array.from(
+      bar.querySelectorAll<HTMLButtonElement>(".filter-tab"),
+    );
+    const cards = Array.from(
+      list.querySelectorAll<HTMLElement>(".post-card"),
+    );
+
+    const applyFilter = (kind: string, value: string) => {
+      let lastVisibleYear = "";
+      cards.forEach((card) => {
+        const match =
+          kind === "all" ||
+          (kind === "type" && card.dataset.postType === value) ||
+          (kind === "category" && card.dataset.postCategory === value);
+        card.style.display = match ? "" : "none";
+        if (match) {
+          const y = card.dataset.postYear || "";
+          const markEl = card.querySelector<HTMLElement>("[data-year-mark]");
+          if (markEl) {
+            markEl.textContent = y !== lastVisibleYear ? y : "";
+          }
+          lastVisibleYear = y;
+        }
+      });
+    };
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => {
+          const active = t === tab;
+          t.classList.toggle("is-active", active);
+          t.setAttribute("aria-selected", String(active));
+        });
+        applyFilter(
+          tab.dataset.filterKind ?? "all",
+          tab.dataset.filterValue ?? "",
+        );
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initPostFilters);
+  document.addEventListener("astro:page-load", initPostFilters);
+</script>
+
+<style>
+  .post-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.65rem;
+    border-bottom: var(--border-width) solid
+      color-mix(in srgb, var(--border) 68%, transparent);
+  }
+
+  .filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0;
+    border: none;
+    border-bottom: 1.5px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition:
+      color var(--transition),
+      border-color var(--transition);
+  }
+
+  .filter-tab:hover {
+    color: var(--text);
+  }
+
+  .filter-tab.is-active {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom-color: var(--accent);
+  }
+
+  .filter-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .filter-dot.is-tech {
+    background: var(--accent);
+  }
+
+  .filter-dot.is-story {
+    background: var(--badge-text);
+  }
+
+  .filter-count {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.65;
+  }
+
+  .filter-divider {
+    width: 1px;
+    height: 0.9rem;
+    background: var(--border);
+    opacity: 0.8;
+  }
+</style>

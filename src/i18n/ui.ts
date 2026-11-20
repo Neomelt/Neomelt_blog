@@ -9,12 +9,12 @@ export const UI_TRANSLATIONS = {
 
     "header.homeAria": "首页",
     "header.mainNavAria": "主导航",
-    "header.posts": "札记",
-    "header.log": "片刻",
-    "header.archive": "旧章",
-    "header.tags": "索引",
-    "header.friends": "相逢",
-    "header.about": "自述",
+    "header.posts": "文章",
+    "header.log": "日常",
+    "header.archive": "归档",
+    "header.tags": "标签",
+    "header.friends": "友链",
+    "header.about": "关于",
     "header.searchAria": "搜索",
     "header.themeStateSystem": "当前：跟随系统（点击切换）",
     "header.themeStateLight": "当前：浅色模式（点击切换）",
@@ -31,55 +31,60 @@ export const UI_TRANSLATIONS = {
     "header.languageAria": "切换语言",
 
     "sidebar.categories": "分类",
-    "sidebar.tags": "索引",
-    "sidebar.more": "展开更多 →",
-    "widget.statsTitle": "站内一览",
-    "widget.statsPosts": "札记",
-    "widget.statsWords": "字数",
+    "sidebar.tags": "标签",
+    "sidebar.more": "查看更多 →",
+    "widget.statsTitle": "本站统计",
+    "widget.statsPosts": "文章",
+    "widget.statsWords": "总字数",
     "widget.statsDays": "已运行",
     "widget.statsViews": "总访问",
-    "widget.calendarTitle": "岁时",
+    "widget.calendarTitle": "文章日历",
     "widget.calendarWeekdays": "日,一,二,三,四,五,六",
-    "widget.tagsTitle": "索引",
+    "widget.tagsTitle": "标签",
+    "widget.pulseTitle": "写作脉冲",
+    "widget.pulseSub": "近 12 个月",
 
-    "reader.title": "阅读偏好",
+    "reader.title": "阅读设置",
     "reader.aria": "阅读设置面板",
     "reader.groupReading": "阅读",
     "reader.groupAppearance": "外观",
-    "reader.groupLayout": "排布",
-    "reader.fontSize": "字级",
+    "reader.groupLayout": "文章列表",
+    "reader.fontSize": "字号",
     "reader.fontSizeHint": "整站基准字号，侧栏和导航一起缩放",
     "reader.lineHeight": "行高",
     "reader.lineHeightHint": "正文行间距",
-    "reader.proseWidth": "版心",
+    "reader.proseWidth": "正文宽度",
     "reader.proseWidthHint": "一行能放多少字，跟着字号走",
-    "reader.skin": "风格",
+    "reader.skin": "皮肤",
     "reader.skinHint": "换配色和装饰，不改内容",
     "reader.locale": "语言",
     "reader.localeZh": "中文",
     "reader.localeEn": "English",
-    "reader.layout": "版式",
+    "reader.layout": "排布方式",
     "reader.layoutHint": "文章列表页的卡片形态",
     "reader.reset": "恢复默认",
     "reader.resetHint": "恢复皮肤、布局、语言和阅读参数的默认值",
     "reader.closeAria": "关闭阅读设置",
     "skin.minimal": "极简",
     "skin.anime": "二次元",
-    "widget.musicTitle": "此刻聆听",
-    "widget.heatmapTitle": "写作轨迹",
+    "widget.musicTitle": "正在播放",
+    "widget.heatmapTitle": "写作热力",
     "widget.heatmapUnit": "篇",
-    "widget.heatmapEmpty": "暂未落笔",
+    "widget.heatmapEmpty": "暂无",
 
     "footer.running": "已运行",
     "footer.day": "天",
     "footer.hour": "时",
     "footer.minute": "分",
     "footer.second": "秒",
-    "footer.sitePolicy": "网站政策",
+    "footer.sitePolicy": "站点说明",
     "footer.themePowered": "Astro 主题驱动",
+    "footer.colNav": "导航",
+    "footer.colConnect": "连接",
+    "footer.colExplore": "更多",
 
     "search.dialogAria": "搜索",
-    "search.title": "寻觅内容",
+    "search.title": "搜索内容",
     "search.closeAria": "关闭搜索",
     "search.placeholder": "输入关键词搜索...",
     "search.emptyStart": "开始输入以搜索文章和页面",
@@ -108,8 +113,9 @@ export const UI_TRANSLATIONS = {
     "bibref.copy": "复制",
     "bibref.copied": "已复制",
 
-    "common.home": "归处",
-    "common.posts": "札记",
+    "common.home": "首页",
+    "common.posts": "文章",
+    "common.tech": "技术",
     "common.essay": "随笔",
     "common.pinned": "置顶",
     "common.minutes": "分钟",
@@ -121,19 +127,29 @@ export const UI_TRANSLATIONS = {
     "common.toc": "目录",
 
     "index.heroTitle": "👋 欢迎来到 Neomelt 的博客",
+    "index.runningLeft": "NEOMELT · 个人技术手记与随笔集",
+    "index.runningRight": "2025 — 2026",
+    "index.marginaliaLabel": "页边日常",
     "index.heroIntro1":
       "你好，我是 Neomelt，一名喜欢创造的工科生，主要对机器人应用开发和软件工程实践等方向感兴趣。",
     "index.heroIntro2":
       "这里是我记录技术笔记、代码复盘和日常思考的地方。内容可能涉及编程语言、技术领域，以及一些不那么技术的东西。",
-    "index.allPosts": "全部札记",
-    "index.recentPosts": "近作",
-    "index.viewAll": "阅览全部 →",
+    "index.allPosts": "全部文章",
+    "index.recentPosts": "最近文章",
+    "index.viewAll": "全部文章 →",
+    "home.enterPosts": "浏览文章",
+    "home.latestLabel": "最近更新",
+    "home.selectedTitle": "最近文章",
+    "home.logTitle": "最近日常",
+    "home.logMore": "全部日常 →",
+    "home.metaTitle": "本站统计",
+    "home.filterAll": "全部",
 
     "profile.bio": "Keep looking, don't settle",
 
-    "about.title": "自述",
-    "about.pageCrumb": "自述",
-    "about.metaTitle": "自述",
+    "about.title": "关于我",
+    "about.pageCrumb": "关于",
+    "about.metaTitle": "关于",
     "about.desc1": "个人主页正在建设中，敬请期待。",
     "about.desc2Prefix": "你可以在",
     "about.desc2Suffix": "上找到我。",
@@ -145,135 +161,71 @@ export const UI_TRANSLATIONS = {
     "about.nodePrimary": "主站",
     "about.nodeFallback": "备用",
 
-    "terms.metaTitle": "网站政策",
-    "terms.listTitle": "网站政策",
-    "terms.listLead":
-      "这里整理了站点相关政策与说明，用于明确内容使用、版权归属和责任范围。",
-    "terms.cardTitle": "政策目录",
-    "terms.privacyTitle": "隐私政策",
-    "terms.privacyDesc": "说明站点收集的数据类型、用途与保存方式。",
-    "terms.conditionsTitle": "条款与条件",
-    "terms.conditionsDesc": "说明访问和使用本站内容时应遵循的规则。",
-    "terms.copyrightTitle": "版权声明",
-    "terms.copyrightDesc": "说明文章、图片和代码片段的版权归属与引用要求。",
-    "terms.disclaimerTitle": "免责声明",
-    "terms.disclaimerDesc": "说明内容边界与风险自担原则。",
-    "terms.updatedLabel": "最后更新",
-    "terms.effectiveDate": "2026 年 2 月 24 日",
-    "terms.contact": "联系邮箱：3212929002@qq.com",
-    "terms.backToList": "返回政策目录",
+    "terms.metaTitle": "站点说明",
+    "terms.listTitle": "站点说明",
+    "terms.listLead": "关于本站的隐私、版权与使用说明，尽量写得简短清楚。",
+    "terms.cardTitle": "说明目录",
+    "terms.privacyTitle": "隐私说明",
+    "terms.privacyDesc": "评论、计数与浏览器本地偏好会用到哪些数据。",
+    "terms.conditionsTitle": "使用约定",
+    "terms.conditionsDesc": "访问与引用本站内容的基本约定。",
+    "terms.copyrightTitle": "版权与致谢",
+    "terms.copyrightDesc": "文章、代码片段与封面插画的署名说明。",
+    "terms.disclaimerTitle": "免责说明",
+    "terms.disclaimerDesc": "个人技术笔记的适用边界说明。",
+    "terms.updatedLabel": "更新于",
+    "terms.effectiveDate": "2026 年 11 月 20 日",
+    "terms.contact": "联系邮箱：niezhenghua2004@gmail.com",
+    "terms.backToList": "返回站点说明",
     "terms.privacyIntro":
-      "本政策用于说明本站在访问、评论和偏好设置场景下对数据的处理方式。",
-    "terms.privacyS1Title": "1. 收集的信息类型",
+      "这是一个静态个人博客，不设账号体系，也不做跨站画像追踪。",
+    "terms.privacyS1Title": "1. 本地与评论数据",
     "terms.privacyS1Item1":
-      "访问日志：可能包含访问时间、页面路径、来源地址、设备类型与浏览器信息。",
+      "主题、皮肤、字号和语言偏好仅保存在你的浏览器 localStorage 里，随时可清空。",
     "terms.privacyS1Item2":
-      "评论信息：昵称、邮箱、网址与评论内容由评论服务提供方处理并存储。",
-    "terms.privacyS1Item3":
-      "本地偏好：主题模式、语言设置等可能保存在浏览器本地存储中。",
-    "terms.privacyS2Title": "2. 数据使用目的",
+      "评论与阅读计数由 Waline 后端提供，你留言时填写的昵称、邮箱与网址会由评论服务保存。",
+    "terms.privacyS2Title": "2. 托管与删除",
     "terms.privacyS2Item1":
-      "用于分析访问趋势、排查故障并改进站点性能与阅读体验。",
-    "terms.privacyS2Item2": "用于识别异常请求、减少垃圾评论和提升站点安全性。",
-    "terms.privacyS2Item3": "用于提供评论、统计计数和页面个性化展示功能。",
-    "terms.privacyS3Title": "3. 第三方服务与链接",
-    "terms.privacyS3Item1":
-      "评论系统、CDN 或统计服务可能在其服务范围内处理相关数据。",
-    "terms.privacyS3Item2":
-      "本站链接到的外部站点由第三方维护，其隐私规则不受本站控制。",
-    "terms.privacyS3Item3": "建议在访问第三方站点前阅读其隐私政策与使用条款。",
-    "terms.privacyS4Title": "4. 用户权利",
-    "terms.privacyS4Item1":
-      "你可以通过浏览器设置清除本地缓存、Cookie 与站点偏好数据。",
-    "terms.privacyS4Item2":
-      "如需删除评论或反馈数据处理问题，可通过邮箱联系站长。",
-    "terms.privacyS4Item3": "本站将尽力在合理范围内响应数据删除或修正请求。",
-    "terms.conditionsIntro": "访问和使用本站内容，即表示你同意遵守以下条款。",
-    "terms.conditionsS1Title": "1. 允许的使用方式",
+      "站点托管在 Vercel 与 GitHub Pages，平台会记录常规的访问日志。",
+    "terms.privacyS2Item2": "如需删除某条评论或有隐私疑问，发邮件告诉我即可。",
+    "terms.conditionsIntro": "个人小站，没什么复杂规矩，互相尊重就好。",
+    "terms.conditionsS1Title": "1. 内容使用",
     "terms.conditionsS1Item1":
-      "允许在非商业学习与研究场景下阅读、收藏和引用本站内容。",
-    "terms.conditionsS1Item2": "转载或引用时应保留作者署名，并附带原文链接。",
-    "terms.conditionsS1Item3": "使用本站时应遵守所在地区适用法律法规。",
-    "terms.conditionsS2Title": "2. 禁止行为",
-    "terms.conditionsS2Item1": "禁止未授权的批量搬运、镜像抓取或冒充原创发布。",
-    "terms.conditionsS2Item2": "禁止将本站内容用于违法、误导、骚扰或侵权用途。",
-    "terms.conditionsS2Item3":
-      "禁止利用自动化脚本进行恶意请求、爬虫滥用或破坏性访问。",
-    "terms.conditionsS3Title": "3. 服务可用性与变更",
-    "terms.conditionsS3Item1": "本站为个人维护项目，不保证持续可用或永久在线。",
-    "terms.conditionsS3Item2":
-      "页面结构、评论服务、访问域名与镜像节点可能不定期调整。",
-    "terms.conditionsS3Item3":
-      "相关政策内容可在不另行通知的情况下更新，并以最新版本为准。",
-    "terms.conditionsS4Title": "4. 争议与联系",
-    "terms.conditionsS4Item1":
-      "若你认为本站内容存在问题，请先通过邮箱沟通处理。",
-    "terms.conditionsS4Item2":
-      "对于外部平台或第三方服务导致的问题，本站仅协助沟通，不承担其独立责任。",
-    "terms.conditionsS4Item3":
-      "继续使用本站即视为你理解并接受本条款的适用范围。",
-    "terms.copyrightIntro":
-      "本页面用于明确本站原创内容及相关素材的版权归属和使用边界。",
-    "terms.copyrightS1Title": "1. 版权归属",
+      "欢迎非商业学习、收藏与摘录引用，烦请保留署名和原文链接。",
+    "terms.conditionsS1Item2": "请勿整站镜像搬运、去署名转载或用于恶意请求。",
+    "terms.conditionsS2Title": "2. 站点维护",
+    "terms.conditionsS2Item1":
+      "本站为个人业余维护，链接、布局或评论服务偶尔会调整。",
+    "terms.copyrightIntro": "本站原创内容与第三方素材的归属说明如下。",
+    "terms.copyrightS1Title": "1. 原创文章与代码",
     "terms.copyrightS1Item1":
-      "除特别标注外，本站文章、页面文案与原创图文版权归作者所有。",
-    "terms.copyrightS1Item2":
-      "代码片段与技术示例默认供学习参考，不自动授予商用再分发许可。",
-    "terms.copyrightS1Item3": "第三方素材仍归其原作者或原授权方所有。",
-    "terms.copyrightS2Title": "2. 引用与转载规范",
+      "除另有标注外，原创文章采用 CC BY-NC-SA 4.0 协议共享，引用或转载时请注明作者与原文链接。",
+    "terms.copyrightS1Item2": "文中的配置与代码片段欢迎参考和复用。",
+    "terms.copyrightS2Title": "2. 封面插画与第三方素材",
     "terms.copyrightS2Item1":
-      "引用内容时请注明来源并附原文链接，避免断章取义。",
+      "文章封面与背景插画取自 Pixiv 公开作品，原作者与作品链接均登记在仓库的 CREDITS.md 中，版权归原画师所有。",
     "terms.copyrightS2Item2":
-      "转载全文或大段内容前，请先与站长沟通并获得授权。",
-    "terms.copyrightS2Item3":
-      "禁止去除作者署名、水印或在未授权场景下用于商业宣传。",
-    "terms.copyrightS3Title": "3. 开源与第三方许可",
-    "terms.copyrightS3Item1": "涉及开源项目内容时，以对应开源许可证条款为准。",
-    "terms.copyrightS3Item2":
-      "若页面中包含第三方引用，将尽量注明来源与许可信息。",
-    "terms.copyrightS3Item3": "如发现标注遗漏，可联系站长补充或修正。",
-    "terms.copyrightS4Title": "4. 侵权处理",
-    "terms.copyrightS4Item1":
-      "若你认为本站内容侵犯合法权益，可提供权属证明并邮件告知。",
-    "terms.copyrightS4Item2": "收到有效通知后，本站会在合理时间内核验并处理。",
-    "terms.copyrightS4Item3": "必要时会下线相关内容或补充版权说明。",
-    "terms.disclaimerIntro":
-      "本站内容主要用于知识分享和经验记录，以下声明用于明确责任边界。",
-    "terms.disclaimerS1Title": "1. 信息性质",
+      "如你是原作者不希望作品出现在这里，请邮件告知，我会第一时间撤下。",
+    "terms.disclaimerIntro": "本站文章多为个人折腾记录与阶段性思考。",
+    "terms.disclaimerS1Title": "1. 技术笔记的时效性",
     "terms.disclaimerS1Item1":
-      "文章内容不构成法律、医疗、投资、财税等专业意见。",
+      "环境、版本和上游工具变化很快，文中的命令与方案只保证在写作当时的环境里跑通过。",
     "terms.disclaimerS1Item2":
-      "技术方案仅代表发布时的经验，不保证适用于所有环境。",
-    "terms.disclaimerS1Item3": "请在生产环境部署前自行评估风险并做好备份。",
-    "terms.disclaimerS2Title": "2. 风险承担",
+      "涉及系统配置、网络代理或生产环境的操作，请先理解原理并做好备份。",
+    "terms.disclaimerS2Title": "2. 外部链接",
     "terms.disclaimerS2Item1":
-      "因使用本站信息导致的直接或间接损失，由使用者自行承担。",
-    "terms.disclaimerS2Item2":
-      "本站不对数据丢失、业务中断或兼容性问题承担担保责任。",
-    "terms.disclaimerS2Item3": "建议在关键操作前进行测试、验证与回滚预案准备。",
-    "terms.disclaimerS3Title": "3. 外部链接说明",
-    "terms.disclaimerS3Item1":
-      "外部链接内容由第三方维护，本站无法持续保证其准确性与安全性。",
-    "terms.disclaimerS3Item2":
-      "访问外部站点时请自行判断可信度并注意个人信息保护。",
-    "terms.disclaimerS3Item3":
-      "外部服务条款变更可能影响可用性，本站不对其做长期承诺。",
-    "terms.disclaimerS4Title": "4. 声明更新",
-    "terms.disclaimerS4Item1":
-      "本站可根据运营情况更新本声明，更新后版本即时生效。",
-    "terms.disclaimerS4Item2": "如对声明内容有疑问，可通过邮箱联系站长沟通。",
-    "terms.disclaimerS4Item3": "继续访问本站即视为已阅读并接受当前声明内容。",
+      "友链与参考资料指向第三方站点，其内容与可用性由对应站长维护。",
 
-    "posts.title": "札记",
-    "posts.metaTitle": "札记",
-    "posts.empty": "暂无札记",
+    "posts.title": "文章",
+    "posts.metaTitle": "文章",
+    "posts.empty": "暂无文章",
 
-    "archive.title": "旧章",
-    "archive.metaTitle": "旧章",
+    "archive.title": "归档",
+    "archive.metaTitle": "归档",
     "archive.countUnit": "篇",
 
-    "tags.title": "索引",
-    "tags.metaTitle": "索引",
+    "tags.title": "标签",
+    "tags.metaTitle": "标签",
     "tags.countUnit": "个",
 
     "comments.loadFailedPrefix": "评论组件加载失败。请刷新重试，或访问",
@@ -283,11 +235,11 @@ export const UI_TRANSLATIONS = {
     "legacy.pageSuffix": "页",
     "legacy.uncategorized": "未分类",
 
-    "log.metaTitle": "片刻",
-    "log.metaDescription": "留一方余白，安放途中的片刻",
-    "log.pageCrumb": "片刻",
-    "log.title": "片刻",
-    "log.lead": "留一方余白，安放途中的片刻。",
+    "log.metaTitle": "日常",
+    "log.metaDescription": "碎片化的生活记录，来自 Telegram 频道",
+    "log.pageCrumb": "日常",
+    "log.title": "日常",
+    "log.lead": "碎片化的生活记录，来自 Telegram 频道。",
     "log.empty": "这里还没有记录。",
     "log.subscribe": "在 Telegram 订阅",
     "log.subscribers": "订阅者",
@@ -302,18 +254,18 @@ export const UI_TRANSLATIONS = {
     "log.unsupported": "这条带有网页显示不了的内容，去 Telegram 看原帖",
     "log.older": "更早的记录在 Telegram 频道里",
 
-    "friends.metaTitle": "友邻",
-    "friends.metaDescription": "友邻与链接往来",
-    "friends.pageCrumb": "友邻",
-    "friends.title": "友邻",
-    "friends.lead": "在彼此的链接里，发现各自的世界。",
-    "friends.listTitle": "已收录友邻",
-    "friends.empty": "这里还没有友邻，欢迎留下你的链接。",
-    "friends.applyTitle": "留下你的链接",
+    "friends.metaTitle": "友链",
+    "friends.metaDescription": "友情链接与互链申请",
+    "friends.pageCrumb": "友链",
+    "friends.title": "友情链接",
+    "friends.lead": "欢迎交换友链，一起记录与分享。",
+    "friends.listTitle": "已收录友链",
+    "friends.empty": "暂时还没有收录友链，欢迎成为第一位互链伙伴。",
+    "friends.applyTitle": "申请友链",
     "friends.applyDesc":
       "可以通过邮件、GitHub Issue，或页面底部评论区提交申请。",
     "friends.applyEmail": "邮件申请",
-    "friends.infoTitle": "请留下这些信息",
+    "friends.infoTitle": "建议提供以下信息",
     "friends.infoName": "网站名称",
     "friends.infoUrl": "网站地址（https://）",
     "friends.infoDesc": "网站简介（一句话）",
@@ -324,10 +276,10 @@ export const UI_TRANSLATIONS = {
     "friends.copyAll": "一键复制",
     "friends.copy": "复制",
     "friends.copied": "已复制",
-    "friends.circleTitle": "友邻动态",
-    "friends.circleLead": "看看最近，朋友们又写下了什么。",
-    "friends.circleRefresh": "再寻一批",
-    "friends.circleEmpty": "暂时还没有新的友邻动态。",
+    "friends.circleTitle": "友链动态",
+    "friends.circleLead": "最近更新，随机看看朋友们都在写什么。",
+    "friends.circleRefresh": "换一批",
+    "friends.circleEmpty": "暂时还没有抓取到友链动态。",
 
     "post.breadcrumbAria": "面包屑",
     "post.statsAria": "阅读和评论统计",
@@ -350,20 +302,20 @@ export const UI_TRANSLATIONS = {
     "notFound.metaTitle": "页面不存在",
     "notFound.title": "没有这个页面",
     "notFound.lead": "地址打错了，或者这篇内容已经挪走。下面是几条还在的路。",
-    "notFound.home": "回归处",
-    "notFound.posts": "全部札记",
+    "notFound.home": "回首页",
+    "notFound.posts": "全部文章",
     "notFound.search": "搜一下",
-    "notFound.recentTitle": "近作",
+    "notFound.recentTitle": "最近文章",
   },
   en: {
     "locale.label": "EN",
 
     "header.homeAria": "Home",
     "header.mainNavAria": "Main navigation",
-    "header.posts": "Notes",
-    "header.log": "Moments",
+    "header.posts": "Posts",
+    "header.log": "Log",
     "header.archive": "Archive",
-    "header.tags": "Index",
+    "header.tags": "Tags",
     "header.friends": "Friends",
     "header.about": "About",
     "header.searchAria": "Search",
@@ -392,6 +344,8 @@ export const UI_TRANSLATIONS = {
     "widget.calendarTitle": "Post calendar",
     "widget.calendarWeekdays": "Su,Mo,Tu,We,Th,Fr,Sa",
     "widget.tagsTitle": "Tags",
+    "widget.pulseTitle": "Writing pulse",
+    "widget.pulseSub": "12 months",
 
     "reader.title": "Reading settings",
     "reader.aria": "Reading settings panel",
@@ -429,8 +383,11 @@ export const UI_TRANSLATIONS = {
     "footer.hour": "h",
     "footer.minute": "m",
     "footer.second": "s",
-    "footer.sitePolicy": "Site policy",
+    "footer.sitePolicy": "Site notes",
     "footer.themePowered": "Astro theme powered",
+    "footer.colNav": "Navigate",
+    "footer.colConnect": "Connect",
+    "footer.colExplore": "More",
 
     "search.dialogAria": "Search",
     "search.title": "Search",
@@ -464,6 +421,7 @@ export const UI_TRANSLATIONS = {
 
     "common.home": "Home",
     "common.posts": "Posts",
+    "common.tech": "Tech",
     "common.essay": "Essay",
     "common.pinned": "Pinned",
     "common.minutes": "min",
@@ -475,6 +433,9 @@ export const UI_TRANSLATIONS = {
     "common.toc": "Contents",
 
     "index.heroTitle": "👋 Welcome to Neomelt's Blog",
+    "index.runningLeft": "NEOMELT · TECHNICAL NOTES & ESSAYS",
+    "index.runningRight": "2025 — 2026",
+    "index.marginaliaLabel": "DAILY NOTE",
     "index.heroIntro1":
       "Hi, I'm Neomelt, an engineering student who loves creating and is mainly interested in robotics application development and software engineering practice.",
     "index.heroIntro2":
@@ -482,6 +443,15 @@ export const UI_TRANSLATIONS = {
     "index.allPosts": "All posts",
     "index.recentPosts": "Recent posts",
     "index.viewAll": "All posts →",
+    "home.enterPosts": "Read posts",
+    "home.latestLabel": "Latest",
+    "home.selectedTitle": "Recent posts",
+    "home.logTitle": "Recent log",
+    "home.logMore": "All log entries →",
+    "home.metaTitle": "Site stats",
+    "home.filterAll": "All",
+
+    "profile.bio": "Keep looking, don't settle",
 
     "about.title": "About Me",
     "about.pageCrumb": "About",
@@ -497,146 +467,64 @@ export const UI_TRANSLATIONS = {
     "about.nodePrimary": "Primary",
     "about.nodeFallback": "Fallback",
 
-    "terms.metaTitle": "Site Policy",
-    "terms.listTitle": "Site Policy",
-    "terms.listLead":
-      "This section documents site-level policies, including usage boundaries, copyright, and liability notes.",
-    "terms.cardTitle": "Terms content",
-    "terms.privacyTitle": "Privacy Policy",
-    "terms.privacyDesc":
-      "How data is collected, used, and retained on this site.",
-    "terms.conditionsTitle": "Terms and Conditions",
-    "terms.conditionsDesc":
-      "Rules for accessing and using content published on this site.",
-    "terms.copyrightTitle": "Copyright",
-    "terms.copyrightDesc":
-      "Ownership and citation requirements for text, media, and code snippets.",
+    "terms.metaTitle": "Site Notes",
+    "terms.listTitle": "Site Notes",
+    "terms.listLead": "Short notes on privacy, copyright, and using this site.",
+    "terms.cardTitle": "Directory",
+    "terms.privacyTitle": "Privacy",
+    "terms.privacyDesc": "What comments, counters, and local preferences store.",
+    "terms.conditionsTitle": "Usage",
+    "terms.conditionsDesc": "Basic expectations for reading and quoting posts.",
+    "terms.copyrightTitle": "Copyright & Credits",
+    "terms.copyrightDesc": "Licensing for original posts, code, and cover art.",
     "terms.disclaimerTitle": "Disclaimer",
-    "terms.disclaimerDesc": "Scope limits and at-your-own-risk statement.",
-    "terms.updatedLabel": "Last updated",
-    "terms.effectiveDate": "February 24, 2026",
-    "terms.contact": "Contact: 3212929002@qq.com",
-    "terms.backToList": "Back to policy list",
+    "terms.disclaimerDesc": "Scope of personal engineering notes.",
+    "terms.updatedLabel": "Updated",
+    "terms.effectiveDate": "November 20, 2026",
+    "terms.contact": "Contact: niezhenghua2004@gmail.com",
+    "terms.backToList": "Back to site notes",
     "terms.privacyIntro":
-      "This policy explains how this site handles data during visits, comments, and preference storage.",
-    "terms.privacyS1Title": "1. Data We May Collect",
+      "This is a static personal blog with no user accounts and no cross-site tracking.",
+    "terms.privacyS1Title": "1. Local & Comment Data",
     "terms.privacyS1Item1":
-      "Visit logs may include access time, page path, referrer, device type, and browser details.",
+      "Theme, skin, typography, and locale preferences stay in your browser's localStorage and can be cleared anytime.",
     "terms.privacyS1Item2":
-      "Comment fields such as nickname, email, website, and content are processed by the comment provider.",
-    "terms.privacyS1Item3":
-      "Local preferences (theme, locale, and UI settings) may be stored in browser local storage.",
-    "terms.privacyS2Title": "2. Why We Use Data",
+      "Comments and view counters are handled by Waline; whatever nickname, email, or URL you submit is stored by that service.",
+    "terms.privacyS2Title": "2. Hosting & Removal",
     "terms.privacyS2Item1":
-      "To analyze traffic trends, troubleshoot issues, and improve performance and readability.",
+      "The site is hosted on Vercel and GitHub Pages, which keep standard access logs.",
     "terms.privacyS2Item2":
-      "To detect abuse patterns, reduce spam comments, and enhance basic site security.",
-    "terms.privacyS2Item3":
-      "To provide comment features, counters, and personalized interface behavior.",
-    "terms.privacyS3Title": "3. Third-party Services",
-    "terms.privacyS3Item1":
-      "Comment, CDN, and analytics services may process related data under their own policies.",
-    "terms.privacyS3Item2":
-      "External links are maintained by third parties and are not controlled by this site.",
-    "terms.privacyS3Item3":
-      "Please read third-party privacy policies before submitting personal information.",
-    "terms.privacyS4Title": "4. Your Rights",
-    "terms.privacyS4Item1":
-      "You can clear browser storage, cookies, and local preferences at any time.",
-    "terms.privacyS4Item2":
-      "For comment deletion or data-related requests, contact the site owner via email.",
-    "terms.privacyS4Item3":
-      "Reasonable requests for deletion or correction will be reviewed and handled in time.",
-    "terms.conditionsIntro":
-      "By accessing and using this site, you agree to follow the terms below.",
-    "terms.conditionsS1Title": "1. Acceptable Use",
+      "Email me if you would like a comment removed or have a privacy question.",
+    "terms.conditionsIntro": "A small personal site — basic mutual respect goes a long way.",
+    "terms.conditionsS1Title": "1. Using Content",
     "terms.conditionsS1Item1":
-      "Reading, bookmarking, and citing content for non-commercial learning is allowed.",
+      "Feel free to read, bookmark, and quote for non-commercial learning with attribution and a link back.",
     "terms.conditionsS1Item2":
-      "When citing or reposting, keep author attribution and include the original link.",
-    "terms.conditionsS1Item3":
-      "Use of this site should comply with applicable laws and regulations in your region.",
-    "terms.conditionsS2Title": "2. Prohibited Behavior",
+      "Please do not bulk-scrape, mirror the site, strip attribution, or send abusive traffic.",
+    "terms.conditionsS2Title": "2. Maintenance",
     "terms.conditionsS2Item1":
-      "Unauthorized bulk scraping, mirroring, or reposting as original work is prohibited.",
-    "terms.conditionsS2Item2":
-      "Content must not be used for illegal, misleading, harassing, or infringing activity.",
-    "terms.conditionsS2Item3":
-      "Abusive automation, malicious requests, or destructive access behavior is prohibited.",
-    "terms.conditionsS3Title": "3. Availability and Changes",
-    "terms.conditionsS3Item1":
-      "This is a personally maintained site and availability is not guaranteed 24/7.",
-    "terms.conditionsS3Item2":
-      "Page structure, comment service, domains, and mirror entries may change over time.",
-    "terms.conditionsS3Item3":
-      "Policies may be updated without separate notice; latest published version prevails.",
-    "terms.conditionsS4Title": "4. Disputes and Contact",
-    "terms.conditionsS4Item1":
-      "If you identify issues, please contact the site owner first for resolution.",
-    "terms.conditionsS4Item2":
-      "For third-party platform issues, this site can assist communication but not assume their liability.",
-    "terms.conditionsS4Item3":
-      "Continued use indicates understanding and acceptance of these terms.",
-    "terms.copyrightIntro":
-      "This page clarifies ownership and permitted use of original content and referenced assets.",
-    "terms.copyrightS1Title": "1. Ownership",
+      "Maintained in my spare time; layouts, links, and comment backends may change occasionally.",
+    "terms.copyrightIntro": "Ownership notes for original posts and third-party artwork.",
+    "terms.copyrightS1Title": "1. Original Writing & Code",
     "terms.copyrightS1Item1":
-      "Unless stated otherwise, original posts and media are copyrighted by the author.",
+      "Unless noted otherwise, original posts are shared under CC BY-NC-SA 4.0 — please credit the author and link back when quoting.",
     "terms.copyrightS1Item2":
-      "Code snippets are provided for learning reference and do not imply commercial relicensing.",
-    "terms.copyrightS1Item3":
-      "Third-party assets remain under their original owners or license holders.",
-    "terms.copyrightS2Title": "2. Citation and Repost",
+      "Config and code snippets in posts are free to reference and adapt.",
+    "terms.copyrightS2Title": "2. Cover Art & Third-party Assets",
     "terms.copyrightS2Item1":
-      "When quoting, include source attribution and a link to the original page.",
+      "Decorative covers and backdrops come from public Pixiv artworks credited in CREDITS.md in the repository; all rights belong to their artists.",
     "terms.copyrightS2Item2":
-      "Full-text reposting requires prior permission from the site owner.",
-    "terms.copyrightS2Item3":
-      "Removing author attribution, watermark, or unauthorized commercial use is prohibited.",
-    "terms.copyrightS3Title": "3. Open-source and Third-party Licenses",
-    "terms.copyrightS3Item1":
-      "When open-source material is involved, its original license terms take priority.",
-    "terms.copyrightS3Item2":
-      "Third-party references should include source and license notes when applicable.",
-    "terms.copyrightS3Item3":
-      "If attribution is missing, please report it for correction.",
-    "terms.copyrightS4Title": "4. Infringement Notice",
-    "terms.copyrightS4Item1":
-      "If you believe content infringes your rights, send ownership proof by email.",
-    "terms.copyrightS4Item2":
-      "Valid notices will be reviewed and processed within a reasonable time.",
-    "terms.copyrightS4Item3":
-      "Content may be removed or corrected when infringement is confirmed.",
+      "If you are an artist and prefer your work not to appear here, email me and I will remove it promptly.",
     "terms.disclaimerIntro":
-      "This site is primarily for knowledge sharing and learning notes. The following defines liability boundaries.",
-    "terms.disclaimerS1Title": "1. Nature of Information",
+      "Posts here are personal troubleshooting logs and notes in progress.",
+    "terms.disclaimerS1Title": "1. Technical Notes",
     "terms.disclaimerS1Item1":
-      "Content does not constitute legal, medical, financial, or tax advice.",
+      "Tools and environments move fast; commands and setups reflect what worked when written.",
     "terms.disclaimerS1Item2":
-      "Technical solutions reflect experience at publish time and may not fit all environments.",
-    "terms.disclaimerS1Item3":
-      "Please test and back up before applying any solution in production.",
-    "terms.disclaimerS2Title": "2. Risk Responsibility",
+      "Please verify and back up before applying system or network changes to anything important.",
+    "terms.disclaimerS2Title": "2. External Links",
     "terms.disclaimerS2Item1":
-      "Any direct or indirect loss from using this information is at the reader's own risk.",
-    "terms.disclaimerS2Item2":
-      "No warranty is provided for data loss, service interruption, or compatibility outcomes.",
-    "terms.disclaimerS2Item3":
-      "Prepare validation and rollback plans before critical operations.",
-    "terms.disclaimerS3Title": "3. External Links",
-    "terms.disclaimerS3Item1":
-      "External sites are maintained by third parties; accuracy and safety are not guaranteed here.",
-    "terms.disclaimerS3Item2":
-      "Assess trust level yourself when visiting external links and sharing personal information.",
-    "terms.disclaimerS3Item3":
-      "Third-party policy changes may affect availability and are outside this site's control.",
-    "terms.disclaimerS4Title": "4. Updates",
-    "terms.disclaimerS4Item1":
-      "This disclaimer may be updated according to operational needs and takes effect once published.",
-    "terms.disclaimerS4Item2":
-      "For questions regarding policy text, contact the site owner via email.",
-    "terms.disclaimerS4Item3":
-      "Continued access indicates acceptance of the current version of this disclaimer.",
+      "Friend links and external references are maintained by their respective authors.",
 
     "posts.title": "Posts",
     "posts.metaTitle": "Posts",
@@ -660,10 +548,10 @@ export const UI_TRANSLATIONS = {
     "legacy.uncategorized": "Uncategorized",
 
     "log.metaTitle": "Log",
-    "log.metaDescription": "A quiet margin for the moments along the way",
+    "log.metaDescription": "Fragments of everyday life, from a Telegram channel",
     "log.pageCrumb": "Log",
     "log.title": "Log",
-    "log.lead": "A quiet margin for the moments along the way.",
+    "log.lead": "Fragments of everyday life, from a Telegram channel.",
     "log.empty": "Nothing here yet.",
     "log.subscribe": "Follow on Telegram",
     "log.subscribers": "subscribers",

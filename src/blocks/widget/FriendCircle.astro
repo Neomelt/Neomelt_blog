@@ -63,42 +63,30 @@ const { limit = 6, heading = true } = Astro.props;
 
 <style>
   .circle-widget {
-      border-color: color-mix(in srgb, var(--accent) 18%, var(--border));
-      background: linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--accent) 8%, var(--bg-card)) 0%,
-        var(--bg-card) 100%
-      );
+      background: transparent;
     }
 
   .circle-refresh-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.58rem 0.9rem;
-      border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-      border-radius: var(--radius-pill);
-      background: color-mix(in srgb, var(--bg) 82%, var(--accent) 6%);
-      color: var(--text);
+      gap: 0.35rem;
+      padding: 0.25rem 0;
+      border: none;
+      border-bottom: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
       font: inherit;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       white-space: nowrap;
       cursor: pointer;
       transition:
         border-color var(--transition),
-        color var(--transition),
-        transform var(--transition),
-        background var(--transition);
+        color var(--transition);
     }
 
   .circle-refresh-btn:hover {
       color: var(--accent);
-      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-      transform: translateY(-1px);
-    }
-
-  .circle-refresh-btn:active {
-      transform: translateY(0);
+      border-bottom-color: var(--accent);
     }
 
   .circle-refresh-btn[data-spinning="true"] .circle-refresh-icon {
@@ -108,7 +96,7 @@ const { limit = 6, heading = true } = Astro.props;
   .circle-refresh-icon {
       display: inline-grid;
       place-items: center;
-      font-size: 1rem;
+      font-size: 0.95rem;
       line-height: 1;
     }
 
@@ -116,16 +104,16 @@ const { limit = 6, heading = true } = Astro.props;
       list-style: none;
       margin: 0;
       padding: 0;
-      display: grid;
-      gap: 0.72rem;
+      display: flex;
+      flex-direction: column;
     }
 
   :global(.circle-item) {
-      transition: transform var(--transition);
+      border-bottom: 1px solid var(--border);
     }
 
-  :global(.circle-item:hover) {
-      transform: translateY(-1px);
+  :global(.circle-item:last-child) {
+      border-bottom: none;
     }
 
   :global(.circle-link) {
@@ -133,22 +121,15 @@ const { limit = 6, heading = true } = Astro.props;
       grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
       gap: 0.82rem;
-      padding: 0.82rem 0.94rem;
-      border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
-      border-radius: var(--radius-card);
-      background: color-mix(in srgb, var(--bg) 86%, var(--accent) 4%);
+      padding: 0.8rem 0;
+      background: transparent;
       color: inherit;
       text-decoration: none;
-      transition:
-        border-color var(--transition),
-        background var(--transition),
-        transform var(--transition);
+      transition: color var(--transition);
     }
 
   :global(.circle-link:hover) {
-      color: inherit;
-      border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
-      background: color-mix(in srgb, var(--bg) 80%, var(--accent) 7%);
+      color: var(--accent);
     }
 
   :global(.circle-avatar) {
@@ -196,11 +177,9 @@ const { limit = 6, heading = true } = Astro.props;
 
   :global(.circle-date) {
       justify-self: end;
-      padding: 0.24rem 0.62rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border));
-      background: color-mix(in srgb, var(--bg-card) 72%, var(--accent) 4%);
+      padding: 0;
       color: var(--text-muted);
+      font-family: var(--font-mono);
       font-size: 0.76rem;
       line-height: 1;
       font-variant-numeric: tabular-nums;

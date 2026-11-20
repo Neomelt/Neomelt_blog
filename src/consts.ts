@@ -3,6 +3,7 @@
 
 export const SITE_TITLE = "Neomelt's Blog";
 export const SITE_ORIGIN = "https://www.neomelt.cloud/";
+export const SITE_EMAIL = "niezhenghua2004@gmail.com";
 
 /** When the site went up. Drives the uptime counters in the footer and the
     stats widget, both of which count client-side so the number is live

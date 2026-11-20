@@ -1,5 +1,5 @@
 /* ============================================================
-   SKIN: minimal
+   SKIN: minimal (Editorial Monograph — Gallery Paper & Sumi Ink)
    ------------------------------------------------------------
    Values only. Every name defined here is part of the token
    contract that all blocks consume - a skin may change what a
@@ -9,55 +9,48 @@
    blocks/chrome/Banner.astro depend on that form.
    ============================================================ */
 
-/* ---------- Design Tokens (Light Mode) ---------- */
+/* ---------- Design Tokens (Light Mode — Crisp Gallery Paper & Slate Ink) ---------- */
 [data-skin="minimal"] {
-  /* Colors */
-  --bg: #fafafa;
-  --bg-card: #ffffff;
-  --bg-code: #f4f4f5;
-  --border: #e4e4e7;
-  --text: #18181b;
-  --text-muted: #71717a;
-  --accent: #41697b;
-  --accent-hover: #335663;
-  --accent-rgb: 65, 105, 123;
-  --ink-rgb: 47, 77, 89;
-  --tag-bg: #eaeff1;
-  --badge-bg: #fef3c7;
-  --badge-text: #92400e;
+  /* Colors: neutral gallery white paper + sumi carbon ink + mineral slate */
+  --bg: #f9fafb;
+  --bg-card: #f1f3f5;
+  --bg-code: #f2f4f6;
+  --border: #e1e4e8;
+  --text: #16181b;
+  --text-muted: #616770;
+  --accent: #2d586e;
+  --accent-hover: #1e3f50;
+  --accent-rgb: 45, 88, 110;
+  --ink-rgb: 22, 24, 27;
+  --tag-bg: #edf0f3;
+  --badge-text: #466957;
   /* Callouts. Semantic rather than brand colour - a warning stays amber
      under every skin - but still tuned per mode for contrast. */
-  --callout-note: #3b7ea1;
-  --callout-tip: #2f855a;
-  --callout-important: #6b46c1;
-  --callout-warning: #b7791f;
-  --callout-caution: #c53030;
-  /* Foreground for text sitting on --accent. Not always #fff: in dark mode
-     accent is a light tint, where white text falls under 2:1 contrast. */
+  --callout-note: #2d586e;
+  --callout-tip: #2f7450;
+  --callout-important: #5c4d8a;
+  --callout-warning: #9e6519;
+  --callout-caution: #b03630;
+  /* Foreground for text sitting on --accent. */
   --accent-contrast: #ffffff;
 
-  /* Glass surface. minimal has no glass: zero blur and an opaque
-     background make GlassPanel render as an ordinary card, so the same
-     component is correct in both skins without a branch. */
-  --glass-bg: var(--bg-card);
-  --glass-border: var(--border);
+  /* Unboxed paper surface. Widgets sit directly on crisp paper. */
+  --glass-bg: transparent;
+  --glass-border: transparent;
   --glass-blur-sm: 0px;
   --glass-blur-md: 0px;
   --glass-blur-lg: 0px;
   --glass-saturate: 1;
+  --paper-grain-opacity: 0.022;
 
-  /* Effect strengths. Zero here means the component renders its plain
-     form - no skin ever needs to know a component's class names. */
+  /* Effect strengths. Spotlight hover handles focus cleanly. */
   --card-hover-lift: 0px;
   --card-hover-tint: 0;
   --tag-hover-lift: 0px;
   --heading-bar-width: 0px;
 
-  /* List item form. minimal is a divided list: no frame, no radius, no
-     surface, only a hairline between rows. Form is a parameter for the same
-     reason colour is - recolouring alone leaves the layout identical, which
-     is why a repainted skin still reads as the same site. */
-  --list-item-padding: 1.6rem 0;
+  /* List item form. Divided book index with dashed hairlines. */
+  --list-item-padding: 1.35rem 0;
   --list-item-surface: transparent;
   --list-item-border-width: 0px;
   --list-item-divider-width: var(--border-width);
@@ -65,32 +58,22 @@
   --list-item-shadow: none;
   --list-item-gap: 0px;
   --list-item-blur: 0px;
-  /* Cover thumbnail. Size 0 removes the column entirely, so a skin that
-     wants a text-only list needs no markup change. */
-  /* Cover panel. Width 0 means no cover at all, so minimal stays a plain
-     text list without any markup change. */
   --card-cover-width: 0%;
   --card-cover-opacity: 0;
   --card-cover-fade: 40%;
-  /* Inset thumbnail, used by the list layout: a real image in the row rather
-     than a faded panel behind the text. */
-  --thumb-width: 116px;
-  --thumb-height: 68px;
   --card-body-pad-end: 0rem;
   --surface-sheen: none;
-  --tag-text: #355460;
+  --tag-text: #49545e;
 
-  /* Shape - what separates minimal from a decorated skin as much as colour
-     does. Blocks reference these instead of literal px so a skin can restyle
-     geometry without touching a component. */
+  /* Shape - crisp editorial corners, zero capsules */
   --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-card: 8px;
-  --radius-pill: 999px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-card: 4px;
+  --radius-pill: 3px;
   --border-width: 1px;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.08);
-  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --shadow-card: none;
+  --shadow-float: 0 20px 56px rgba(15, 20, 26, 0.16);
 
   /* Typography */
   --font-sans:
@@ -101,86 +84,69 @@
     "STSong", serif;
   --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
   --ui-font-weight: 500;
-  --prose-width: 66ch;
-  --prose-font-size: 1.03rem;
+  --prose-width: 82ch;
+  --prose-font-size: 1.12rem;
   --prose-font-weight: 400;
   --prose-font-smoothing: antialiased;
-  --prose-line-height: 1.76;
-  --prose-letter-spacing: 0.012em;
+  --prose-line-height: 1.88;
+  --prose-letter-spacing: 0.014em;
 
   /* Spacing */
-  --content-width: 800px;
-  /* Keep the article layout contract complete; minimal has no backdrop art. */
-  --article-shell-width: 1220px;
-  --article-main-width: 820px;
+  --content-width: 880px;
+  --article-shell-width: 1360px;
+  --article-main-width: 880px;
   --article-main-max-width: 960px;
-  --article-toc-width: 220px;
-  --article-prose-width: 76ch;
-  /* Two-column shell. --rail-width 0 collapses it back to one column. */
-  --shell-width: min(90vw, 1500px);
-  --main-max-width: 800px;
-  /* Three columns need room the two-column measure does not have:
-     subtracting two sidebars from --shell-width would leave the text
-     around 580px. */
-  --shell-width-wide: min(94vw, 1840px);
-  --shell-gap: 2.5rem;
-  /* How far the content panel rides up over the banner. 0 leaves them
-     stacked; a positive value makes the content read as set into the image
-     rather than following it. */
+  --article-toc-width: 240px;
+  --shell-width: min(92vw, 1440px);
+  --main-max-width: 880px;
+  --shell-width-wide: min(94vw, 1520px);
+  --shell-gap: 2.75rem;
   --content-overlap: 0rem;
-  /* The content panel's own surface. Transparent with no blur leaves the
-     page flat; a translucent blurred one floats it over the backdrop, which
-     is how the reference frames its list. */
   --panel-surface: transparent;
   --panel-blur: 0px;
   --panel-border: transparent;
   --panel-padding: 0px;
-  /* minimal does not use backdrop art; these keep the contract complete. */
   --backdrop-filter: none;
   --backdrop-overlay: 0.9;
-  /* Colour of the wash laid over the backdrop. Washing with a grey --bg is
-     what made the light illustration look foggy. */
   --backdrop-wash: var(--bg);
-  --aside-width: 260px;
-  --rail-width: 310px;
-  /* Text scale for widgets in the side rails (home and article). */
-  --rail-text-scale: 1.16;
+  --aside-width: 244px;
+  --rail-width: 248px;
+  --rail-text-scale: 1;
   --header-height: 64px;
 
   /* Transitions */
-  --transition: 150ms ease;
+  --transition: 180ms ease;
 }
 
-/* ---------- Dark Mode ---------- */
+/* ---------- Dark Mode (Neutral Carbon Ink & Mineral Ice-Slate) ---------- */
 [data-skin="minimal"].dark {
-  --bg: #16181d;
-  --bg-card: #1d2128;
-  --bg-code: #171b21;
-  --border: #2b313a;
-  --text: #e8ebf0;
-  --text-muted: #aab1bc;
-  --accent: #8cadbb;
-  --accent-hover: #a8c4d0;
-  --accent-rgb: 140, 173, 187;
-  --ink-rgb: 226, 232, 237;
-  --tag-bg: #25333b;
-  --badge-bg: #3b2a0a;
-  --badge-text: #fcd34d;
-  --callout-note: #7cc0dd;
-  --callout-tip: #68d391;
-  --callout-important: #b794f4;
-  --callout-warning: #f6c667;
-  --callout-caution: #fc8181;
-  --accent-contrast: #16181d;
-  --glass-bg: var(--bg-card);
-  --glass-border: var(--border);
-  --tag-text: #aac6d2;
+  --bg: #131416;
+  --bg-card: #1b1d20;
+  --bg-code: #181a1d;
+  --border: #282b30;
+  --text: #e7e9ed;
+  --text-muted: #9298a1;
+  --accent: #84b0c6;
+  --accent-hover: #a3c6d8;
+  --accent-rgb: 132, 176, 198;
+  --ink-rgb: 231, 233, 237;
+  --tag-bg: #202429;
+  --badge-text: #8ab09a;
+  --callout-note: #84b0c6;
+  --callout-tip: #6ec095;
+  --callout-important: #b59ee0;
+  --callout-warning: #e6b865;
+  --callout-caution: #ea8079;
+  --accent-contrast: #131416;
+  --glass-bg: transparent;
+  --glass-border: transparent;
+  --tag-text: #b2c2cd;
   --card-cover-opacity: 0.26;
-  --prose-font-size: 1.03rem;
+  --prose-font-size: 1.12rem;
   --prose-font-weight: 400;
   --prose-font-smoothing: antialiased;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.32);
-  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --shadow-card: none;
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.58);
   --backdrop-wash: var(--bg);
   --backdrop-filter: none;
   --backdrop-overlay: 0.92;

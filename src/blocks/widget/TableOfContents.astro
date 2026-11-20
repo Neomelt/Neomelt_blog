@@ -1,5 +1,5 @@
 ---
-// TableOfContents.astro — minimalist sticky TOC
+// TableOfContents.astro — Zhilu-style sticky TOC with quick top/comment jumps
 import { getDefaultUiText } from "../../i18n/ui";
 
 export interface Props {
@@ -10,38 +10,86 @@ const { headings } = Astro.props;
 const tocHeadings = headings.filter((h) => h.depth <= 3);
 ---
 
-{
-  (
-    <nav
-      class="toc"
-      data-i18n-aria-label="toc.aria"
-      aria-label={getDefaultUiText("toc.aria")}
-    >
-      <p class="toc-label" data-i18n="toc.label">
-        {getDefaultUiText("toc.label")}
+<nav
+  class="toc"
+  data-i18n-aria-label="toc.aria"
+  aria-label={getDefaultUiText("toc.aria")}
+>
+  <div class="toc-head">
+    <p class="toc-label" data-i18n="toc.label">
+      {getDefaultUiText("toc.label")}
+    </p>
+    <div class="toc-actions">
+      <button
+        type="button"
+        class="toc-action-btn"
+        data-toc-top
+        data-i18n-aria-label="common.backToTop"
+        aria-label={getDefaultUiText("common.backToTop")}
+        title={getDefaultUiText("common.backToTop")}
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 3h14M12 21V7M7 12l5-5 5 5"></path>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="toc-action-btn"
+        data-toc-comments
+        aria-label="评论区"
+        title="评论区"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  {
+    tocHeadings.length > 0 ? (
+      <ul class="toc-list">
+        {tocHeadings.map((h) => (
+          <li class={`toc-item toc-h${h.depth}`}>
+            <a href={`#${h.slug}`} class="toc-link">
+              {h.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="toc-empty" data-i18n="toc.empty">
+        {getDefaultUiText("toc.empty")}
       </p>
-      {tocHeadings.length > 0 ? (
-        <ul class="toc-list">
-          {tocHeadings.map((h) => (
-            <li class={`toc-item toc-h${h.depth}`}>
-              <a href={`#${h.slug}`} class="toc-link">
-                {h.text}
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="toc-empty" data-i18n="toc.empty">
-          {getDefaultUiText("toc.empty")}
-        </p>
-      )}
-    </nav>
-  )
-}
+    )
+  }
+</nav>
 
 <script>
   const setupToc = () => {
     const links = document.querySelectorAll(".toc-link");
+
+    document.querySelectorAll<HTMLElement>("[data-toc-top]").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    document
+      .querySelectorAll<HTMLElement>("[data-toc-comments]")
+      .forEach((btn) => {
+        const comments = document.getElementById("waline");
+        btn.hidden = !comments;
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = "true";
+        btn.addEventListener("click", () => {
+          document
+            .getElementById("waline")
+            ?.scrollIntoView({ behavior: "smooth" });
+        });
+      });
+
     if (!links.length) return;
 
     const observer = new IntersectionObserver(
@@ -58,7 +106,7 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
           );
         }
       },
-      { rootMargin: "-80px 0px -60% 0px", threshold: 1.0 },
+      { rootMargin: "-40px 0px -65% 0px", threshold: 1.0 },
     );
 
     document
@@ -71,7 +119,7 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
         const id = link.getAttribute("href")?.slice(1);
         const el = id ? document.getElementById(id) : null;
         if (el) {
-          const top = el.getBoundingClientRect().top + window.scrollY - 80;
+          const top = el.getBoundingClientRect().top + window.scrollY - 32;
           window.scrollTo({ top, behavior: "smooth" });
         }
       });
@@ -79,29 +127,64 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
   };
 
   document.addEventListener("DOMContentLoaded", setupToc);
-  // The router keeps one session alive, so DOMContentLoaded fires once for
-  // the whole visit - each navigation after that needs this run again.
   document.addEventListener("astro:page-load", setupToc);
 </script>
 
 <style>
   .toc {
-    font-size: 0.8125rem;
+    font-size: 0.86rem;
+  }
+
+  .toc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
   }
 
   .toc-label {
     font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.86rem;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .toc-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .toc-action-btn {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
     color: var(--text-muted);
-    margin-bottom: 0.6rem;
+    cursor: pointer;
+    transition:
+      color var(--transition),
+      background-color var(--transition);
+  }
+
+  .toc-action-btn:hover {
+    color: var(--accent);
+    background: var(--bg-code);
+  }
+
+  .toc-action-btn[hidden] {
+    display: none;
   }
 
   .toc-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    border-left: 1px solid var(--border);
   }
 
   .toc-item {
@@ -110,33 +193,37 @@ const tocHeadings = headings.filter((h) => h.depth <= 3);
 
   .toc-link {
     display: block;
-    padding: 0.25rem 0;
+    padding: 0.26rem 0 0.26rem 0.78rem;
+    margin-left: -1px;
     color: var(--text-muted);
     text-decoration: none;
-    border-left: 2px solid transparent;
-    padding-left: 0.6rem;
-    line-height: 1.4;
+    border-left: 1.5px solid transparent;
+    line-height: 1.45;
     transition:
-      color 150ms ease,
-      border-color 150ms ease;
+      color var(--transition),
+      border-color var(--transition);
   }
 
   .toc-link:hover,
   .toc-link.active {
-    color: var(--accent);
+    color: var(--text);
     border-left-color: var(--accent);
   }
 
+  .toc-link.active {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
   .toc-h3 .toc-link {
-    padding-left: 1.2rem;
-    font-size: 0.8rem;
+    padding-left: 1.45rem;
+    font-size: 0.82rem;
   }
 
   .toc-empty {
     margin: 0;
-    padding: 0.75rem 0.6rem;
+    padding: 0.5rem 0;
     color: var(--text-muted);
-    font-size: 0.8125rem;
-    text-align: center;
+    font-size: 0.8rem;
   }
 </style>

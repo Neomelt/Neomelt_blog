@@ -1,26 +1,23 @@
 ---
-import type { ImageMetadata } from "astro";
-import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "../../components/FormattedDate.astro";
 import { getDefaultUiText } from "../../i18n/ui";
 import { estimateReadingTime } from "../../utils/reading-time";
 import { getWalinePathForPost } from "../../utils/waline";
-import { coverForPost } from "../../utils/cover";
 import { postTitleTransition } from "../../utils/transition";
 import { withBase } from "../../utils/url";
 
-// Every arrangement's stylesheet, discovered rather than listed. They live in
-// src/arrangements/ because this card is the only thing they describe, and
-// globbing them here rather than in BaseLayout keeps them in this component's
-// CSS chunk - three pages render post cards, the other twenty-six should not
-// pay for the rules.
+// Keep arrangement stylesheets in this chunk for the layout contract.
 import.meta.glob("/src/arrangements/*.css", { eager: true });
 
 export interface Props {
   post: CollectionEntry<"blog">;
   /** Resolved publish date - callers already hold the post-dates map. */
   pubDate: Date;
+  /** Four-digit year string (used when filtering re-groups visible rows). */
+  year?: string;
+  /** Non-empty on the first post of a year group to render hanging year mark. */
+  yearMark?: string;
   showReadingTime?: boolean;
   showTags?: boolean;
   maxTags?: number;
@@ -29,6 +26,8 @@ export interface Props {
 const {
   post,
   pubDate,
+  year = String(pubDate.getFullYear()),
+  yearMark = "",
   showReadingTime = false,
   showTags = false,
   maxTags = 4,
@@ -40,74 +39,25 @@ const readingTime = showReadingTime
   ? estimateReadingTime(post.body || "")
   : null;
 const tags = showTags ? (post.data.tags ?? []).slice(0, maxTags) : [];
-
-// Cover art is decorative and deliberately unrelated to the post body.
-// Pulling the first body image was wrong: those are screenshots - a Clash
-// Verge dialog, a Gazebo viewport - which make poor decorative panels.
-//
-// Order: the post's own heroImage, then a deterministic pick from the
-// configured pool, then a generated gradient. heroImage is ignored when it
-// is the shared default, since every post points at the same cover.svg.
-const hero =
-  typeof post.data.heroImage === "object" && post.data.heroImage
-    ? (post.data.heroImage as ImageMetadata)
-    : null;
-
+const postType = post.data.type ?? "tech";
+const typeLabelKey = postType === "story" ? "common.essay" : "common.tech";
+const category = (post.data.category ?? "").trim();
 const title = post.data.title;
-
-// Keep the no-image state intentional instead of leaving an empty area. The
-// values are derived from the post id, so a fallback stays stable across
-// builds while still giving each article its own panel.
-const coverHash = [...post.id].reduce(
-  (hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0,
-  7,
-);
-const coverPick = (shift: number, modulo: number, base = 0) =>
-  base + ((coverHash >> shift) % modulo);
-const coverStyle = [
-  `--cover-angle: ${coverHash % 360}deg`,
-  `--bloom1-x: ${coverPick(2, 55, 15)}%`,
-  `--bloom1-y: ${coverPick(5, 45, 10)}%`,
-  `--bloom2-x: ${coverPick(8, 50, 45)}%`,
-  `--bloom2-y: ${coverPick(11, 45, 45)}%`,
-  `--cover-a: ${(0.42 + coverPick(14, 24) / 100).toFixed(2)}`,
-  `--cover-b: ${(0.16 + coverPick(17, 18) / 100).toFixed(2)}`,
-].join("; ");
-
-// heroImage is ignored when it is the shared default - every post points at
-// the same cover.svg, so honouring it would give identical thumbnails.
-const cover: ImageMetadata | null =
-  hero && !hero.src.includes("cover.svg") ? hero : await coverForPost(post.id);
 ---
 
-<a href={url} class="post-card">
-  <div
-    class:list={["post-cover", { "post-cover-fallback": !cover }]}
-    style={coverStyle}
-    aria-hidden="true"
-  >
-    {
-      cover && (
-        <Image
-          src={cover}
-          alt=""
-          widths={[420, 720, 1200]}
-          data-cover-lazy
-          loading="lazy"
-          decoding="async"
-        />
-      )
-    }
-    {
-      !cover && (
-        <span class="post-cover-fallback-mark">{title.slice(0, 1)}</span>
-      )
-    }
+<a
+  href={url}
+  class="post-card"
+  data-post-type={postType}
+  data-post-category={category}
+  data-post-year={year}
+>
+  <div class="post-card-margin" aria-hidden="true">
+    <span class="post-year-mark" data-year-mark>{yearMark}</span>
   </div>
 
   <div class="post-card-body">
-    <div class="post-card-meta">
-      <FormattedDate date={pubDate} />
+    <div class="post-card-headline">
       {
         post.data.pinned && (
           <span class="badge-pinned" data-i18n="common.pinned">
@@ -115,19 +65,14 @@ const cover: ImageMetadata | null =
           </span>
         )
       }
-      {
-        readingTime !== null && (
-          <span>
-            {readingTime}{" "}
-            <span data-i18n="common.minutes">
-              {getDefaultUiText("common.minutes")}
-            </span>
-          </span>
-        )
-      }
+      <div class="post-card-title" style={postTitleTransition(post.id)}>
+        {title}
+      </div>
+      <span class="post-card-leader" aria-hidden="true"></span>
+      <span class="post-card-date">
+        <FormattedDate date={pubDate} />
+      </span>
     </div>
-
-    <div class="post-card-title" style={postTitleTransition(post.id)}>{title}</div>
 
     {
       post.data.description && (
@@ -135,33 +80,63 @@ const cover: ImageMetadata | null =
       )
     }
 
-    <div class="post-card-stats">
-      <span class="waline-pageview-count" data-path={walinePath}>0</span>{" "}
-      <span data-i18n="common.views">{getDefaultUiText("common.views")}</span>
-      <span class="stats-sep">/</span>
-      <span class="waline-comment-count" data-path={walinePath}>0</span>{" "}
-      <span data-i18n="common.comments">
-        {getDefaultUiText("common.comments")}
+    <div class="post-card-meta">
+      <span class="post-card-date-mobile">
+        <FormattedDate date={pubDate} />
       </span>
-    </div>
+      <span class="post-card-kind">
+        <i class:list={["kind-dot", `is-${postType}`]} aria-hidden="true"></i>
+        <span data-i18n={typeLabelKey}>{getDefaultUiText(typeLabelKey)}</span>
+        {
+          category && (
+            <>
+              <span class="kind-sep">·</span>
+              <span>{category}</span>
+            </>
+          )
+        }
+      </span>
+      {
+        readingTime !== null && (
+          <>
+            <span class="meta-slash">/</span>
+            <span>
+              {readingTime}{" "}
+              <span data-i18n="common.minutes">
+                {getDefaultUiText("common.minutes")}
+              </span>
+            </span>
+          </>
+        )
+      }
+      <span class="meta-slash">/</span>
+      <span class="post-card-stats">
+        <span class="waline-pageview-count" data-path={walinePath}>0</span>{" "}
+        <span data-i18n="common.views">{getDefaultUiText("common.views")}</span>
+        <span class="stats-sep">·</span>
+        <span class="waline-comment-count" data-path={walinePath}>0</span>{" "}
+        <span data-i18n="common.comments">
+          {getDefaultUiText("common.comments")}
+        </span>
+      </span>
 
-    {
-      tags.length > 0 && (
-        <div class="post-card-tags">
-          {tags.map((tag: string) => (
-            <span class="tag">#{tag}</span>
-          ))}
-        </div>
-      )
-    }
+      {
+        tags.length > 0 && (
+          <>
+            <span class="meta-slash">/</span>
+            <span class="post-card-tags">
+              {tags.map((tag: string) => (
+                <span class="post-card-tag">#{tag}</span>
+              ))}
+            </span>
+          </>
+        )
+      }
+    </div>
   </div>
 </a>
 
 <style>
-  /* Both the frame and the thumbnail column come from the skin: minimal is a
-     divided list with a small square thumb, anime is a detached card with a
-     larger one. Setting --card-cover-size to 0 drops the column without any
-     markup change. */
   .post-card {
     position: relative;
     isolation: isolate;
@@ -181,21 +156,18 @@ const cover: ImageMetadata | null =
     text-decoration: none;
     color: inherit;
     transition:
+      opacity 220ms ease,
       transform var(--transition),
-      background-color var(--transition);
+      background-color var(--transition),
+      border-color var(--transition);
   }
 
-  /* Inside @supports: without backdrop-filter a translucent card would leave
-     text sitting straight on the artwork. */
   @supports (backdrop-filter: blur(1px)) {
     .post-card {
       -webkit-backdrop-filter: blur(var(--list-item-blur));
       backdrop-filter: blur(var(--list-item-blur));
     }
 
-    /* Blur is per-frame GPU work on every card. On a phone, where the
-       backdrop is already faded, it costs scrolling smoothness for an effect
-       nobody can see. */
     @media (max-width: 768px) {
       .post-card {
         -webkit-backdrop-filter: none;
@@ -209,116 +181,80 @@ const cover: ImageMetadata | null =
     background-color: rgba(var(--accent-rgb), var(--card-hover-tint));
   }
 
-  /* In a divided list the trailing hairline is redundant; in a card layout
-     the bottom edge is part of the frame. */
   .post-card:last-child {
     border-bottom-width: var(--list-item-border-width);
     margin-bottom: 0;
   }
 
-  /* Sits behind the text at partial opacity and masked away on its left
-     edge, so the copy never lands on busy artwork. The same panel also
-     carries the deterministic gradient when no image is available. */
-  .post-cover {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: 0;
-    width: var(--card-cover-width);
-    z-index: -1;
-    opacity: var(--card-cover-opacity);
-    display: grid;
-    place-items: center;
-    background-image:
-      radial-gradient(
-        circle at var(--bloom1-x) var(--bloom1-y),
-        rgba(var(--accent-rgb), var(--cover-a)) 0%,
-        rgba(var(--accent-rgb), 0) 58%
-      ),
-      radial-gradient(
-        circle at var(--bloom2-x) var(--bloom2-y),
-        rgba(var(--ink-rgb), var(--cover-b)) 0%,
-        rgba(var(--ink-rgb), 0) 55%
-      ),
-      linear-gradient(
-        var(--cover-angle),
-        rgba(var(--accent-rgb), 0.3),
-        rgba(var(--ink-rgb), 0.14)
-      );
-    background-color: var(--bg-code);
-    transition: opacity var(--transition);
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black var(--card-cover-fade)
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black var(--card-cover-fade)
-    );
+  .post-card-margin {
+    padding-top: 0.12rem;
   }
 
-  /* A missing cover still gets a visible, deterministic panel instead of an
-     empty hole. Keep it a little stronger than a real image, whose artwork
-     already carries its own contrast. */
-  .post-cover-fallback {
-    opacity: 0.52;
-  }
-
-  .post-cover-fallback-mark {
-    position: relative;
-    z-index: 1;
-    color: var(--bg-card);
-    font-size: clamp(2rem, 8vw, 4.5rem);
-    font-weight: 700;
-    line-height: 1;
-    opacity: 0.82;
-    text-shadow: 0 1px 2px rgba(var(--ink-rgb), 0.28);
-    user-select: none;
-  }
-
-  .post-card:hover .post-cover {
-    opacity: calc(var(--card-cover-opacity) * 1.45);
-  }
-
-  .post-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .post-year-mark {
     display: block;
+    font-family: var(--font-serif);
+    font-size: 1.32rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
   }
 
-  .post-card-meta {
+  .post-year-mark:empty {
+    display: none;
+  }
+
+  .post-card-headline {
     display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    flex-wrap: wrap;
-    font-size: 0.78rem;
-    /* Tabular figures so dates line up down the column. */
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
-    color: var(--text-muted);
-    margin-bottom: 0.55rem;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.42rem;
+    min-width: 0;
   }
 
   .post-card-title {
-    font-size: 1.28rem;
-    font-weight: 650;
-    line-height: 1.35;
+    font-family: var(--font-serif);
+    font-size: 1.22rem;
+    font-weight: 700;
+    line-height: 1.38;
     letter-spacing: -0.008em;
     color: var(--text);
-    margin-bottom: 0.4rem;
     transition: color var(--transition);
+    min-width: 0;
   }
 
   .post-card:hover .post-card-title {
     color: var(--accent);
   }
 
+  /* Dotted book leader connecting title and date */
+  .post-card-leader {
+    flex: 1;
+    min-width: 1.5rem;
+    border-bottom: 1px dotted var(--border);
+    position: relative;
+    top: -4px;
+  }
+
+  .post-card-date {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .post-card-date-mobile {
+    display: none;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
   .post-card-desc {
     font-size: 0.94rem;
     color: var(--text-muted);
-    line-height: 1.7;
+    line-height: 1.72;
+    margin-bottom: 0.58rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -326,37 +262,77 @@ const cover: ImageMetadata | null =
     overflow: hidden;
   }
 
-  /* Italics on a stats line reads as a template default; the references
-     keep this the same weight as the rest of the metadata. */
-  .post-card-stats {
-    margin-top: 0.6rem;
+  .post-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 0.77rem;
+    font-variant-numeric: tabular-nums;
     color: var(--text-muted);
-    font-size: 0.8rem;
+  }
+
+  .meta-slash {
+    opacity: 0.4;
+  }
+
+  .post-card-kind {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .kind-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .kind-dot.is-tech {
+    background: var(--accent);
+  }
+
+  .kind-dot.is-story {
+    background: var(--badge-text);
+  }
+
+  .kind-sep {
+    opacity: 0.5;
+  }
+
+  .post-card-stats {
+    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 
   .stats-sep {
-    margin: 0 0.35rem;
-    color: var(--text-muted);
+    margin: 0 0.25rem;
+    opacity: 0.55;
   }
 
   .post-card-tags {
-    display: flex;
+    display: inline-flex;
     flex-wrap: wrap;
-    gap: 0.45rem;
-    margin-top: 0.9rem;
+    gap: 0.25rem 0.5rem;
   }
 
-  /* On narrow screens the copy needs the full width, so the cover spans the
-     card and fades from the bottom instead of the side. */
-  @media (max-width: 560px) {
-    .post-cover {
-      width: 100%;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
-      mask-image: linear-gradient(to bottom, transparent 0%, black 70%);
+  .post-card-tag {
+    color: var(--text-muted);
+    opacity: 0.85;
+  }
+
+  @media (max-width: 640px) {
+    .post-card-leader,
+    .post-card-date {
+      display: none;
+    }
+
+    .post-card-date-mobile {
+      display: inline;
     }
   }
-
 
   @media (prefers-reduced-motion: reduce) {
     .post-card,
@@ -366,63 +342,3 @@ const cover: ImageMetadata | null =
     }
   }
 </style>
-
-<script>
-  /**
-   * Native lazy loading is normally enough, but it can defer an absolutely
-   * positioned card image after a page restores a non-zero scroll position.
-   * Observe the same cards ourselves and promote only images near the
-   * viewport. Off-screen cards stay lazy; visible cards get a deterministic
-   * load trigger instead of relying on the browser's distance heuristic.
-   */
-  function observeCoverImages() {
-    const images = Array.from(
-      document.querySelectorAll<HTMLImageElement>("img[data-cover-lazy]"),
-    ).filter((image) => !image.dataset.coverObserved);
-    if (images.length === 0) return;
-
-    if (!("IntersectionObserver" in window)) {
-      images.forEach((image) => {
-        promoteCoverImage(image);
-      });
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const image = entry.target as HTMLImageElement;
-          promoteCoverImage(image);
-          observer.unobserve(image);
-        });
-      },
-      { rootMargin: "400px 0px" },
-    );
-
-    images.forEach((image) => {
-      image.dataset.coverObserved = "watching";
-      observer.observe(image);
-    });
-  }
-
-  function promoteCoverImage(image: HTMLImageElement) {
-    // Changing loading after native lazy loading skipped a request is not
-    // sufficient in every browser. Replacing the node gives the near-viewport
-    // card a fresh eager request, while distant cards remain untouched.
-    if (image.naturalWidth > 0) {
-      image.dataset.coverObserved = "loaded";
-      return;
-    }
-    const replacement = image.cloneNode(true) as HTMLImageElement;
-    replacement.loading = "eager";
-    replacement.removeAttribute("data-cover-lazy");
-    replacement.dataset.coverObserved = "loaded";
-    image.replaceWith(replacement);
-  }
-
-  document.addEventListener("DOMContentLoaded", observeCoverImages, {
-    once: true,
-  });
-  document.addEventListener("astro:page-load", observeCoverImages);
-</script>

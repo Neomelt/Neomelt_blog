@@ -163,9 +163,9 @@ const primaryHostname = canonicalURL.hostname;
 >
   (() => {
     const MODE_KEY = "theme";
-    const SKIN_KEY = "skin";
-    const LAYOUT_KEY = "layout";
-    const DEFAULT_MODE = "dark";
+    const SKIN_KEY = "skin:v2";
+    const LAYOUT_KEY = "layout:v2";
+    const DEFAULT_MODE = "system";
     const THEME_MODES = ["system", "light", "dark"];
     const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -193,6 +193,11 @@ const primaryHostname = canonicalURL.hostname;
         // Ignore storage errors and still restore the in-memory DOM state.
       }
     };
+
+    // Drop pre-v2 cached skin/layout keys that previously locked visitors onto
+    // the legacy anime/feature defaults whenever they toggled dark/light mode.
+    removeStored("skin");
+    removeStored("layout");
 
     const syncThemeColor = (skin, mode) => {
       let meta = document.head.querySelector('meta[name="theme-color"]');
@@ -249,7 +254,11 @@ const primaryHostname = canonicalURL.hostname;
       return next;
     };
 
-    const apply = (skin, mode, { persist = true } = {}) => {
+    const apply = (
+      skin,
+      mode,
+      { persist = true, persistSkin = false } = {},
+    ) => {
       const nextPreference = THEME_MODES.includes(mode) ? mode : DEFAULT_MODE;
       const nextMode = resolveMode(nextPreference);
       const nextSkin = skinNames.includes(skin) ? skin : defaultSkin;
@@ -267,8 +276,20 @@ const primaryHostname = canonicalURL.hostname;
 
       if (persist) {
         writeStored(MODE_KEY, nextPreference);
+      }
+      if (persistSkin) {
         writeStored(SKIN_KEY, nextSkin);
       }
+      const dispatchedEventName = "site:theme-change";
+      document.dispatchEvent(
+        new CustomEvent(dispatchedEventName, {
+          detail: {
+            skin: nextSkin,
+            mode: nextMode,
+            preference: nextPreference,
+          },
+        }),
+      );
       document.dispatchEvent(
         new CustomEvent("site:skin-change", {
           detail: {
@@ -300,7 +321,7 @@ const primaryHostname = canonicalURL.hostname;
         return apply(getSkin(), next);
       },
       setSkin: (skin) => {
-        apply(skin, getMode());
+        apply(skin, getMode(), { persist: false, persistSkin: true });
         return skin;
       },
       getLayout,
@@ -310,7 +331,7 @@ const primaryHostname = canonicalURL.hostname;
         removeStored(MODE_KEY);
         removeStored(SKIN_KEY);
         removeStored(LAYOUT_KEY);
-        apply(defaultSkin, DEFAULT_MODE, { persist: false });
+        apply(defaultSkin, DEFAULT_MODE, { persist: false, persistSkin: false });
         applyLayout(defaultLayout, { persist: false });
       },
       cycleLayout: () => {
@@ -323,7 +344,7 @@ const primaryHostname = canonicalURL.hostname;
       cycleSkin: () => {
         const next =
           skinNames[(skinNames.indexOf(getSkin()) + 1) % skinNames.length];
-        apply(next, getMode());
+        apply(next, getMode(), { persist: false, persistSkin: true });
         return next;
       },
     };

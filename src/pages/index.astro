@@ -3,12 +3,14 @@ import { getCollection } from "astro:content";
 import PostCard from "../blocks/view/PostCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { SITE_TITLE } from "../consts";
+import { getDefaultUiText } from "../i18n/ui";
 import { getPostDateKey, resolvePostDatesMap } from "../utils/post-dates";
-import { DEFAULT_LOCALE, UI_TRANSLATIONS } from "../i18n/ui";
+import { TELEGRAM_LOG_ENABLED } from "../utils/telegram-log";
 import { withBase } from "../utils/url";
 
 const posts = await getCollection("blog", ({ data }) => !data.hidden);
 const postDatesMap = await resolvePostDatesMap(posts);
+const logPosts = TELEGRAM_LOG_ENABLED ? await getCollection("log") : [];
 
 posts.sort((a, b) => {
   if (a.data.pinned && !b.data.pinned) return -1;
@@ -18,34 +20,114 @@ posts.sort((a, b) => {
   return bDate.valueOf() - aDate.valueOf();
 });
 
-const recentPosts = posts.slice(0, 5);
-const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
+const recentPosts = posts.slice(0, 7);
+
+const latestLog = [...logPosts]
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .find((entry) => entry.data.text.trim().length > 0);
+const latestLogSnippet = latestLog
+  ? latestLog.data.text.replace(/\s+/g, " ").trim().slice(0, 82) +
+    (latestLog.data.text.trim().length > 82 ? "…" : "")
+  : "";
 ---
 
 <BaseLayout title={SITE_TITLE}>
   <main>
     <div class="container">
-      <!-- Recent posts -->
-      <section>
+      <!-- Editorial Running Book Header (文武双线书眉) -->
+      <div class="running-head">
+        <span data-i18n="index.runningLeft">
+          {getDefaultUiText("index.runningLeft")}
+        </span>
+        <span class="running-head-right" data-i18n="index.runningRight">
+          {getDefaultUiText("index.runningRight")}
+        </span>
+      </div>
+
+      <!-- 2-Column Editorial Frontispiece: Intro (Left) + Daily Marginalia (Right) -->
+      <section class:list={["hero-block", { "has-marginalia": Boolean(latestLogSnippet) }]}>
+        <div class="hero-main">
+          <h1 class="hero-title" data-i18n="index.heroTitle">
+            {getDefaultUiText("index.heroTitle")}
+          </h1>
+          <div class="hero-copy">
+            <p data-i18n="index.heroIntro1">
+              {getDefaultUiText("index.heroIntro1")}
+            </p>
+            <p data-i18n="index.heroIntro2">
+              {getDefaultUiText("index.heroIntro2")}
+            </p>
+          </div>
+        </div>
+
+        {
+          latestLogSnippet && (
+            <aside class="daily-marginalia">
+              <div class="marginalia-head">
+                <span class="marginalia-pulse" aria-hidden="true" />
+                <span class="marginalia-tag" data-i18n="index.marginaliaLabel">
+                  {getDefaultUiText("index.marginaliaLabel")}
+                </span>
+              </div>
+              <p class="marginalia-body">{latestLogSnippet}</p>
+              <a
+                href={withBase("/log")}
+                class="marginalia-more"
+                data-i18n="home.logMore"
+              >
+                {getDefaultUiText("home.logMore")}
+              </a>
+            </aside>
+          )
+        }
+      </section>
+
+      <!-- Recent Posts with Hanging Year Margin & Spotlight Focus -->
+      <section class="recent-section">
         <div class="section-header">
-          <h2 class="section-heading" data-i18n="index.recentPosts">
-            {fallbackText["index.recentPosts"]}
-          </h2>
-          <a href={withBase("/posts")} class="view-all" data-i18n="index.viewAll"
-            >{fallbackText["index.viewAll"]}</a
+          <div class="section-title-group">
+            <h2 class="recent-heading" data-i18n="index.recentPosts">
+              {getDefaultUiText("index.recentPosts")}
+            </h2>
+            <span class="recent-count">({posts.length})</span>
+          </div>
+          <a
+            href={withBase("/posts")}
+            class="view-all"
+            data-i18n="index.viewAll"
           >
+            {getDefaultUiText("index.viewAll")}
+          </a>
         </div>
 
         <div class="post-list">
           {
-            recentPosts.map((post) => (
-              <PostCard
-                post={post}
-                pubDate={
-                  postDatesMap.get(getPostDateKey(post))?.pubDate ?? post.data.pubDate
-                }
-              />
-            ))
+            recentPosts.map((post, idx) => {
+              const pubDate =
+                postDatesMap.get(getPostDateKey(post))?.pubDate ??
+                post.data.pubDate;
+              const year = String(pubDate.getFullYear());
+              const prevPubDate =
+                idx > 0
+                  ? (postDatesMap.get(getPostDateKey(recentPosts[idx - 1]!))
+                      ?.pubDate ?? recentPosts[idx - 1]!.data.pubDate)
+                  : null;
+              const prevYear = prevPubDate
+                ? String(prevPubDate.getFullYear())
+                : null;
+              const yearMark = year !== prevYear ? year : "";
+
+              return (
+                <PostCard
+                  post={post}
+                  pubDate={pubDate}
+                  year={year}
+                  yearMark={yearMark}
+                  showReadingTime
+                  showTags
+                />
+              );
+            })
           }
         </div>
       </section>
@@ -54,15 +136,172 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
 </BaseLayout>
 
 <style>
+  /* Running Book Header (文武双线书眉) */
+  .running-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.46rem 0;
+    margin-bottom: 2.15rem;
+    font-family: var(--font-serif);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    border-top: 2px solid var(--text);
+    border-bottom: 1px solid var(--text);
+  }
+
+  .running-head-right {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  /* 2-Column Editorial Frontispiece (卷首语 + 右侧页边日常并立) */
+  .hero-block {
+    margin-bottom: 2.75rem;
+    padding-bottom: 2.15rem;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .hero-block.has-marginalia {
+    display: grid;
+    grid-template-columns: 1.35fr 0.85fr;
+    gap: 2.4rem;
+    align-items: start;
+  }
+
+  .hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(1.85rem, 2.8vw, 2.35rem);
+    font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: -0.012em;
+    color: var(--text);
+    margin: 0 0 0.9rem;
+  }
+
+  .hero-copy p {
+    margin: 0 0 0.65rem;
+    font-size: 0.98rem;
+    line-height: 1.82;
+    color: var(--text-muted);
+  }
+
+  .hero-copy p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Right-hand Daily Marginalia (页边批注) */
+  .daily-marginalia {
+    position: relative;
+    margin-top: 0.2rem;
+    padding: 0.15rem 0 0.15rem 1.4rem;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .daily-marginalia::before {
+    content: "“";
+    position: absolute;
+    top: -0.55rem;
+    left: 0.35rem;
+    font-family: var(--font-serif);
+    font-size: 2.35rem;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.42;
+    pointer-events: none;
+  }
+
+  .marginalia-head {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .marginalia-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: marginaliaBlink 2.4s infinite ease-in-out;
+  }
+
+  @keyframes marginaliaBlink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.28;
+    }
+  }
+
+  .marginalia-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+  }
+
+  .marginalia-body {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.72;
+    color: var(--text);
+  }
+
+  .marginalia-more {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    align-self: flex-start;
+    transition: color var(--transition);
+  }
+
+  .marginalia-more:hover {
+    color: var(--accent);
+  }
+
+  /* Recent Posts Header */
   .section-header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .section-title-group {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .recent-heading {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .recent-count {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    opacity: 0.75;
   }
 
   .view-all {
-    font-size: 0.875rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
     color: var(--text-muted);
     text-decoration: none;
     transition: color var(--transition);
@@ -72,4 +311,14 @@ const fallbackText = UI_TRANSLATIONS[DEFAULT_LOCALE];
     color: var(--accent);
   }
 
+  @media (max-width: 780px) {
+    .hero-block.has-marginalia {
+      grid-template-columns: 1fr;
+      gap: 1.35rem;
+    }
+
+    .daily-marginalia {
+      margin-top: 0;
+    }
+  }
 </style>

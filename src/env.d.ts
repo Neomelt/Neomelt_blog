@@ -57,6 +57,8 @@ interface Window {
   /** Listener slots, held so the next navigation can remove the last one. */
   __headerThemeHandler?: EventListener;
   __headerLocaleHandler?: EventListener;
+  __headerScrollHandler?: EventListener;
+  __sidebarThemeHandler?: EventListener;
   __searchLocaleHandler?: EventListener;
   __searchKeydownHandler?: EventListener;
   __readerLocaleHandler?: EventListener;

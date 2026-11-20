@@ -1,5 +1,5 @@
 ---
-import { SITE_TITLE } from "../consts";
+import { SITE_EMAIL, SITE_TITLE } from "../consts";
 import { FRIEND_LINKS } from "../data/friends";
 import { getDefaultUiText } from "../i18n/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
@@ -51,7 +51,7 @@ const myFriendLinkText = myFriendLinkItems
         <a href={withBase("/")} data-i18n="common.home"
           >{getDefaultUiText("common.home")}</a
         >
-        <span>›</span>
+        <span class="breadcrumb-sep">/</span>
         <span data-i18n="friends.pageCrumb"
           >{getDefaultUiText("friends.pageCrumb")}</span
         >
@@ -189,7 +189,7 @@ const myFriendLinkText = myFriendLinkItems
 
         <div class="apply-actions">
           <a
-            href="mailto:3212929002@qq.com"
+            href={`mailto:${SITE_EMAIL}`}
             class="apply-btn apply-btn-primary"
           >
             <span class="apply-btn-icon" aria-hidden="true">✉</span>
@@ -239,25 +239,6 @@ const myFriendLinkText = myFriendLinkItems
 </BaseLayout>
 
 <style>
-  .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin-bottom: 2rem;
-    }
-
-  .breadcrumb a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color var(--transition);
-    }
-
-  .breadcrumb a:hover {
-      color: var(--accent);
-    }
-
   .friends-header {
       margin-bottom: 1.5rem;
     }
@@ -282,11 +263,10 @@ const myFriendLinkText = myFriendLinkItems
     }
 
   .friends-section {
-      margin-top: 1.25rem;
-      padding: 1.25rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      background: var(--bg-card);
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      background: transparent;
     }
 
   .friends-section h2 {
@@ -320,40 +300,33 @@ const myFriendLinkText = myFriendLinkItems
       margin: 0;
       padding: 0;
       display: grid;
-      gap: 0.9rem;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.2rem 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     }
 
   .friend-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      background: var(--bg);
-      transition:
-        border-color var(--transition),
-        transform var(--transition);
-    }
-
-  .friend-card:hover {
-      transform: translateY(-1px);
-      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--border) 68%, transparent);
+      background: transparent;
     }
 
   .friend-link {
       display: flex;
-      gap: 0.75rem;
-      padding: 0.9rem;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.85rem 0;
       text-decoration: none;
       color: inherit;
     }
 
-  .friend-link:hover {
-      color: inherit;
+  .friend-link:hover h3 {
+      color: var(--accent);
     }
 
   .friend-avatar {
-      width: 52px;
-      height: 52px;
-      border-radius: var(--radius-card);
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
       border: 1px solid var(--border);
       object-fit: cover;
       flex-shrink: 0;
@@ -368,45 +341,38 @@ const myFriendLinkText = myFriendLinkItems
     }
 
   .friend-meta h3 {
-      margin: 0 0 0.25rem;
-      font-size: 1.05rem;
+      margin: 0 0 0.2rem;
+      font-size: 1rem;
       line-height: 1.3;
+      transition: color var(--transition);
     }
 
   .friend-meta p {
       margin: 0;
       color: var(--text-muted);
-      font-size: 0.94rem;
+      font-size: 0.9rem;
       line-height: 1.5;
     }
 
   .friend-tags {
-      margin-top: 0.45rem;
+      margin-top: 0.35rem;
       display: flex;
       flex-wrap: wrap;
-      gap: 0.4rem;
+      gap: 0.35rem 0.6rem;
     }
 
   .friend-tag {
       font-size: 0.76rem;
-      line-height: 1;
-      padding: 0.3rem 0.5rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border);
+      line-height: 1.2;
+      padding: 0;
       color: var(--text-muted);
-      background: var(--bg-card);
+      opacity: 0.8;
     }
 
   .self-link-card {
-      margin-bottom: 1rem;
-      padding: 0.95rem;
-      border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
-      border-radius: var(--radius-card);
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--accent) 9%, var(--bg-card)) 0%,
-        var(--bg) 100%
-      );
+      margin-bottom: 1.25rem;
+      padding: 0;
+      background: transparent;
     }
 
   .self-link-head {
@@ -433,32 +399,28 @@ const myFriendLinkText = myFriendLinkItems
       margin: 0;
       padding: 0;
       list-style: none;
-      display: grid;
-      gap: 0.42rem;
+      border-top: 1px solid var(--border);
     }
 
   .self-link-row {
       width: 100%;
       display: grid;
-      grid-template-columns: 56px 1fr auto;
+      grid-template-columns: 64px 1fr auto;
       align-items: center;
       gap: 0.62rem;
-      padding: 0.56rem 0.68rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--bg);
+      padding: 0.6rem 0;
+      border: none;
+      border-bottom: 1px solid
+        color-mix(in srgb, var(--border) 68%, transparent);
+      background: transparent;
       color: inherit;
       text-align: left;
       cursor: pointer;
-      transition:
-        border-color var(--transition),
-        background var(--transition),
-        transform var(--transition);
+      transition: color var(--transition);
     }
 
   .self-link-row:hover {
-      border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-      transform: translateY(-1px);
+      color: var(--accent);
     }
 
   .self-link-row:focus-visible {
@@ -467,12 +429,14 @@ const myFriendLinkText = myFriendLinkItems
     }
 
   .self-link-label {
-      font-size: 0.84rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
       color: var(--text-muted);
     }
 
   .self-link-value {
       min-width: 0;
+      font-family: var(--font-mono);
       font-size: 0.82rem;
       line-height: 1.4;
       color: var(--text);
@@ -482,12 +446,9 @@ const myFriendLinkText = myFriendLinkItems
     }
 
   .self-link-copy {
-      padding: 0.18rem 0.5rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      font-size: 0.74rem;
+      padding: 0;
+      font-size: 0.76rem;
       color: var(--text-muted);
-      background: var(--bg-card);
       white-space: nowrap;
     }
 
@@ -496,15 +457,15 @@ const myFriendLinkText = myFriendLinkItems
       align-items: center;
       gap: 0.35rem;
       border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 0.3rem 0.7rem;
-      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 0.28rem 0.65rem;
+      background: transparent;
       color: var(--text);
+      font-size: 0.84rem;
       cursor: pointer;
       transition:
         border-color var(--transition),
-        color var(--transition),
-        background var(--transition);
+        color var(--transition);
     }
 
   .copy-all-btn:hover {
@@ -536,58 +497,42 @@ const myFriendLinkText = myFriendLinkItems
       align-items: center;
       justify-content: center;
       gap: 0.42rem;
-      min-width: 150px;
-      padding: 0.64rem 1.02rem;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border);
-      font-weight: 700;
-      font-size: 0.94rem;
+      min-width: 132px;
+      padding: 0.48rem 0.95rem;
+      border-radius: var(--radius-sm);
+      border: var(--border-width) solid var(--border);
+      font-weight: 500;
+      font-size: 0.88rem;
       letter-spacing: 0.01em;
       text-decoration: none;
-      box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
       transition:
-        transform var(--transition),
-        background var(--transition),
+        background-color var(--transition),
         border-color var(--transition),
-        color var(--transition),
-        box-shadow var(--transition);
+        color var(--transition);
     }
 
   .apply-btn-primary {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--accent) 92%, #fff) 0%,
-        color-mix(in srgb, var(--accent-hover) 85%, #111) 100%
-      );
-      border-color: color-mix(in srgb, var(--accent) 75%, var(--border));
-      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-contrast);
     }
 
   .apply-btn-primary:hover {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--accent-hover) 95%, #fff) 0%,
-        color-mix(in srgb, var(--accent-hover) 90%, #111) 100%
-      );
-      color: #fff;
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: var(--accent-contrast);
       transform: translateY(-1px);
-      box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
     }
 
   .apply-btn-secondary {
-      background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--bg-card) 80%, #000) 0%,
-        var(--bg) 100%
-      );
+      background: var(--bg-card);
       color: var(--text);
     }
 
   .apply-btn-secondary:hover {
-      border-color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 56%, var(--border));
       color: var(--accent);
       transform: translateY(-1px);
-      box-shadow: 0 11px 24px rgba(0, 0, 0, 0.24);
     }
 
   .apply-btn:focus-visible {

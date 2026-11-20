@@ -80,34 +80,38 @@ const compact = (n: number): string =>
 
 <style>
   .stats-title {
-    margin: 0 0 0.7rem;
-    font-size: calc(0.95rem * var(--widget-scale, 1));
+    margin: 0 0 0.65rem;
+    font-size: calc(0.88rem * var(--widget-scale, 1));
     font-weight: 600;
     color: var(--text);
   }
 
   .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.55rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.48rem;
     margin: 0;
   }
 
   .stats-cell {
-    text-align: center;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .stats-cell dt {
-    font-size: calc(0.72rem * var(--widget-scale, 1));
+    font-size: calc(0.82rem * var(--widget-scale, 1));
     color: var(--text-muted);
-    margin-bottom: 0.15rem;
+    margin: 0;
   }
 
   .stats-cell dd {
     margin: 0;
-    font-size: calc(1.15rem * var(--widget-scale, 1));
-    font-weight: 600;
-    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: calc(0.85rem * var(--widget-scale, 1));
+    font-weight: 500;
+    color: var(--text);
     font-variant-numeric: tabular-nums;
   }
 </style>

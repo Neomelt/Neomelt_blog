@@ -1,0 +1,532 @@
+---
+import { SITE_TITLE } from "../../consts";
+import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
+import { profile } from "../../site.config";
+import { TELEGRAM_LOG_ENABLED } from "../../utils/telegram-log";
+import { withBase } from "../../utils/url";
+
+interface NavEntry {
+  href: string;
+  labelKey: UiTranslationKey;
+}
+
+const navEntries: NavEntry[] = [
+  { href: withBase("/"), labelKey: "common.home" },
+  { href: withBase("/posts"), labelKey: "header.posts" },
+  ...(TELEGRAM_LOG_ENABLED
+    ? [{ href: withBase("/log"), labelKey: "header.log" as const }]
+    : []),
+  { href: withBase("/posts/archive"), labelKey: "header.archive" },
+  { href: withBase("/tags"), labelKey: "header.tags" },
+  { href: withBase("/friends"), labelKey: "header.friends" },
+  { href: withBase("/about"), labelKey: "header.about" },
+];
+
+const SOCIAL_ICONS: Record<string, string> = {
+  github:
+    "M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z",
+  bilibili:
+    "M4.7 1.3a1 1 0 0 1 1.4 0L8 3.2l1.9-1.9a1 1 0 0 1 1.4 1.4l-.5.5H13a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H3a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3h2.2l-.5-.5a1 1 0 0 1 0-1.4ZM3 5.2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H3Zm2 2.3a.9.9 0 0 1 .9.9v1.2a.9.9 0 1 1-1.8 0V8.4a.9.9 0 0 1 .9-.9Zm6 0a.9.9 0 0 1 .9.9v1.2a.9.9 0 1 1-1.8 0V8.4a.9.9 0 0 1 .9-.9Z",
+  mail: "M2 3h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm.6 1.6L8 8.4l5.4-3.8H2.6Zm10.8 1.2L8.3 9.5a.5.5 0 0 1-.6 0L2.6 5.8V12h10.8V5.8Z",
+};
+---
+
+<div class="snav">
+  <div class="snav-top">
+    <!-- Brand masthead: round avatar + serif title + italic motto -->
+    <a href={withBase("/")} class="snav-brand">
+      <img
+        class="snav-avatar"
+        src={withBase(profile.avatar)}
+        alt={profile.name}
+        width="46"
+        height="46"
+        decoding="async"
+      />
+      <div class="snav-brand-text">
+        <span class="snav-title">{SITE_TITLE}</span>
+        <span class="snav-bio" data-i18n={profile.bioKey}>
+          {getDefaultUiText(profile.bioKey)}
+        </span>
+      </div>
+    </a>
+
+    <!-- Minimalist bottom-hairline search trigger -->
+    <button
+      type="button"
+      class="snav-search"
+      data-snav-search
+      data-i18n-aria-label="header.searchAria"
+      aria-label={getDefaultUiText("header.searchAria")}
+    >
+      <span class="snav-search-left">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <span data-i18n="search.title">
+          {getDefaultUiText("search.title")}
+        </span>
+      </span>
+      <kbd class="snav-kbd">Ctrl+K</kbd>
+    </button>
+
+    <!-- Editorial TOC-style vertical navigation -->
+    <nav
+      class="snav-menu"
+      data-i18n-aria-label="header.mainNavAria"
+      aria-label={getDefaultUiText("header.mainNavAria")}
+    >
+      {
+        navEntries.map((entry) => (
+          <a href={entry.href} class="snav-link">
+            <span class="snav-mark" aria-hidden="true">
+              §
+            </span>
+            <span data-i18n={entry.labelKey}>
+              {getDefaultUiText(entry.labelKey)}
+            </span>
+            <span class="snav-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <!-- Bottom dock: hairline top + 3-state theme switcher + utility & social icons -->
+  <div class="snav-bottom">
+    <div class="snav-theme-group" role="group" aria-label="Theme">
+      <button
+        type="button"
+        class="snav-theme-btn"
+        data-snav-theme="light"
+        aria-label="Light"
+        title="Light"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="snav-theme-btn"
+        data-snav-theme="system"
+        aria-label="System"
+        title="System"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+          <path d="M8 21h8M12 17v4"></path>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="snav-theme-btn"
+        data-snav-theme="dark"
+        aria-label="Dark"
+        title="Dark"
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="snav-icons">
+      <button
+        type="button"
+        class="snav-icon-btn"
+        data-snav-locale
+        data-i18n-aria-label="header.languageAria"
+        aria-label={getDefaultUiText("header.languageAria")}
+        title={getDefaultUiText("header.languageAria")}
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"></path>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="snav-icon-btn"
+        data-snav-reader
+        data-i18n-aria-label="header.settingsAria"
+        aria-label={getDefaultUiText("header.settingsAria")}
+        title={getDefaultUiText("header.settingsAria")}
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9">
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
+          <circle cx="9" cy="6" r="2" fill="var(--bg)" stroke="currentColor"></circle>
+          <circle cx="15" cy="12" r="2" fill="var(--bg)" stroke="currentColor"></circle>
+          <circle cx="10" cy="18" r="2" fill="var(--bg)" stroke="currentColor"></circle>
+        </svg>
+      </button>
+
+      {
+        profile.links.map((link) => (
+          <a
+            href={link.url}
+            class="snav-icon-btn"
+            aria-label={link.label}
+            title={link.label}
+            {...(link.url.startsWith("http")
+              ? { target: "_blank", rel: "noopener" }
+              : {})}
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d={SOCIAL_ICONS[link.icon] ?? SOCIAL_ICONS.mail}
+              />
+            </svg>
+          </a>
+        ))
+      }
+
+      <a
+        href={withBase("/rss.xml")}
+        class="snav-icon-btn"
+        aria-label="RSS"
+        title="RSS"
+      >
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 11a9 9 0 0 1 9 9"></path>
+          <path d="M4 4a16 16 0 0 1 16 16"></path>
+          <circle cx="5" cy="19" r="1" fill="currentColor" stroke="none"></circle>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initSidebarNav() {
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
+
+    document.querySelectorAll<HTMLAnchorElement>(".snav-link").forEach((link) => {
+      const rawHref = (link.getAttribute("href") || "").replace(/\/+$/, "") || "/";
+      let active = false;
+      if (rawHref === "/") {
+        active = path === "/";
+      } else if (rawHref.endsWith("/posts")) {
+        active =
+          path === rawHref ||
+          (path.startsWith(`${rawHref}/`) && !path.startsWith(`${rawHref}/archive`));
+      } else {
+        active = path === rawHref || path.startsWith(`${rawHref}/`);
+      }
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+
+    document.querySelectorAll<HTMLElement>("[data-snav-search]").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        document.getElementById("search-toggle")?.click();
+      });
+    });
+
+    document.querySelectorAll<HTMLElement>("[data-snav-locale]").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        window.__siteI18n?.toggleLocale?.();
+      });
+    });
+
+    document.querySelectorAll<HTMLElement>("[data-snav-reader]").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        document.getElementById("settings-toggle")?.click();
+      });
+    });
+
+    const syncThemeButtons = () => {
+      const mode = window.__siteTheme?.getTheme?.() || "system";
+      document
+        .querySelectorAll<HTMLButtonElement>("[data-snav-theme]")
+        .forEach((btn) => {
+          const active = btn.dataset.snavTheme === mode;
+          btn.classList.toggle("is-active", active);
+          btn.setAttribute("aria-pressed", String(active));
+        });
+    };
+
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-snav-theme]")
+      .forEach((btn) => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = "true";
+        btn.addEventListener("click", () => {
+          const mode = btn.dataset.snavTheme;
+          if (mode) window.__siteTheme?.applyTheme?.(mode);
+          syncThemeButtons();
+        });
+      });
+
+    const previous = window.__sidebarThemeHandler;
+    if (previous) {
+      document.removeEventListener("site:theme-change", previous);
+    }
+    document.addEventListener("site:theme-change", syncThemeButtons);
+    window.__sidebarThemeHandler = syncThemeButtons;
+    syncThemeButtons();
+  }
+
+  document.addEventListener("DOMContentLoaded", initSidebarNav);
+  document.addEventListener("astro:page-load", initSidebarNav);
+</script>
+
+<style>
+  .snav {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: calc(100dvh - 3.5rem);
+    gap: 1.5rem;
+  }
+
+  .snav-top {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .snav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.1rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .snav-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .snav-brand-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .snav-title {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--transition);
+  }
+
+  .snav-brand:hover .snav-title {
+    color: var(--accent);
+  }
+
+  .snav-bio {
+    font-size: 0.74rem;
+    font-style: italic;
+    line-height: 1.35;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Editorial underlined search trigger */
+  .snav-search {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    margin: 1.3rem 0 1.05rem;
+    padding: 0.45rem 0.1rem;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition:
+      border-color var(--transition),
+      color var(--transition);
+  }
+
+  .snav-search:hover {
+    border-bottom-color: var(--accent);
+    color: var(--text);
+  }
+
+  .snav-search-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.48rem;
+  }
+
+  .snav-kbd {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    line-height: 1;
+    padding: 0.14rem 0.34rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    color: var(--text-muted);
+    background: var(--bg);
+  }
+
+  /* Literary TOC-style vertical menu */
+  .snav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  .snav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.46rem 0.15rem;
+    color: var(--text-muted);
+    font-family: var(--font-serif);
+    font-size: 0.96rem;
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+
+  .snav-mark {
+    display: none;
+    font-family: var(--font-serif);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .snav-arrow {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--transition),
+      transform var(--transition);
+  }
+
+  .snav-link:hover {
+    color: var(--text);
+  }
+
+  .snav-link:hover .snav-arrow,
+  .snav-link.is-active .snav-arrow {
+    opacity: 0.82;
+    transform: translateX(0);
+  }
+
+  .snav-link.is-active {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .snav-link.is-active .snav-mark {
+    display: inline;
+  }
+
+  /* Bottom dock */
+  .snav-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .snav-theme-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.18rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: transparent;
+  }
+
+  .snav-theme-btn {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.55rem;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition:
+      background-color var(--transition),
+      color var(--transition);
+  }
+
+  .snav-theme-btn:hover {
+    color: var(--text);
+  }
+
+  .snav-theme-btn.is-active {
+    background: var(--bg-card);
+    color: var(--accent);
+  }
+
+  .snav-icons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
+
+  .snav-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color var(--transition),
+      background-color var(--transition);
+  }
+
+  .snav-icon-btn:hover {
+    color: var(--accent);
+    background: var(--bg-card);
+  }
+</style>

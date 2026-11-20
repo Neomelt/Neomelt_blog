@@ -1,4 +1,5 @@
 import type { SiteLayout } from "./types/layout";
+import { SITE_EMAIL } from "./consts";
 
 /**
  * The assembly file. What the site is made of, and which skin paints it.
@@ -22,8 +23,8 @@ import type { ImageMetadata } from "astro";
  * (scripts/fetch-covers.mjs does it for you) and they are picked up here with
  * no edit - each post maps to one deterministically from its title.
  *
- * Empty directory means no covers, and cards fall back to a text-only layout
- * rather than a generated stand-in.
+ * Empty directory means no covers, and cards fall back to a deterministic
+ * gradient panel derived from the post id.
  */
 const coverModules = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/covers/*.{webp,jpg,jpeg,png,avif}",
@@ -57,7 +58,7 @@ export const profile = {
       url: "https://space.bilibili.com/1025251137",
       icon: "bilibili",
     },
-    { label: "Email", url: "mailto:3212929002@qq.com", icon: "mail" },
+    { label: "Email", url: `mailto:${SITE_EMAIL}`, icon: "mail" },
   ],
 } as const;
 
@@ -93,22 +94,14 @@ export const telegramLog = {
 };
 
 export const siteLayout = {
-  // The skin a first-time visitor gets. Anyone who has picked one in the
-  // reading panel keeps their choice - it lives in localStorage and wins.
-  // Switching this to anime also brings the backdrop with it: that placement
-  // carries skins: ["anime"], so the illustration is part of the default now.
-  skin: "anime",
-  layout: "feature",
+  // Default to the crisp, wallpaper-free minimal skin with inset thumbnails.
+  // Visitors who prefer the illustrated glass skin can still switch in the
+  // reading panel.
+  skin: "minimal",
+  layout: "list",
 
   regions: {
     backdrop: [
-      // Rendered under every skin, shown only under anime. See `skins` in
-      // src/types/layout.ts for why this is not a build-time exclusion.
-      // overlay is left to the skin: it differs between light and dark, and a
-      // value here would pin both to one.
-      // Both image indexes address bannerPool (sorted by filename); the
-      // light variant uses a brighter illustration while dark keeps the city.
-      // Dropping a file that sorts earlier shifts every index after it.
       {
         use: "decor/Backdrop",
         props: { imageIndex: 1, lightImageIndex: 0, blur: 2 },
@@ -116,34 +109,14 @@ export const siteLayout = {
       },
     ],
 
-    // Between the header and the content. An oversized masthead is the
-    // loudest single move a skin can make, and no token expresses it - the
-    // element either exists or it does not - so it lives here.
-    // Empty: the artwork is the backdrop now, and a banner would put the
-    // same picture on screen twice. Put chrome/Banner back here for a
-    // masthead instead.
     masthead: [],
 
-    // BlogPost keeps these widgets in the left rail. Its table of contents
-    // has a separate right rail on wide screens, so the profile and player
-    // remain visible instead of being replaced by navigation.
-    // MusicPlayer belongs on this side: BlogPost does not render asideEnd,
-    // and the player should not disappear when a visitor opens an article.
-    // It renders nothing while playlist.ts is empty.
-    asideStart: [
-      "widget/Profile",
-      "widget/BlogStats",
-      // MusicPlayer removed from the rail; re-add with
-      // { use: "widget/MusicPlayer", props: { volume: 0.6 } }.
-    ],
+    asideStart: ["widget/SidebarNav"],
 
-    // Right column. Splitting the widgets across both sides is what fills a
-    // wide screen - a single column leaves 41% of a 2560px display empty
-    // however wide the shell gets, because the text cannot keep growing.
-    // Moving a widget between columns is moving one line.
     asideEnd: [
+      "widget/WritingPulse",
+      "widget/BlogStats",
       { use: "widget/TagCloud", props: { limit: 18 } },
-      "widget/Calendar",
     ],
 
     floating: [
