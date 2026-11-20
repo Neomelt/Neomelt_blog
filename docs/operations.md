@@ -15,7 +15,7 @@ npm run dev
 
 ## 本地音乐库
 
-侧栏 `MusicPlayer` 从 `src/data/playlist.ts` 读取曲目，音频文件放在
+`widget/MusicPlayer`（已在 `src/blocks/registry.ts` 登记，需要时加入 `src/site.config.ts` 的侧栏区域即可显示）从 `src/data/playlist.ts` 读取曲目，音频文件放在
 `public/music/library/`，随静态站点一起发布。添加曲目时，把音频文件复制到该目录，并在
 `PLAYLIST` 中登记：
 
@@ -38,30 +38,28 @@ cp ~/Music/歌曲名.mp3 public/music/library/
 推送音乐文件会把它们写进 Git 历史；部署站点时，`public/` 中的音频会成为可直接访问的
 静态资源。批量同步前应检查远端仓库和站点的存储、分发策略。
 
-## 架构速览（v2.1）
+## 架构速览（v2.3）
 
-站点是 Astro 7 的静态构建：内容、配置和三个登记表进入构建管线，输出静态 HTML、共享的 hash JS/CSS 模块、优化后的图片，以及搜索/RSS/站点地图等派生文件。浏览器端不重新渲染文章，只运行主题、i18n、阅读设置、搜索、灯箱和评论等交互。
+站点是 Astro 7 的静态构建：内容、配置和三个登记表进入构建管线，输出 30 个静态路由页面、共享的 hash JS/CSS 模块、优化后的图片，以及搜索/RSS/站点地图/日常指纹等派生文件。浏览器端不重新渲染文章，只运行主题、i18n、阅读设置、搜索、缩放灯箱和评论等交互。
 
-- `src/blocks/registry.ts`：可放进区域的 block（大多数 widget/decor，以及少数 chrome/behavior）。固定 chrome、全局行为和需要页面数据的 view/widget 仍由各 layout/page 直接挂载。
-- `src/skins/index.ts`：皮肤名与 theme-color 的唯一登记处；token 在 `src/skins/<name>/tokens.css`。
-- `src/arrangements/index.ts`：文章列表排版的唯一登记处；规则在 `src/arrangements/<name>.css`。
-- `src/site.config.ts`：把 block、皮肤和排版装配到页面区域；当前默认是 anime + feature，anime 下启用 backdrop。
+- `src/blocks/registry.ts`：可放进区域的 14 个 block（含桌面常驻左栏 `widget/SidebarNav`、近 12 个月写作柱状刻度 `widget/WritingPulse`、`widget/BlogStats`、`widget/TagCloud`、`behavior/ImageLightbox` 等）。固定 chrome、全局行为和需要页面专属数据的 view/widget（如 `TableOfContents`）仍由各 layout/page 直接挂载。
+- `src/skins/index.ts`：皮肤名与 theme-color 的唯一登记处；token 在 `src/skins/<name>/tokens.css`。当前默认 `minimal` 为「独立纸本特刊」风格（道林白纸 + 松烟墨 + 矿石青灰 + 细微纸张肌理），`anime` 保留为可选插画毛玻璃皮肤。
+- `src/arrangements/index.ts`：文章列表排版的唯一登记处；规则在 `src/arrangements/<name>.css`。当前默认 `list`（左侧悬挂年份 + 书目虚线导引线 + 鼠标悬停聚光灯聚焦）。
+- `src/site.config.ts`：把 block、皮肤和排版装配到页面区域；桌面端（`>= 1100px`）由 `asideStart` 的 `SidebarNav` 接管导航并自动隐藏顶部 `#site-header`，窄屏与移动端仍显示滚动自适应顶栏。
+- `src/consts.ts`：集中维护 `SITE_TITLE`、`SITE_ORIGIN`、`SITE_EMAIL`（全站统一联系邮箱）与建站时间 `SITE_START_DATE`。
 - `src/assets/blog/`、`src/assets/covers/` 与 `src/assets/banner/`：统一走 Astro 图片管线；不要把会被 Markdown 引用的图片放回 `public/`，否则会额外复制一份原图。
-- `src/i18n/ui.ts`：翻译字典由 Astro 打包成共享模块，不再通过 `define:vars` 写进每个页面。
+- `src/i18n/ui.ts`：中英文翻译字典由 Astro 打包成共享模块，不再通过 `define:vars` 写进每个页面。
 
-完整关系图见 [architecture/diagram.html](architecture/diagram.html) 和同目录的 PNG。
+完整关系图见 [architecture/diagram.html](architecture/diagram.html) 和同目录的浅色高清 PNG。
 
-### 文章卡片为什么有时没有图片
+### 文章列表与封面池的职责说明
 
-卡片的封面显示由皮肤和排版共同决定，不是每篇文章单独开关：
+当前 `PostCard.astro` 按「独立纸本特刊」设计统一呈现为无封面缩略图的纯粹文字书目行（左侧悬挂年份 + 标题 + `· · · · ·` 导引线 + 日期 + 摘要与元信息），以保持版面克制和阅读专注。
 
-- `anime + feature`：显示文章 `heroImage`；缺失时才使用封面池，封面池也为空时才显示确定性渐变和首字母。
-- `grid` / `magazine`：图片在卡片顶部正常显示，渐变只作为图片背后的底色，通常不会被看见。
-- `list`：图片是右侧缩略图，不使用 feature 的渐变叠层。
-- `minimal`：`--card-cover-width: 0`，设计上是纯文字分隔列表。
-- `timeline`：`.post-cover { display: none }`，设计上只保留时间轴。
+文章 frontmatter 中的 `heroImage` 与 `src/assets/covers/` 封面池依然保留并承担以下职责：
 
-因此“同一页有的有、有的没有”首先检查阅读设置里的皮肤和排版，以及浏览器保存的 `skin` / `layout` 选择。当前可见文章的 `heroImage` 均指向 `src/assets/covers/` 中存在的文件；构建产物会把它们生成到 `/_astro/`。若仍有单张缺图，再检查该图片请求是否返回 200，以及是否被浏览器扩展拦截。
+- 构建期在 `BaseHead.astro` 中自动裁切生成每篇文章的 `1200×630` OpenGraph / Twitter 社交分享预览图（JPEG）。
+- 若日后希望恢复列表封面展示，只需在 `PostCard.astro` 重新渲染 `.post-cover` 节点即可与现有 `arrangements/*.css` 无缝衔接。
 
 ---
 
@@ -84,7 +82,7 @@ export const telegramLog = {
 
 构建会把文字、图片、视频封面、链接卡片、反应和浏览数写入时间线，并把图片下载到
 `public/log-media/`。同一条消息的多张图片在时间线上合成一个横向预览框：首图裁切铺满，
-中央显示媒体总数；点击后打开全屏查看器，按原比例查看并切换同组媒体。构建时生成的
+中央显示媒体总数；点击后打开全屏图片灯箱（支持滚轮无级缩放、双指捏合、拖拽平移及长截屏一键「适应宽度」置顶阅读），按原比例查看并切换同组媒体。构建时生成的
 `/log/latest.json` 保存频道名、保留条数和内容指纹。
 
 `.github/workflows/telegram-log.yml` 每小时检查一次，也支持 Actions 的 `workflow_dispatch`。
@@ -350,39 +348,39 @@ flowchart LR
 
 ## 外观
 
-三条轴——皮肤、排版、明暗——都由访客自己选，各存一个 localStorage 键。
+三条轴——皮肤、排版、明暗——都由访客自己选，分别存在 `skin:v2`、`layout:v2` 与 `theme` 三个 localStorage 键中（切换明暗不会锁死皮肤选择）。
 
-Header 里的 skin/layout 切换合并进了 ⚙️ **阅读设置面板**（`chrome/ReaderSettings`）；搜索、语言、明暗和设置按钮仍保留在右上角。面板里的皮肤与排版选项不是手写的，是从 `src/skins/index.ts` 的 `SKIN_REGISTRY` 和 `src/arrangements/index.ts` 的 `LAYOUTS` 生成的——加一个皮肤或排版，面板自动多一个按钮。
+桌面端（`>= 1100px`）可通过左侧 `SidebarNav` 底部设置图标打开 ⚙️ **阅读设置面板**（`chrome/ReaderSettings`），窄屏与移动端通过顶部 Header 右侧按钮打开。面板里的皮肤与排版选项不是手写的，是从 `src/skins/index.ts` 的 `SKIN_REGISTRY` 和 `src/arrangements/index.ts` 的 `LAYOUTS` 生成的——加一个皮肤或排版，面板自动多一个按钮。
 
 | 轴     | 可选值                                                | 声明处                      |
 | ------ | ----------------------------------------------------- | --------------------------- |
-| skin   | `minimal` / `anime`                                   | `src/skins/index.ts`        |
-| layout | `grid` / `feature` / `list` / `magazine` / `timeline` | `src/arrangements/index.ts` |
-| 明暗   | light / dark                                          | 无需声明                    |
+| skin   | `minimal`（默认，独立纸本特刊）/ `anime`              | `src/skins/index.ts`        |
+| layout | `list`（默认）/ `grid` / `feature` / `magazine` / `timeline` | `src/arrangements/index.ts` |
+| 明暗   | system（默认）/ light / dark                          | 无需声明                    |
 
 改默认值在 `src/site.config.ts`：
 
 ```ts
 export const siteLayout = {
-  skin: "anime",
-  layout: "feature",
+  skin: "minimal",
+  layout: "list",
   // ...
 };
 ```
 
 ### 调整某个 skin
 
-所有视觉参数在 `src/skins/<skin>/tokens.css`。改值就行，**不要加新的 token 名**——两个 skin 必须定义完全相同的名字，`tests/skins/skins.test.ts` 会在不一致时失败。
+所有视觉参数在 `src/skins/<skin>/tokens.css`。改值就行，**不要单独给某一个 skin 加新的 token 名**——两个 skin 必须定义完全相同的名字，`tests/skins/skins.test.ts` 会在不一致或存在无人消费的孤立 token 时失败。
 
 几个常用的：
 
-| token                 | 作用                                                    |
-| --------------------- | ------------------------------------------------------- |
-| `--accent`            | 主色。改完记得看对比度，链接色对页面底至少要 4.5:1      |
-| `--radius-card`       | 卡片圆角                                                |
-| `--card-cover-width`  | 封面占卡片宽度的比例，`0%` 就是不显示封面               |
-| `--list-item-surface` | `transparent` 是分隔线列表，`var(--bg-card)` 是独立卡片 |
-| `--aside-width`       | 侧栏宽度                                                |
+| token                   | 作用                                                    |
+| ----------------------- | ------------------------------------------------------- |
+| `--accent`              | 主点缀色。改完记得看对比度，链接色对页面底至少要 4.5:1  |
+| `--paper-grain-opacity` | 全局纸张纤维肌理滤镜的不透明度（`0` 表示关闭）          |
+| `--prose-width`         | 文章正文版心宽度（如 `82ch`），阅读设置滑块可动态覆盖   |
+| `--list-item-surface`   | `transparent` 是分隔线列表，`var(--bg-card)` 是独立卡片 |
+| `--aside-width` / `--rail-width` | 文章页与常规页侧栏宽度                         |
 
 ### 加一个皮肤
 
@@ -414,21 +412,21 @@ cp -r src/skins/minimal src/skins/sepia
 
 ## 加一个组件
 
-三步，布局文件一个字都不用改。**这三步只适用于能被区域放置、且不依赖页面专属数据的 block**。当前 registry 登记了 12 个 block：大多数是 `widget/` / `decor/`，另有 `chrome/Banner` 与 `behavior/ImageLightbox`；Header、Footer、ReaderSettings、CodeCopyButton、WalineCounter 由布局固定挂载，`view/` 和需要页面数据的组件由页面直接 import。
+三步，布局文件一个字都不用改。**这三步只适用于能被区域放置、且不依赖页面专属数据的 block**。当前 registry 登记了 14 个 block：大多数是 `widget/` / `decor/`，另有 `chrome/Banner` 与 `behavior/ImageLightbox`；Header、Footer、ReaderSettings、CodeCopyButton、WalineCounter 由布局固定挂载，`view/` 和需要页面数据的组件由页面直接 import。
 
 ```bash
-# 1. 写组件，只用 var(--x)，不准出现字面颜色值
-vim src/blocks/widget/Calendar.astro
+# 1. 写组件，只用 var(--x)，不准出现 data-skin="xxx" 分支
+vim src/blocks/widget/WritingPulse.astro
 ```
 
 ```ts
 // 2. src/blocks/registry.ts
-"widget/Calendar": Calendar,
+"widget/WritingPulse": WritingPulse,
 ```
 
 ```ts
 // 3. src/site.config.ts，放进某个区域
-regions: { asideStart: ["widget/Calendar"] },
+regions: { asideEnd: ["widget/WritingPulse"] },
 ```
 
 ### 组件放哪个目录
@@ -450,7 +448,7 @@ registry 的 block 必须能由 `Region` 以字符串名称解析，并接受区
 
 从后往前：`backdrop`（全屏背景）→ 页面内容 → `masthead`（顶部 banner）→ `asideStart` / `asideEnd`（左右两条侧栏）→ `floating`（进度条、返回顶部、图片灯箱脚本）
 
-可放区域的 widget：`Profile`（头像+简介+社交，数据在 config 的 `profile`）、`BlogStats`、`TagCloud`、`Calendar`、`FriendCircle`、`MusicPlayer`。`WritingHeatmap` 已登记但当前没有放进区域。`TableOfContents` 需要文章 headings，由 `BlogPost` 直接挂载，不属于区域 registry。
+可放区域的 widget：`SidebarNav`（桌面常驻左栏导航，读取 config 的 `profile` 与主菜单）、`WritingPulse`（近 12 个月写作脉冲柱）、`BlogStats`、`TagCloud`、`TelegramChannel`（`/log` 页使用）；此外 `Profile`、`Calendar`、`FriendCircle`、`MusicPlayer`、`WritingHeatmap` 均已在 registry 登记，随时可按需放入区域数组。`TableOfContents` 需要文章 headings，由 `BlogPost` 直接挂载，不属于区域 registry。
 
 配置里可以限定某个 block 只在某个 skin 下出现：
 
@@ -481,7 +479,7 @@ registry 的 block 必须能由 `Region` 以字符串名称解析，并接受区
 ```bash
 npx astro check    # 类型，应为 0 error / 0 warning
 npx vitest run     # 单元测试 + skin 与 arrangement 的契约
-npm run build      # 29 页
+npm run build      # 30 页
 ```
 
 `astro check` 曾长期停在 18 个 implicitly-any，2026-08-29 清零了。**别让它再红着**——一个永远输出 "18 errors" 的命令，等于没有这道检查：真正的错误会作为第 19 个混进去，没人会发现。

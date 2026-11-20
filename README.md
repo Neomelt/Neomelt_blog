@@ -13,13 +13,13 @@
 
 频道变更由 `.github/workflows/telegram-log.yml` 每小时检查一次，也可以在 GitHub Actions
 中手动运行。检查会比较上次构建写入的 `/log/latest.json` 指纹；保留范围内的新增、删除和
-编辑都会触发对应站点重建。多图消息在时间线上显示为一张铺满预览框的缩略图，点击后用
-全屏查看器浏览原比例图片和同组媒体。完整配置、部署钩子和故障处理见
+编辑都会触发对应站点重建。多图消息在时间线上显示为一张铺满预览框的缩略图，点击后通过全屏
+图片灯箱浏览原比例图片与同组媒体（支持滚轮无级缩放、拖拽平移及长截屏一键「适应宽度」）。完整配置、部署钩子和故障处理见
 [Telegram 插件文档](plugins/telegram-log/README.md) 与 [操作指南](docs/operations.md)。
 
 ## 本地音乐库
 
-侧栏播放器读取 `src/data/playlist.ts`，音频文件放在 `public/music/library/`。完整说明见
+播放器组件 `widget/MusicPlayer` 已在 `src/blocks/registry.ts` 登记（按需放入 `src/site.config.ts` 的侧栏区域即可启用），读取 `src/data/playlist.ts`，音频文件放在 `public/music/library/`。完整说明见
 [音乐库操作指南](docs/operations.md#本地音乐库)。这些文件会进入 Git 仓库；部署时，
 `public/` 中的音频会成为可直接访问的静态资源。
 
@@ -27,7 +27,7 @@
 
 ![Neomelt Blog 架构图](docs/architecture/diagram.png)
 
-图源是 `docs/architecture/diagram.html`——一个自包含的深色架构图（内联 SVG、手工排版、坐标固定），按 [Cocoon 架构图 skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 的风格绘制。当前图对应 v2.1 的 registry-driven 架构：`site.config.ts` 装配 block，`skins/` 与 `arrangements/` 分别提供视觉 token 和列表规则，i18n 字典以共享 hash module 下发，正文图片统一走 `src/assets` 的 Astro 图片管线。改完图后重新生成 `.png`：用浏览器打开该 HTML，点右上角 `⋯` → `🖼️ PNG` 导出即可，无需额外工具。
+图源是 `docs/architecture/diagram.html`——一个自包含的浅色架构图（内联 SVG、手工排版、坐标固定），按 [Cocoon 架构图 skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 的结构并结合本站「独立纸本特刊」浅色纸面视觉绘制。当前图对应 v2.3 的 registry-driven 架构：`site.config.ts` 装配 14 个注册 block（含桌面常驻左侧 `SidebarNav` 与右侧 `WritingPulse`），`skins/`（默认 `minimal`）与 `arrangements/`（默认 `list` 悬挂年份 + 聚光灯聚焦）分别提供视觉 token 和列表规则，构建期同步 Telegram 日常与友链动态，i18n 字典以共享 hash module 下发，正文图片统一走 `src/assets` 的 Astro 图片管线。改完图后重新生成 `.png`：用浏览器打开该 HTML，点右上角 `⋯` → `🖼️ PNG` 导出即可，无需额外工具。
 
 ## 目录结构
 
@@ -75,7 +75,7 @@
 │   ├── styles/              # global.css 与 md-components.css，只消费 token 不定义 token
 │   ├── types/
 │   ├── utils/               # 工具函数与 Markdown 插件（remark-* / rehype-*）
-│   ├── consts.ts
+│   ├── consts.ts            # 全局站点常量（SITE_TITLE / SITE_ORIGIN / SITE_EMAIL 等）
 │   ├── content.config.ts
 │   ├── env.d.ts             # inline script 挂在 window 上的全局声明
 │   └── site.config.ts       # 装配文件：站点由哪些 block 组成、默认皮肤与排版
@@ -180,6 +180,6 @@ npm run watch:frontmatter
 
 ## 致谢
 
-本项目的架构图采用 [Cocoon AI](https://github.com/Cocoon-AI) 开源的 [Architecture Diagram Skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 绘制——其深色主题设计系统与内联 SVG 模板（MIT License，Copyright © 2025 Cocoon AI）为本图的样式与排版提供了基础。在此向原作者表示诚挚的谢意。
+本项目的架构图基于 [Cocoon AI](https://github.com/Cocoon-AI) 开源的 [Architecture Diagram Skill](https://github.com/Cocoon-AI/architecture-diagram-generator) 改造绘制——其内联 SVG 排版模板与导出工具链（MIT License，Copyright © 2025 Cocoon AI）为本图提供了基础，目前已适配为契合本站气质的浅色纸面主题。在此向原作者表示诚挚的谢意。
 
 正文组件、随笔版式、文章过渡和友链检查参考了 [纸鹿摸鱼处](https://github.com/L33Z22L11/blog-v3)（MIT License）的设计。
