@@ -17,7 +17,12 @@ const searchFallbacks = {
 } as const;
 ---
 
-<div id="search-modal" class="search-overlay" aria-hidden="true">
+<div
+  id="search-modal"
+  class="search-overlay"
+  aria-hidden="true"
+  data-search-url={searchApiUrl}
+>
   <div
     class="search-box"
     role="dialog"
@@ -84,52 +89,68 @@ const searchFallbacks = {
   </div>
 </div>
 
-<script define:vars={{ searchFallbacks, searchApiUrl }}>
-  function initSearch() {
-    let searchIndex = [];
-    let isLoading = false;
-    const i18n = window.__siteI18n;
-    const getFallback = (key, fallback = "") => {
-      const fromDict = searchFallbacks[key];
-      return fromDict || fallback || key;
-    };
-    const t = (key, fallback = "") =>
-      i18n?.t?.(key, getFallback(key, fallback)) || getFallback(key, fallback);
+<script>
+  import { getDefaultUiText, type UiTranslationKey } from "../i18n/ui";
 
+  interface SearchEntry {
+    url?: string;
+    title?: string;
+    description?: string;
+    excerpt?: string;
+    content?: string;
+    tags?: string[];
+    searchText?: string;
+  }
+
+  // Keep loaded index across ClientRouter navigations instead of re-fetching
+  let searchIndex: SearchEntry[] = [];
+  let isLoading = false;
+
+  const t = (key: UiTranslationKey, fallback = "") => {
+    const def = getDefaultUiText(key, fallback);
+    return window.__siteI18n?.t?.(key, def) || def;
+  };
+
+  function initSearch() {
     const searchToggle = document.getElementById("search-toggle");
     const searchModal = document.getElementById("search-modal");
     const closeSearch = document.getElementById("close-search");
-    const searchInput = document.getElementById("search-input");
+    const searchInput = document.getElementById(
+      "search-input",
+    ) as HTMLInputElement | null;
     const searchResults = document.getElementById("search-results");
 
     if (!searchModal || !closeSearch || !searchInput || !searchResults) return;
+    const modalEl = searchModal;
+    const inputEl = searchInput;
+    const resultsEl = searchResults;
+    const searchApiUrl = modalEl.dataset.searchUrl || "/api/search.json";
 
-    function renderEmpty(key, fallback = "") {
-      searchResults.replaceChildren();
+    function renderEmpty(key: UiTranslationKey, fallback = "") {
+      resultsEl.replaceChildren();
       const emptyNode = document.createElement("div");
       emptyNode.className = "search-empty";
       emptyNode.textContent = t(key, fallback);
-      searchResults.appendChild(emptyNode);
+      resultsEl.appendChild(emptyNode);
     }
 
     function openModal() {
-      searchModal.classList.add("open");
-      searchModal.setAttribute("aria-hidden", "false");
-      searchInput.focus();
+      modalEl.classList.add("open");
+      modalEl.setAttribute("aria-hidden", "false");
+      inputEl.focus();
       document.body.style.overflow = "hidden";
-      if (!searchInput.value.trim()) {
+      if (!inputEl.value.trim()) {
         renderEmpty("search.emptyStart");
       }
-      loadSearchIndex();
+      void loadSearchIndex();
     }
 
     function closeModal() {
-      searchModal.classList.remove("open");
-      searchModal.setAttribute("aria-hidden", "true");
+      modalEl.classList.remove("open");
+      modalEl.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
     }
 
-    // 加载搜索索引
     async function loadSearchIndex() {
       if (searchIndex.length > 0 || isLoading) return;
       isLoading = true;
@@ -146,7 +167,7 @@ const searchFallbacks = {
       }
     }
 
-    function getSearchText(item) {
+    function getSearchText(item: SearchEntry) {
       if (typeof item.searchText === "string" && item.searchText) {
         return item.searchText;
       }
@@ -165,8 +186,7 @@ const searchFallbacks = {
       return fallbackText;
     }
 
-    // 执行搜索
-    function performSearch(query) {
+    function performSearch(query: string) {
       if (!query.trim()) return [];
       const term = query.toLowerCase();
       return searchIndex
@@ -174,7 +194,7 @@ const searchFallbacks = {
         .slice(0, 10);
     }
 
-    function createHighlightedFragment(text, query) {
+    function createHighlightedFragment(text: string, query: string) {
       const source = String(text || "");
       const term = query.trim();
       const fragment = document.createDocumentFragment();
@@ -217,14 +237,12 @@ const searchFallbacks = {
       return fragment;
     }
 
-    // 渲染搜索结果
-    function renderResults(results, query) {
-      if (!searchResults) return;
+    function renderResults(results: SearchEntry[], query: string) {
       if (results.length === 0) {
         renderEmpty("search.emptyNotFound");
         return;
       }
-      searchResults.replaceChildren();
+      resultsEl.replaceChildren();
 
       const resultNodes = results.map((item) => {
         const link = document.createElement("a");
@@ -262,19 +280,17 @@ const searchFallbacks = {
         return link;
       });
 
-      searchResults.append(...resultNodes);
+      resultsEl.append(...resultNodes);
     }
 
-    // 防抖
-    function debounce(fn, wait) {
-      let timer = null;
-      return (...args) => {
+    function debounce(fn: () => void, wait: number) {
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      return () => {
         if (timer) clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), wait);
+        timer = setTimeout(() => fn(), wait);
       };
     }
 
-    // 事件绑定
     if (searchToggle && !searchToggle.dataset.searchBound) {
       searchToggle.addEventListener("click", openModal);
       searchToggle.dataset.searchBound = "true";
@@ -283,34 +299,34 @@ const searchFallbacks = {
       closeSearch.addEventListener("click", closeModal);
       closeSearch.dataset.searchBound = "true";
     }
-    if (!searchModal.dataset.searchBound) {
-      searchModal.addEventListener("click", (e) => {
-        if (e.target === searchModal) closeModal();
+    if (!modalEl.dataset.searchBound) {
+      modalEl.addEventListener("click", (e) => {
+        if (e.target === modalEl) closeModal();
       });
-      searchModal.dataset.searchBound = "true";
+      modalEl.dataset.searchBound = "true";
     }
     const previousKeydownHandler = window.__searchKeydownHandler;
     if (previousKeydownHandler) {
       document.removeEventListener("keydown", previousKeydownHandler);
     }
-    const keydownHandler = (e) => {
-      if (e.key === "Escape" && searchModal.classList.contains("open")) {
+    const keydownHandler = (e: Event) => {
+      const ke = e as KeyboardEvent;
+      if (ke.key === "Escape" && modalEl.classList.contains("open")) {
         closeModal();
       }
-      // Ctrl+K / Cmd+K 打开搜索
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        searchModal.classList.contains("open") ? closeModal() : openModal();
+      if ((ke.ctrlKey || ke.metaKey) && ke.key.toLowerCase() === "k") {
+        ke.preventDefault();
+        modalEl.classList.contains("open") ? closeModal() : openModal();
       }
     };
     document.addEventListener("keydown", keydownHandler);
     window.__searchKeydownHandler = keydownHandler;
 
-    if (!searchInput.dataset.searchBound) {
-      searchInput.addEventListener(
+    if (!inputEl.dataset.searchBound) {
+      inputEl.addEventListener(
         "input",
         debounce(async () => {
-          const query = searchInput.value.trim();
+          const query = inputEl.value.trim();
           if (query.length < 2) {
             renderEmpty("search.emptyMinChars");
             return;
@@ -322,7 +338,7 @@ const searchFallbacks = {
           renderResults(performSearch(query), query);
         }, 250),
       );
-      searchInput.dataset.searchBound = "true";
+      inputEl.dataset.searchBound = "true";
     }
 
     const previousLocaleHandler = window.__searchLocaleHandler;
@@ -330,8 +346,8 @@ const searchFallbacks = {
       document.removeEventListener("site:locale-change", previousLocaleHandler);
     }
     const localeHandler = () => {
-      const query = searchInput.value.trim();
-      if (!searchModal.classList.contains("open")) return;
+      const query = inputEl.value.trim();
+      if (!modalEl.classList.contains("open")) return;
       if (!query) {
         renderEmpty("search.emptyStart");
       } else if (query.length < 2) {
@@ -342,8 +358,11 @@ const searchFallbacks = {
     window.__searchLocaleHandler = localeHandler;
   }
 
-  // 初始化（兼容普通加载和 Astro view transitions）
-  document.addEventListener("DOMContentLoaded", initSearch);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSearch, { once: true });
+  } else {
+    initSearch();
+  }
   document.addEventListener("astro:page-load", initSearch);
 </script>
 

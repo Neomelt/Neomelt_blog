@@ -1,21 +1,9 @@
 ---
 import { SITE_START_DATE as startDate, SITE_TITLE } from "../../consts";
-import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
+import { getDefaultUiText } from "../../i18n/ui";
 import { profile } from "../../site.config";
 import { TELEGRAM_LOG_ENABLED } from "../../utils/telegram-log";
 import { withBase } from "../../utils/url";
-
-const runtimeFallbacks = {
-  "footer.running": getDefaultUiText("footer.running"),
-  "footer.day": getDefaultUiText("footer.day"),
-  "footer.hour": getDefaultUiText("footer.hour"),
-  "footer.minute": getDefaultUiText("footer.minute"),
-  "footer.second": getDefaultUiText("footer.second"),
-  enDay: UI_TRANSLATIONS.en["footer.day"],
-  enHour: UI_TRANSLATIONS.en["footer.hour"],
-  enMinute: UI_TRANSLATIONS.en["footer.minute"],
-  enSecond: UI_TRANSLATIONS.en["footer.second"],
-} as const;
 ---
 
 <footer id="site-footer">
@@ -28,7 +16,7 @@ const runtimeFallbacks = {
         </p>
         <p class="footer-runtime">
           <span data-i18n="footer.running"
-            >{runtimeFallbacks["footer.running"]}</span
+            >{getDefaultUiText("footer.running")}</span
           >
           <span id="runtime-display" data-start={startDate.toISOString()}
             >...</span
@@ -137,28 +125,45 @@ const runtimeFallbacks = {
   </div>
 </footer>
 
-<script define:vars={{ runtimeFallbacks }}>
-  const getI18n = () => window.__siteI18n;
-  const fallback = (key) => runtimeFallbacks[key] || key;
-  const formatRuntime = (days, hours, minutes, seconds) => {
-    const i18n = getI18n();
+<script>
+  import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
+
+  const enUnits = {
+    day: UI_TRANSLATIONS.en["footer.day"],
+    hour: UI_TRANSLATIONS.en["footer.hour"],
+    minute: UI_TRANSLATIONS.en["footer.minute"],
+    second: UI_TRANSLATIONS.en["footer.second"],
+  };
+  const zhUnits = {
+    day: getDefaultUiText("footer.day"),
+    hour: getDefaultUiText("footer.hour"),
+    minute: getDefaultUiText("footer.minute"),
+    second: getDefaultUiText("footer.second"),
+  };
+
+  const formatRuntime = (
+    days: number,
+    hours: number,
+    minutes: number,
+    seconds: number,
+  ) => {
+    const i18n = window.__siteI18n;
     const locale = i18n?.getLocale?.() === "en" ? "en" : "zh";
     if (locale === "en") {
-      return `${days}${i18n?.t?.("footer.day", fallback("enDay")) || fallback("enDay")} ${hours}${i18n?.t?.("footer.hour", fallback("enHour")) || fallback("enHour")} ${minutes}${i18n?.t?.("footer.minute", fallback("enMinute")) || fallback("enMinute")} ${seconds}${i18n?.t?.("footer.second", fallback("enSecond")) || fallback("enSecond")}`;
+      return `${days}${i18n?.t?.("footer.day", enUnits.day) || enUnits.day} ${hours}${i18n?.t?.("footer.hour", enUnits.hour) || enUnits.hour} ${minutes}${i18n?.t?.("footer.minute", enUnits.minute) || enUnits.minute} ${seconds}${i18n?.t?.("footer.second", enUnits.second) || enUnits.second}`;
     }
-    return `${days} ${i18n?.t?.("footer.day", fallback("footer.day")) || fallback("footer.day")} ${hours} ${i18n?.t?.("footer.hour", fallback("footer.hour")) || fallback("footer.hour")} ${minutes} ${i18n?.t?.("footer.minute", fallback("footer.minute")) || fallback("footer.minute")} ${seconds} ${i18n?.t?.("footer.second", fallback("footer.second")) || fallback("footer.second")}`;
+    return `${days} ${i18n?.t?.("footer.day", zhUnits.day) || zhUnits.day} ${hours} ${i18n?.t?.("footer.hour", zhUnits.hour) || zhUnits.hour} ${minutes} ${i18n?.t?.("footer.minute", zhUnits.minute) || zhUnits.minute} ${seconds} ${i18n?.t?.("footer.second", zhUnits.second) || zhUnits.second}`;
   };
 
   function updateRuntime() {
     const el = document.getElementById("runtime-display");
     if (!el) return;
     const start = new Date(el.dataset.start || "2025-08-13");
-    const now = new Date();
-    const diff = now.getTime() - start.getTime();
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor((diff % 86400000) / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
+    const diff = Date.now() - start.getTime();
+    const d = Math.floor(diff / 86_400_000);
+    const h = Math.floor((diff % 86_400_000) / 3_600_000);
+    const m = Math.floor((diff % 3_600_000) / 60_000);
+    const s = Math.floor((diff % 60_000) / 1000);
     el.textContent = formatRuntime(d, h, m, s);
   }
 

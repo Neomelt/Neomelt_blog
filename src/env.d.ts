@@ -68,5 +68,10 @@ interface Window {
   __footerRuntimeInterval?: number;
 
   /** Set by utils/waline-loader once the client script has been fetched. */
-  __walineLoadClient?: () => Promise<unknown>;
+  __walineLoadClient?: () => Promise<{
+    init: (options: Record<string, unknown>) => { destroy?: () => void } | void;
+  }>;
+  __walineCounterAbort?: AbortController;
+  __walineObserver?: IntersectionObserver;
+  __walineInstance?: { destroy?: () => void } | void;
 }

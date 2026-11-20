@@ -43,7 +43,7 @@ cp ~/Music/歌曲名.mp3 public/music/library/
 站点是 Astro 7 的静态构建：内容、配置和三个登记表进入构建管线，输出 30 个静态路由页面、共享的 hash JS/CSS 模块、优化后的图片，以及搜索/RSS/站点地图/日常指纹等派生文件。浏览器端不重新渲染文章，只运行主题、i18n、阅读设置、搜索、缩放灯箱和评论等交互。
 
 - `src/blocks/registry.ts`：可放进区域的 14 个 block（含桌面常驻左栏 `widget/SidebarNav`、近 12 个月写作柱状刻度 `widget/WritingPulse`、`widget/BlogStats`、`widget/TagCloud`、`behavior/ImageLightbox` 等）。固定 chrome、全局行为和需要页面专属数据的 view/widget（如 `TableOfContents`）仍由各 layout/page 直接挂载。
-- `src/skins/index.ts`：皮肤名与 theme-color 的唯一登记处；token 在 `src/skins/<name>/tokens.css`。当前默认 `minimal` 为「独立纸本特刊」风格（道林白纸 + 松烟墨 + 矿石青灰 + 细微纸张肌理），`anime` 保留为可选插画毛玻璃皮肤。
+- `src/skins/index.ts`：皮肤名与 theme-color 的唯一登记处；token 在 `src/skins/<name>/tokens.css`。当前仓库仅保留 `minimal`（「独立纸本特刊」风格：道林白纸 + 松烟墨 + 矿石青灰 + 平铺微粒纸张肌理），已移除旧版 `anime` 皮肤与阅读设置中的皮肤切换项；日后若需新皮肤仍按两步登记契约扩展。
 - `src/arrangements/index.ts`：文章列表排版的唯一登记处；规则在 `src/arrangements/<name>.css`。当前默认 `list`（左侧悬挂年份 + 书目虚线导引线 + 鼠标悬停聚光灯聚焦）。
 - `src/site.config.ts`：把 block、皮肤和排版装配到页面区域；桌面端（`>= 1100px`）由 `asideStart` 的 `SidebarNav` 接管导航并自动隐藏顶部 `#site-header`，窄屏与移动端仍显示滚动自适应顶栏。
 - `src/consts.ts`：集中维护 `SITE_TITLE`、`SITE_ORIGIN`、`SITE_EMAIL`（全站统一联系邮箱）与建站时间 `SITE_START_DATE`。
@@ -354,7 +354,7 @@ flowchart LR
 
 | 轴     | 可选值                                                | 声明处                      |
 | ------ | ----------------------------------------------------- | --------------------------- |
-| skin   | `minimal`（默认，独立纸本特刊）/ `anime`              | `src/skins/index.ts`        |
+| skin   | `minimal`（唯一内置，独立纸本特刊；可扩展）           | `src/skins/index.ts`        |
 | layout | `list`（默认）/ `grid` / `feature` / `magazine` / `timeline` | `src/arrangements/index.ts` |
 | 明暗   | system（默认）/ light / dark                          | 无需声明                    |
 

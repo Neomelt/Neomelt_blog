@@ -1,78 +1,160 @@
 ---
-import {
-  walineLoaderScript,
-  WALINE_CLIENT_SCRIPT_URLS,
-} from "../../utils/waline-loader";
-
 const serverURL = (import.meta.env.PUBLIC_WALINE_SERVER_URL ?? "").trim();
-const walineCounterScript = serverURL
-  ? `(() => {
-	const serverURL = ${JSON.stringify(serverURL)};
-	${walineLoaderScript(WALINE_CLIENT_SCRIPT_URLS)}
-
-	const initWalineCounter = async () => {
-		const hasPageviewCounter = Boolean(
-			document.querySelector(".waline-pageview-count"),
-		);
-		const hasCommentCounter = Boolean(
-			document.querySelector(".waline-comment-count"),
-		);
-
-		if (!hasPageviewCounter && !hasCommentCounter) return;
-
-		const hasCommentWidget = Boolean(document.querySelector("#waline"));
-		const updateTarget = document.querySelector(
-			".waline-pageview-update[data-path]",
-		);
-		const waline = await window.__walineLoadClient();
-		const tasks = [];
-
-		if (hasPageviewCounter) {
-			tasks.push(
-				waline.pageviewCount({
-					serverURL,
-					update: false,
-				}),
-			);
-		}
-
-		if (hasCommentCounter) {
-			tasks.push(
-				waline.commentCount({
-					serverURL,
-				}),
-			);
-		}
-
-		if (updateTarget && !hasCommentWidget) {
-			const updatePath = updateTarget.getAttribute("data-path");
-			if (updatePath) {
-				tasks.push(
-					waline.pageviewCount({
-						serverURL,
-						path: updatePath,
-						update: true,
-					}),
-				);
-			}
-		}
-
-		await Promise.all(tasks);
-	};
-
-	// Defer the 343KB client to idle time so counters never block first paint.
-	const start = () =>
-		initWalineCounter().catch((error) => {
-			console.error("[WalineCounter] Failed to load counters:", error);
-		});
-
-	if ("requestIdleCallback" in window) {
-		requestIdleCallback(start, { timeout: 3000 });
-	} else {
-		setTimeout(start, 1200);
-	}
-})();`
-  : "";
 ---
 
-{serverURL && <script is:inline set:html={walineCounterScript} />}
+{
+  serverURL && (
+    <span id="waline-counter-cfg" data-server-url={serverURL} hidden />
+  )
+}
+
+<script>
+  /**
+   * Lightweight REST counter client (~1 KB minified) that talks directly to
+   * Waline's /api/article and /api/comment?type=count endpoints.
+   *
+   * Previously this block loaded the full 343 KB waline.umd.js bundle (Vue 3 +
+   * comment editor + emoji runtime) on every page — including the homepage and
+   * post lists where no comment box exists — just to read view/comment counts.
+   */
+  function extractTime(entry: unknown): number | null {
+    if (typeof entry === "number") return entry;
+    if (entry && typeof entry === "object" && "time" in entry) {
+      const t = (entry as { time?: unknown }).time;
+      return typeof t === "number" ? t : null;
+    }
+    return null;
+  }
+
+  async function syncWalineCounters() {
+    const cfg = document.getElementById("waline-counter-cfg");
+    const rawServer = cfg?.dataset.serverUrl?.trim();
+    if (!rawServer) return;
+
+    window.__walineCounterAbort?.abort();
+    const controller = new AbortController();
+    window.__walineCounterAbort = controller;
+    const { signal } = controller;
+
+    const apiBase = `${rawServer.replace(/\/+$/, "")}/api/`;
+    const lang =
+      window.__siteI18n?.getLocale?.() === "en" ? "en-US" : "zh-CN";
+
+    // Determine whether this page visit should increment a canonical path
+    const commentMount = document.querySelector<HTMLElement>(
+      "#waline[data-waline-path]",
+    );
+    const updateEl = document.querySelector<HTMLElement>(
+      ".waline-pageview-update[data-path]",
+    );
+    const incPath =
+      commentMount?.dataset.walinePath ||
+      updateEl?.getAttribute("data-path") ||
+      "";
+
+    const viewNodes = Array.from(
+      document.querySelectorAll<HTMLElement>(".waline-pageview-count"),
+    );
+    const commentNodes = Array.from(
+      document.querySelectorAll<HTMLElement>(".waline-comment-count"),
+    );
+
+    const tasks: Promise<void>[] = [];
+
+    // 1. Increment current page's view count if applicable
+    if (incPath) {
+      tasks.push(
+        fetch(`${apiBase}article?lang=${encodeURIComponent(lang)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: incPath, type: "time", action: "inc" }),
+          signal,
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((payload) => {
+            const data = payload?.data ?? payload;
+            const item = Array.isArray(data) ? data[0] : data;
+            const count = extractTime(item);
+            if (count === null) return;
+            viewNodes.forEach((node) => {
+              const p = node.getAttribute("data-path") || window.location.pathname;
+              if (p === incPath) node.textContent = String(count);
+            });
+          })
+          .catch(() => {}),
+      );
+    }
+
+    // 2. Batch-fetch read-only pageview counts for remaining nodes (e.g. post cards)
+    const readOnlyViewNodes = viewNodes.filter((node) => {
+      const p = node.getAttribute("data-path") || window.location.pathname;
+      return p !== incPath;
+    });
+
+    if (readOnlyViewNodes.length > 0) {
+      const paths = readOnlyViewNodes.map(
+        (n) => n.getAttribute("data-path") || window.location.pathname,
+      );
+      tasks.push(
+        fetch(
+          `${apiBase}article?path=${encodeURIComponent(paths.join(","))}&type=time&lang=${encodeURIComponent(lang)}`,
+          { signal },
+        )
+          .then((r) => (r.ok ? r.json() : null))
+          .then((payload) => {
+            const data = payload?.data ?? payload;
+            const list = Array.isArray(data) ? data : [data];
+            readOnlyViewNodes.forEach((node, idx) => {
+              const count = extractTime(list[idx]);
+              if (count !== null) node.textContent = String(count);
+            });
+          })
+          .catch(() => {}),
+      );
+    }
+
+    // 3. Batch-fetch comment counts
+    if (commentNodes.length > 0) {
+      const paths = commentNodes.map(
+        (n) => n.getAttribute("data-path") || window.location.pathname,
+      );
+      tasks.push(
+        fetch(
+          `${apiBase}comment?type=count&url=${encodeURIComponent(paths.join(","))}&lang=${encodeURIComponent(lang)}`,
+          { signal },
+        )
+          .then((r) => (r.ok ? r.json() : null))
+          .then((payload) => {
+            const data = payload?.data ?? payload;
+            const list = Array.isArray(data) ? data : [data];
+            commentNodes.forEach((node, idx) => {
+              const val = list[idx];
+              if (typeof val === "number") node.textContent = String(val);
+            });
+          })
+          .catch(() => {}),
+      );
+    }
+
+    await Promise.all(tasks);
+  }
+
+  function scheduleCounters() {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => void syncWalineCounters(), {
+        timeout: 2000,
+      });
+    } else {
+      setTimeout(() => void syncWalineCounters(), 400);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleCounters, {
+      once: true,
+    });
+  } else {
+    scheduleCounters();
+  }
+  document.addEventListener("astro:page-load", scheduleCounters);
+</script>

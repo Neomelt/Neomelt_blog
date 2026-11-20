@@ -385,13 +385,14 @@ const readerFallbacks = {
   }
 </style>
 
-<script define:vars={{ settings, prefsKey: READER_PREFS_KEY }}>
-  /**
-   * Reader overrides live in one localStorage blob and are re-applied on every
-   * page, before this panel is ever opened - the settings have to survive
-   * navigation whether or not the reader goes looking for them again.
-   */
-  function readPrefs() {
+<script>
+  import {
+    READER_PREFS_KEY as prefsKey,
+    READER_SETTINGS as settings,
+    type ReaderSetting,
+  } from "../../data/reader-settings";
+
+  function readPrefs(): Record<string, unknown> {
     try {
       const raw = localStorage.getItem(prefsKey);
       const parsed = raw ? JSON.parse(raw) : {};
@@ -401,36 +402,30 @@ const readerFallbacks = {
     }
   }
 
-  function writePrefs(prefs) {
+  function writePrefs(prefs: Record<string, unknown>) {
     try {
       localStorage.setItem(prefsKey, JSON.stringify(prefs));
     } catch {
-      // Private mode, or a full quota. The page still reflects the change for
-      // this session; only remembering it is lost, which is not worth a throw.
+      // Ignore quota / private-mode storage errors
     }
   }
 
-  function applyPrefs(prefs) {
+  function applyPrefs(prefs: Record<string, unknown>) {
     const root = document.documentElement;
     for (const setting of settings) {
       if (setting.target.kind !== "cssVar") continue;
       const value = prefs[setting.id];
       const property = setting.target.property;
       if (value === undefined || value === null || value === "") {
-        // Remove rather than write the default back: the skin owns this
-        // property again the moment the reader stops having an opinion.
-        if (property.startsWith("--")) root.style.removeProperty(property);
-        else root.style.removeProperty(property);
+        root.style.removeProperty(property);
         continue;
       }
-      const css = `${value}${setting.control.cssUnit ?? ""}`;
-      if (property.startsWith("--")) root.style.setProperty(property, css);
-      else root.style.setProperty(property, css);
+      const unit =
+        setting.control.kind === "range" ? setting.control.cssUnit : "";
+      root.style.setProperty(property, `${value}${unit}`);
     }
   }
 
-  // Runs at script evaluation, not on DOMContentLoaded: the sooner the
-  // overrides land the smaller the flash of the author's defaults.
   applyPrefs(readPrefs());
 
   function initReaderSettings() {
@@ -439,12 +434,13 @@ const readerFallbacks = {
     const closeButton = document.getElementById("reader-close");
     const resetButton = document.getElementById("reader-reset");
     if (!panel || !closeButton || !resetButton) return;
+    const panelEl = panel;
+    const closeEl = closeButton;
 
     const theme = () => window.__siteTheme;
     const i18n = () => window.__siteI18n;
 
-    /** The value in effect for a setting, whoever owns it. */
-    function currentValue(setting) {
+    function currentValue(setting: ReaderSetting) {
       if (setting.target.kind === "siteTheme") {
         const api = theme();
         if (setting.target.axis === "theme") return api?.getTheme?.();
@@ -456,16 +452,17 @@ const readerFallbacks = {
       return stored === undefined ? setting.fallback : stored;
     }
 
-    function setValue(setting, value) {
+    function setValue(setting: ReaderSetting, value: unknown) {
       if (setting.target.kind === "siteTheme") {
         const api = theme();
-        if (setting.target.axis === "theme") api?.applyTheme?.(value);
-        else if (setting.target.axis === "skin") api?.setSkin?.(value);
-        else api?.setLayout?.(value);
+        const str = String(value ?? "");
+        if (setting.target.axis === "theme") api?.applyTheme?.(str);
+        else if (setting.target.axis === "skin") api?.setSkin?.(str);
+        else api?.setLayout?.(str);
         return;
       }
       if (setting.target.kind === "locale") {
-        i18n()?.setLocale?.(value);
+        i18n()?.setLocale?.(String(value ?? ""));
         return;
       }
       const prefs = readPrefs();
@@ -474,17 +471,16 @@ const readerFallbacks = {
       applyPrefs(prefs);
     }
 
-    /** Redraw every control from the live state. */
     function paint() {
       for (const setting of settings) {
-        const row = panel.querySelector(`[data-setting="${setting.id}"]`);
+        const row = panelEl.querySelector<HTMLElement>(
+          `[data-setting="${setting.id}"]`,
+        );
         if (!row) continue;
         const value = currentValue(setting);
 
         if (setting.control.kind === "choice") {
-          // aria-pressed rather than a class alone: these are toggle buttons,
-          // and the pressed state is the only thing saying which is active.
-          row.querySelectorAll(".reader-pill").forEach((pill) => {
+          row.querySelectorAll<HTMLElement>(".reader-pill").forEach((pill) => {
             pill.setAttribute(
               "aria-pressed",
               String(pill.dataset.value === String(value)),
@@ -493,37 +489,38 @@ const readerFallbacks = {
           continue;
         }
 
-        const input = row.querySelector("input");
-        const output = row.querySelector(".reader-value");
+        const input = row.querySelector<HTMLInputElement>("input");
+        const output = row.querySelector<HTMLElement>(".reader-value");
         if (input) input.value = String(value);
-        if (output)
-          output.textContent = `${value}${setting.control.unit ?? ""}`;
+        if (output) output.textContent = `${value}${setting.control.unit}`;
       }
     }
 
     function openPanel() {
       paint();
-      panel.classList.add("open");
-      panel.setAttribute("aria-hidden", "false");
+      panelEl.classList.add("open");
+      panelEl.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      closeButton.focus();
+      closeEl.focus();
     }
 
     function closePanel() {
-      panel.classList.remove("open");
-      panel.setAttribute("aria-hidden", "true");
+      panelEl.classList.remove("open");
+      panelEl.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
     }
 
-    if (!panel.dataset.bound) {
-      panel.dataset.bound = "true";
+    if (!panelEl.dataset.bound) {
+      panelEl.dataset.bound = "true";
 
       for (const setting of settings) {
-        const row = panel.querySelector(`[data-setting="${setting.id}"]`);
+        const row = panelEl.querySelector<HTMLElement>(
+          `[data-setting="${setting.id}"]`,
+        );
         if (!row) continue;
 
         if (setting.control.kind === "choice") {
-          row.querySelectorAll(".reader-pill").forEach((pill) => {
+          row.querySelectorAll<HTMLElement>(".reader-pill").forEach((pill) => {
             pill.addEventListener("click", () => {
               setValue(setting, pill.dataset.value);
               paint();
@@ -532,10 +529,7 @@ const readerFallbacks = {
           continue;
         }
 
-        const input = row.querySelector("input");
-        // input, not change: the page has to move under the thumb while it is
-        // being dragged, or the reader is picking a number rather than
-        // choosing how the text looks.
+        const input = row.querySelector<HTMLInputElement>("input");
         input?.addEventListener("input", () => {
           setValue(setting, Number(input.value));
           paint();
@@ -543,10 +537,6 @@ const readerFallbacks = {
       }
 
       resetButton.addEventListener("click", () => {
-        // Reset every reader-owned axis. The site theme API owns theme, skin,
-        // and layout storage; locale has its own i18n storage key. The old
-        // implementation only cleared reader-prefs, leaving the visible
-        // card layout unchanged after a reset.
         writePrefs({});
         applyPrefs({});
         theme()?.resetDefaults?.();
@@ -554,9 +544,9 @@ const readerFallbacks = {
         paint();
       });
 
-      closeButton.addEventListener("click", closePanel);
-      panel.addEventListener("click", (event) => {
-        if (event.target === panel) closePanel();
+      closeEl.addEventListener("click", closePanel);
+      panelEl.addEventListener("click", (event) => {
+        if (event.target === panelEl) closePanel();
       });
     }
 
@@ -565,14 +555,6 @@ const readerFallbacks = {
       toggle.addEventListener("click", openPanel);
     }
 
-    // Labels are rendered server-side and rewritten by the i18n runtime, but
-    // the pressed states and slider readouts are ours to refresh.
-    //
-    // Swapped rather than added, the same way the keydown handler below is
-    // and the same way Header does it: this function runs again on every
-    // navigation, so registering without dropping the previous one left a
-    // copy behind each time - measured at +1 listener per navigation, every
-    // one of them still firing on a language switch.
     const previousLocaleHandler = window.__readerLocaleHandler;
     if (previousLocaleHandler) {
       document.removeEventListener("site:locale-change", previousLocaleHandler);
@@ -582,8 +564,9 @@ const readerFallbacks = {
 
     const previous = window.__readerKeydown;
     if (previous) document.removeEventListener("keydown", previous);
-    const onKeydown = (event) => {
-      if (event.key === "Escape" && panel.classList.contains("open")) {
+    const onKeydown = (event: Event) => {
+      const ke = event as KeyboardEvent;
+      if (ke.key === "Escape" && panelEl.classList.contains("open")) {
         closePanel();
       }
     };
@@ -591,9 +574,14 @@ const readerFallbacks = {
     window.__readerKeydown = onKeydown;
   }
 
-  document.addEventListener("DOMContentLoaded", initReaderSettings);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initReaderSettings, {
+      once: true,
+    });
+  } else {
+    initReaderSettings();
+  }
   document.addEventListener("astro:page-load", () => {
-    // A new document means new controls; re-apply before they are painted.
     applyPrefs(readPrefs());
     initReaderSettings();
   });

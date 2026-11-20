@@ -1,13 +1,10 @@
 ---
 import { SITE_TITLE } from "../../consts";
-import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
+import { getDefaultUiText } from "../../i18n/ui";
 import { withBase } from "../../utils/url";
 import { TELEGRAM_LOG_ENABLED } from "../../utils/telegram-log";
 import SearchModal from "../../components/SearchModal.astro";
 import ReaderSettings from "./ReaderSettings.astro";
-
-const defaultLocaleLabelZh = getDefaultUiText("locale.label");
-const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 ---
 
 <header id="site-header">
@@ -283,14 +280,18 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 <SearchModal />
 <ReaderSettings />
 
-<script define:vars={{ defaultLocaleLabelZh, defaultLocaleLabelEn }}>
-  // ---- Theme ----
+<script>
+  import { getDefaultUiText, UI_TRANSLATIONS } from "../../i18n/ui";
+
+  const defaultLocaleLabelZh = getDefaultUiText("locale.label");
+  const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
+
   function getThemeApi() {
     return window.__siteTheme;
   }
 
   function getTheme() {
-    return getThemeApi()?.getTheme?.() || "dark";
+    return getThemeApi()?.getTheme?.() || "system";
   }
 
   function syncThemeIcons() {
@@ -298,7 +299,9 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     const moon = document.getElementById("moon-icon");
     const sun = document.getElementById("sun-icon");
     const system = document.getElementById("system-icon");
-    const button = document.getElementById("theme-toggle");
+    const button = document.getElementById(
+      "theme-toggle",
+    ) as HTMLButtonElement | null;
     const i18n = window.__siteI18n;
     const stateKey =
       preference === "system"
@@ -306,12 +309,7 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
         : preference === "light"
           ? "header.themeStateLight"
           : "header.themeStateDark";
-    const fallback =
-      preference === "system"
-        ? "当前：跟随系统（点击切换）"
-        : preference === "light"
-          ? "当前：浅色模式（点击切换）"
-          : "当前：深色模式（点击切换）";
+    const fallback = getDefaultUiText(stateKey);
     const label = i18n?.t?.(stateKey, fallback) || fallback;
 
     if (moon) moon.style.display = preference === "dark" ? "" : "none";
@@ -321,16 +319,8 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     if (button) button.title = label;
   }
 
-  function applyTheme(theme) {
-    getThemeApi()?.applyTheme?.(theme);
-    syncThemeIcons();
-  }
-
-  // Apply on load (also runs before DOMContentLoaded via inline script in BaseHead)
-  applyTheme(getTheme());
-
   function initHeader() {
-    applyTheme(getTheme());
+    syncThemeIcons();
 
     const previousThemeHandler = window.__headerThemeHandler;
     if (previousThemeHandler) {
@@ -350,11 +340,6 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       themeToggle.dataset.bound = "true";
     }
 
-    // Skin and layout are no longer toggles here - #settings-toggle opens the
-    // reading panel, which binds it. __siteTheme.cycleSkin/cycleLayout are
-    // still exported and still work; nothing in this file calls them.
-
-    // ---- Mobile menu ----
     const menuToggle = document.getElementById("menu-toggle");
     const mobileNav = document.getElementById("mobile-nav");
     const openIcon = document.getElementById("menu-open-icon");
@@ -370,7 +355,6 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
       menuToggle.dataset.bound = "true";
     }
 
-    // ---- Locale toggle ----
     const localeToggle = document.getElementById("locale-toggle");
 
     const updateLocaleLabel = () => {
@@ -385,8 +369,7 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
 
     if (localeToggle && !localeToggle.dataset.bound) {
       localeToggle.addEventListener("click", () => {
-        const i18n = window.__siteI18n;
-        i18n?.toggleLocale?.();
+        window.__siteI18n?.toggleLocale?.();
         updateLocaleLabel();
       });
       localeToggle.dataset.bound = "true";
@@ -400,7 +383,6 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     window.__headerLocaleHandler = updateLocaleLabel;
     updateLocaleLabel();
 
-    // ---- Scroll state (frosted backdrop once content scrolls beneath) ----
     const header = document.getElementById("site-header");
     const syncHeaderScroll = () => {
       header?.classList.toggle("is-scrolled", window.scrollY > 12);
@@ -413,7 +395,6 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     window.__headerScrollHandler = syncHeaderScroll;
     syncHeaderScroll();
 
-    // ---- Active nav link ----
     const path = window.location.pathname;
     document.querySelectorAll(".nav-link, .mobile-nav-link").forEach((link) => {
       link.classList.remove("active");
@@ -426,7 +407,11 @@ const defaultLocaleLabelEn = UI_TRANSLATIONS.en["locale.label"];
     });
   }
 
-  document.addEventListener("DOMContentLoaded", initHeader);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initHeader, { once: true });
+  } else {
+    initHeader();
+  }
   document.addEventListener("astro:page-load", initHeader);
 </script>
 

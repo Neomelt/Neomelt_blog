@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+import AvatarImage from "../../assets/avatar.jpg";
 import { SITE_TITLE } from "../../consts";
 import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
 import { profile } from "../../site.config";
@@ -35,12 +37,14 @@ const SOCIAL_ICONS: Record<string, string> = {
   <div class="snav-top">
     <!-- Brand masthead: round avatar + serif title + italic motto -->
     <a href={withBase("/")} class="snav-brand">
-      <img
+      <Image
         class="snav-avatar"
-        src={withBase(profile.avatar)}
+        src={AvatarImage}
         alt={profile.name}
-        width="46"
-        height="46"
+        width={92}
+        height={92}
+        format="webp"
+        quality={82}
         decoding="async"
       />
       <div class="snav-brand-text">

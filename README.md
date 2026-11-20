@@ -71,7 +71,7 @@
 │   │   ├── posts/           # 列表 / 归档 / 分页 / 详情
 │   │   └── terms/           # 隐私、版权、免责声明等
 │   ├── scripts/             # 文章页的浏览器脚本：标签页、复制、BibTeX 弹窗、Mermaid
-│   ├── skins/               # 两套皮肤的 token，各一个 tokens.css + 一份登记表
+│   ├── skins/               # 皮肤 token（当前仅保留 minimal 独立纸本特刊 + 登记表）
 │   ├── styles/              # global.css 与 md-components.css，只消费 token 不定义 token
 │   ├── types/
 │   ├── utils/               # 工具函数与 Markdown 插件（remark-* / rehype-*）

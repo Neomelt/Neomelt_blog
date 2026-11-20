@@ -1,31 +1,25 @@
 ---
-import { getDefaultUiText } from "../../i18n/ui";
-
-const codeFallbacks = {
-  "code.copy": getDefaultUiText("code.copy"),
-  "code.expand": getDefaultUiText("code.expand"),
-  "code.collapse": getDefaultUiText("code.collapse"),
-} as const;
 ---
 
-<script define:vars={{ codeFallbacks }}>
-  const COLLAPSE_LINE_THRESHOLD = 14;
-  const getFallback = (key, fallback = "") =>
-    codeFallbacks[key] || fallback || key;
-  const t = (key, fallback = "") =>
-    window.__siteI18n?.t?.(key, getFallback(key, fallback)) ||
-    getFallback(key, fallback);
+<script>
+  import { getDefaultUiText, type UiTranslationKey } from "../../i18n/ui";
 
-  function toTitleCase(value) {
+  const COLLAPSE_LINE_THRESHOLD = 14;
+  const t = (key: UiTranslationKey, fallback = "") => {
+    const def = getDefaultUiText(key, fallback);
+    return window.__siteI18n?.t?.(key, def) || def;
+  };
+
+  function toTitleCase(value: string) {
     if (!value) return "Code";
     return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
-  function formatLanguage(language) {
+  function formatLanguage(language: string) {
     const normalized = (language || "").trim().toLowerCase();
     if (!normalized) return "Code";
 
-    const aliases = {
+    const aliases: Record<string, string> = {
       js: "JavaScript",
       jsx: "JSX",
       ts: "TypeScript",
@@ -52,12 +46,12 @@ const codeFallbacks = {
     return aliases[normalized] || toTitleCase(normalized);
   }
 
-  function getCodeText(codeBlock) {
+  function getCodeText(codeBlock: HTMLElement) {
     const code = codeBlock.querySelector("code");
     return code ? code.innerText : codeBlock.innerText;
   }
 
-  function getLanguage(codeBlock) {
+  function getLanguage(codeBlock: HTMLElement) {
     const byData = codeBlock.getAttribute("data-language");
     if (byData) return formatLanguage(byData);
 
@@ -69,7 +63,7 @@ const codeFallbacks = {
     return "Code";
   }
 
-  function getCodeLineCount(codeBlock) {
+  function getCodeLineCount(codeBlock: HTMLElement) {
     const lines = codeBlock.querySelectorAll("code .line");
     if (lines.length > 0) return lines.length;
 
@@ -77,7 +71,7 @@ const codeFallbacks = {
     return text ? text.split("\n").length : 0;
   }
 
-  function createCopyButton(codeBlock) {
+  function createCopyButton(codeBlock: HTMLElement) {
     const button = document.createElement("button");
     button.className = "code-header-button copy-code-button";
     button.type = "button";
@@ -100,7 +94,7 @@ const codeFallbacks = {
     return button;
   }
 
-  function updateCollapseState(wrapper, toggleButton) {
+  function updateCollapseState(wrapper: HTMLElement, toggleButton: HTMLElement) {
     const isCollapsed = wrapper.classList.contains("is-collapsed");
     toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
     toggleButton.setAttribute(
@@ -109,7 +103,7 @@ const codeFallbacks = {
     );
   }
 
-  function createToggleButton(wrapper) {
+  function createToggleButton(wrapper: HTMLElement) {
     const button = document.createElement("button");
     button.className = "code-toggle-trigger";
     button.type = "button";
@@ -127,7 +121,7 @@ const codeFallbacks = {
     return button;
   }
 
-  function createHeader(codeBlock, wrapper) {
+  function createHeader(codeBlock: HTMLElement, wrapper: HTMLElement) {
     const header = document.createElement("div");
     header.className = "code-block-header";
 
@@ -146,8 +140,10 @@ const codeFallbacks = {
   }
 
   function addCodeBlockControls() {
-    // Mermaid sources become diagrams, not code to copy.
-    const codeBlocks = document.querySelectorAll(".prose pre:not(.md-mermaid)");
+    const codeBlocks = document.querySelectorAll<HTMLElement>(
+      ".prose pre:not(.md-mermaid)",
+    );
+    if (codeBlocks.length === 0) return;
 
     codeBlocks.forEach((codeBlock) => {
       if (codeBlock.dataset.codeEnhanced === "true") return;
@@ -168,11 +164,13 @@ const codeFallbacks = {
   addCodeBlockControls();
   document.addEventListener("astro:page-load", addCodeBlockControls);
   document.addEventListener("site:locale-change", () => {
-    document.querySelectorAll(".copy-code-button").forEach((button) => {
+    document.querySelectorAll<HTMLElement>(".copy-code-button").forEach((button) => {
       button.setAttribute("aria-label", t("code.copy"));
     });
-    document.querySelectorAll(".code-block-shell").forEach((wrapper) => {
-      const toggleButton = wrapper.querySelector(".code-toggle-trigger");
+    document.querySelectorAll<HTMLElement>(".code-block-shell").forEach((wrapper) => {
+      const toggleButton = wrapper.querySelector<HTMLElement>(
+        ".code-toggle-trigger",
+      );
       if (toggleButton) {
         updateCollapseState(wrapper, toggleButton);
       }
