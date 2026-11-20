@@ -94,20 +94,12 @@ export const telegramLog = {
 };
 
 export const siteLayout = {
-  // Default to the crisp, wallpaper-free minimal skin with inset thumbnails.
-  // Visitors who prefer the illustrated glass skin can still switch in the
-  // reading panel.
+  // Editorial Monograph minimalist skin + hanging-year bibliography list.
   skin: "minimal",
   layout: "list",
 
   regions: {
-    backdrop: [
-      {
-        use: "decor/Backdrop",
-        props: { imageIndex: 1, lightImageIndex: 0, blur: 2 },
-        skins: ["anime"],
-      },
-    ],
+    backdrop: [],
 
     masthead: [],
 
@@ -128,11 +120,7 @@ export const siteLayout = {
 } satisfies SiteLayout;
 
 /*
- * The backdrop placement carries `skins: ["anime"]`, so switching skin swaps
- * the artwork in and out along with the colours - no reload, no rebuild. Drop
- * the `skins` key to run it under minimal too; the block does not know which
- * skin is active either way.
- *
  * Backdrop takes `imageIndex`, a position in bannerPool - drop a file in
- * src/assets/banner/ and it joins the pool with no edit here.
+ * src/assets/banner/ and place "decor/Backdrop" in `regions.backdrop` when a
+ * full-bleed background skin is desired.
  */

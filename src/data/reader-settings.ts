@@ -1,5 +1,4 @@
 import type { UiTranslationKey } from "../i18n/ui";
-import { SKINS } from "../skins";
 import { LAYOUTS } from "../types/layout";
 
 /**
@@ -117,7 +116,7 @@ export const READER_SETTINGS: ReaderSetting[] = [
       unit: "",
       cssUnit: "",
     },
-    fallback: 1.76,
+    fallback: 1.88,
   },
   {
     id: "prose-width",
@@ -139,19 +138,6 @@ export const READER_SETTINGS: ReaderSetting[] = [
   },
 
   // --- Appearance ---
-  {
-    id: "skin",
-    labelKey: "reader.skin",
-    hintKey: "reader.skinHint",
-    groupKey: "reader.groupAppearance",
-    target: { kind: "siteTheme", axis: "skin" },
-    control: {
-      kind: "choice",
-      options: SKINS.map(
-        (name): ChoiceOption => ({ value: name, labelKey: `skin.${name}` }),
-      ),
-    },
-  },
   {
     id: "locale",
     labelKey: "reader.locale",

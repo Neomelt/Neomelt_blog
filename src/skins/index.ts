@@ -17,7 +17,6 @@
  */
 export const SKIN_REGISTRY = {
   minimal: { light: "#f9fafb", dark: "#131416" },
-  anime: { light: "#edf2f6", dark: "#0e1621" },
 } as const satisfies Record<string, { light: string; dark: string }>;
 
 /**
