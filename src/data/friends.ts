@@ -26,6 +26,7 @@ export const FRIEND_LINKS: FriendLink[] = [
     name: "MareSera",
     url: "https://blog.maresera.top/friend",
     description: "如今只愿岁月停留，生怕走得太急",
+    rss: "https://blog.maresera.top/rss.xml",
     avatar: "https://blog.maresera.top/profile.png",
   },
   {
@@ -82,6 +83,7 @@ export const FRIEND_LINKS: FriendLink[] = [
     name: "ysymyth",
     url: "https://ysymyth.github.io/",
     description: "researcher at OpenAI",
+    rss: "https://ysymyth.github.io/feed.xml",
     avatar: "https://avatars.githubusercontent.com/u/4877252?v=4",
   },
   {
@@ -108,6 +110,7 @@ export const FRIEND_LINKS: FriendLink[] = [
     name: "evil0knight's Blog",
     url: "https://evil0knight.github.io/quartz",
     description: "嵌入式 · 计算机基础 · 硬件模块 · 持续更新中",
+    rss: "https://evil0knight.github.io/quartz/index.xml",
     avatar: "https://avatars.githubusercontent.com/evil0knight",
   },
   {
